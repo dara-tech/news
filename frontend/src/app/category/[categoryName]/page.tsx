@@ -7,6 +7,7 @@ import NewsCard from '@/components/news/NewsCard';
 
 interface Article {
   _id: string;
+  slug: string;
   title: { en: string; kh: string };
   category: string;
   thumbnail?: string;

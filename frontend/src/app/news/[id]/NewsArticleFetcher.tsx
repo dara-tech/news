@@ -20,7 +20,7 @@ export default function NewsArticleFetcher({ id }: { id: string }) {
         } else {
           setError('Article not found');
         }
-      } catch (_err) {
+      } catch {
         setError('Failed to fetch article');
       } finally {
         setLoading(false);

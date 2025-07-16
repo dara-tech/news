@@ -151,7 +151,7 @@ const EditNewsPage = () => {
           } else {
             throw new Error(response.data.message || "Failed to fetch news article.")
           }
-        } catch (_err) {
+        } catch {
           toast.error("Failed to fetch news article.")
           router.push("/admin/news")
         } finally {

@@ -6,6 +6,19 @@ import { useAuth } from "@/context/AuthContext"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
+
+// --- Type Definitions ---
+
+interface NavLink {
+  href: string
+  label: string
+  icon: React.ElementType
+}
+
+interface User {
+  role: string
+  // Add other user properties as needed
+}
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -98,7 +111,7 @@ const Logo: FC = () => {
   )
 }
 
-const DesktopNav: FC<{ navLinks: any[] }> = ({ navLinks }) => {
+const DesktopNav: FC<{ navLinks: NavLink[] }> = ({ navLinks }) => {
   const pathname = usePathname()
   
   return (
@@ -171,7 +184,7 @@ const LoginButton: FC = () => (
   </Button>
 )
 
-const UserDropdownMenu: FC<{ user: any; logout: () => void }> = ({
+const UserDropdownMenu: FC<{ user: User; logout: () => void }> = ({
   user,
   logout,
 }) => {
@@ -248,8 +261,8 @@ const MobileMenuToggle: FC<{ isOpen: boolean; toggle: () => void }> = ({
 const MobileNav: FC<{
   isOpen: boolean
   toggle: () => void
-  navLinks: any[]
-  user: any
+  navLinks: NavLink[]
+  user: User | null
   logout: () => void
 }> = ({ isOpen, toggle, navLinks, user, logout }) => {
   const pathname = usePathname()

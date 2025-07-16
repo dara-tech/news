@@ -168,7 +168,8 @@ const CreateNewsPage = () => {
       const updatedData = structuredClone(prev); // Deep copy to prevent state mutation
       const keys = name.split(".");
       
-      let currentLevel: { [key: string]: any } = updatedData;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let currentLevel: any = updatedData;
       for (let i = 0; i < keys.length - 1; i++) {
         currentLevel = currentLevel[keys[i]];
       }

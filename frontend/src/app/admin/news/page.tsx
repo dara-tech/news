@@ -38,7 +38,7 @@ const NewsPage = () => {
           }
         });
         setArticles(data.articles || []);
-      } catch (err) {
+      } catch {
         setError('Failed to fetch news articles.');
         toast.error('Failed to fetch news articles.');
       } finally {
@@ -47,14 +47,14 @@ const NewsPage = () => {
     };
 
     fetchNews();
-  }, []);
+  }, [user]);
 
   const handleDelete = async (id: string) => {
     try {
       await api.delete(`/news/${id}`);
       setArticles(articles.filter((article) => article._id !== id));
       toast.success('Article deleted successfully.');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete article.');
     }
   };

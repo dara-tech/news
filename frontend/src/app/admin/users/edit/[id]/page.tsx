@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
+import { AxiosError } from 'axios';
 import { useRouter, useParams } from 'next/navigation';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
 import {
   Select,
   SelectContent,
@@ -75,9 +77,14 @@ const EditUserPage = () => {
       });
       toast.success('User updated successfully!');
       router.push('/admin/users');
-    } catch (err: any) {
-      console.error('Failed to update user:', err);
-      toast.error(err.response?.data?.message || 'Failed to update user.');
+        } catch (err) {
+      if (err instanceof AxiosError) {
+        console.error('Failed to update user:', err);
+        toast.error(err.response?.data?.message || 'Failed to update user.');
+      } else {
+        console.error('An unexpected error occurred:', err);
+        toast.error('An unexpected error occurred.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -101,7 +108,7 @@ const EditUserPage = () => {
     <Card>
       <CardHeader>
         <CardTitle>Edit User</CardTitle>
-        <CardDescription>Update the user's details below. Password cannot be changed here.</CardDescription>
+        <CardDescription>Update the user&apos;s details below. Password cannot be changed here.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import NewsCard from '@/components/news/NewsCard';
 
 interface Article {
@@ -28,7 +29,7 @@ const LatestNewsSection = ({ latest }: LatestNewsSectionProps) => {
     <section className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold text-gray-800">Latest News</h2>
-        <a href="/news" className="text-blue-600 hover:underline">View All</a>
+        <Link href="/news" className="text-blue-600 hover:underline">View All</Link>
       </div>
       <motion.div 
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"

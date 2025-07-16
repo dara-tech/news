@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -49,9 +50,14 @@ const CreateUserPage = () => {
       await api.post('/users', formData);
       toast.success('User created successfully!');
       router.push('/admin/users');
-    } catch (err: any) {
-      console.error('Failed to create user:', err);
-      toast.error(err.response?.data?.message || 'Failed to create user.');
+        } catch (err) {
+      if (err instanceof AxiosError) {
+        console.error('Failed to create user:', err);
+        toast.error(err.response?.data?.message || 'Failed to create user.');
+      } else {
+        console.error('An unexpected error occurred:', err);
+        toast.error('An unexpected error occurred.');
+      }
     } finally {
       setIsSubmitting(false);
     }

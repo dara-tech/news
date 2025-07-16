@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Kantumruy_Pro } from 'next/font/google';
 import "./globals.css";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";

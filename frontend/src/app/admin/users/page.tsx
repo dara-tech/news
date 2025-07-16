@@ -58,7 +58,7 @@ const UsersPage = () => {
         setLoading(true);
         const { data } = await api.get('/users');
         setUsers(data);
-      } catch (err) {
+      } catch {
         setError('Failed to fetch users.');
         toast.error('Failed to fetch users.');
       } finally {
@@ -73,7 +73,7 @@ const UsersPage = () => {
       await api.delete(`/users/${id}`);
       setUsers(users.filter((user) => user._id !== id));
       toast.success('User deleted successfully.');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete user.');
     }
   };
