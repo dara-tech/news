@@ -17,7 +17,7 @@ interface NewsByCategoryChartProps {
 
 interface CustomTooltipProps extends TooltipProps<ValueType, NameType> {
   active?: boolean;
-  payload?: any[];
+  payload?: { payload: ChartData }[];
   label?: string;
 }
 
@@ -73,7 +73,12 @@ export default function NewsByCategoryChart({ data }: NewsByCategoryChartProps):
           <BarChart
             data={data}
             margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
-            onClick={(e: any) => e && e.activePayload && handleBarClick(e.activePayload[0].payload)}
+            onClick={(e: unknown) => {
+              const clickData = e as { activePayload?: { payload: ChartData }[] };
+              if (clickData.activePayload && clickData.activePayload.length > 0) {
+                handleBarClick(clickData.activePayload[0].payload);
+              }
+            }}
           >
             <defs>
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">

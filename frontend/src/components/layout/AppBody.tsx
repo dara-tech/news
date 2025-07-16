@@ -1,13 +1,7 @@
 'use client';
 
-import { useLanguage } from '@/context/LanguageContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-
-interface AppBodyProps {
-  children: React.ReactNode;
-  fontVariables: string;
-}
 
 import { usePathname } from 'next/navigation';
 

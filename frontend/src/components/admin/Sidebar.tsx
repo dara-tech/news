@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Newspaper,
   Users,
-  Settings,
   ChevronDown,
   ChevronRight,
   LogOut,

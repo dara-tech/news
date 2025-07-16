@@ -38,9 +38,14 @@ export default function Home() {
         featured: featuredRes.data.data || featuredRes.data,
         latest: latestRes.data.news || latestRes.data.data || latestRes.data,
       });
-    } catch (err: any) {
-      console.error('Failed to fetch news data:', err);
-      setError('Could not load news. Please check your connection and try again.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('Failed to fetch news data:', err.message);
+        setError(`Could not load news: ${err.message}`);
+      } else {
+        console.error('An unknown error occurred:', err);
+        setError('An unknown error occurred while fetching news.');
+      }
     } finally {
       setLoading(false);
     }

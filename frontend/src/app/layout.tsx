@@ -69,7 +69,10 @@ export default function RootLayout({
       <body className={`${fontVariables} antialiased bg-gray-50`}>
         <LanguageProvider>
           <AuthProvider>
-            <AppBody>{children}</AppBody>
+            <AppBody>
+              {children}
+              <Footer />
+            </AppBody>
             <Toaster richColors position="top-right" />
           </AuthProvider>
         </LanguageProvider>

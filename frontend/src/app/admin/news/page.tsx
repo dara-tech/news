@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -88,8 +87,7 @@ const NewsPage = () => {
       <CardContent>
         <NewsTable articles={currentArticles} onDelete={handleDelete} />
       </CardContent>
-      <CardFooter>
-        <NewsPagination
+      <NewsPagination
           currentPage={currentPage}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}
@@ -97,7 +95,6 @@ const NewsPage = () => {
           indexOfLastArticle={indexOfLastArticle}
           totalArticles={articles.length}
         />
-      </CardFooter>
     </Card>
   );
 };

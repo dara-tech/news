@@ -1,26 +1,13 @@
 'use client';
 
 import { useLanguage } from '@/context/LanguageContext';
-import { FiCalendar, FiGrid } from 'react-icons/fi';
+import { FiGrid } from 'react-icons/fi';
 import { Article } from '@/types';
+import Image from 'next/image';
 
 export interface NewsArticleProps {
   article: Article;
 }
-
-const ArticleSkeleton = () => (
-  <div className="animate-pulse max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 ">
-    <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded-2xl mb-8"></div>
-    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
-    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-12"></div>
-    <div className="space-y-4">
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/6"></div>
-    </div>
-  </div>
-);
 
 export default function NewsArticle({ article }: NewsArticleProps) {
   const { language } = useLanguage();
@@ -42,11 +29,12 @@ export default function NewsArticle({ article }: NewsArticleProps) {
         </div>
 
         {article.thumbnail && (
-          <div className="mb-8">
-            <img
+          <div className="mb-8 relative aspect-video">
+            <Image
               src={article.thumbnail}
               alt={currentTitle}
-              className="w-full rounded-lg"
+              fill
+              className="w-full rounded-lg object-cover"
             />
           </div>
         )}
@@ -69,9 +57,10 @@ export default function NewsArticle({ article }: NewsArticleProps) {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {article.images.map((image, index) => (
                 <div key={index} className="group relative aspect-w-1 aspect-h-1 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden">
-                  <img
+                  <Image
                     src={image}
                     alt={`Image ${index + 1} for ${currentTitle}`}
+                    fill
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 ease-in-out"
                   />
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

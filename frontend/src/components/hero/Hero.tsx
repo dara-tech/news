@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
 
@@ -97,16 +97,16 @@ const Hero: React.FC<HeroProps> = ({ breaking, featured, categories }) => {
           <div className="col-span-2 bg-white/5 rounded-lg overflow-hidden relative group">
             <div className="relative h-96">
               {mainFeature?.thumbnail && (
-                <img
+                <Image
                   src={mainFeature.thumbnail}
                   alt={mainFeature.title.en}
+                  fill
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     const img = e.target as HTMLImageElement
                     img.src = '/placeholder.jpg'
                     img.alt = 'Placeholder image'
                   }}
-                  loading="lazy"
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
@@ -137,16 +137,16 @@ const Hero: React.FC<HeroProps> = ({ breaking, featured, categories }) => {
               >
                 <div className="relative h-48 group">
                   {article.thumbnail && (
-                    <img
+                    <Image
                       src={article.thumbnail}
                       alt={article.title.en}
+                      fill
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         const img = e.target as HTMLImageElement
                         img.src = '/placeholder.jpg'
                         img.alt = 'Placeholder image'
                       }}
-                      loading="lazy"
                     />
                   )}
                 </div>

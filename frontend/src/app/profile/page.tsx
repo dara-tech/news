@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, ElementType } from 'react';
+import React, { useState, ElementType, ComponentPropsWithoutRef } from 'react';
+import Image from 'next/image';
 import { useForm, FieldError, UseFormRegister, FieldValues, Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -38,15 +39,14 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 type NotificationType = 'success' | 'error';
 
-interface FormInputProps<T extends FieldValues> {
+type FormInputProps<T extends FieldValues> = {
     id: Path<T>;
     label: string;
     register: UseFormRegister<T>;
     error?: FieldError;
     type?: string;
     Icon?: ElementType;
-    [key: string]: any;
-}
+} & Omit<ComponentPropsWithoutRef<'input'>, 'id'>;
       
 
 interface UserData {
@@ -164,10 +164,12 @@ const FormInput = <T extends FieldValues>({
 const ProfileHeader = ({ user }: { user: UserData }) => (
   <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-10">
     <div className="relative">
-      <img
+      <Image
         src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
         alt="User Avatar"
-        className="w-24 h-24 rounded-full ring-4 ring-offset-2 ring-offset-gray-50 dark:ring-offset-gray-900 ring-blue-500"
+        width={96}
+        height={96}
+        className="rounded-full ring-4 ring-offset-2 ring-offset-gray-50 dark:ring-offset-gray-900 ring-blue-500"
       />
       <button className="absolute -bottom-1 -right-1 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500">
         <Camera size={16} />
@@ -293,8 +295,9 @@ export default function AdvancedProfilePage() {
       const updatedUserData = await res.json();
       updateUser?.(updatedUserData);
       handleSetNotification('Profile updated successfully!', 'success');
-    } catch (error: any) {
-      handleSetNotification(error.message || 'Failed to update profile.', 'error');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+      handleSetNotification(message || 'Failed to update profile.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -319,8 +322,9 @@ export default function AdvancedProfilePage() {
       }
 
       handleSetNotification('Password changed successfully!', 'success');
-    } catch (error: any) {
-      handleSetNotification(error.message || 'An error occurred while changing password.', 'error');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+      handleSetNotification(message || 'An error occurred while changing password.', 'error');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,8 +1,6 @@
 import { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import { getArticle } from '@/lib/articles';
 import NewsArticleFetcher from './NewsArticleFetcher';
-import { Article } from '@/types';
 
 const URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://your-domain.com';
 

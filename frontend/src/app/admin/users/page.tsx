@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -167,11 +166,7 @@ const UsersPage = () => {
           </TableBody>
         </Table>
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <div className="text-xs text-muted-foreground">
-          Showing <strong>{indexOfFirstUser + 1}-{Math.min(indexOfLastUser, users.length)}</strong> of <strong>{users.length}</strong> users
-        </div>
-        <Pagination>
+      <Pagination>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
@@ -195,8 +190,8 @@ const UsersPage = () => {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-      </CardFooter>
-    </Card>
+      </Card>
+
   );
 };
 
