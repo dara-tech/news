@@ -63,6 +63,7 @@ export default function RootLayout({
 }>) {
   const fontVariables = kantumruyPro.variable;
 
+  
   return (
     <html lang="en">
       <body className={`${fontVariables} antialiased bg-gray-50`}>

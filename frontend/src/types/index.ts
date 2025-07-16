@@ -1,3 +1,9 @@
+export interface Category {
+  _id: string;
+  name: string;
+  description?: string;
+}
+
 export interface Article {
   _id: string;
   slug: string;
