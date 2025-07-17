@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'https://news-vzdx.onrender.com'}/api`,
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api`,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -10,13 +10,13 @@ const api = axios.create({
 
 // Add request interceptor to include the token
 api.interceptors.request.use((config) => {
+  // Only run on client-side
   if (typeof window !== 'undefined') {
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
       try {
         const { token } = JSON.parse(userInfo);
         if (token) {
-          console.log('✅ Attaching token:', token); // <-- add this
           config.headers.Authorization = `Bearer ${token}`;
         }
       } catch (error) {
@@ -25,8 +25,9 @@ api.interceptors.request.use((config) => {
     }
   }
   return config;
-}, (error) => Promise.reject(error));
-
+}, (error) => {
+  return Promise.reject(error);
+});
 
 // Add response interceptor to handle 401 errors
 api.interceptors.response.use(
@@ -41,7 +42,7 @@ api.interceptors.response.use(
       try {
         // Try to refresh the token
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'https://news-vzdx.onrender.com'}/api/auth/refresh-token`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/auth/refresh-token`,
           {},
           { withCredentials: true }
         );

@@ -39,20 +39,25 @@ app.use(
   }),
 )
 
-// CORS configuration
-app.use(cors({
+// CORS configuration with enhanced logging
+const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('CORS: No origin (non-browser request)');
+      return callback(null, true);
+    }
     
     const allowedOrigins = [
-      /^http:\/\/localhost:\d+$/, // For local development
-      /^https:\/\/news-.*-dara-techs-projects\.vercel\.app$/, // All Vercel subdomains
-      "https://news-vzdx.onrender.com", // Production frontend on Render
-      "https://news-gzuqibcz3-dara-techs-projects.vercel.app", // Another example frontend
-      "https://news-eta-vert.vercel.app", // Another example frontend
-      "https://news-xnk1.onrender.com" // Example Render frontend
+      /^http:\/\/localhost(:\d+)?$/, // Local development with any port
+      /^https?:\/\/localhost(:\d+)?$/, // Local development with any protocol
+      /^https?:\/\/127\.0\.0\.1(:\d+)?$/, // Localhost IP
+      /^https?:\/\/.*\.vercel\.app$/, // All Vercel deployments
+      /^https?:\/\/.*\.onrender\.com$/, // All Render deployments
+      /^https?:\/\/.*\.dara\.tech$/, // Your custom domain if any
     ];
+    
+    console.log(`CORS: Checking origin: ${origin}`);
     
     const isAllowed = allowedOrigins.some(pattern => {
       if (typeof pattern === 'string') {
@@ -62,20 +67,40 @@ app.use(cors({
       }
       return false;
     });
-
-    if (!isAllowed) {
-      const msg = `The CORS policy for this site does not allow access from the specified origin: ${origin}`;
-      console.warn(msg);
-      return callback(new Error(msg), false);
+    
+    if (isAllowed) {
+      console.log(`CORS: Allowed origin: ${origin}`);
+      callback(null, true);
+    } else {
+      console.warn(`CORS: Blocked origin: ${origin}`);
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
     }
-    return callback(null, true);
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-  exposedHeaders: ["Set-Cookie", "Authorization"],
-  maxAge: 86400 // 24 hours
-}));
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type", 
+    "Authorization", 
+    "X-Requested-With", 
+    "Accept",
+    "X-CSRF-Token",
+    "X-Request-Id"
+  ],
+  exposedHeaders: [
+    "Set-Cookie", 
+    "Authorization",
+    "X-CSRF-Token"
+  ],
+  maxAge: 86400, // 24 hours
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+// Enable CORS with the above configuration
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 // Logging middleware
 if (process.env.NODE_ENV === "development") {

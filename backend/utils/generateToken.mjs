@@ -10,11 +10,13 @@ const generateToken = (res, user) => {
   );
 
   // Set JWT as HTTP-Only cookie
+  const isProduction = process.env.NODE_ENV === 'production';
   res.cookie('jwt', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development',
-    sameSite: 'strict',
+    secure: isProduction, // Only send over HTTPS in production
+    sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site in production
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    domain: isProduction ? '.onrender.com' : undefined, // Allow subdomains in production
   });
 
   return token;
