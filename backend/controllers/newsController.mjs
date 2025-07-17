@@ -536,30 +536,64 @@ export const getBreakingNews = asyncHandler(async (req, res) => {
 // @route   GET /api/news/category/:category
 // @access  Public
 export const getNewsByCategory = asyncHandler(async (req, res) => {
-  const pageSize = 10;
-  const page = Number(req.query.page) || 1;
-  const category = req.params.category;
+  try {
+    console.log('--- Get News By Category ---');
+    console.log('Category:', req.params.category);
+    
+    const pageSize = 10;
+    const page = Number(req.query.page) || 1;
+    const category = req.params.category.toLowerCase();
 
-  const count = await News.countDocuments({ 
-    category,
-    status: 'published' 
-  });
-  
-  const news = await News.find({ 
-    category,
-    status: 'published' 
-  })
-  .sort({ publishedAt: -1 })
-  .limit(pageSize)
-  .skip(pageSize * (page - 1))
-  .populate('author', 'username')
-  .populate('category', 'name');
+    // First, find the category by name to get its ID
+    const categoryDoc = await Category.findOne({ 
+      name: { $regex: new RegExp('^' + category + '$', 'i') } 
+    });
 
-  res.json({
-    news,
-    page,
-    pages: Math.ceil(count / pageSize),
-    total: count,
-    category
-  });
+    if (!categoryDoc) {
+      console.log('Category not found:', category);
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found',
+        category
+      });
+    }
+
+    console.log('Found category ID:', categoryDoc._id);
+
+    // Count total matching documents
+    const count = await News.countDocuments({ 
+      category: categoryDoc._id,
+      status: 'published' 
+    });
+    
+    // Get paginated results
+    const news = await News.find({ 
+      category: categoryDoc._id,
+      status: 'published' 
+    })
+    .sort({ publishedAt: -1 })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1))
+    .populate('author', 'username')
+    .populate('category', 'name');
+
+    console.log(`Found ${news.length} news items for category ${category}`);
+
+    res.json({
+      success: true,
+      news,
+      page,
+      pages: Math.ceil(count / pageSize),
+      total: count,
+      category: categoryDoc.name
+    });
+    
+  } catch (error) {
+    console.error('Error in getNewsByCategory:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching news by category',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 });

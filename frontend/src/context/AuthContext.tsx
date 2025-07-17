@@ -28,21 +28,76 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('userInfo');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    const verifyUser = async () => {
+      try {
+        const storedUser = localStorage.getItem('userInfo');
+        if (!storedUser) {
+          setLoading(false);
+          return;
+        }
+
+        // Verify session with backend using the profile endpoint
+        try {
+          const { data } = await api.get('/auth/profile', { withCredentials: true });
+          // Session is valid, update user data
+          const userData = {
+            _id: data._id,
+            username: data.username,
+            email: data.email,
+            role: data.role
+          };
+          localStorage.setItem('userInfo', JSON.stringify(userData));
+          setUser(userData);
+        } catch (error) {
+          console.error('Session verification failed, logging out:', error);
+          // Session is invalid, clear local storage
+          localStorage.removeItem('userInfo');
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error during authentication check:', error);
+        localStorage.removeItem('userInfo');
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyUser();
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    localStorage.setItem('userInfo', JSON.stringify(data));
-    setUser(data);
-    if (data.role === 'admin') {
-      router.push('/admin/dashboard');
-    } else {
-      router.push('/');
+    try {
+      // Make sure to include credentials for cookies
+      const { data } = await api.post('/auth/login', { email, password }, { withCredentials: true });
+      
+      // After successful login, fetch the user profile to verify authentication
+      const profileResponse = await api.get('/auth/profile', { withCredentials: true });
+      
+      const userData = {
+        _id: profileResponse.data._id,
+        username: profileResponse.data.username,
+        email: profileResponse.data.email,
+        role: profileResponse.data.role,
+        // Note: We're not storing the token in localStorage anymore
+        // as it's now in an HTTP-only cookie
+      };
+      
+      // Store only the user data, not the token
+      localStorage.setItem('userInfo', JSON.stringify(userData));
+      setUser(userData);
+      
+      if (profileResponse.data.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      // Clean up on error
+      localStorage.removeItem('userInfo');
+      setUser(null);
+      throw error; // Re-throw to handle in the UI
     }
   };
 

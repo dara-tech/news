@@ -7,11 +7,22 @@ import NewsByCategoryChart from '@/components/admin/charts/NewsByCategoryChart';
 import { Newspaper, Users, LayoutList } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+interface CategoryStats {
+  name: string | { en: string; kh: string };
+  count: number;
+}
+
 interface Stats {
   totalNews: number;
   totalUsers: number;
   totalCategories: number;
-  newsByCategory: { name: string; count: number }[];
+  newsByCategory: CategoryStats[];
+  recentNews?: any[];
+}
+
+interface ChartData {
+  name: string;
+  count: number;
 }
 
 export default function DashboardPage() {
@@ -23,11 +34,26 @@ export default function DashboardPage() {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get('/dashboard/stats');
-        setStats(data);
+        const response = await api.get<{ success: boolean; data: Stats }>('/dashboard/stats');
+        console.log('Dashboard stats response:', response.data);
+        if (response.data?.success && response.data?.data) {
+          // Transform the category data to match the expected format
+          const transformedData: Stats = {
+            ...response.data.data,
+            newsByCategory: response.data.data.newsByCategory.map((item: CategoryStats) => ({
+              name: typeof item.name === 'object' ? item.name.en : item.name || 'Unknown',
+              count: item.count || 0
+            }))
+          };
+          console.log('Transformed stats:', transformedData);
+          setStats(transformedData);
+        } else {
+          throw new Error('Invalid data format received from server');
+        }
       } catch (err) {
-        setError('Failed to fetch dashboard statistics.');
-        console.error(err);
+        const errorMessage = (err as any).response?.data?.message || (err as Error).message || 'Failed to fetch dashboard statistics.';
+        console.error('Error fetching dashboard stats:', err);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -74,6 +100,12 @@ export default function DashboardPage() {
     return <p className="text-center">No statistics available.</p>;
   }
 
+  // Convert CategoryStats[] to ChartData[] for the chart component
+  const chartData: ChartData[] = stats.newsByCategory.map(category => ({
+    name: typeof category.name === 'object' ? category.name.en : category.name,
+    count: category.count
+  }));
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -82,7 +114,7 @@ export default function DashboardPage() {
         <StatCard title="Total Categories" value={stats.totalCategories} icon={LayoutList} />
       </div>
       <div className="grid grid-cols-1 gap-6">
-        <NewsByCategoryChart data={stats.newsByCategory} />
+        <NewsByCategoryChart data={chartData} />
       </div>
     </div>
   );
