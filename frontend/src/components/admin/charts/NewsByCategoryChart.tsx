@@ -45,11 +45,31 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 };
 
 // --- MAIN CHART COMPONENT ---
-export default function NewsByCategoryChart({ data }: NewsByCategoryChartProps): JSX.Element {
+export default function NewsByCategoryChart({ data = [] }: NewsByCategoryChartProps): JSX.Element {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const totalArticles: number = useMemo(() => (data || []).reduce((sum, item) => sum + (item?.count || 0), 0), [data]);
-  const activeData: ChartData | undefined = useMemo(() => data.find(d => d.name === activeCategory), [data, activeCategory]);
+  // Safely calculate total articles with error handling
+  const totalArticles: number = useMemo(() => {
+    try {
+      if (!Array.isArray(data)) {
+        console.error('Invalid data format in NewsByCategoryChart:', data);
+        return 0;
+      }
+      return data.reduce((sum, item) => {
+        const count = typeof item?.count === 'number' ? item.count : 0;
+        return sum + count;
+      }, 0);
+    } catch (error) {
+      console.error('Error calculating total articles:', error);
+      return 0;
+    }
+  }, [data]);
+
+  // Safely find active data
+  const activeData: ChartData | undefined = useMemo(() => {
+    if (!Array.isArray(data)) return undefined;
+    return data.find(d => d?.name === activeCategory);
+  }, [data, activeCategory]);
 
   const handleBarClick = useCallback((payload: ChartData) => {
     if (payload && payload.name) {

@@ -97,14 +97,21 @@ export default function DashboardPage() {
   }
 
   if (!stats) {
-    return <p className="text-center">No statistics available.</p>;
+    return <p className="text-center p-4 text-gray-600">No statistics available. Please check back later.</p>;
   }
 
   // Convert CategoryStats[] to ChartData[] for the chart component
-  const chartData: ChartData[] = stats.newsByCategory.map(category => ({
-    name: typeof category.name === 'object' ? category.name.en : category.name,
-    count: category.count
-  }));
+  const chartData = (stats.newsByCategory || []).map(item => {
+    // Handle both string and { en: string; kh: string } name formats
+    const name = typeof item.name === 'string' 
+      ? item.name 
+      : (item.name?.en || 'Unknown');
+      
+    return {
+      name,
+      count: typeof item.count === 'number' ? item.count : 0
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -114,7 +121,14 @@ export default function DashboardPage() {
         <StatCard title="Total Categories" value={stats.totalCategories} icon={LayoutList} />
       </div>
       <div className="grid grid-cols-1 gap-6">
-        <NewsByCategoryChart data={chartData} />
+        {Array.isArray(chartData) && chartData.length > 0 ? (
+          <NewsByCategoryChart data={chartData} />
+        ) : (
+          <div className="p-8 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
+            <p className="text-gray-500">No category data available</p>
+            <p className="text-sm text-gray-400 mt-2">News articles by category will appear here</p>
+          </div>
+        )}
       </div>
     </div>
   );
