@@ -39,9 +39,13 @@ app.use(
   }),
 )
 
-// CORS configuration for both development and production
+// CORS configuration for development and production
 const allowedOrigins = [
-  "http://localhost:3000",
+  // Local development
+  /^http:\/\/localhost:\d+$/,
+  // Vercel preview URLs
+  /^https:\/\/news-.*-dara-techs-projects\.vercel\.app$/,
+  // Production URLs
   "https://news-gzuqibcz3-dara-techs-projects.vercel.app",
   "https://news-xnk1.onrender.com"
 ];
@@ -52,7 +56,17 @@ app.use(
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.indexOf(origin) === -1) {
+      // Check if the origin matches any of the allowed patterns
+      const isAllowed = allowedOrigins.some(pattern => {
+        if (typeof pattern === 'string') {
+          return pattern === origin;
+        } else if (pattern instanceof RegExp) {
+          return pattern.test(origin);
+        }
+        return false;
+      });
+
+      if (!isAllowed) {
         const msg = `The CORS policy for this site does not allow access from the specified origin: ${origin}`;
         console.warn(msg);
         return callback(new Error(msg), false);
