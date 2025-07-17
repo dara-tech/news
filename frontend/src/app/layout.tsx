@@ -1,11 +1,8 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Kantumruy_Pro } from 'next/font/google';
-import "./globals.css";
-import Footer from "@/components/layout/Footer";
-import { AuthProvider } from "@/context/AuthContext";
-import { LanguageProvider } from "@/context/LanguageContext";
-import AppBody from "@/components/layout/AppBody";
-import { Toaster } from 'sonner';
+import './globals.css';
+import AppProviders from "@/components/layout/AppProviders";
 
 const kantumruyPro = Kantumruy_Pro({
   variable: '--font-kantumruy-pro',
@@ -27,7 +24,7 @@ export const metadata: Metadata = {
     siteName: 'NewsApp',
     images: [
       {
-        url: '/placeholder.jpg', // Replace with a specific OG image URL
+        url: '/placeholder.jpg',
         width: 1200,
         height: 630,
         alt: 'NewsApp Logo',
@@ -40,8 +37,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'NewsApp - Your Daily Source of News',
     description: 'The latest news in technology, business, sports, and more.',
-    // creator: '@yourtwitterhandle', // Optional: add your Twitter handle
-    images: ['/placeholder.jpg'], // Replace with a specific Twitter image URL
+    images: ['/placeholder.jpg'],
   },
   robots: {
     index: true,
@@ -63,19 +59,10 @@ export default function RootLayout({
 }>) {
   const fontVariables = kantumruyPro.variable;
 
-  
   return (
     <html lang="en">
       <body className={`${fontVariables} antialiased bg-gray-50`}>
-        <LanguageProvider>
-          <AuthProvider>
-            <AppBody>
-              {children}
-              <Footer />
-            </AppBody>
-            <Toaster richColors position="top-right" />
-          </AuthProvider>
-        </LanguageProvider>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
