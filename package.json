@@ -3,19 +3,15 @@
   "version": "1.0.0",
   "description": "News application with Next.js frontend and Express backend",
   "main": "backend/server.mjs",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
-    "start": "node backend/server.mjs",
-    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\""
+    "start": "npm run start --prefix backend",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev"
   },
-  "keywords": [
-    "news",
-    "nextjs",
-    "express",
-    "mongodb"
-  ],
+  "keywords": ["news", "nextjs", "express", "mongodb"],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -38,8 +34,5 @@
   "engines": {
     "node": ">=14.0.0",
     "npm": ">=6.0.0"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.0"
   }
 }

@@ -4,6 +4,8 @@ import cors from "cors"
 import morgan from "morgan"
 import cookieParser from "cookie-parser"
 import fileUpload from "express-fileupload"
+import path from "path"
+import { fileURLToPath } from "url"
 import connectDB from "./config/db.mjs"
 import connectCloudinary from "./utils/cloudinary.mjs"
 import errorHandler from "./middleware/error.mjs"
@@ -12,6 +14,10 @@ import userRoutes from "./routes/users.mjs"
 import newsRoutes from "./routes/news.mjs"
 import categoryRoutes from "./routes/categoryRoutes.mjs"
 import dashboardRoutes from "./routes/dashboard.mjs"
+
+// Get directory name in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config()
@@ -63,6 +69,17 @@ app.use("/api/users", userRoutes)
 app.use("/api/news", newsRoutes)
 app.use("/api/categories", categoryRoutes)
 app.use("/api/dashboard", dashboardRoutes)
+
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static(path.join(__dirname, '../frontend/.next')))
+
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../frontend/.next', 'index.html'))
+  })
+}
 
 // Root endpoint
 app.get("/", (req, res) => {
