@@ -68,6 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     console.log('🔑 [AuthContext] Login attempt started for email:', email);
+    console.log('🌐 [AuthContext] API Base URL:', process.env.NEXT_PUBLIC_API_URL);
     
     try {
       // Clear any existing user data
@@ -89,10 +90,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       );
       
       console.log('✅ [AuthContext] Login response status:', loginResponse.status);
+      console.log('🔑 [AuthContext] Login response headers:', JSON.stringify(loginResponse.headers, null, 2));
       console.log('🔑 [AuthContext] Login response data:', loginResponse.data);
       
       // Verify response data
       if (!loginResponse.data) {
+        console.error('❌ [AuthContext] No data received in login response');
         throw new Error('No data received from server');
       }
       
@@ -115,6 +118,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         token
       };
       
+      console.log('💾 [AuthContext] User data to store:', JSON.stringify(userToStore, null, 2));
+      
       console.log('💾 [AuthContext] Storing user data in localStorage');
       localStorage.setItem('userInfo', JSON.stringify(userToStore));
       setUser(userToStore);
@@ -122,7 +127,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Verify the token by fetching user profile
       try {
         console.log('🔍 [AuthContext] Verifying token by fetching user profile');
-        const profileResponse = await api.get('/auth/profile');
+        console.log('🔑 [AuthContext] Current token:', token);
+        
+        const profileResponse = await api.get('/auth/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          },
+          withCredentials: true
+        });
+        
+        console.log('👤 [AuthContext] Profile response status:', profileResponse.status);
+        console.log('👤 [AuthContext] Profile response headers:', JSON.stringify(profileResponse.headers, null, 2));
+        console.log('👤 [AuthContext] Profile response data:', profileResponse.data);
         
         if (!profileResponse.data) {
           throw new Error('No profile data received');
