@@ -67,55 +67,131 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    console.log('Login attempt with email:', email);
+    console.log('🔑 [AuthContext] Login attempt started for email:', email);
+    
     try {
-      // Make sure to include credentials for cookies
-      console.log('Sending login request to /auth/login');
-      const { data } = await api.post('/auth/login', { email, password }, { 
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
+      // Clear any existing user data
+      localStorage.removeItem('userInfo');
+      setUser(null);
+
+      // Make login request with credentials
+      console.log('🔍 [AuthContext] Sending login request to /auth/login');
+      const loginResponse = await api.post('/auth/login', 
+        { email, password },
+        { 
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          timeout: 10000 // 10 second timeout
         }
-      });
+      );
       
-      console.log('Login response received:', data);
+      console.log('✅ [AuthContext] Login response status:', loginResponse.status);
+      console.log('🔑 [AuthContext] Login response data:', loginResponse.data);
       
-      // After successful login, fetch the user profile to verify authentication
-      console.log('Fetching user profile from /auth/profile');
-      const profileResponse = await api.get('/auth/profile', { 
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      // Verify response data
+      if (!loginResponse.data) {
+        throw new Error('No data received from server');
+      }
       
-      console.log('Profile response:', profileResponse.data);
+      const { token, user: userData } = loginResponse.data;
       
-      const userData = {
-        _id: profileResponse.data._id,
-        username: profileResponse.data.username,
-        email: profileResponse.data.email,
-        role: profileResponse.data.role,
+      if (!token) {
+        throw new Error('No authentication token received');
+      }
+      
+      if (!userData || !userData._id) {
+        throw new Error('Incomplete user data received');
+      }
+      
+      // Store user data in localStorage
+      const userToStore = {
+        _id: userData._id,
+        username: userData.username || email.split('@')[0],
+        email: userData.email || email,
+        role: userData.role || 'user',
+        token
       };
       
-      console.log('Storing user data in localStorage:', userData);
-      localStorage.setItem('userInfo', JSON.stringify(userData));
-      setUser(userData);
+      console.log('💾 [AuthContext] Storing user data in localStorage');
+      localStorage.setItem('userInfo', JSON.stringify(userToStore));
+      setUser(userToStore);
       
-      console.log('Login successful, user role:', userData.role);
-      if (userData.role === 'admin') {
-        console.log('Redirecting to admin dashboard');
-        router.push('/admin/dashboard');
-      } else {
-        console.log('Redirecting to home page');
-        router.push('/');
+      // Verify the token by fetching user profile
+      try {
+        console.log('🔍 [AuthContext] Verifying token by fetching user profile');
+        const profileResponse = await api.get('/auth/profile');
+        
+        if (!profileResponse.data) {
+          throw new Error('No profile data received');
+        }
+        
+        console.log('👤 [AuthContext] Profile verification successful');
+        
+        // Update user data with fresh profile data
+        const updatedUser = {
+          _id: profileResponse.data._id || userData._id,
+          username: profileResponse.data.username || userToStore.username,
+          email: profileResponse.data.email || userToStore.email,
+          role: profileResponse.data.role || userToStore.role,
+          token
+        };
+        
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        
+        // Determine redirect path based on role
+        const redirectPath = updatedUser.role === 'admin' ? '/admin/dashboard' : '/';
+        console.log(`🔄 [AuthContext] Authentication successful, redirecting to: ${redirectPath}`);
+        
+        // Use router.push for client-side navigation
+        router.push(redirectPath);
+        
+      } catch (profileError) {
+        console.error('❌ [AuthContext] Profile verification failed:', profileError);
+        // Clear invalid token and re-throw
+        localStorage.removeItem('userInfo');
+        setUser(null);
+        throw new Error('Failed to verify user session');
       }
-    } catch (error) {
-      console.error('Login failed:', error);
+      
+    } catch (error: any) {
+      console.error('❌ [AuthContext] Login failed:', {
+        error: error?.response?.data || error.message,
+        status: error?.response?.status,
+        config: error?.config
+      });
+      
       // Clean up on error
       localStorage.removeItem('userInfo');
       setUser(null);
-      throw error; // Re-throw to handle in the UI
+      
+      // Provide more specific error messages
+      let errorMessage = 'Login failed. Please try again.';
+      
+      if (error.response) {
+        // Server responded with error status
+        if (error.response.status === 401) {
+          errorMessage = 'Invalid email or password';
+        } else if (error.response.status === 403) {
+          errorMessage = 'Account not authorized';
+        } else if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+      } else if (error.request) {
+        // Request was made but no response
+        errorMessage = 'No response from server. Please check your connection.';
+      } else if (error.message) {
+        // Other errors
+        errorMessage = error.message;
+      }
+      
+      // Create a new error with the appropriate message
+      const loginError = new Error(errorMessage);
+      loginError.name = error.name || 'LoginError';
+      throw loginError;
     }
   };
 
