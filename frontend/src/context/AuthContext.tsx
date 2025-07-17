@@ -68,7 +68,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     console.log('🔑 [AuthContext] Login attempt started for email:', email);
-    console.log('🌐 [AuthContext] API Base URL:', process.env.NEXT_PUBLIC_API_URL);
     
     try {
       // Clear any existing user data
@@ -90,35 +89,86 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       );
       
       console.log('✅ [AuthContext] Login response status:', loginResponse.status);
-      console.log('🔑 [AuthContext] Login response headers:', JSON.stringify(loginResponse.headers, null, 2));
       console.log('🔑 [AuthContext] Login response data:', loginResponse.data);
       
-      // Verify response data
+      // Verify response data structure
+      console.log('🔍 [AuthContext] Verifying login response data');
+      
       if (!loginResponse.data) {
-        console.error('❌ [AuthContext] No data received in login response');
+        console.error('❌ [AuthContext] No data in login response');
         throw new Error('No data received from server');
       }
       
-      const { token, user: userData } = loginResponse.data;
+      // Log the complete response for debugging
+      console.log('🔍 [AuthContext] Full login response:', JSON.stringify(loginResponse.data, null, 2));
+      
+      // Handle different response structures
+      let token: string | undefined;
+      let userData: Partial<User> | null = null;
+      
+      // Case 1: Response has token and user fields
+      if ('token' in loginResponse.data) {
+        token = loginResponse.data.token;
+        userData = loginResponse.data.user || loginResponse.data; // Try both user field and root level
+      } 
+      // Case 2: Response might have the user data directly (without token)
+      else if ('_id' in loginResponse.data) {
+        userData = loginResponse.data;
+        token = loginResponse.headers['authorization']?.split(' ')[1]; // Try to get token from headers
+      }
+      
+      console.log('🔍 [AuthContext] Extracted data:', {
+        hasToken: !!token,
+        userData: userData ? Object.keys(userData) : 'No user data',
+        headers: Object.keys(loginResponse.headers)
+      });
       
       if (!token) {
+        console.error('❌ [AuthContext] No token in response');
         throw new Error('No authentication token received');
       }
       
-      if (!userData || !userData._id) {
+      // If we still don't have userData, try to get it from the profile endpoint
+      if (!userData) {
+        console.log('ℹ️ [AuthContext] No user data in login response, trying profile endpoint');
+        try {
+          const profileResponse = await api.get('/auth/profile');
+          if (profileResponse.data) {
+            userData = profileResponse.data;
+            console.log('✅ [AuthContext] Retrieved user data from profile endpoint');
+          }
+        } catch (profileError) {
+          console.error('❌ [AuthContext] Failed to fetch user profile:', profileError);
+        }
+      }
+      
+      if (!userData) {
+        console.error('❌ [AuthContext] No user data available after all attempts');
+        throw new Error('Could not retrieve user information');
+      }
+      
+      // Ensure required fields exist and are non-empty
+      const requiredFields = ['_id', 'email'] as const;
+      const missingFields = requiredFields.filter(field => !userData[field]);
+      
+      if (missingFields.length > 0 || !userData._id) {
+        console.error('❌ [AuthContext] Incomplete user data:', {
+          receivedKeys: Object.keys(userData),
+          missingRequiredFields: missingFields,
+          hasId: !!userData._id,
+          hasEmail: !!userData.email
+        });
         throw new Error('Incomplete user data received');
       }
       
       // Store user data in localStorage
-      const userToStore = {
-        _id: userData._id,
+      const userToStore: User = {
+        _id: userData._id, // We've already verified this exists
         username: userData.username || email.split('@')[0],
         email: userData.email || email,
-        role: userData.role || 'user',
+        role: (userData.role as User['role']) || 'user',
         token
       };
-      
-      console.log('💾 [AuthContext] User data to store:', JSON.stringify(userToStore, null, 2));
       
       console.log('💾 [AuthContext] Storing user data in localStorage');
       localStorage.setItem('userInfo', JSON.stringify(userToStore));
@@ -127,19 +177,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Verify the token by fetching user profile
       try {
         console.log('🔍 [AuthContext] Verifying token by fetching user profile');
-        console.log('🔑 [AuthContext] Current token:', token);
-        
-        const profileResponse = await api.get('/auth/profile', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          },
-          withCredentials: true
-        });
-        
-        console.log('👤 [AuthContext] Profile response status:', profileResponse.status);
-        console.log('👤 [AuthContext] Profile response headers:', JSON.stringify(profileResponse.headers, null, 2));
-        console.log('👤 [AuthContext] Profile response data:', profileResponse.data);
+        const profileResponse = await api.get('/auth/profile');
         
         if (!profileResponse.data) {
           throw new Error('No profile data received');
