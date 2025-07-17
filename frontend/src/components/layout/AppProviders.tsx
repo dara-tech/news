@@ -24,7 +24,6 @@ export default function AppProviders({ children }: { children: React.ReactNode }
         <AuthProvider>
           <AppBody>
             {children}
-            <Footer />
           </AppBody>
           <Toaster richColors position="top-right" />
         </AuthProvider>
