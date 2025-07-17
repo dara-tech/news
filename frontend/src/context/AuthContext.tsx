@@ -171,6 +171,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message: unknown }).message === 'string';
       };
 
+      // Type guard to check if error has a name property
       const isErrorWithName = (e: unknown): e is { name: string } => {
         return typeof e === 'object' && e !== null && 'name' in e && typeof (e as { name: unknown }).name === 'string';
       };
