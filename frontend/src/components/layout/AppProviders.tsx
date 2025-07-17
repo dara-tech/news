@@ -4,7 +4,6 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { LanguageProvider } from '@/context/LanguageContext'
 import { AuthProvider } from '@/context/AuthContext'
 import AppBody from '@/components/layout/AppBody'
-import Footer from '@/components/layout/Footer'
 import { Toaster } from 'sonner'
 
 const FallbackUI = () => (
