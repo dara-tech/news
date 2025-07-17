@@ -1,8 +1,8 @@
-import asyncHandler from 'express-async-handler';
-import mongoose from 'mongoose';
-import News from '../models/News.js';
-import Category from '../models/Category.js'
-import { v2 as cloudinary } from 'cloudinary';
+import asyncHandler from "express-async-handler";
+import mongoose from "mongoose";
+import News from "../models/News.mjs";
+import Category from "../models/Category.mjs";
+import { v2 as cloudinary } from "cloudinary";
 
 // @desc    Get all news articles for admin (including drafts)
 // @route   GET /api/admin/news

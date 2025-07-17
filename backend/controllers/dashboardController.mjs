@@ -1,6 +1,6 @@
-import asyncHandler from 'express-async-handler';
-import User from '../models/User.js';
-import News from '../models/News.js';
+import asyncHandler from "express-async-handler";
+import User from "../models/User.mjs";
+import News from "../models/News.mjs";
 
 // @desc    Get dashboard statistics
 // @route   GET /api/dashboard/stats

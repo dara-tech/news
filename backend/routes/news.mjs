@@ -12,9 +12,9 @@ import {
   getNewsForAdmin,
   duplicateNews,
   updateNewsStatus
-} from '../controllers/newsController.js';
-import { protect, admin } from '../middleware/auth.js';
-import upload from '../middleware/upload.js';
+} from '../controllers/newsController.mjs';
+import { protect, admin } from '../middleware/auth.mjs';
+import upload from '../middleware/upload.mjs';
 
 const router = express.Router();
 

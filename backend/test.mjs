@@ -1,8 +1,8 @@
 import axios from 'axios';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import connectDB from './config/db.js';
-import News from './models/News.js';
+import connectDB from "./config/db.mjs';
+import News from "./models/News.mjs';
 
 dotenv.config();
 
