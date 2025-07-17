@@ -6,12 +6,16 @@
   "type": "module",
   "scripts": {
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
-    "build": "cd frontend && npm run build",
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
     "start": "node backend/server.mjs",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev"
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\""
   },
-  "keywords": ["news", "nextjs", "express", "mongodb"],
+  "keywords": [
+    "news",
+    "nextjs",
+    "express",
+    "mongodb"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -34,5 +38,8 @@
   "engines": {
     "node": ">=14.0.0",
     "npm": ">=6.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
   }
 }
