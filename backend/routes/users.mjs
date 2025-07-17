@@ -5,8 +5,8 @@ import {
   getUserById,
   updateUser,
   createUser,
-} from '../controllers/userController.mjs';
-import { protect, admin } from '../middleware/auth.mjs';
+} from "../controllers/userController.mjs";
+import { protect, admin } from "../middleware/auth.mjs";
 
 const router = express.Router();
 

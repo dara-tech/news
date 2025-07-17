@@ -1,6 +1,6 @@
-import asyncHandler from 'express-async-handler';
-import User from '../models/User.mjs';
-import generateToken from '../utils/generateToken.mjs';
+import asyncHandler from "express-async-handler";
+import User from "../models/User.mjs";
+import generateToken from "../utils/generateToken.mjs";
 
 // @desc    Register a new user
 // @route   POST /api/auth/register

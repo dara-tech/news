@@ -1,5 +1,5 @@
-import asyncHandler from 'express-async-handler';
-import User from '../models/User.mjs';
+import asyncHandler from "express-async-handler";
+import User from "../models/User.mjs";
 
 // @desc    Get all users
 // @route   GET /api/users

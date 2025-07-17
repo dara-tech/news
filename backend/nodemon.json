@@ -2,5 +2,5 @@
   "watch": ["./"],
   "ext": "js,json",
   "ignore": ["node_modules/", "cookie.txt"],
-  "exec": "node server.js"
+  "exec": "node server.mjs"
 }
