@@ -47,6 +47,9 @@ const allowedOrigins = [
   /^https:\/\/news-.*-dara-techs-projects\.vercel\.app$/,
   // Production URLs
   "https://news-gzuqibcz3-dara-techs-projects.vercel.app",
+  "https://news-eta-vert.vercel.app",
+  "https://news-git-main-dara-techs-projects.vercel.app",
+  "https://news-6hf4wcylj-dara-techs-projects.vercel.app",
   "https://news-xnk1.onrender.com"
 ];
 
