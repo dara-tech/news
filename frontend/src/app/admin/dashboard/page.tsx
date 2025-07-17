@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '@/lib/api';
 import StatCard from '@/components/admin/StatCard';
 import NewsByCategoryChart from '@/components/admin/charts/NewsByCategoryChart';
@@ -29,38 +29,71 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
+    setHasMounted(true);
+    
     const fetchStats = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        console.log('Fetching dashboard stats...');
         const response = await api.get<{ success: boolean; data: Stats }>('/dashboard/stats');
+        
         console.log('Dashboard stats response:', response.data);
-        if (response.data?.success && response.data?.data) {
-          // Transform the category data to match the expected format
-          const transformedData: Stats = {
-            ...response.data.data,
-            newsByCategory: response.data.data.newsByCategory.map((item: CategoryStats) => ({
-              name: typeof item.name === 'object' ? item.name.en : item.name || 'Unknown',
-              count: item.count || 0
-            }))
-          };
-          console.log('Transformed stats:', transformedData);
-          setStats(transformedData);
-        } else {
+        
+        if (!response?.data?.success || !response.data.data) {
           throw new Error('Invalid data format received from server');
         }
-      } catch (err) {
-        const errorMessage = (err as any).response?.data?.message || (err as Error).message || 'Failed to fetch dashboard statistics.';
-        console.error('Error fetching dashboard stats:', err);
+        
+        // Safely transform the category data
+        const safeNewsByCategory = Array.isArray(response.data.data.newsByCategory)
+          ? response.data.data.newsByCategory.map((item: any) => ({
+              name: item?.name ? 
+                (typeof item.name === 'object' ? item.name.en || 'Unknown' : String(item.name)) : 
+                'Unknown',
+              count: typeof item?.count === 'number' ? item.count : 0
+            }))
+          : [];
+        
+        const transformedData: Stats = {
+          totalNews: typeof response.data.data.totalNews === 'number' ? response.data.data.totalNews : 0,
+          totalUsers: typeof response.data.data.totalUsers === 'number' ? response.data.data.totalUsers : 0,
+          totalCategories: typeof response.data.data.totalCategories === 'number' ? response.data.data.totalCategories : 0,
+          newsByCategory: safeNewsByCategory,
+          recentNews: Array.isArray(response.data.data.recentNews) ? response.data.data.recentNews : []
+        };
+        
+        console.log('Transformed dashboard stats:', transformedData);
+        setStats(transformedData);
+        
+      } catch (err: any) {
+        const errorMessage = err.response?.data?.message || 
+                           err.message || 
+                           'Failed to fetch dashboard statistics.';
+        
+        console.error('Error in fetchStats:', {
+          error: err,
+          status: err.response?.status,
+          data: err.response?.data
+        });
+        
         setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStats();
-  }, []);
+    if (hasMounted) {
+      fetchStats();
+    }
+    
+    return () => {
+      // Cleanup if needed
+    };
+  }, [hasMounted]);
 
   if (loading) {
     return (
@@ -100,18 +133,36 @@ export default function DashboardPage() {
     return <p className="text-center p-4 text-gray-600">No statistics available. Please check back later.</p>;
   }
 
-  // Convert CategoryStats[] to ChartData[] for the chart component
-  const chartData = (stats.newsByCategory || []).map(item => {
-    // Handle both string and { en: string; kh: string } name formats
-    const name = typeof item.name === 'string' 
-      ? item.name 
-      : (item.name?.en || 'Unknown');
-      
-    return {
-      name,
-      count: typeof item.count === 'number' ? item.count : 0
-    };
-  });
+  // Safely prepare chart data with fallbacks
+  const chartData = useMemo(() => {
+    if (!stats?.newsByCategory || !Array.isArray(stats.newsByCategory)) {
+      console.warn('No valid newsByCategory data available');
+      return [];
+    }
+    
+    try {
+      return stats.newsByCategory.map(item => {
+        try {
+          const name = item?.name 
+            ? (typeof item.name === 'string' 
+                ? item.name 
+                : (item.name?.en || 'Unknown'))
+            : 'Unknown';
+              
+          return {
+            name,
+            count: typeof item?.count === 'number' ? item.count : 0
+          };
+        } catch (itemError) {
+          console.error('Error processing category item:', { item, itemError });
+          return { name: 'Error', count: 0 };
+        }
+      });
+    } catch (error) {
+      console.error('Error preparing chart data:', error);
+      return [];
+    }
+  }, [stats?.newsByCategory]);
 
   return (
     <div className="space-y-6">

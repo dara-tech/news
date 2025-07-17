@@ -5,9 +5,8 @@
   "type": "module",
   "main": "server.mjs",
   "scripts": {
-    "start": "node dist/server.mjs",
+    "start": "node server.mjs",
     "dev": "nodemon server.mjs",
-    "build":"tsc",
     "seed": "node seeders/newsSeeder.js",
     "seed:destroy": "node seeders/newsSeeder.js -d",
     "data:import": "node seeder.js",
