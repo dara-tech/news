@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, ElementType, ComponentPropsWithoutRef } from 'react';
+import { isAxiosError } from 'axios';
+import api from '@/lib/api';
 import Image from 'next/image';
 import { useForm, FieldError, UseFormRegister, FieldValues, Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,7 +22,13 @@ import {
 // --- ZOD SCHEMAS ---
 const profileSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters.'),
-  email: z.string().email('Please enter a valid email address.'),
+  email: z
+    .string()
+    .email('Please enter a valid email address.')
+    .regex(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      'Please enter a valid email address.'
+    ),
 });
 
 const passwordSchema = z
@@ -53,7 +61,6 @@ interface UserData {
   username: string;
   email: string;
   role: string;
-  token?: string;
 }
 
 // --- COMPONENTS ---
@@ -277,27 +284,18 @@ export default function AdvancedProfilePage() {
   const onProfileSubmit = async (data: ProfileFormValues) => {
     setIsSubmitting(true);
     try {
-      const token = user?.token;
-      const res = await fetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to update profile.');
-      }
-
-      const updatedUserData = await res.json();
+      const res = await api.put('/auth/profile', data);
+      const updatedUserData = res.data;
       updateUser?.(updatedUserData);
       handleSetNotification('Profile updated successfully!', 'success');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'An unknown error occurred.';
-      handleSetNotification(message || 'Failed to update profile.', 'error');
+      let message = 'An unknown error occurred.';
+      if (isAxiosError(error)) {
+        message = error.response?.data?.message || error.message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+      handleSetNotification(message, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -306,25 +304,17 @@ export default function AdvancedProfilePage() {
   const onPasswordSubmit = async (data: PasswordFormValues) => {
     setIsSubmitting(true);
     try {
-      const token = user?.token;
-      const res = await fetch('/api/auth/password', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to change password.');
-      }
+      await api.put('/auth/password', data);
 
       handleSetNotification('Password changed successfully!', 'success');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'An unknown error occurred.';
-      handleSetNotification(message || 'An error occurred while changing password.', 'error');
+      let message = 'An unknown error occurred while changing password.';
+      if (isAxiosError(error)) {
+        message = error.response?.data?.message || error.message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+      handleSetNotification(message, 'error');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,7 +1,8 @@
 export interface Category {
   _id: string;
-  name: string;
-  description?: string;
+  name: { en: string; kh: string };
+  slug?: { en: string; kh: string };
+  description?: { en: string; kh: string };
 }
 
 export interface Article {
@@ -10,7 +11,11 @@ export interface Article {
   title: { en: string; kh: string };
   content: { en: string; kh: string };
   description: { en: string; kh: string };
-  category: string;
+  category: {
+    _id: string;
+    name: { en: string; kh: string };
+    slug?: { en: string; kh: string };
+  };
   thumbnail?: string;
   images?: string[];
   createdAt: string;

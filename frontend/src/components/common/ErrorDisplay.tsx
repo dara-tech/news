@@ -1,3 +1,4 @@
+
 import { FiAlertTriangle } from 'react-icons/fi';
 
 interface ErrorDisplayProps {

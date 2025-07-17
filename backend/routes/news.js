@@ -9,7 +9,9 @@ import {
   getFeaturedNews,
   getBreakingNews,
   getNewsByCategory,
-  getNewsForAdmin
+  getNewsForAdmin,
+  duplicateNews,
+  updateNewsStatus
 } from '../controllers/newsController.js';
 import { protect, admin } from '../middleware/auth.js';
 import upload from '../middleware/upload.js';
@@ -48,5 +50,11 @@ router.route('/:id')
     updateNews
   )
   .delete(protect, admin, deleteNews);
+
+// Route for updating status
+router.route('/:id/status').patch(protect, admin, updateNewsStatus);
+
+// Route for duplicating an article
+router.route('/:id/duplicate').post(protect, admin, duplicateNews);
 
 export default router;

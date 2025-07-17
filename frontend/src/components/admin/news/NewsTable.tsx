@@ -9,13 +9,16 @@ import {
 import { Badge } from '@/components/ui/badge';
 import NewsTableActions from './NewsTableActions';
 import { NewsArticle } from '@/types/news';
+import NewsStatusChanger from './NewsStatusChanger';
 
 interface NewsTableProps {
   articles: NewsArticle[];
   onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
+  onStatusChange: (id: string, newStatus: 'draft' | 'published' | 'archived') => void;
 }
 
-const NewsTable = ({ articles, onDelete }: NewsTableProps) => {
+const NewsTable = ({ articles, onDelete, onDuplicate, onStatusChange }: NewsTableProps) => {
   return (
     <Table>
       <TableHeader>
@@ -34,11 +37,17 @@ const NewsTable = ({ articles, onDelete }: NewsTableProps) => {
         {articles.map((article) => (
           <TableRow key={article._id}>
             <TableCell className="font-medium">{article.title.en}</TableCell>
-            <TableCell className="hidden md:table-cell">{article.category}</TableCell>
+            <TableCell className="hidden md:table-cell">
+              {typeof article.category === 'object' && article.category?.name?.en
+                ? article.category.name.en
+                : 'Uncategorized'}
+            </TableCell>
             <TableCell>
-              <Badge variant={article.status === 'published' ? 'default' : 'outline'}>
-                {article.status}
-              </Badge>
+              <NewsStatusChanger 
+                articleId={article._id} 
+                currentStatus={article.status} 
+                onStatusChange={onStatusChange} 
+              />
             </TableCell>
             <TableCell className="hidden sm:table-cell">
               <div className="flex items-center gap-2">
@@ -50,7 +59,7 @@ const NewsTable = ({ articles, onDelete }: NewsTableProps) => {
               {new Date(article.createdAt).toLocaleDateString()}
             </TableCell>
             <TableCell>
-              <NewsTableActions articleId={article._id} onDelete={onDelete} />
+              <NewsTableActions articleId={article._id} onDelete={onDelete} onDuplicate={onDuplicate} />
             </TableCell>
           </TableRow>
         ))}

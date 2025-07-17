@@ -31,9 +31,9 @@ const newsSchema = new mongoose.Schema(
       }]
     },
     category: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
       required: [true, 'Category is required'],
-      enum: ['politics', 'business', 'technology', 'health', 'sports', 'entertainment', 'education', 'other']
     },
     tags: [{
       type: String,
@@ -72,17 +72,7 @@ const newsSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    meta: {
-      title: {
-        en: String,
-        kh: String
-      },
-      description: {
-        en: String,
-        kh: String
-      },
-      keywords: [String]
-    }
+
   },
   {
     timestamps: true,

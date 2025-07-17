@@ -6,26 +6,12 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
-
-interface Article {
-  _id: string;
-  slug: string;
-  title: {
-    en: string;
-    kh: string;
-  };
-  category: string;
-  thumbnail?: string;
-  description?: {
-    en: string;
-    kh: string;
-  };
-}
+import { Article, Category } from "@/types"
 
 interface HeroProps {
   breaking: Article[];
   featured: Article[];
-  categories: string[];
+  categories: Category[];
 }
 
 const Hero: React.FC<HeroProps> = ({ breaking, featured, categories }) => {
@@ -175,12 +161,12 @@ const Hero: React.FC<HeroProps> = ({ breaking, featured, categories }) => {
           <div className="flex flex-wrap gap-4 justify-center">
             {categories.map((category) => (
               <Link
-                key={category}
-                href={`/category/${category.toLowerCase()}`}
+                key={category._id}
+                href={`/category/${(category.slug && category.slug[language]) || category._id}`}
                 className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 hover:scale-105"
               >
-                <span>{category.charAt(0).toUpperCase()}</span>
-                <span>{category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                <span>{category.name[language].charAt(0).toUpperCase()}</span>
+                <span>{category.name[language]}</span>
               </Link>
             ))}
           </div>

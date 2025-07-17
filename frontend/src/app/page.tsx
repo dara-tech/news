@@ -2,15 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import api from '@/lib/api';
-
-
-interface Article {
-  _id: string;
-  slug: string;
-  title: { en: string; kh: string };
-  category: string;
-  thumbnail?: string;
-}
+import { Article } from '@/types';
 
 import { motion } from 'framer-motion';
 import Hero from '@/components/hero/Hero';
@@ -71,8 +63,10 @@ export default function Home() {
 
 
   
-  // Extract categories from featured news
-  const categories = Array.from(new Set(featured.map(article => article.category))).filter(Boolean);
+  // Extract and deduplicate categories from featured news
+  const categories = Array.from(
+    new Map(featured.map(article => [article.category._id, article.category])).values()
+  ).filter(Boolean);
 
   return (
     <motion.div 

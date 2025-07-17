@@ -1,5 +1,7 @@
 import asyncHandler from 'express-async-handler';
+import mongoose from 'mongoose';
 import News from '../models/News.js';
+import Category from '../models/Category.js'
 import { v2 as cloudinary } from 'cloudinary';
 
 // @desc    Get all news articles for admin (including drafts)
@@ -16,6 +18,7 @@ export const getNewsForAdmin = asyncHandler(async (req, res) => {
     
     const articles = await News.find(query)
       .populate('author', 'name email')
+      .populate('category', 'name')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
@@ -82,9 +85,14 @@ export const createNews = asyncHandler(async (req, res) => {
     }
 
     // Validate category
-    const validCategories = ['politics', 'business', 'technology', 'health', 'sports', 'entertainment', 'education', 'other'];
-    if (!validCategories.includes(category)) {
-      throw new Error(`Invalid category. Must be one of: ${validCategories.join(', ')}`);
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+      res.status(400);
+      throw new Error('Invalid category ID format.');
+    }
+    const categoryExists = await Category.findById(category);
+    if (!categoryExists) {
+      res.status(400);
+      throw new Error('Category not found.');
     }
 
     // Generate slug from title
@@ -179,7 +187,8 @@ export const getNews = asyncHandler(async (req, res) => {
       .sort({ publishedAt: -1, createdAt: -1 }) // Sort by newest first
       .limit(pageSize)
       .skip(pageSize * (page - 1)) // Handle pagination
-      .populate('author', 'username email role'); // Populate author details
+      .populate('author', 'username email role') // Populate author details
+      .populate('category', 'name');
 
     console.log('Database Find Result (Count):', news.length);
     
@@ -209,7 +218,7 @@ export const getNews = asyncHandler(async (req, res) => {
 // @access  Public or Protected
 export const getNewsById = asyncHandler(async (req, res) => {
   try {
-    const news = await News.findById(req.params.id).populate('author', 'username email role');
+    const news = await News.findById(req.params.id).populate('author', 'username email role').populate('category', 'name');
 
     if (!news) {
       return res.status(404).json({
@@ -251,7 +260,9 @@ export const getNewsById = asyncHandler(async (req, res) => {
 // @access  Public
 export const getNewsBySlug = asyncHandler(async (req, res) => {
   try {
-    const news = await News.findOne({ slug: req.params.slug }).populate('author', 'name email role');
+    const news = await News.findOne({ slug: req.params.slug })
+    .populate('author', 'name email role')
+    .populate('category', 'name');
     
     if (!news) {
       return res.status(404).json({
@@ -319,7 +330,18 @@ export const updateNews = asyncHandler(async (req, res) => {
     if (meta) news.meta = JSON.parse(meta);
 
     // Update other fields
-    if (category) news.category = category;
+    if (category) {
+      if (!mongoose.Types.ObjectId.isValid(category)) {
+        res.status(400);
+        throw new Error('Invalid category ID format.');
+      }
+      const categoryExists = await Category.findById(category);
+      if (!categoryExists) {
+        res.status(400);
+        throw new Error('Category not found.');
+      }
+      news.category = category;
+    }
     if (tags) news.tags = tags.split(',').map(tag => tag.trim());
     if (isFeatured !== undefined) news.isFeatured = isFeatured === 'true';
     if (isBreaking !== undefined) news.isBreaking = isBreaking === 'true';
@@ -359,13 +381,81 @@ export const updateNews = asyncHandler(async (req, res) => {
 
     // Save and return the updated news article
     const savedNews = await news.save();
-    const populatedNews = await News.findById(savedNews._id).populate('author', 'username role');
+    const populatedNews = await News.findById(savedNews._id).populate('author', 'username role').populate('category', 'name');
 
     res.json({ success: true, data: populatedNews });
   } catch (error) {
     console.error('Error updating news article:', error);
     res.status(500).json({ message: 'Error updating news article', error: error.message });
   }
+});
+
+// @desc    Duplicate a news article
+// @route   POST /api/news/:id/duplicate
+// @access  Private/Admin
+export const duplicateNews = asyncHandler(async (req, res) => {
+  const originalNews = await News.findById(req.params.id).lean();
+
+  if (!originalNews) {
+    res.status(404);
+    throw new Error('News article not found');
+  }
+
+  // Create a new article object, removing fields that should be unique or reset
+  const { _id, slug, createdAt, updatedAt, publishedAt, views, ...restOfNews } = originalNews;
+
+  const newArticle = new News({
+    ...restOfNews,
+    title: {
+      en: `Copy of ${originalNews.title.en}`.substring(0, 100), // Prevent overly long titles
+      kh: `ច្បាប់ចម្លងនៃ ${originalNews.title.kh}`.substring(0, 100),
+    },
+    slug: `${originalNews.slug}-copy-${Date.now()}`,
+    status: 'draft',
+    author: req.user._id,
+    views: 0,
+    publishedAt: null,
+    // We intentionally do not copy images to avoid complex Cloudinary duplication.
+    // The user can add new images when editing the duplicated draft.
+    thumbnail: null,
+    images: [],
+  });
+
+  const createdArticle = await newArticle.save();
+  res.status(201).json(createdArticle);
+});
+
+// @desc    Update news article status
+// @route   PATCH /api/news/:id/status
+// @access  Private/Admin
+export const updateNewsStatus = asyncHandler(async (req, res) => {
+  const { status } = req.body;
+
+  if (!status) {
+    res.status(400);
+    throw new Error('Status is required');
+  }
+
+  const allowedStatuses = ['draft', 'published', 'archived'];
+  if (!allowedStatuses.includes(status)) {
+    res.status(400);
+    throw new Error(`Invalid status. Must be one of: ${allowedStatuses.join(', ')}`);
+  }
+
+  const news = await News.findById(req.params.id);
+
+  if (!news) {
+    res.status(404);
+    throw new Error('News article not found');
+  }
+
+  news.status = status;
+  if (status === 'published' && !news.publishedAt) {
+    news.publishedAt = Date.now();
+  }
+
+  const updatedNews = await news.save();
+  res.json(updatedNews);
 });
 
 // @desc    Delete a news article
@@ -420,7 +510,8 @@ export const getFeaturedNews = asyncHandler(async (req, res) => {
   })
   .sort({ publishedAt: -1 })
   .limit(5)
-  .populate('author', 'username');
+  .populate('author', 'username')
+  .populate('category', 'name');
   
   res.json(featuredNews);
 });
@@ -435,7 +526,8 @@ export const getBreakingNews = asyncHandler(async (req, res) => {
   })
   .sort({ publishedAt: -1 })
   .limit(5)
-  .populate('author', 'username');
+  .populate('author', 'username')
+  .populate('category', 'name');
   
   res.json(breakingNews);
 });
@@ -460,7 +552,8 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
   .sort({ publishedAt: -1 })
   .limit(pageSize)
   .skip(pageSize * (page - 1))
-  .populate('author', 'username');
+  .populate('author', 'username')
+  .populate('category', 'name');
 
   res.json({
     news,

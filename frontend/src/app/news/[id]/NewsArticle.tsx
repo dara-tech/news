@@ -20,9 +20,11 @@ export default function NewsArticle({ article }: NewsArticleProps) {
       <article className="prose prose-lg max-w-none">
         <h1 className="text-3xl font-bold mb-6">{currentTitle}</h1>
         <div className="mb-8">
-          <span className="inline-flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
-            {article.category}
-          </span>
+          {article.category && (
+            <a href={`/category/${article.category.slug?.[language] || article.category._id}`} className="inline-flex items-center bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full mr-2 hover:bg-blue-200 transition-colors">
+              {article.category.name[language]}
+            </a>
+          )}
           <time dateTime={article.createdAt} className="text-gray-500 text-sm">
             {new Date(article.createdAt).toLocaleDateString(language === 'en' ? 'en-US' : 'km-KH')}
           </time>

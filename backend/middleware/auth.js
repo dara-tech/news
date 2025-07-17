@@ -24,17 +24,13 @@ export const protect = asyncHandler(async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       console.log('Decoded token:', decoded);
 
-      // Get user from the token, ensuring isAdmin is included
-      const user = await User.findById(decoded.userId);
-      console.log('User found:', user);
+      // Get user from the token and remove the password field
+      req.user = await User.findById(decoded.userId).select('-password');
 
-      if (!user) {
-        console.log('No user found for ID:', decoded.id);
-        res.status(404);
-        throw new Error('User not found');
+      if (!req.user) {
+        res.status(401);
+        throw new Error('Not authorized, user not found');
       }
-
-      req.user = user;
       next();
     } catch (error) {
       console.error(error);
@@ -43,9 +39,8 @@ export const protect = asyncHandler(async (req, res, next) => {
       throw new Error('Not authorized, token failed');
     }
   } else {
-    // If no token is present, we can still allow access to public routes.
-    // The route handler will be responsible for checking if a user is required.
-    next();
+    res.status(401);
+    throw new Error('Not authorized, no token');
   }
 });
 

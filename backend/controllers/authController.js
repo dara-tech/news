@@ -134,25 +134,23 @@ const updateUserRole = asyncHandler(async (req, res) => {
 // @desc    Update user profile
 // @route   PUT /api/auth/profile
 // @access  Private
+
 const updateUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+  // The user object is attached to the request by the 'protect' middleware.
+  // There is no need to fetch it again.
+  const user = req.user;
 
-  if (user) {
-    user.username = req.body.username || user.username;
-    user.email = req.body.email || user.email;
+  user.username = req.body.username || user.username;
+  user.email = req.body.email || user.email;
 
-    const updatedUser = await user.save();
+  const updatedUser = await user.save();
 
-    res.json({
-      _id: updatedUser._id,
-      username: updatedUser.username,
-      email: updatedUser.email,
-      role: updatedUser.role,
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
-  }
+  res.json({
+    _id: updatedUser._id,
+    username: updatedUser.username,
+    email: updatedUser.email,
+    role: updatedUser.role,
+  });
 });
 
 // @desc    Update user password
