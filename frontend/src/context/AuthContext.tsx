@@ -67,29 +67,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
+    console.log('Login attempt with email:', email);
     try {
       // Make sure to include credentials for cookies
-      const { data } = await api.post('/auth/login', { email, password }, { withCredentials: true });
+      console.log('Sending login request to /auth/login');
+      const { data } = await api.post('/auth/login', { email, password }, { 
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      console.log('Login response received:', data);
       
       // After successful login, fetch the user profile to verify authentication
-      const profileResponse = await api.get('/auth/profile', { withCredentials: true });
+      console.log('Fetching user profile from /auth/profile');
+      const profileResponse = await api.get('/auth/profile', { 
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      console.log('Profile response:', profileResponse.data);
       
       const userData = {
         _id: profileResponse.data._id,
         username: profileResponse.data.username,
         email: profileResponse.data.email,
         role: profileResponse.data.role,
-        // Note: We're not storing the token in localStorage anymore
-        // as it's now in an HTTP-only cookie
       };
       
-      // Store only the user data, not the token
+      console.log('Storing user data in localStorage:', userData);
       localStorage.setItem('userInfo', JSON.stringify(userData));
       setUser(userData);
       
-      if (profileResponse.data.role === 'admin') {
+      console.log('Login successful, user role:', userData.role);
+      if (userData.role === 'admin') {
+        console.log('Redirecting to admin dashboard');
         router.push('/admin/dashboard');
       } else {
+        console.log('Redirecting to home page');
         router.push('/');
       }
     } catch (error) {

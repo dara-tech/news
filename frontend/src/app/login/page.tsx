@@ -37,14 +37,38 @@ const LoginPage = () => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+    console.log('Login form submitted');
     setServerError(null);
     try {
+      console.log('Calling login function with email:', data.email);
       await login(data.email, data.password);
-      // On success, the AuthContext should handle redirection
-    } catch (err) {
-      // 3. Improved Error Handling
-      setServerError('Failed to login. Please check your credentials.');
-      console.error(err);
+      console.log('Login successful, should be redirected by AuthContext');
+    } catch (err: any) {
+      console.error('Login error:', {
+        name: err.name,
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+      });
+      
+      let errorMessage = 'Failed to login. Please check your credentials.';
+      
+      if (err.response) {
+        // Handle specific error messages from the API
+        if (err.response.status === 401) {
+          errorMessage = 'Invalid email or password.';
+        } else if (err.response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (err.response.data?.message) {
+          errorMessage = err.response.data.message;
+        }
+      } else if (err.request) {
+        // The request was made but no response was received
+        errorMessage = 'No response from server. Please check your connection.';
+      }
+      
+      setServerError(errorMessage);
     }
   };
 

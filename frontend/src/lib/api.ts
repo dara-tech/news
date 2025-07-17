@@ -13,6 +13,12 @@ const api = axios.create({
 
 // Request interceptor - ensure credentials are sent with every request
 api.interceptors.request.use((config) => {
+  console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`, {
+    data: config.data,
+    params: config.params,
+    headers: config.headers
+  });
+  
   // Only run on client-side
   if (typeof window !== 'undefined') {
     // Ensure withCredentials is true for all requests
@@ -22,16 +28,39 @@ api.interceptors.request.use((config) => {
     if (!config.headers['Content-Type']) {
       config.headers['Content-Type'] = 'application/json';
     }
+    
+    // Log cookies for debugging
+    console.log('[API] Current cookies:', document.cookie);
   }
   return config;
 }, (error) => {
+  console.error('[API] Request error:', error);
   return Promise.reject(error);
 });
 
 // Add response interceptor to handle 401 errors and token refresh
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`[API] ${response.config.method?.toUpperCase()} ${response.config.url} ${response.status}`, {
+      data: response.data,
+      headers: response.headers
+    });
+    return response;
+  },
   async (error) => {
+    if (error.response) {
+      console.error('[API] Response error:', {
+        url: error.config?.url,
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+    } else if (error.request) {
+      console.error('[API] No response received:', error.request);
+    } else {
+      console.error('[API] Request setup error:', error.message);
+    }
     const originalRequest = error.config;
     
     // If error is 401 and we haven't tried to refresh yet
