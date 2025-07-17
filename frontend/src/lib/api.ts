@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api`,
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'https://news-vzdx.onrender.com'}/api`,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ api.interceptors.response.use(
       try {
         // Try to refresh the token
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/auth/refresh-token`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://news-vzdx.onrender.com'}/api/auth/refresh-token`,
           {},
           { withCredentials: true }
         );
