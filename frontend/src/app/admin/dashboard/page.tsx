@@ -135,7 +135,7 @@ export default function DashboardPage() {
 
   // Safely prepare chart data with fallbacks
   const chartData = useMemo(() => {
-    if (!stats?.newsByCategory || !Array.isArray(stats.newsByCategory)) {
+    if (!stats?.newsByCategory || !Array.isArray(stats.newsByCategory) || stats.newsByCategory.length === 0) {
       console.warn('No valid newsByCategory data available');
       return [];
     }
