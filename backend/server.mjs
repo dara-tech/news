@@ -39,15 +39,33 @@ app.use(
   }),
 )
 
-// CORS configuration for separate frontend deployment
+// CORS configuration for both development and production
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://news-gzuqibcz3-dara-techs-projects.vercel.app",
+  "https://news-xnk1.onrender.com"
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = `The CORS policy for this site does not allow access from the specified origin: ${origin}`;
+        console.warn(msg);
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-)
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    exposedHeaders: ["Set-Cookie"],
+    maxAge: 86400 // 24 hours
+  })
+);
 
 // Logging middleware
 if (process.env.NODE_ENV === "development") {
@@ -104,8 +122,20 @@ app.use(errorHandler)
 // Server configuration
 const PORT = process.env.PORT || 5001
 
-const server = app.listen(PORT, () => {
+let server = app.listen(PORT, () => {
   console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+  
+  // Auto-restart every 5 minutes (300,000 milliseconds)
+  const RESTART_INTERVAL = 5 * 60 * 1000;
+  setInterval(() => {
+    console.log('🔄 Auto-restarting server...');
+    server.close(() => {
+      console.log('🔒 Server closed');
+      server = app.listen(PORT, () => {
+        console.log(`🚀 Server restarted on port ${PORT}`);
+      });
+    });
+  }, RESTART_INTERVAL);
 })
 
 // Graceful shutdown handlers
