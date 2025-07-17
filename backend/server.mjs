@@ -3,6 +3,8 @@ import dotenv from "dotenv"
 import cors from "cors"
 import morgan from "morgan"
 import cookieParser from "cookie-parser"
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import fileUpload from "express-fileupload"
 import path from "path"
 import { fileURLToPath } from "url"
@@ -29,6 +31,9 @@ connectCloudinary()
 // Initialize Express app
 const app = express()
 
+// Trust first proxy (important for production with HTTPS)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(express.json({ limit: "10mb" }))
 app.use(cookieParser())
@@ -39,12 +44,44 @@ app.use(
   }),
 )
 
+// Session configuration
+const sessionSecret = process.env.SESSION_SECRET || 'your-secret-key';
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Session middleware
+app.use(session({
+  name: 'sessionId',
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: 'sessions',
+    ttl: 24 * 60 * 60, // 1 day
+    autoRemove: 'native' // Default
+  }),
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    httpOnly: true,
+    secure: isProduction, // Only send over HTTPS in production
+    sameSite: isProduction ? 'none' : 'lax', // Handle cross-site cookies in production
+    domain: isProduction ? '.yourdomain.com' : undefined, // Set your domain in production
+  }
+}));
+
+// Log session info for debugging
+app.use((req, res, next) => {
+  console.log('Session ID:', req.sessionID);
+  console.log('Session data:', req.session);
+  next();
+});
+
 // CORS configuration with enhanced logging
 const allowedOrigins = [
   // Exact string matches
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://your-frontend-domain.com', // Replace with your production domain
+  'https://news-eta-vert.vercel.app', // Replace with your production domain
   'https://news-vzdx.onrender.com',   // Your current API domain
   // Regex patterns
   /^http:\/\/localhost(:\d+)?$/,    // Local development with any port
