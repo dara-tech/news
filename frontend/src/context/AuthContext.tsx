@@ -157,11 +157,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Failed to verify user session');
       }
       
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // Type guard to check if error is an object
+      const isErrorWithResponse = (e: unknown): e is { response: { data?: unknown; status?: number } } => {
+        return typeof e === 'object' && e !== null && 'response' in e;
+      };
+
+      const isErrorWithRequest = (e: unknown): e is { request: unknown } => {
+        return typeof e === 'object' && e !== null && 'request' in e;
+      };
+
+      const isErrorWithMessage = (e: unknown): e is { message: string } => {
+        return typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message: unknown }).message === 'string';
+      };
+
+      const isErrorWithName = (e: unknown): e is { name: string } => {
+        return typeof e === 'object' && e !== null && 'name' in e && typeof (e as { name: unknown }).name === 'string';
+      };
+
+      // Log the error with type-safe access
+      const errorResponse = isErrorWithResponse(error) ? error.response : undefined;
+      const errorData = errorResponse?.data;
+      const errorStatus = errorResponse?.status;
+      const errorRequest = isErrorWithRequest(error) ? error.request : undefined;
+      const errorMessage = isErrorWithMessage(error) ? error.message : 'Unknown error';
+
       console.error('❌ [AuthContext] Login failed:', {
-        error: error?.response?.data || error.message,
-        status: error?.response?.status,
-        config: error?.config
+        error: errorData || errorMessage,
+        status: errorStatus,
+        request: errorRequest ? 'Request object exists' : 'No request object'
       });
       
       // Clean up on error
@@ -169,28 +193,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       
       // Provide more specific error messages
-      let errorMessage = 'Login failed. Please try again.';
+      let userFacingMessage = 'Login failed. Please try again.';
       
-      if (error.response) {
+      if (errorResponse) {
         // Server responded with error status
-        if (error.response.status === 401) {
-          errorMessage = 'Invalid email or password';
-        } else if (error.response.status === 403) {
-          errorMessage = 'Account not authorized';
-        } else if (error.response.data?.message) {
-          errorMessage = error.response.data.message;
+        if (errorStatus === 401) {
+          userFacingMessage = 'Invalid email or password';
+        } else if (errorStatus === 403) {
+          userFacingMessage = 'Account not authorized';
+        } else if (typeof errorData === 'object' && errorData !== null && 'message' in errorData && typeof errorData.message === 'string') {
+          userFacingMessage = errorData.message;
         }
-      } else if (error.request) {
+      } else if (errorRequest) {
         // Request was made but no response
-        errorMessage = 'No response from server. Please check your connection.';
-      } else if (error.message) {
-        // Other errors
-        errorMessage = error.message;
+        userFacingMessage = 'No response from server. Please check your connection.';
+      } else if (isErrorWithMessage(error)) {
+        // Other errors with message
+        userFacingMessage = error.message;
       }
       
       // Create a new error with the appropriate message
-      const loginError = new Error(errorMessage);
-      loginError.name = error.name || 'LoginError';
+      const loginError = new Error(userFacingMessage);
+      loginError.name = isErrorWithName(error) ? error.name : 'LoginError';
       throw loginError;
     }
   };
