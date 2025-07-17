@@ -6,10 +6,10 @@
   "type": "commonjs",
   "scripts": {
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
-    "build": "cd frontend && npm run build",
-    "start": "node backend/server.mjs",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev"
+    "build": "npm install && cd frontend && npm run build && cd ../backend && npm install",
+    "start": "npm run start --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend"
   },
   "keywords": ["news", "nextjs", "express", "mongodb"],
   "author": "",
