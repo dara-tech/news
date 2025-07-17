@@ -48,7 +48,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 export default function NewsByCategoryChart({ data }: NewsByCategoryChartProps): JSX.Element {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const totalArticles: number = useMemo(() => data.reduce((sum, item) => sum + item.count, 0), [data]);
+  const totalArticles: number = useMemo(() => (data || []).reduce((sum, item) => sum + (item?.count || 0), 0), [data]);
   const activeData: ChartData | undefined = useMemo(() => data.find(d => d.name === activeCategory), [data, activeCategory]);
 
   const handleBarClick = useCallback((payload: ChartData) => {
