@@ -70,15 +70,15 @@ app.use("/api/news", newsRoutes)
 app.use("/api/categories", categoryRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 
-// Serve static assets in production
+// Serve Next.js frontend in production
 if (process.env.NODE_ENV === 'production') {
-  // Set static folder
-  app.use(express.static(path.join(__dirname, '../frontend/.next')))
-
-  // Handle React routing, return all requests to React app
+  // Serve static files from the Next.js output directory
+  app.use(express.static(path.join(__dirname, '../frontend/out')));
+  
+  // Handle Next.js routing
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend/.next', 'index.html'))
-  })
+    res.sendFile(path.join(__dirname, '../frontend/out/index.html'));
+  });
 }
 
 // Root endpoint
