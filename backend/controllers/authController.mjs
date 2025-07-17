@@ -49,13 +49,14 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email }).select('+password');
 
   if (user && (await user.matchPassword(password))) {
-    generateToken(res, user);
+    const token = generateToken(res, user);
 
     res.status(200).json({
       _id: user._id,
       username: user.username,
       email: user.email,
       role: user.role,
+      token: token // Include token in response for debugging
     });
   } else {
     res.status(401);
