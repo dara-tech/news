@@ -46,13 +46,14 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      /^http:\/\/localhost:\d+$/,
-      /^https:\/\/news-.*-dara-techs-projects\.vercel\.app$/,
-      "https://news-gzuqibcz3-dara-techs-projects.vercel.app",
-      "https://news-eta-vert.vercel.app",
-      "https://news-xnk1.onrender.com"
+      /^http:\/\/localhost:\d+$/, // For local development
+      /^https:\/\/news-.*-dara-techs-projects\.vercel\.app$/, // All Vercel subdomains
+      "https://news-vzdx.onrender.com", // Production frontend on Render
+      "https://news-gzuqibcz3-dara-techs-projects.vercel.app", // Another example frontend
+      "https://news-eta-vert.vercel.app", // Another example frontend
+      "https://news-xnk1.onrender.com" // Example Render frontend
     ];
-
+    
     const isAllowed = allowedOrigins.some(pattern => {
       if (typeof pattern === 'string') {
         return pattern === origin;
