@@ -39,9 +39,6 @@ app.use(
   }),
 )
 
-// Enable pre-flight across-the-board
-app.options('*', cors());
-
 // CORS configuration
 app.use(cors({
   origin: function (origin, callback) {
@@ -49,14 +46,11 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      /^http:\/\/localhost(:\d+)?$/,  // Localhost with any port
-      /^https?:\/\/localhost(:\d+)?$/, // Localhost with any protocol and port
-      /^https?:\/\/.*\.vercel\.app$/,  // All Vercel preview and production URLs
-      /^https?:\/\/.*\.onrender\.com$/, // All Render URLs
+      /^http:\/\/localhost:\d+$/,
+      /^https:\/\/news-.*-dara-techs-projects\.vercel\.app$/,
       "https://news-gzuqibcz3-dara-techs-projects.vercel.app",
       "https://news-eta-vert.vercel.app",
-      "https://news-xnk1.onrender.com",
-      "https://news-vzdx.onrender.com"
+      "https://news-xnk1.onrender.com"
     ];
 
     const isAllowed = allowedOrigins.some(pattern => {
@@ -68,50 +62,19 @@ app.use(cors({
       return false;
     });
 
-    if (isAllowed) {
-      return callback(null, true);
-    } else {
-      console.warn(`Blocked request from origin: ${origin}`);
-      return callback(new Error('Not allowed by CORS'), false);
+    if (!isAllowed) {
+      const msg = `The CORS policy for this site does not allow access from the specified origin: ${origin}`;
+      console.warn(msg);
+      return callback(new Error(msg), false);
     }
+    return callback(null, true);
   },
-  credentials: true,  // This is important for cookies, authorization headers with HTTPS
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
-    'X-Requested-With', 
-    'Accept',
-    'X-CSRF-Token',
-    'X-Forwarded-For',
-    'X-Forwarded-Proto',
-    'X-Forwarded-Host',
-    'X-Forwarded-Port'
-  ],
-  exposedHeaders: [
-    'Content-Length',
-    'Content-Type',
-    'Authorization',
-    'Set-Cookie',
-    'X-Total-Count'
-  ],
-  maxAge: 86400, // 24 hours
-  preflightContinue: false,
-  optionsSuccessStatus: 204
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  exposedHeaders: ["Set-Cookie", "Authorization"],
+  maxAge: 86400 // 24 hours
 }));
-
-// Handle preflight requests
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Credentials', true);
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,UPDATE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  next();
-});
 
 // Logging middleware
 if (process.env.NODE_ENV === "development") {
