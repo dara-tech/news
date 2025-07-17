@@ -43,32 +43,46 @@ const LoginPage = () => {
       console.log('Calling login function with email:', data.email);
       await login(data.email, data.password);
       console.log('Login successful, should be redirected by AuthContext');
-    } catch (err: any) {
-      console.error('Login error:', {
-        name: err.name,
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-      });
-      
-      let errorMessage = 'Failed to login. Please check your credentials.';
-      
-      if (err.response) {
-        // Handle specific error messages from the API
-        if (err.response.status === 401) {
-          errorMessage = 'Invalid email or password.';
-        } else if (err.response.status >= 500) {
-          errorMessage = 'Server error. Please try again later.';
-        } else if (err.response.data?.message) {
-          errorMessage = err.response.data.message;
+    } catch (error: unknown) {
+      // Handle different types of errors
+      if (error instanceof Error) {
+        console.error('Login error:', {
+          name: error.name,
+          message: error.message,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+
+        let errorMessage = 'Failed to login. Please check your credentials.';
+        
+        // Handle Axios errors
+        if ('isAxiosError' in error && error.isAxiosError) {
+          const axiosError = error as {
+            response?: {
+              status?: number;
+              data?: { message?: string };
+            };
+          };
+          
+          if (axiosError.response) {
+            // Handle specific error messages from the API
+            if (axiosError.response.status === 401) {
+              errorMessage = 'Invalid email or password.';
+            } else if (axiosError.response.status && axiosError.response.status >= 500) {
+              errorMessage = 'Server error. Please try again later.';
+            } else if (axiosError.response.data?.message) {
+              errorMessage = axiosError.response.data.message;
+            }
+          } else {
+            // The request was made but no response was received
+            errorMessage = 'No response from server. Please check your connection.';
+          }
         }
-      } else if (err.request) {
-        // The request was made but no response was received
-        errorMessage = 'No response from server. Please check your connection.';
+        
+        setServerError(errorMessage);
+      } else {
+        console.error('Unexpected login error:', error);
+        setServerError('An unexpected error occurred. Please try again.');
       }
-      
-      setServerError(errorMessage);
     }
   };
 
