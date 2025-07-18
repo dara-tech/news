@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
 interface User {
-  _id: any;
+  _id: string;
   username: string;
   email: string;
   role: string;
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           const currentUser = JSON.parse(storedUser);
           token = currentUser.token;
-        } catch (e) {
+        } catch {
           console.warn('⚠️ [AuthContext] Failed to parse stored user data');
         }
         
@@ -147,11 +147,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       verifyUser();
     };
 
-    // Subscribe to path changes
-    const handleRouteChange = (url: string) => {
-      console.log('🔄 [AuthContext] Route changed to:', url);
-      verifyUser();
-    };
 
     // Add event listener for path changes
     window.addEventListener('popstate', handlePathChange);
@@ -408,6 +403,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
+    
   );
 };
 

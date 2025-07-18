@@ -1,5 +1,6 @@
 import express from "express"
 import dotenv from "dotenv"
+dotenv.config();
 import cors from "cors"
 import morgan from "morgan"
 import cookieParser from "cookie-parser"
@@ -16,6 +17,8 @@ import userRoutes from "./routes/users.mjs"
 import newsRoutes from "./routes/news.mjs"
 import categoryRoutes from "./routes/categoryRoutes.mjs"
 import dashboardRoutes from "./routes/dashboard.mjs"
+
+
 
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -55,7 +58,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
+    mongoUrl: process.env.MONGODB_URI,
     collectionName: 'sessions',
     ttl: 24 * 60 * 60, // 1 day
     autoRemove: 'native' // Default
@@ -65,7 +68,7 @@ app.use(session({
     httpOnly: true,
     secure: isProduction, // Only send over HTTPS in production
     sameSite: isProduction ? 'none' : 'lax', // Handle cross-site cookies in production
-    domain: isProduction ? '.yourdomain.com' : undefined, // Set your domain in production
+    domain: isProduction ? 'news-eta-vert.vercel.app' : undefined, // Set your domain in production
   }
 }));
 
@@ -116,7 +119,7 @@ const corsOptions = {
     return callback(null, true);
   },
   credentials: true, // Required for cookies
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token', 'Cache-Control', 'Pragma'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   exposedHeaders: ['set-cookie'],
   maxAge: 86400 // 24 hours

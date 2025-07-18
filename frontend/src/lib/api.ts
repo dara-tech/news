@@ -67,7 +67,7 @@ api.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as any;
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     
     // Log detailed error information
     if (error.code === 'ECONNABORTED') {
