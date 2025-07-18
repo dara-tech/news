@@ -6,12 +6,24 @@ console.log('API URL:', apiUrl);
 // Create axios instance with default config
 const api: AxiosInstance = axios.create({
   baseURL: `${apiUrl}/api`,
-  withCredentials: true,
+  withCredentials: true, // This is required for cookies to be sent with requests
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
+  // Ensure cookies are sent with cross-origin requests
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+  // Timeout settings
+  timeout: 30000, // 30 seconds
+  maxRedirects: 3, // Maximum number of redirects to follow
+  maxContentLength: 50 * 1024 * 1024, // 50MB max content length
+  validateStatus: (status) => status >= 200 && status < 500, // Resolve only if status code is less than 500
 });
+
+// Set default withCredentials for all requests
+api.defaults.withCredentials = true;
 
 // Request interceptor
 api.interceptors.request.use(
@@ -55,95 +67,101 @@ api.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as any;
     
-    // Log error details
-    if (error.response) {
-      console.error('[API] Response error:', {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        url: originalRequest?.url,
-        method: originalRequest?.method,
-        data: error.response.data,
-      });
-      
+    // Log detailed error information
+    if (error.code === 'ECONNABORTED') {
+      console.error('[API] Request timeout:', error.config?.url);
+      // You could retry the request here if needed
+    } else if (error.code === 'ECONNRESET') {
+      console.error('[API] Connection reset:', error.config?.url);
+      // You could retry the request here if needed
+    } else if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error(
+        `[API] Error ${error.response.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}:`,
+        error.response.data
+      );
+
       // Handle 401 Unauthorized
-      if (error.response.status === 401 && originalRequest && !originalRequest._retry) {
-        originalRequest._retry = true;
-        console.log('[API] Attempting to refresh token...');
-        
-        try {
-          const refreshResponse = await axios.post(
-            `${apiUrl}/api/auth/refresh-token`,
-            {},
-            { 
-              withCredentials: true,
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              }
-            }
-          );
+      if (error.response.status === 401) {
+        // Only handle 401 if we're not already retrying
+        if (!originalRequest._retry) {
+          originalRequest._retry = true;
           
-          if (refreshResponse.data?.token) {
-            // Update token in localStorage
-            const userInfo = localStorage.getItem('userInfo');
-            if (userInfo) {
-              try {
+          try {
+            // Try to refresh the token if possible
+            const refreshResponse = await axios.post(
+              `${apiUrl}/api/auth/refresh-token`,
+              {},
+              { withCredentials: true }
+            );
+            
+            if (refreshResponse.data.token) {
+              // Update the stored token
+              const userInfo = localStorage.getItem('userInfo');
+              if (userInfo) {
                 const user = JSON.parse(userInfo);
                 user.token = refreshResponse.data.token;
                 localStorage.setItem('userInfo', JSON.stringify(user));
-              } catch (e) {
-                console.error('Error updating user info:', e);
+              }
+              
+              // Update the Authorization header
+              originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.token}`;
+              
+              // Retry the original request
+              return api(originalRequest);
+            }
+          } catch (refreshError) {
+            console.error('[API] Token refresh failed:', refreshError);
+            // If refresh fails, log the user out
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('userInfo');
+              // Only redirect if not already on the login page
+              if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login';
               }
             }
-            
-            // Update authorization header
-            if (originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.token}`;
-            }
-            
-            // Retry the original request
-            return api(originalRequest);
           }
-        } catch (refreshError) {
-          console.error('[API] Token refresh failed:', refreshError);
-          // Clear user data and redirect to login
-          localStorage.removeItem('userInfo');
-          window.location.href = '/login';
+        } else {
+          // If we've already retried and still get 401, log out
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('userInfo');
+            if (!window.location.pathname.includes('/login')) {
+              window.location.href = '/login';
+            }
+          }
         }
       }
     } else if (error.request) {
+      // The request was made but no response was received
       console.error('[API] No response received:', error.request);
       
       // Handle network errors
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('login')) {
-        console.error('[API] Network error, redirecting to login');
-        localStorage.removeItem('userInfo');
-        window.location.href = '/login';
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        console.error('[API] You are offline. Please check your internet connection.');
+      } else {
+        console.error('[API] Network error. Please try again later.');
       }
     } else {
-      console.error('[API] Request setup error:', error.message);
-    }
-    
-    // Handle specific error statuses
-    if (error.response) {
-      const { status } = error.response;
+      // Something happened in setting up the request that triggered an Error
+      console.error('[API] Request error:', error.message);
       
-      // Handle 401 Unauthorized
-      if (status === 401) {
-        console.log('[API] Unauthorized, redirecting to login');
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('userInfo');
+      // Clear user data and redirect to login on critical errors
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('userInfo');
+        if (!window.location.pathname.includes('/login')) {
           window.location.href = '/login';
         }
       }
-      // Handle 403 Forbidden
-      else if (status === 403) {
-        console.log('[API] Forbidden, redirecting to unauthorized page');
-        if (typeof window !== 'undefined' && !window.location.pathname.includes('unauthorized')) {
-          window.location.href = '/unauthorized';
-        }
+    }
+    
+    // Handle 403 Forbidden
+    if (error.response?.status === 403) {
+      console.log('[API] Forbidden, redirecting to unauthorized page');
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('unauthorized')) {
+        window.location.href = '/unauthorized';
       }
     }
     

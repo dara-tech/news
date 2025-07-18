@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
 interface User {
-  _id: string;
+  _id: any;
   username: string;
   email: string;
   role: string;
@@ -27,44 +27,152 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const verifyUser = async () => {
-      try {
-        const storedUser = localStorage.getItem('userInfo');
-        if (!storedUser) {
-          setLoading(false);
-          return;
-        }
+  // Function to verify user session with the backend
+  const verifyUserSession = async (storedUser: string | null) => {
+    if (!storedUser) {
+      console.log('ℹ️ [AuthContext] No stored user found');
+      return false;
+    }
 
-        // Verify session with backend using the profile endpoint
+    try {
+      console.log('🔍 [AuthContext] Verifying user session with backend...');
+      
+      // Add a small delay to prevent race conditions
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const response = await api.get('/auth/profile', { 
+        withCredentials: true,
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        // Don't retry on 401/403
+        validateStatus: (status) => status < 500
+      });
+
+      // If we get a successful response, update the user data
+      if (response.status >= 200 && response.status < 300) {
+        const { data } = response;
+        console.log('✅ [AuthContext] Backend session verification successful');
+        
+        // Parse the stored user data
+        let token: string | undefined;
         try {
-          const { data } = await api.get('/auth/profile', { withCredentials: true });
-          // Session is valid, update user data
-          const userData = {
-            _id: data._id,
-            username: data.username,
-            email: data.email,
-            role: data.role
-          };
-          localStorage.setItem('userInfo', JSON.stringify(userData));
-          setUser(userData);
-        } catch (error) {
-          console.error('Session verification failed, logging out:', error);
-          // Session is invalid, clear local storage
-          localStorage.removeItem('userInfo');
-          setUser(null);
+          const currentUser = JSON.parse(storedUser);
+          token = currentUser.token;
+        } catch (e) {
+          console.warn('⚠️ [AuthContext] Failed to parse stored user data');
         }
-      } catch (error) {
-        console.error('Error during authentication check:', error);
+        
+        // Create user data with token if it exists
+        const userData: User = {
+          _id: data._id,
+          username: data.username || data.email?.split('@')[0] || 'user',
+          email: data.email,
+          role: data.role || 'user',
+          ...(token && { token })
+        };
+        
+        // Update localStorage with fresh user data
+        localStorage.setItem('userInfo', JSON.stringify(userData));
+        setUser(userData);
+        console.log('✅ [AuthContext] User session verified and state updated');
+        return true;
+      } else {
+        // Handle non-2xx responses
+        console.error(`❌ [AuthContext] Session verification failed with status ${response.status}:`, response.data);
         localStorage.removeItem('userInfo');
         setUser(null);
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ [AuthContext] Error during session verification:', error);
+      // Clear invalid session data
+      localStorage.removeItem('userInfo');
+      setUser(null);
+      return false;
+    }
+  };
+
+  // Effect to handle initial session verification and route protection
+  useEffect(() => {
+    const verifyUser = async () => {
+      console.log('🔄 [AuthContext] Starting session verification...');
+      setLoading(true);
+      
+      try {
+        const storedUser = localStorage.getItem('userInfo');
+        console.log('📦 [AuthContext] Stored user from localStorage:', storedUser);
+        
+        // If we have a stored user, try to verify the session
+        if (storedUser) {
+          const isSessionValid = await verifyUserSession(storedUser);
+          if (isSessionValid) {
+            setLoading(false);
+            return;
+          }
+        }
+        
+        // If we get here, either there's no stored user or the session is invalid
+        console.log('ℹ️ [AuthContext] No valid session found, redirecting to login');
+        setUser(null);
+        
+        // Only redirect if not already on the login page
+        if (!window.location.pathname.includes('/login')) {
+          router.push('/login');
+        }
+        
+      } catch (error) {
+        console.error('❌ [AuthContext] Error during authentication check:', error);
+        localStorage.removeItem('userInfo');
+        setUser(null);
+        
+        if (!window.location.pathname.includes('/login')) {
+          router.push('/login');
+        }
       } finally {
         setLoading(false);
       }
     };
 
+    // Add a small delay to ensure auth state is properly initialized
+    const timeoutId = setTimeout(() => {
+      verifyUser();
+    }, 100);
+
+    // For Next.js App Router, we'll verify on mount and when the pathname changes
+    const handlePathChange = () => {
+      console.log('🔄 [AuthContext] Path changed, verifying session...');
+      verifyUser();
+    };
+
+    // Subscribe to path changes
+    const handleRouteChange = (url: string) => {
+      console.log('🔄 [AuthContext] Route changed to:', url);
+      verifyUser();
+    };
+
+    // Add event listener for path changes
+    window.addEventListener('popstate', handlePathChange);
+    
+    // For Next.js App Router, we can use the router's events if available
+    if (typeof window !== 'undefined') {
+      window.addEventListener('routeChangeStart', handlePathChange as EventListener);
+    }
+
+    // Initial verification
     verifyUser();
-  }, []);
+
+    // Cleanup
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('popstate', handlePathChange);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('routeChangeStart', handlePathChange as EventListener);
+      }
+    };
+  }, [router]);
 
   const login = async (email: string, password: string) => {
     console.log('🔑 [AuthContext] Login attempt started for email:', email);
@@ -79,14 +187,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const loginResponse = await api.post('/auth/login', 
         { email, password },
         { 
-          withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
           },
-          timeout: 10000 // 10 second timeout
+          timeout: 10000, // 10 second timeout
+          withCredentials: true // Include credentials (cookies) with the request
         }
       );
+      
+      // Log response headers to verify Set-Cookie
+      console.log('🍪 [AuthContext] Response headers:', loginResponse.headers);
       
       console.log('✅ [AuthContext] Login response status:', loginResponse.status);
       console.log('🔑 [AuthContext] Login response data:', loginResponse.data);
