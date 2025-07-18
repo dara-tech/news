@@ -20,15 +20,13 @@ const newsSchema = new mongoose.Schema(
       unique: true,
       lowercase: true
     },
-    meta: {
-      description: {
-        en: { type: String },
-        kh: { type: String }
-      },
-      keywords: [{
-        en: { type: String },
-        kh: { type: String }
-      }]
+    metaDescription: {
+      en: { type: String },
+      kh: { type: String }
+    },
+    keywords: {
+      type: String,
+      trim: true
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,

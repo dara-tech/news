@@ -55,7 +55,7 @@ export const createNews = asyncHandler(async (req, res) => {
       tags, 
       isFeatured, 
       isBreaking,
-      meta,
+      seo,
       thumbnailUrl // Add thumbnailUrl to destructuring
     } = req.body;
 
@@ -66,7 +66,7 @@ export const createNews = asyncHandler(async (req, res) => {
     const titleObj = JSON.parse(title);
     const contentObj = JSON.parse(content);
     const descriptionObj = JSON.parse(description);
-    const metaObj = meta ? JSON.parse(meta) : {};
+    const seoObj = seo ? JSON.parse(seo) : {};
 
     // Validate required fields
     const requiredFields = [
@@ -110,9 +110,13 @@ export const createNews = asyncHandler(async (req, res) => {
       author: req.user._id,
       isFeatured: isFeatured === 'true',
       isBreaking: isBreaking === 'true',
-      status: 'draft',
-      meta: meta || {}
+      status: 'draft'
     });
+
+    if (seoObj) {
+      if (seoObj.metaDescription) news.metaDescription = seoObj.metaDescription;
+      if (seoObj.keywords) news.keywords = seoObj.keywords;
+    }
 
     if (thumbnailFile) {
       const result = await cloudinary.uploader.upload(thumbnailFile.path, {
@@ -244,6 +248,7 @@ export const getNewsById = asyncHandler(async (req, res) => {
       await news.save();
     }
 
+    res.setHeader('Cache-Control', 'no-store');
     res.json({ success: true, data: news });
   } catch (error) {
     console.error('Error fetching news by ID:', error);
@@ -275,9 +280,16 @@ export const getNewsBySlug = asyncHandler(async (req, res) => {
     news.views += 1;
     await news.save();
     
+    const responseData = news.toObject();
+    responseData.seo = {
+      metaTitle: responseData.title,
+      metaDescription: responseData.metaDescription,
+      keywords: responseData.keywords
+    };
+
     res.json({
       success: true,
-      data: news
+      data: responseData
     });
   } catch (error) {
     console.error('Error fetching news by slug:', error);
@@ -318,7 +330,7 @@ export const updateNews = asyncHandler(async (req, res) => {
     isFeatured, 
     isBreaking,
     status,
-    meta,
+    seo,
     existingImages
   } = req.body;
 
@@ -327,7 +339,12 @@ export const updateNews = asyncHandler(async (req, res) => {
     if (title) news.title = JSON.parse(title);
     if (content) news.content = JSON.parse(content);
     if (description) news.description = JSON.parse(description);
-    if (meta) news.meta = JSON.parse(meta);
+    
+    if (seo) {
+      const seoObj = JSON.parse(seo);
+      if (seoObj.metaDescription) news.metaDescription = seoObj.metaDescription;
+      if (seoObj.keywords) news.keywords = seoObj.keywords;
+    }
 
     // Update other fields
     if (category) {

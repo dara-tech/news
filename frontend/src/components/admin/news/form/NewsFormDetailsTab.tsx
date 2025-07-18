@@ -34,7 +34,7 @@ const NewsFormDetailsTab: React.FC<NewsFormDetailsTabProps> = ({
       <CardContent className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
-          <Select value={formData.category} onValueChange={onCategoryChange}>
+          <Select value={typeof formData.category === 'object' && formData.category !== null ? formData.category._id : formData.category || ''} onValueChange={onCategoryChange}>
             <SelectTrigger id="category" className={validationErrors.category ? "border-red-500" : ""}>
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>

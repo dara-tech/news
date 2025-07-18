@@ -37,6 +37,10 @@ const EditNewsPage = () => {
   }, [id, router])
 
   const handleSubmit = async (submissionData: FormData) => {
+    // Append the metaImage file if it exists
+    if (initialData?.seo?.metaImage instanceof File) {
+      submissionData.append('metaImage', initialData.seo.metaImage);
+    }
     setIsSubmitting(true)
     try {
       await api.put(`/news/${id}`, submissionData, {

@@ -11,18 +11,23 @@ import { UploadCloud, X } from "lucide-react"
 interface NewsFormMediaTabProps {
   thumbnailPreview: string | null;
   imagePreviews: string[];
+  metaImagePreview: string | null;
+  categoryImagePreview: string | null;
   isDragOver: boolean;
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: (e: React.DragEvent) => void;
-  onDrop: (e: React.DragEvent, type: "thumbnail" | "images") => void;
-  onFileChange: (e: React.ChangeEvent<HTMLInputElement>, type: "thumbnail" | "images") => void;
+  onDrop: (e: React.DragEvent, type: "thumbnail" | "images" | "metaImage") => void;
+  onFileChange: (e: React.ChangeEvent<HTMLInputElement>, type: "thumbnail" | "images" | "metaImage") => void;
   onRemoveThumbnail: () => void;
   onRemoveImage: (index: number) => void;
+  onRemoveMetaImage: () => void;
 }
 
 const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
   thumbnailPreview,
   imagePreviews,
+  metaImagePreview,
+  categoryImagePreview,
   isDragOver,
   onDragOver,
   onDragLeave,
@@ -30,6 +35,7 @@ const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
   onFileChange,
   onRemoveThumbnail,
   onRemoveImage,
+  onRemoveMetaImage,
 }) => {
   return (
     <Card>
@@ -135,6 +141,74 @@ const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
             </div>
           )}
         </div>
+        <Separator />
+        {/* Meta Image Section */}
+        <div>
+          <Label className="text-base font-semibold">Meta (SEO) Image</Label>
+          <div
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={(e) => onDrop(e, "metaImage")}
+            className={`mt-2 relative border-2 border-dashed rounded-xl p-8 transition-all ${
+              isDragOver ? "border-purple-500 bg-purple-50" : "border-slate-300 hover:border-slate-400"
+            }`}>
+            {metaImagePreview ? (
+              <>
+                <Image
+                  src={metaImagePreview}
+                  alt="Meta image preview"
+                  width={500}
+                  height={281}
+                  className="w-full h-auto object-cover rounded-lg"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2"
+                  onClick={onRemoveMetaImage}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <div className="text-center">
+                <UploadCloud className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+                <p className="mb-2">Drop your meta image here or</p>
+                <Label htmlFor="meta-image-upload" className="cursor-pointer text-purple-600 font-semibold hover:underline">
+                  browse files
+                </Label>
+                <input
+                  type="file"
+                  name="metaImage"
+                  accept="image/*"
+                  onChange={(e) => onFileChange(e, "metaImage")}
+                  className="hidden"
+                  id="meta-image-upload"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Category Image Section - Display Only */}
+        {categoryImagePreview && (
+          <>
+            <Separator />
+            <div>
+              <Label className="text-base font-semibold">Category Image (from selected category)</Label>
+              <div className="mt-2 relative">
+                <Image
+                  src={categoryImagePreview}
+                  alt="Category image preview"
+                  width={500}
+                  height={281}
+                  className="w-full h-auto object-cover rounded-lg border"
+                />
+                <p className="text-sm text-slate-500 mt-2">This image is inherited from the selected category and cannot be changed here.</p>
+              </div>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   )

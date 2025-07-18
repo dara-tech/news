@@ -97,6 +97,23 @@ const NewsFormSEOTab: React.FC<NewsFormSEOTabProps> = ({ formData, validationErr
             )}
           </div>
         </div>
+        <Separator />
+        <div className="grid gap-2">
+          <Label htmlFor="keywords">Keywords</Label>
+          <Input
+            id="keywords"
+            name="seo.keywords"
+            value={formData.seo.keywords || ''}
+            onChange={onInputChange}
+            placeholder="Enter comma-separated keywords"
+          />
+          <p className="text-sm text-muted-foreground">
+            Separate keywords with a comma (e.g., technology, AI, news).
+          </p>
+          {validationErrors["seo.keywords"] && (
+            <p className="text-sm text-red-500">{validationErrors["seo.keywords"]}</p>
+          )}
+        </div>
       </CardContent>
     </Card>
   )

@@ -1,10 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, useCallback, useRef } from "react"
-// Removed useRouter as it's not directly used in this component,
-// and NewsFormHeader should manage its own routing.
-// import { useRouter } from "next/navigation"
+import { useState, useEffect, useCallback } from "react"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -27,7 +24,7 @@ export interface NewsFormData {
   title: { en: string; kh: string };
   content: { en: string; kh: string };
   description: { en: string; kh: string };
-  category: string;
+  category: { _id: string; name: { en: string; kh: string }; image?: string } | string;
   tags: string[] | string; // Allows string for initial input (comma-separated) or array for internal use
   isFeatured: boolean;
   isBreaking: boolean;
@@ -38,6 +35,7 @@ export interface NewsFormData {
     metaTitle: { en: string; kh: string };
     metaDescription: { en: string; kh: string };
     keywords: string;
+    metaImage: File | string | null;
   };
 }
 
@@ -76,6 +74,8 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [originalThumbnailUrl, setOriginalThumbnailUrl] = useState<string | null>(null);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [metaImagePreview, setMetaImagePreview] = useState<string | null>(null);
+  const [categoryImagePreview, setCategoryImagePreview] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [isDragOver, setIsDragOver] = useState(false);
   const [activeTab, setActiveTab] = useState("content");
@@ -89,8 +89,6 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     completionPercentage: 0,
     estimatedReadTime: 0,
   });
-
-  const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Effect to fetch categories on component mount
   useEffect(() => {
@@ -144,57 +142,66 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
 
   // Effect to initialize form data when the component mounts or initialData/categories change.
   useEffect(() => {
-    const emptyForm: NewsFormData = {
-      title: { en: "", kh: "" }, content: { en: "", kh: "" }, description: { en: "", kh: "" },
-      category: "", tags: "", isFeatured: false, isBreaking: false, status: "draft",
-      thumbnail: null, images: [],
-      seo: { metaTitle: { en: "", kh: "" }, metaDescription: { en: "", kh: "" }, keywords: "" },
-    };
-
     if (isEditMode && initialData) {
-      // Ensure categories are loaded before processing initialData for category ID
-      if (categories.length === 0 && initialData.category) {
-        // If categories are not loaded yet, wait for them. This useEffect will re-run when categories change.
-        return;
-      }
-
-      const processedData = { ...emptyForm, ...initialData };
-
-      // Convert category slug/name to ID if in edit mode and category is not already an ID
-      if (typeof processedData.category === 'string' && !/^[0-9a-fA-F]{24}$/.test(processedData.category)) {
-        const categoryObject = categories.find(c => c.slug === processedData.category || c.name.en === processedData.category || c.name.kh === processedData.category);
-        if (categoryObject) {
-          processedData.category = categoryObject._id;
-        } else {
-          // If category not found, set to empty to indicate an issue or allow user to select
-          console.warn(`Category "${initialData.category}" not found in fetched categories.`);
-          processedData.category = "";
-        }
-      }
-
-      // Convert tags array to comma-separated string for the input field.
-      if (Array.isArray(initialData.tags)) {
-        processedData.tags = initialData.tags.join(', ');
-      }
+      const processedData = {
+        ...initialData,
+        // Ensure category is just the ID string for the form state
+        category: (initialData.category && typeof initialData.category === 'object' && '_id' in initialData.category) ? initialData.category._id : initialData.category || "",
+        // Convert tags array to a comma-separated string for the input field
+        tags: Array.isArray(initialData.tags) ? initialData.tags.join(', ') : initialData.tags || "",
+        seo: {
+          metaTitle: initialData.title || { en: "", kh: "" },
+          metaDescription: ('metaDescription' in initialData && initialData.metaDescription) ? initialData.metaDescription as { en: string; kh: string } : (initialData.seo?.metaDescription || { en: "", kh: "" }),
+          keywords: ('keywords' in initialData && initialData.keywords) ? initialData.keywords as string : (initialData.seo?.keywords || ""),
+          metaImage: null, // Reset metaImage on load, it's for upload only
+        },
+      };
 
       setFormData(processedData as NewsFormData);
       setOriginalData(JSON.parse(JSON.stringify(processedData)) as NewsFormData); // Deep copy original data
 
       // Set thumbnail preview if an initial thumbnail URL is provided.
-      if (typeof initialData.thumbnail === 'string') {
+      if (initialData.thumbnail && typeof initialData.thumbnail === 'string') {
         setThumbnailPreview(initialData.thumbnail);
-        setOriginalThumbnailUrl(initialData.thumbnail); // Store original URL for reset
+        setOriginalThumbnailUrl(initialData.thumbnail);
       }
-      // Set image previews for existing images.
-      if (initialData.images?.length) {
-        setImagePreviews(initialData.images.filter((img): img is string => typeof img === 'string'));
+      // Set gallery image previews
+      if (initialData.images) {
+        const imageUrls = initialData.images.filter(img => typeof img === 'string') as string[];
+        setImagePreviews(imageUrls);
+      }
+      // Set meta image preview
+      if (initialData.seo?.metaImage && typeof initialData.seo.metaImage === 'string') {
+        setMetaImagePreview(initialData.seo.metaImage);
+      }
+      // Set category image preview
+      if (typeof initialData.category === 'object' && initialData.category.image) {
+        setCategoryImagePreview(initialData.category.image);
       }
     } else if (!isEditMode) {
       // If not in edit mode, or if initialData is null, start with an empty form.
+      const emptyForm: NewsFormData = {
+        title: { en: "", kh: "" },
+        description: { en: "", kh: "" },
+        content: { en: "", kh: "" },
+        category: "",
+        tags: [],
+        status: "draft",
+        isFeatured: false,
+        isBreaking: false,
+        thumbnail: null,
+        images: [],
+        seo: {
+          metaTitle: { en: "", kh: "" },
+          metaDescription: { en: "", kh: "" },
+          keywords: "",
+          metaImage: null,
+        },
+      };
       setFormData(emptyForm);
       setOriginalData(JSON.parse(JSON.stringify(emptyForm))); // Also set original for new forms to track changes
     }
-  }, [initialData, categories, isEditMode]); // Added categories to dependency array
+  }, [initialData, categories, isEditMode]);
 
   // Effect to recalculate form statistics whenever formData changes.
   useEffect(() => {
@@ -229,19 +236,10 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     // Only enable auto-save in edit mode and if data is loaded.
     if (!isEditMode || !formData || !originalData) return;
     // Check if current formData is different from originalData.
-    const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
-    setHasUnsavedChanges(hasChanges); // Update unsaved changes flag
-
-    if (hasChanges) {
-      // If there are changes, clear any existing auto-save timeout and set a new one.
-      if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
-      autoSaveTimeoutRef.current = setTimeout(autoSave, 5000); // Auto-save after 5 seconds of inactivity
+    if (formData && originalData) {
+      setHasUnsavedChanges(JSON.stringify(formData) !== JSON.stringify(originalData));
     }
-    // Cleanup function to clear the timeout when the component unmounts or dependencies change.
-    return () => {
-      if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
-    };
-  }, [formData, originalData, autoSave, isEditMode]);
+  }, [formData, originalData, isEditMode]);
 
   // Effect to revoke object URLs when component unmounts or previews change, to prevent memory leaks.
   useEffect(() => {
@@ -262,7 +260,7 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     if (!formData.description.kh.trim()) errors["description.kh"] = "Khmer description is required";
     if (!formData.content.en.trim()) errors["content.en"] = "English content is required";
     if (!formData.content.kh.trim()) errors["content.kh"] = "Khmer content is required";
-    if (!formData.category.trim()) errors.category = "Category is required";
+    if (!formData.category || (typeof formData.category === 'string' && !formData.category.trim())) errors.category = "Category is required";
 
     // Validation for SEO meta fields.
     if (!formData.seo.metaTitle.en.trim()) errors["seo.metaTitle.en"] = "Meta title (English) is required";
@@ -271,6 +269,7 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     if (formData.seo.metaTitle.kh.length > 70) errors["seo.metaTitle.kh"] = "Meta title (Khmer) should be under 70 characters";
     if (formData.seo.metaDescription.en.length > 160) errors["seo.metaDescription.en"] = "Meta description (English) should be under 160 characters";
     if (formData.seo.metaDescription.kh.length > 160) errors["seo.metaDescription.kh"] = "Meta description (Khmer) should be under 160 characters";
+    if (!formData.seo.keywords.trim()) errors["seo.keywords"] = "Keywords are required";
 
     setValidationErrors(errors); // Update validation errors state.
     return Object.keys(errors).length === 0; // Return true if no errors.
@@ -308,153 +307,233 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     setFormData(prev => prev ? { ...prev, status: value } : prev);
   };
 
-  // Handles select (dropdown) changes for 'category'.
+  // Handles category changes.
   const handleCategoryChange = (value: string) => {
-    setFormData(prev => prev ? { ...prev, category: value } : prev);
-    if (validationErrors.category) setValidationErrors(prev => ({ ...prev, category: "" }));
-  };
-
-  // Handles changes for the 'tags' input field.
-  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => prev ? { ...prev, tags: e.target.value } : prev);
-  };
-
-  // Handles file input changes for thumbnail or additional images.
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "thumbnail" | "images") => {
-    const files = e.target.files;
-    if (!files) return;
-
-    if (type === "thumbnail") {
-      const file = files[0];
-      setFormData(prev => prev ? { ...prev, thumbnail: file } : prev);
-      if (thumbnailPreview?.startsWith("blob:")) {
-        URL.revokeObjectURL(thumbnailPreview);
-      }
-      setThumbnailPreview(URL.createObjectURL(file));
-    } else {
-      const newFiles = Array.from(files);
-      setFormData(prev => {
-        if (!prev) return prev;
-        // Filter out any non-file entries from prev.images if they exist, then add new files
-        const currentImages = prev.images.filter((img): img is File => img instanceof File);
-        return { ...prev, images: [...currentImages, ...newFiles] };
-      });
-      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
-      setImagePreviews(prev => [...prev, ...newPreviews]);
-    }
-  };
-
-  // Removes the thumbnail image.
-  const handleRemoveThumbnail = () => {
-    setFormData(prev => prev ? { ...prev, thumbnail: null } : prev);
-    if (thumbnailPreview) {
-      URL.revokeObjectURL(thumbnailPreview);
-    }
-    setThumbnailPreview(null);
-  };
-
-  // Removes an image from the list and revokes its object URL.
-  const handleRemoveImage = (index: number) => {
     setFormData(prev => {
       if (!prev) return prev;
-      const updatedImages = [...prev.images];
-      updatedImages.splice(index, 1); // Remove from formData
-      return { ...prev, images: updatedImages };
+      return { ...prev, category: value };
     });
-    setImagePreviews(prev => {
-      const updatedPreviews = [...prev];
-      const removedUrl = updatedPreviews.splice(index, 1)[0]; // Remove from previews
-      if (removedUrl?.startsWith("blob:")) {
-        URL.revokeObjectURL(removedUrl);
-      }
-      return updatedPreviews;
-    });
-  };
-
-  // Handles drag over event for file drop areas.
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-
-  // Handles drag leave event for file drop areas.
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
-
-  // Handles file drop event for thumbnail or additional images.
-  const handleDrop = (e: React.DragEvent, type: "thumbnail" | "images") => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const files = e.dataTransfer.files;
-    // Simulate a change event to reuse handleFileChange logic
-    const changeEvent = { target: { files } } as unknown as React.ChangeEvent<HTMLInputElement>;
-    handleFileChange(changeEvent, type);
-  };
-
-  // Resets the form to its original state (last saved or initial data).
-  const handleRevertChanges = () => {
-    if (originalData) {
-      setFormData(JSON.parse(JSON.stringify(originalData))); // Deep copy original data
-      setValidationErrors({}); // Clear any validation errors
-      setHasUnsavedChanges(false); // No unsaved changes after reset
-
-      // Revert thumbnail preview to original URL or null
-      setThumbnailPreview(originalThumbnailUrl);
-
-      // Revert image previews to original string URLs (filter out File objects if any were added)
-      setImagePreviews(originalData.images.filter((img): img is string => typeof img === "string"));
-      toast.info("Changes have been reverted.");
+    // Clear validation error for category if it exists.
+    if (validationErrors.category) {
+      setValidationErrors(prev => ({ ...prev, category: "" }));
     }
   };
 
-  // Handles the main form submission.
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Handles tags input changes (comma-separated string).
+  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFormData(prev => prev ? { ...prev, tags: value } : prev);
+  };
+
+  // Handles file input changes (for thumbnail, images, and metaImage).
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'thumbnail' | 'images' | 'metaImage') => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    if (field === 'thumbnail') {
+      const file = files[0];
+      if (file) {
+        setFormData(prev => prev ? { ...prev, thumbnail: file } : null);
+        setThumbnailPreview(URL.createObjectURL(file));
+        setHasUnsavedChanges(true);
+      }
+    } else if (field === 'images') {
+      if (files.length > 0) {
+        const newFiles = Array.from(files);
+        setFormData(prev => prev ? { ...prev, images: [...prev.images, ...newFiles] } : null);
+        const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+        setImagePreviews(prev => [...prev, ...newPreviews]);
+        setHasUnsavedChanges(true);
+      }
+    } else if (field === 'metaImage') {
+      if (files[0]) {
+        setFormData(prev => prev ? { ...prev, seo: { ...prev.seo, metaImage: files[0] } } : null);
+        setMetaImagePreview(URL.createObjectURL(files[0]));
+        setHasUnsavedChanges(true);
+      }
+    }
+  };
+
+  // Handles removing the thumbnail.
+  const handleRemoveThumbnail = () => {
+    if (thumbnailPreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(thumbnailPreview);
+    }
+    setFormData(prev => prev ? { ...prev, thumbnail: null } : prev);
+    setThumbnailPreview(null);
+    setOriginalThumbnailUrl(null); // Also clear original URL if thumbnail is removed
+  };
+
+  // Handles removing a specific image by its index.
+  const handleRemoveImage = (indexToRemove: number) => {
+    const urlToRemove = imagePreviews[indexToRemove];
+    if (urlToRemove.startsWith("blob:")) {
+      URL.revokeObjectURL(urlToRemove);
+    }
+
+    setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
+    setFormData(prev => {
+      if (!prev) return prev;
+      const updatedImages = prev.images.filter((_, index) => index !== indexToRemove);
+      return { ...prev, images: updatedImages };
+    });
+  };
+
+  // Handles removing meta image.
+  const handleRemoveMetaImage = () => {
+    setFormData(prev => prev ? { ...prev, seo: { ...prev.seo, metaImage: null } } : null);
+    setMetaImagePreview(null);
+    setHasUnsavedChanges(true);
+  };
+
+  // Handles drag over event for drag and drop.
+  const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    if (!validateForm() || !formData) {
-      toast.error("Please fix the errors before submitting.");
-      // Automatically switch to the tab containing the first error.
+    setIsDragOver(true);
+  }, []);
+
+  // Handles drag leave event for drag and drop.
+  const handleDragLeave = useCallback(() => {
+    setIsDragOver(false);
+  }, []);
+
+  // Handles drop event for drag and drop.
+  const handleDrop = useCallback((e: React.DragEvent, field: 'thumbnail' | 'images' | 'metaImage') => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (!droppedFiles.length) return;
+
+    if (field === 'thumbnail') {
+      if (droppedFiles[0]) {
+        setFormData(prev => prev ? { ...prev, thumbnail: droppedFiles[0] } : null);
+        setThumbnailPreview(URL.createObjectURL(droppedFiles[0]));
+        setHasUnsavedChanges(true);
+      }
+    } else if (field === 'images') {
+      if (droppedFiles.length > 0) {
+        const newFiles = Array.from(droppedFiles);
+        setFormData(prev => prev ? { ...prev, images: [...prev.images, ...newFiles] } : null);
+        const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+        setImagePreviews(prev => [...prev, ...newPreviews]);
+        setHasUnsavedChanges(true);
+      }
+    } else if (field === 'metaImage') {
+      if (droppedFiles[0]) {
+        setFormData(prev => prev ? { ...prev, seo: { ...prev.seo, metaImage: droppedFiles[0] } } : null);
+        setMetaImagePreview(URL.createObjectURL(droppedFiles[0]));
+        setHasUnsavedChanges(true);
+      }
+    }
+  }, []);
+
+  // Handles reverting changes to the last saved state or initial data.
+  const handleRevertChanges = useCallback(() => {
+    if (originalData) {
+      setFormData(JSON.parse(JSON.stringify(originalData))); // Deep copy
+      setHasUnsavedChanges(false); // Reset unsaved changes flag
+
+      // Restore original thumbnail preview if it was a URL
+      if (originalThumbnailUrl) {
+        setThumbnailPreview(originalThumbnailUrl);
+      } else if (thumbnailPreview?.startsWith("blob:")) {
+        // If current preview is a blob and there was no original URL, revoke it
+        URL.revokeObjectURL(thumbnailPreview);
+        setThumbnailPreview(null);
+      } else {
+        setThumbnailPreview(null);
+      }
+
+      // Restore image previews. Filter for only string URLs from originalData.images
+      if (Array.isArray(originalData.images)) {
+        setImagePreviews(originalData.images.filter((img): img is string => typeof img === 'string'));
+      } else {
+        setImagePreviews([]);
+      }
+
+      toast.info("Changes have been reverted.", { duration: 2000 });
+    }
+  }, [originalData, originalThumbnailUrl, thumbnailPreview]);
+
+  // Handles form submission.
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData) return;
+
+    // Trigger auto-save immediately before full submission if there are unsaved changes
+    if (hasUnsavedChanges) {
+      await autoSave(); // Ensure auto-save completes before full submission
+    }
+
+    if (!validateForm()) {
+      toast.error("Please correct the validation errors.", { duration: 3000 });
+      // Find the first tab with an error and switch to it
       const errorKeys = Object.keys(validationErrors);
-      const firstErrorField = errorKeys.length > 0 ? errorKeys[0] : "";
-      if (firstErrorField.startsWith("title") || firstErrorField.startsWith("description") || firstErrorField.startsWith("content")) {
+      if (errorKeys.some(key => key.startsWith("title") || key.startsWith("description") || key.startsWith("content"))) {
         setActiveTab("content");
-      } else if (firstErrorField.startsWith("seo")) {
+      } else if (errorKeys.some(key => key.includes("thumbnail") || key.includes("images"))) {
+        setActiveTab("media");
+      } else if (errorKeys.some(key => key.startsWith("seo"))) {
         setActiveTab("seo");
-      } else if (firstErrorField.startsWith("category")) {
+      } else if (errorKeys.some(key => key === "category" || key.includes("tags"))) {
         setActiveTab("details");
       }
       return;
     }
 
     const data = new FormData();
-    const dataToSubmit = structuredClone(formData); // Deep copy for manipulation
 
-    // Handle tags: convert comma-separated string to array for submission
-    if (typeof dataToSubmit.tags === 'string') {
-      dataToSubmit.tags = dataToSubmit.tags.split(',').map((t: string) => t.trim()).filter(Boolean);
+    // Append simple fields
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== 'thumbnail' && key !== 'images' && key !== 'tags' && key !== 'seo' && key !== 'content' && key !== 'description' && key !== 'title' && key !== 'category' && typeof value !== 'object') {
+        data.append(key, value.toString());
+      }
+    });
+
+    // Append complex fields
+    data.append('title', JSON.stringify(formData.title));
+    data.append('content', JSON.stringify(formData.content));
+    data.append('description', JSON.stringify(formData.description));
+    // Handle category: send only the ID
+    const categoryId = typeof formData.category === 'object' ? formData.category._id : formData.category;
+    data.append('category', categoryId);
+    data.append('tags', Array.isArray(formData.tags) ? formData.tags.join(',') : formData.tags);
+    
+    // Handle SEO, excluding the metaImage File object
+    const { metaImage, ...restOfSeo } = formData.seo;
+    data.append('seo', JSON.stringify(restOfSeo));
+
+    // Append metaImage file if it's a new file
+    if (metaImage instanceof File) {
+      data.append('metaImage', metaImage);
+    }
+    // Append thumbnail file if it's a new file
+    if (formData.thumbnail instanceof File) {
+      data.append('thumbnail', formData.thumbnail);
     }
 
-    // Separate file fields from the main data object before stringifying
-    const thumbnailFile = dataToSubmit.thumbnail instanceof File ? dataToSubmit.thumbnail : null;
-    const newImageFiles = (dataToSubmit.images as (string | File)[]).filter((img): img is File => img instanceof File);
+    // Append meta image file if it's a new file
+    if (formData.seo.metaImage instanceof File) {
+      data.append('metaImage', formData.seo.metaImage);
+    } else if (formData.thumbnail === null && originalThumbnailUrl) {
+      // If thumbnail was explicitly removed (set to null) and there was an original, signal removal
+      data.append("removeThumbnail", "true");
+    }
 
-    // Append file fields to FormData
-    if (thumbnailFile) data.append('thumbnail', thumbnailFile);
-    newImageFiles.forEach(file => data.append('images', file));
-
-    // Update dataToSubmit to only include existing image URLs and original thumbnail URL
-    dataToSubmit.images = (dataToSubmit.images as (string | File)[]).filter((img): img is string => typeof img === 'string');
-    dataToSubmit.thumbnail = typeof originalData?.thumbnail === 'string' ? originalData.thumbnail : null; // Ensure existing thumbnail URL is preserved
-
-    // Append the rest of the form data as a JSON string
-    data.append('data', JSON.stringify(dataToSubmit));
-
-    await onSubmit(data);
+    try {
+      await onSubmit(data);
+      toast.success(isEditMode ? "Article updated successfully!" : "Article created successfully!");
+      setHasUnsavedChanges(false); // Clear unsaved changes after successful submission
+      setOriginalData(JSON.parse(JSON.stringify(formData))); // Update original data to reflect saved state
+    } catch (error) {
+      console.error("Submission failed:", error);
+      toast.error(isEditMode ? "Failed to update article." : "Failed to create article.");
+    }
   };
 
-  // Display skeleton loading state while initial data is being fetched.
-  if (isLoading) {
+  // Render skeleton loaders if data is loading.
+  if (isLoading || formData === null) {
     return (
       <div className="p-6">
         <Skeleton className="h-12 w-1/3 mb-4" />
@@ -520,14 +599,16 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
               <NewsFormMediaTab
                 thumbnailPreview={thumbnailPreview}
                 imagePreviews={imagePreviews}
+                metaImagePreview={metaImagePreview}
+                categoryImagePreview={categoryImagePreview}
                 isDragOver={isDragOver}
                 onFileChange={handleFileChange}
                 onRemoveThumbnail={handleRemoveThumbnail}
                 onRemoveImage={handleRemoveImage}
+                onRemoveMetaImage={handleRemoveMetaImage}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                // validationErrors={validationErrors} // Pass if media-specific validation is needed
               />
             </TabsContent>
             <TabsContent value="seo">
@@ -549,9 +630,9 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
             </TabsContent>
           </Tabs>
           {Object.keys(validationErrors).some(key => validationErrors[key]) && (
-            <Alert variant="destructive" className="mt-6"> {/* Added margin-top */}
+            <Alert variant="destructive" className="mt-6">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Validation Error</AlertTitle> {/* More specific title */}
+              <AlertTitle>Validation Error</AlertTitle>
               <AlertDescription>
                 Please fix the validation errors before submitting.
               </AlertDescription>
@@ -560,11 +641,11 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
         </div>
         {/* Sidebar component */}
         <NewsFormSidebar
-          isSubmitting={isSubmitting} // Pass isSubmitting to sidebar if it contains a submit button or needs to react to submission state
+          isSubmitting={isSubmitting}
           formData={formData}
           formStats={formStats}
           onStatusChange={handleStatusChange}
-          onSwitchChange={handleSwitchChange} // Pass switch handler to sidebar if it controls featured/breaking
+          onSwitchChange={handleSwitchChange}
           // Note: category and tags handlers are now passed to DetailsTab, not Sidebar directly.
           // Sidebar only needs formData.status for its own display.
         />

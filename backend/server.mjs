@@ -6,7 +6,6 @@ import morgan from "morgan"
 import cookieParser from "cookie-parser"
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import fileUpload from "express-fileupload"
 import path from "path"
 import { fileURLToPath } from "url"
 import connectDB from "./config/db.mjs"
@@ -40,12 +39,7 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(express.json({ limit: "10mb" }))
 app.use(cookieParser())
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: "/tmp/",
-  }),
-)
+
 
 // Session configuration
 const sessionSecret = process.env.SESSION_SECRET || 'your-secret-key';
@@ -120,7 +114,7 @@ const corsOptions = {
   },
   credentials: true, // Required for cookies
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token', 'Cache-Control', 'Pragma'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   exposedHeaders: ['set-cookie'],
   maxAge: 86400 // 24 hours
 };
@@ -196,18 +190,7 @@ const PORT = process.env.PORT || 5001
 
 let server = app.listen(PORT, () => {
   console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
-  
-  // Auto-restart every 5 minutes (300,000 milliseconds)
-  const RESTART_INTERVAL = 5 * 60 * 1000;
-  setInterval(() => {
-    console.log('🔄 Auto-restarting server...');
-    server.close(() => {
-      console.log('🔒 Server closed');
-      server = app.listen(PORT, () => {
-        console.log(`🚀 Server restarted on port ${PORT}`);
-      });
-    });
-  }, RESTART_INTERVAL);
+
 })
 
 // Graceful shutdown handlers
