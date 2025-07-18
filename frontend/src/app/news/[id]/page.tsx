@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { getArticle } from '@/lib/articles';
 import NewsArticleFetcher from './NewsArticleFetcher';
 
-const URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://your-domain.com';
+const URL = process.env.NEXT_PUBLIC_BASE_URL || ' http://localhost:3000';
 
 
 

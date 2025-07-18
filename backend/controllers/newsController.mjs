@@ -213,89 +213,49 @@ export const getNews = asyncHandler(async (req, res) => {
   }
 });
 
-
-// @desc    Get single news article by ID
-// @route   GET /api/news/:id
+// @desc    Get single news article by slug or ID
+// @route   GET /api/news/:identifier
 // @access  Public
-// @desc    Get single news article by ID
-// @route   GET /api/news/id/:id
-// @access  Public or Protected
-export const getNewsById = asyncHandler(async (req, res) => {
+export const getNewsByIdentifier = asyncHandler(async (req, res) => {
   try {
-    const news = await News.findById(req.params.id).populate('author', 'username email role').populate('category', 'name');
+    const { identifier } = req.params;
+    let query;
+
+    // Check if the identifier is a valid MongoDB ObjectId
+    if (mongoose.Types.ObjectId.isValid(identifier)) {
+      query = { _id: identifier };
+    } else {
+      query = { slug: identifier };
+    }
+
+    const news = await News.findOne(query)
+      .populate('author', 'name email role')
+      .populate('category', 'name');
 
     if (!news) {
-      return res.status(404).json({
-        success: false,
-        message: 'News not found'
-      });
+      res.status(404);
+      throw new Error('News article not found');
     }
 
-    const isAdmin = req.user && req.user.role === 'admin';
-    const isPublished = news.status === 'published';
-
-    // Only admins can view unpublished articles
-    if (!isPublished && !isAdmin) {
-      return res.status(403).json({
-        success: false,
-        message: 'News is not published or access denied'
-      });
-    }
-
-    // Increment view count for public users
-    if (isPublished && !isAdmin) {
-      news.views = (news.views || 0) + 1;
-      await news.save();
-    }
-
-    res.setHeader('Cache-Control', 'no-store');
-    res.json({ success: true, data: news });
-  } catch (error) {
-    console.error('Error fetching news by ID:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
-  }
-});
-
-
-// @desc    Get single news article by slug
-// @route   GET /api/news/:slug
-// @access  Public
-export const getNewsBySlug = asyncHandler(async (req, res) => {
-  try {
-    const news = await News.findOne({ slug: req.params.slug })
-    .populate('author', 'name email role')
-    .populate('category', 'name');
-    
-    if (!news) {
-      return res.status(404).json({
-        success: false,
-        message: 'News article not found'
-      });
-    }
-
-    // Increment view count
-    news.views += 1;
+    // Increment views and save
+    news.views = (news.views || 0) + 1;
     await news.save();
-    
-    const responseData = news.toObject();
-    responseData.seo = {
-      metaTitle: responseData.title,
-      metaDescription: responseData.metaDescription,
-      keywords: responseData.keywords
-    };
 
     res.json({
       success: true,
-      data: responseData
+      data: news
     });
   } catch (error) {
-    console.error('Error fetching news by slug:', error);
-    res.status(500).json({
+    // Ensure a 404 status is sent if the error was 'News article not found'
+    if (error.message === 'News article not found') {
+      res.status(404);
+    }
+    
+    console.error(`Error fetching news by identifier: ${req.params.identifier}`, error);
+    
+    res.status(res.statusCode !== 200 ? res.statusCode : 500).json({
       success: false,
-      message: 'Internal server error'
+      message: error.message || 'Internal server error'
     });
   }
 });
@@ -517,6 +477,7 @@ export const deleteNews = asyncHandler(async (req, res) => {
     res.status(500).json({ message: 'Server error while deleting news.' });
   }
 });
+
 // @desc    Get featured news
 // @route   GET /api/news/featured
 // @access  Public

@@ -2,8 +2,7 @@ import express from 'express';
 import {
   createNews,
   getNews,
-  getNewsById,
-  getNewsBySlug,
+  getNewsByIdentifier,
   updateNews,
   deleteNews,
   getFeaturedNews,
@@ -27,11 +26,8 @@ router.get('/breaking', getBreakingNews);
 router.get('/category/:category', getNewsByCategory);
 router.get('/admin', protect, admin, getNewsForAdmin);
 
-// The ID route uses a regex to specifically match a 24-character MongoDB ObjectId.
-router.get('/:id([0-9a-fA-F]{24})', protect, getNewsById);
-
-// The slug route will handle any other string, acting as a fallback.
-router.get('/:slug', getNewsBySlug);
+// This route will handle both slugs and MongoDB ObjectIds
+router.get('/:identifier', getNewsByIdentifier);
 
 // Protected Admin routes
 router.route('/')

@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  i18n: {
+    locales: ['en', 'km'],
+    defaultLocale: 'en',
+  },
   images: {
     // Allow SVG images to be loaded
     dangerouslyAllowSVG: true,
