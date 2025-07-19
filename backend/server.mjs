@@ -8,6 +8,7 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import path from "path"
 import { fileURLToPath } from "url"
+import cron from 'node-cron';
 import connectDB from "./config/db.mjs"
 import connectCloudinary from "./utils/cloudinary.mjs"
 import errorHandler from "./middleware/error.mjs"
@@ -192,6 +193,36 @@ let server = app.listen(PORT, () => {
   console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 
 })
+
+// Schedule server restart every 10 minutes
+const restartServer = () => {
+  console.log('🔄 Scheduling server restart in 10 minutes...');
+  
+  // Close all connections and restart
+  const restart = () => {
+    console.log('🔄 Server restart initiated...');
+    server.close(() => {
+      console.log('🔒 Server closed');
+      process.exit(0); // Exit with success code, process manager will restart
+    });
+  };
+
+  // Schedule the restart
+  const restartInterval = 10; // minutes
+  setTimeout(restart, restartInterval * 60 * 1000);
+};
+
+// Start the restart schedule when server starts
+if (process.env.NODE_ENV !== 'production') {
+  restartServer();
+  
+  // Also schedule it to run every 10 minutes
+  cron.schedule(`*/10 * * * *`, () => {
+    if (process.env.NODE_ENV !== 'production') {
+      restartServer();
+    }
+  });
+}
 
 // Graceful shutdown handlers
 process.on("unhandledRejection", (err, promise) => {
