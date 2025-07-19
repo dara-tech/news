@@ -24,7 +24,7 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
 
   return (
     <motion.div variants={cardVariants} className="group relative overflow-hidden rounded-2xl aspect-video bg-slate-800">
-      <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug?.[locale] || article._id}`} className="absolute inset-0 z-0" prefetch={false}>
+      <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug}`} className="absolute inset-0 z-0" prefetch={false}>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
         {article.thumbnail && (
           <Image
@@ -40,14 +40,14 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
       <div className="relative z-20 flex flex-col justify-end h-full p-6">
         {article.category && (
           <Link 
-            href={`/${locale === 'kh' ? 'km' : 'en'}/category/${article.category.slug?.[locale] || article.category._id}`}
+            href={`/${locale === 'kh' ? 'km' : 'en'}/category/${article.category.slug}`}
             className="inline-block self-start bg-white/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 border border-white/30 capitalize hover:bg-white/30 transition-colors"
           >
             {article.category.name?.[locale]}
           </Link>
         )}
         <h3 className="text-xl font-bold text-white leading-tight line-clamp-2">
-          <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug?.[locale] || article._id}`} className="hover:underline" prefetch={false}>
+          <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug}`} className="hover:underline" prefetch={false}>
             {article.title?.[locale]}
           </Link>
         </h3>

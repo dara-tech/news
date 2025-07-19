@@ -23,7 +23,7 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug?.[locale] || article._id}`} className="block w-full h-full">
+      <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug}`} className="block w-full h-full">
         <div className="relative h-[450px]">
           {article.thumbnail && (
             <Image

@@ -23,7 +23,7 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
         //   variants={cardVariants}
           className="bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden group transition-all duration-300 hover:border-white/20 hover:bg-neutral-800"
         >
-          <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug?.[locale] || article._id}`}>
+          <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug}`}>
             <div className="relative h-40">
                   {article.thumbnail && (
                           <Image

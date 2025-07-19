@@ -27,7 +27,12 @@ export interface Article {
   createdAt: string;
   updatedAt: string;
   author: {
-    name: string;
+    _id: string;
+    avatar?: string;
+    name?: string;
+    username?: string;
+    email?: string;
+    role?: string;
   };
   tags?: string[];
 }
