@@ -11,7 +11,7 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!loading) {
       if (!user || user.role !== 'admin') {
-        router.push('/login');
+        router.push('/');
       }
     }
   }, [user, loading, router]);

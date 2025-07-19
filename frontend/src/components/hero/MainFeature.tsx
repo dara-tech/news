@@ -4,15 +4,15 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowUpRight } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+
 import { Article } from "@/types"
 
 interface MainFeatureProps {
   article: Article;
+  locale: 'en' | 'kh';
 }
 
-const MainFeature: React.FC<MainFeatureProps> = ({ article }) => {
-  const { language } = useLanguage()
+const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
 
   if (!article) return null
 
@@ -23,12 +23,12 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <Link href={`/news/${article.slug}`} className="block w-full h-full">
+      <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug?.[locale] || article._id}`} className="block w-full h-full">
         <div className="relative h-[450px]">
           {article.thumbnail && (
             <Image
               src={article.thumbnail}
-              alt={article.title.en}
+              alt={article.title?.[locale] || 'Feature article image'}
               fill
               priority // Prioritize loading for LCP
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -44,7 +44,7 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article }) => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
-              {article.title?.[language]}
+              {article.title?.[locale]}
             </motion.h1>
             <motion.p
               className="text-base md:text-lg text-white/80 max-w-2xl"
@@ -52,7 +52,7 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article }) => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              {article.description?.[language]}
+              {article.description?.[locale]}
             </motion.p>
             <div className="absolute top-4 right-4 p-3 bg-white/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <ArrowUpRight className="w-6 h-6" />

@@ -30,48 +30,80 @@ const NewsFormHeader: React.FC<NewsFormHeaderProps> = ({
   const router = useRouter()
 
   return (
-    <header className="sticky top-0 z-10 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button type="button" variant="outline" size="icon" onClick={() => router.push("/admin/news")}>
+    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4">
+        {/* Mobile: Stack vertically, Desktop: Side by side */}
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm" 
+            onClick={() => router.push("/admin/news")}
+            className="flex-shrink-0"
+          >
             <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only sm:not-sr-only sm:ml-2">Back</span>
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              {isEditMode ? "Edit News Article" : "Create News Article"}
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold truncate">
+              {isEditMode ? "Edit Article" : "Create Article"}
             </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 truncate max-w-xs md:max-w-md">
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">
               {isEditMode ? `Editing: ${originalTitle}` : "Fill out the form to publish a new article."}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        
+        {/* Mobile-optimized action buttons */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Status badges - smaller on mobile */}
           {isSaving && (
-            <Badge variant="secondary">
-              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-              Saving...
+            <Badge variant="secondary" className="text-xs">
+              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+              <span className="hidden sm:inline">Saving...</span>
+              <span className="sm:hidden">Saving</span>
             </Badge>
           )}
           {lastSaved && !isSaving && (
-            <Badge variant="default" className="bg-green-100 text-green-800">
-              <CheckCircle2 className="mr-2 h-3 w-3" />
-              Saved
+            <Badge variant="default" className="bg-green-100 text-green-800 text-xs">
+              <CheckCircle2 className="mr-1 h-3 w-3" />
+              <span className="hidden sm:inline">Saved</span>
+              <span className="sm:hidden">✓</span>
             </Badge>
           )}
+          
+          {/* Action buttons - responsive sizing */}
           {isEditMode && hasUnsavedChanges && (
-            <Button type="button" variant="ghost" onClick={onRevert} disabled={isSubmitting}>
-              <RefreshCw className="mr-2 h-4 w-4" /> Revert
+            <Button 
+              type="button" 
+              variant="ghost" 
+              size="sm" 
+              onClick={onRevert} 
+              disabled={isSubmitting}
+              className="text-xs sm:text-sm"
+            >
+              <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Revert</span>
             </Button>
           )}
-          <Button type="submit" disabled={isSubmitting || isSaving}>
+          
+          <Button 
+            type="submit" 
+            disabled={isSubmitting || isSaving}
+            size="sm"
+            className="text-xs sm:text-sm min-w-[80px] sm:min-w-[100px]"
+          >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...
+                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                <span className="ml-1 sm:ml-2">Saving...</span>
               </>
             ) : (
               <>
-                <Save className="mr-2 h-4 w-4" />
-                {status === "published" ? "Publish" : "Save Draft"}
+                <Save className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="ml-1 sm:ml-2">
+                  {status === "published" ? "Publish" : "Save"}
+                </span>
               </>
             )}
           </Button>

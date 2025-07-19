@@ -78,21 +78,31 @@ export default function NewsByCategoryChart({ data = [] }: NewsByCategoryChartPr
   }, []);
 
   return (
-    <div className="bg-gray-50/50 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-200/80 font-sans">
-      {/* Header Section */}
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h3 className="text-xl font-bold text-gray-800">Category Insights</h3>
-          <p className="text-sm text-gray-500">Article volume by category</p>
+    <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-xl shadow-md border border-gray-100 font-sans">
+      {/* Mobile-optimized Header Section */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 space-y-2 sm:space-y-0">
+        <div className="flex-1">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-800">Category Insights</h3>
+          <p className="text-xs sm:text-sm text-gray-500">Article volume by category</p>
+        </div>
+        {/* Mobile: Show total articles prominently */}
+        <div className="flex items-center space-x-2 sm:hidden">
+          <div className="p-2 bg-indigo-100 rounded-lg">
+            <Zap className="w-4 h-4 text-indigo-600" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Total Articles</p>
+            <p className="text-lg font-bold text-gray-800">{totalArticles.toLocaleString()}</p>
+          </div>
         </div>
       </div>
 
-      {/* Chart Section */}
-      <div style={{ width: '100%', height: 350 }}>
+      {/* Mobile-optimized Chart Section */}
+      <div className="w-full h-[280px] sm:h-[350px]">
         <ResponsiveContainer>
           <BarChart
             data={data}
-            margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
+            margin={{ top: 10, right: 5, left: -5, bottom: 5 }}
             onClick={(e: unknown) => {
               const clickData = e as { activePayload?: { payload: ChartData }[] };
               if (clickData.activePayload && clickData.activePayload.length > 0) {
@@ -107,8 +117,22 @@ export default function NewsByCategoryChart({ data = [] }: NewsByCategoryChartPr
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} vertical={false} />
-            <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fill: COLORS.text, fontSize: 12 }} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: COLORS.text, fontSize: 12 }} width={40} />
+            <XAxis 
+              dataKey="name" 
+              tickLine={false} 
+              axisLine={false} 
+              tick={{ fill: COLORS.text, fontSize: 10 }} 
+              angle={-45}
+              textAnchor="end"
+              height={60}
+              interval={0}
+            />
+            <YAxis 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fill: COLORS.text, fontSize: 10 }} 
+              width={30}
+            />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(79, 70, 229, 0.1)' }} />
             <Bar dataKey="count" radius={[8, 8, 0, 0]} fill="url(#colorUv)">
               {data.map((entry, index) => (
@@ -124,18 +148,18 @@ export default function NewsByCategoryChart({ data = [] }: NewsByCategoryChartPr
         </ResponsiveContainer>
       </div>
 
-      {/* Summary & Details Section */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
+      {/* Mobile-optimized Summary & Details Section */}
+      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200">
         {activeData ? (
-          <div className="p-4 bg-indigo-50 rounded-lg transition-all duration-300">
-            <h4 className="font-bold text-indigo-800 text-lg">{activeData.name}</h4>
+          <div className="p-3 sm:p-4 bg-indigo-50 rounded-lg transition-all duration-300">
+            <h4 className="font-bold text-indigo-800 text-base sm:text-lg truncate">{activeData.name}</h4>
             <div className="flex items-center space-x-2 mt-2">
-              <Newspaper className="w-5 h-5 text-indigo-600" />
-              <span className="text-gray-700 font-medium">{activeData.count.toLocaleString()} articles</span>
+              <Newspaper className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 flex-shrink-0" />
+              <span className="text-gray-700 font-medium text-sm sm:text-base">{activeData.count.toLocaleString()} articles</span>
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-between p-2">
+          <div className="hidden sm:flex items-center justify-between p-2">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-indigo-100 rounded-lg">
                 <Zap className="w-5 h-5 text-indigo-600" />

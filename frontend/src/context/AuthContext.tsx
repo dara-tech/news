@@ -3,14 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
-
-interface User {
-  _id: string;
-  username: string;
-  email: string;
-  role: string;
-  token?: string;
-}
+import { User } from '@/types';
 
 interface AuthContextType {
   user: User | null;
@@ -117,20 +110,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // If we get here, either there's no stored user or the session is invalid
         console.log('ℹ️ [AuthContext] No valid session found, redirecting to login');
         setUser(null);
-        
-        // Only redirect if not already on the login page
-        if (!window.location.pathname.includes('/login')) {
-          router.push('/login');
+
+        const currentPath = window.location.pathname;
+        // Prevent redirect loop if already on a language homepage
+        if (!currentPath.includes('/login') && currentPath !== '/' && currentPath !== '/en' && currentPath !== '/km') {
+          router.push('/');
         }
         
       } catch (error) {
         console.error('❌ [AuthContext] Error during authentication check:', error);
         localStorage.removeItem('userInfo');
         setUser(null);
-        
-        if (!window.location.pathname.includes('/login')) {
-          router.push('/login');
+
+        const currentPathOnError = window.location.pathname;
+        if (!currentPathOnError.includes('/login') && currentPathOnError !== '/' && currentPathOnError !== '/en' && currentPathOnError !== '/km') {
+          router.push('/');
         }
+        
       } finally {
         setLoading(false);
       }
@@ -385,7 +381,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     localStorage.removeItem('userInfo');
     setUser(null);
-    router.push('/login');
+    router.push('/');
   };
 
   const updateUser = (userData: Partial<User>) => {

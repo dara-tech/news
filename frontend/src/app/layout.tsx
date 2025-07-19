@@ -61,7 +61,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${fontVariables} antialiased bg-gray-50`}>
+      <body className={`${fontVariables} antialiased`}>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

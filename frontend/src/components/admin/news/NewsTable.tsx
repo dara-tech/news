@@ -1,70 +1,293 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+"use client"
+
+import * as React from "react"
+import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from '@/components/ui/badge';
-import NewsTableActions from './NewsTableActions';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DataTable, SortableHeader, ActionDropdown } from '@/components/ui/data-table';
 import { NewsArticle } from '@/types/news';
 import NewsStatusChanger from './NewsStatusChanger';
+import { ExternalLink } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 interface NewsTableProps {
   articles: NewsArticle[];
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onStatusChange: (id: string, newStatus: 'draft' | 'published' | 'archived') => void;
+  onAdd?: () => void;
+  onExport?: () => void;
+  onBulkDelete?: (articles: NewsArticle[]) => void;
 }
 
-const NewsTable = ({ articles, onDelete, onDuplicate, onStatusChange }: NewsTableProps) => {
+const NewsTable = ({ 
+  articles, 
+  onDelete, 
+  onDuplicate, 
+  onStatusChange, 
+  onAdd,
+  onExport,
+  onBulkDelete 
+}: NewsTableProps) => {
+  const router = useRouter();
+
+  // Define columns for the advanced data table
+  const columns: ColumnDef<NewsArticle>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "title",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Title</SortableHeader>
+      ),
+      cell: ({ row }) => {
+        const article = row.original;
+        return (
+          <div className="flex flex-col space-y-1 min-w-[200px] max-w-[300px]">
+            <div className="font-medium line-clamp-2 text-sm sm:text-base">
+              {article.title.en || article.title.kh || 'Untitled'}
+            </div>
+            <div className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+              {article.description?.en || article.description?.kh || 'No description'}
+            </div>
+            {/* Mobile: Show category and status inline */}
+            <div className="flex items-center gap-2 sm:hidden">
+              <Badge variant="outline" className="text-xs">
+                {typeof article.category === 'object' && article.category?.name?.en
+                  ? article.category.name.en
+                  : 'Uncategorized'}
+              </Badge>
+              {article.isFeatured && (
+                <Badge variant="secondary" className="text-xs">Featured</Badge>
+              )}
+              {article.isBreaking && (
+                <Badge variant="destructive" className="text-xs">Breaking</Badge>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "category",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Category</SortableHeader>
+      ),
+      cell: ({ row }) => {
+        const article = row.original;
+        const categoryName = typeof article.category === 'object' && article.category?.name?.en
+          ? article.category.name.en
+          : 'Uncategorized';
+        return (
+          <Badge variant="outline" className="whitespace-nowrap text-xs">
+            {categoryName}
+          </Badge>
+        );
+      },
+      filterFn: (row, id, value) => {
+        const article = row.original;
+        const categoryName = typeof article.category === 'object' && article.category?.name?.en
+          ? article.category.name.en
+          : 'Uncategorized';
+        return categoryName.toLowerCase().includes(value.toLowerCase());
+      },
+      meta: {
+        className: "hidden sm:table-cell"
+      },
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Status</SortableHeader>
+      ),
+      cell: ({ row }) => {
+        const article = row.original;
+        return (
+          <NewsStatusChanger 
+            articleId={article._id} 
+            currentStatus={article.status} 
+            onStatusChange={onStatusChange} 
+          />
+        );
+      },
+      filterFn: (row, id, value) => {
+        return row.getValue(id) === value;
+      },
+    },
+    {
+      accessorKey: "flags",
+      header: "Flags",
+      cell: ({ row }) => {
+        const article = row.original;
+        return (
+          <div className="flex items-center gap-1 flex-wrap">
+            {article.isFeatured && (
+              <Badge variant="secondary" className="text-xs">
+                Featured
+              </Badge>
+            )}
+            {article.isBreaking && (
+              <Badge variant="destructive" className="text-xs">
+                Breaking
+              </Badge>
+            )}
+            {!article.isFeatured && !article.isBreaking && (
+              <span className="text-muted-foreground text-sm">—</span>
+            )}
+          </div>
+        );
+      },
+      enableSorting: false,
+      meta: {
+        className: "hidden sm:table-cell"
+      },
+    },
+    {
+      accessorKey: "views",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Views</SortableHeader>
+      ),
+      cell: ({ row }) => {
+        const views = row.getValue("views") as number;
+        return (
+          <div className="text-center font-medium text-sm">
+            {views?.toLocaleString() || 0}
+          </div>
+        );
+      },
+      meta: {
+        className: "hidden md:table-cell"
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Created</SortableHeader>
+      ),
+      cell: ({ row }) => {
+        const date = new Date(row.getValue("createdAt"));
+        return (
+          <div className="text-xs sm:text-sm min-w-[80px]">
+            <div>{date.toLocaleDateString()}</div>
+            <div className="text-muted-foreground hidden sm:block">
+              {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+        );
+      },
+      meta: {
+        className: "hidden lg:table-cell"
+      },
+    },
+    {
+      accessorKey: "author",
+      header: "Author",
+      cell: ({ row }) => {
+        const article = row.original;
+        const authorName = typeof article.author === 'object' && article.author?.name
+          ? article.author.name
+          : 'Unknown';
+        return (
+          <div className="text-xs sm:text-sm font-medium min-w-[80px]">
+            {authorName}
+          </div>
+        );
+      },
+      enableSorting: false,
+      meta: {
+        className: "hidden xl:table-cell"
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const article = row.original;
+        return (
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="h-8 w-8 p-0"
+            >
+              <Link href={`/en/news/${article.slug || article._id}`} target="_blank">
+                <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="sr-only">View article</span>
+              </Link>
+            </Button>
+            <ActionDropdown
+              onView={() => window.open(`/en/news/${article.slug || article._id}`, '_blank')}
+              onEdit={() => router.push(`/en/admin/news/edit/${article._id}`)}
+              onDuplicate={() => onDuplicate(article._id)}
+              onDelete={() => onDelete(article._id)}
+            />
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+  ];
+
+  // Filter options for the table
+  const filterOptions = [
+    {
+      key: "status",
+      label: "Status",
+      options: [
+        { label: "Draft", value: "draft" },
+        { label: "Published", value: "published" },
+        { label: "Archived", value: "archived" },
+      ],
+    },
+    {
+      key: "category",
+      label: "Category",
+      options: Array.from(
+        new Set(
+          articles.map(article => 
+            typeof article.category === 'object' && article.category?.name?.en
+              ? article.category.name.en
+              : 'Uncategorized'
+          )
+        )
+      ).map(category => ({ label: category, value: category })),
+    },
+  ];
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Title</TableHead>
-          <TableHead className="hidden md:table-cell">Category</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="hidden sm:table-cell">Flags</TableHead>
-          <TableHead className="hidden md:table-cell">Created</TableHead>
-          <TableHead>
-            <span className="sr-only">Actions</span>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {articles.map((article) => (
-          <TableRow key={article._id}>
-            <TableCell className="font-medium">{article.title.en}</TableCell>
-            <TableCell className="hidden md:table-cell">
-              {typeof article.category === 'object' && article.category?.name?.en
-                ? article.category.name.en
-                : 'Uncategorized'}
-            </TableCell>
-            <TableCell>
-              <NewsStatusChanger 
-                articleId={article._id} 
-                currentStatus={article.status} 
-                onStatusChange={onStatusChange} 
-              />
-            </TableCell>
-            <TableCell className="hidden sm:table-cell">
-              <div className="flex items-center gap-2">
-                {article.isFeatured && <Badge variant="secondary">Featured</Badge>}
-                {article.isBreaking && <Badge variant="destructive">Breaking</Badge>}
-              </div>
-            </TableCell>
-            <TableCell className="hidden md:table-cell">
-              {new Date(article.createdAt).toLocaleDateString()}
-            </TableCell>
-            <TableCell>
-              <NewsTableActions articleId={article._id} onDelete={onDelete} onDuplicate={onDuplicate} />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <DataTable
+      columns={columns}
+      data={articles}
+      searchPlaceholder="Search articles..."
+      onAdd={onAdd}
+      onExport={onExport}
+      onBulkDelete={onBulkDelete}
+      filterOptions={filterOptions}
+    />
   );
 };
 

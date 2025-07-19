@@ -1,20 +1,26 @@
+export type Locale = 'en' | 'kh';
+
+export type LocalizedString = {
+  [key in Locale]?: string;
+};
+
 export interface Category {
   _id: string;
-  name: { en: string; kh: string };
-  slug?: { en: string; kh: string };
-  description?: { en: string; kh: string };
+  name: LocalizedString;
+  slug?: LocalizedString;
+  description?: LocalizedString;
 }
 
 export interface Article {
   _id: string;
-  slug: string;
-  title: { en: string; kh: string };
-  content: { en: string; kh: string };
-  description: { en: string; kh: string };
+  slug: LocalizedString;
+  title: LocalizedString;
+  content: LocalizedString;
+  description: LocalizedString;
   category: {
     _id: string;
-    name: { en: string; kh: string };
-    slug?: { en: string; kh: string };
+    name: LocalizedString;
+    slug?: LocalizedString;
   };
   thumbnail?: string;
   images?: string[];
@@ -24,4 +30,13 @@ export interface Article {
     name: string;
   };
   tags?: string[];
+}
+
+export interface User {
+  _id: string;
+  username: string;
+  email: string;
+  role: string;
+  avatar?: string;
+  token?: string;
 }

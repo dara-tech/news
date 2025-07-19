@@ -141,28 +141,29 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-4 sm:space-y-6">
+        {/* Mobile-optimized loading skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div className="h-5 w-24 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse"></div>
+            <Card key={i} className="border-gray-100">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6">
+                <div className="h-4 sm:h-5 w-20 sm:w-24 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-5 w-5 sm:h-6 sm:w-6 bg-gray-200 rounded-full animate-pulse"></div>
               </CardHeader>
-              <CardContent>
-                <div className="h-8 w-12 bg-gray-200 rounded animate-pulse"></div>
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="h-6 sm:h-8 w-10 sm:w-12 bg-gray-200 rounded animate-pulse"></div>
               </CardContent>
             </Card>
           ))}
         </div>
-        <Card>
-          <CardHeader>
+        <Card className="border-gray-100">
+          <CardHeader className="p-4 sm:p-6">
             <CardTitle>
-              <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-5 sm:h-6 w-36 sm:w-48 bg-gray-200 rounded animate-pulse"></div>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-80 w-full bg-gray-200 rounded-md animate-pulse"></div>
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <div className="h-64 sm:h-80 w-full bg-gray-200 rounded-md animate-pulse"></div>
           </CardContent>
         </Card>
       </div>
@@ -170,31 +171,49 @@ export default function DashboardPage() {
   }
 
   if (error) {
-    return <p className="text-red-500 text-center">{error}</p>;
+    return (
+      <div className="flex flex-col items-center justify-center p-6 sm:p-8 text-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6 max-w-md">
+          <p className="text-red-600 font-medium text-sm sm:text-base">{error}</p>
+          <p className="text-red-500 text-xs sm:text-sm mt-2">Please try refreshing the page</p>
+        </div>
+      </div>
+    );
   }
 
   if (!stats) {
-    return <p className="text-center p-4 text-gray-600">No statistics available. Please check back later.</p>;
+    return (
+      <div className="flex flex-col items-center justify-center p-6 sm:p-8 text-center">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 max-w-md">
+          <p className="text-gray-600 text-sm sm:text-base">No statistics available.</p>
+          <p className="text-gray-500 text-xs sm:text-sm mt-2">Please check back later.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Mobile-optimized stats grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
         <StatCard title="Total News" value={stats.totalNews} icon={Newspaper} />
         <StatCard title="Total Users" value={stats.totalUsers} icon={Users} />
         <StatCard title="Total Categories" value={stats.totalCategories} icon={LayoutList} />
       </div>
-      <div className="grid grid-cols-1 gap-6">
+      
+      {/* Mobile-optimized chart section */}
+      <div className="w-full">
         {Array.isArray(chartData) && chartData.length > 0 ? (
           <NewsByCategoryChart data={chartData} />
         ) : (
-          <div className="p-8 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
-            <p className="text-gray-500">No category data available</p>
-            <p className="text-sm text-gray-400 mt-2">News articles by category will appear here</p>
+          <div className="p-6 sm:p-8 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
+            <div className="max-w-sm mx-auto">
+              <p className="text-gray-500 text-sm sm:text-base">No category data available</p>
+              <p className="text-xs sm:text-sm text-gray-400 mt-2">News articles by category will appear here</p>
+            </div>
           </div>
         )}
       </div>
     </div>
-  
   );
 }

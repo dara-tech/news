@@ -2,10 +2,11 @@
 
 import { useState, useRef } from 'react';
 import { Bell, UserCircle, Search, Menu, X, LogOut, Settings, User } from 'lucide-react';
-import { usePathname } from 'next/navigation'; // Assuming Next.js for dynamic titles
+import { usePathname } from 'next/navigation';
+import Link from 'next/link'; // Assuming Next.js for dynamic titles
 
 // Hook for handling click outside of an element (for dropdown)
-import { useOnClickOutside } from '@/app/admin/hooks/useOnClickOutside'; // (Implementation for this hook is below)
+import { useOnClickOutside } from '@/hooks/useOnClickOutside';
 
 export default function DashboardHeader() {
   // 1. State Management for UI interactivity
@@ -72,14 +73,14 @@ export default function DashboardHeader() {
             
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-700 dark:ring-gray-600">
-                <a href="/profile" className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">
+                <Link href="/profile" className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">
                   <User className="mr-2 h-4 w-4" />
                   Your Profile
-                </a>
-                <a href="/settings" className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">
+                </Link>
+                <Link href="/settings" className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
-                </a>
+                </Link>
                 <div className="my-1 h-px bg-gray-100 dark:bg-gray-600" />
                 <button
                   onClick={handleLogout}

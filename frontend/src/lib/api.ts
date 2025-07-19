@@ -118,9 +118,10 @@ api.interceptors.response.use(
             // If refresh fails, log the user out
             if (typeof window !== 'undefined') {
               localStorage.removeItem('userInfo');
-              // Only redirect if not already on the login page
-              if (!window.location.pathname.includes('/login')) {
-                window.location.href = '/login';
+              const currentPath = window.location.pathname;
+              // Prevent redirect loop if already on a language homepage
+              if (!currentPath.includes('/login') && currentPath !== '/' && currentPath !== '/en' && currentPath !== '/km') {
+                window.location.href = '/';
               }
             }
           }
@@ -128,8 +129,9 @@ api.interceptors.response.use(
           // If we've already retried and still get 401, log out
           if (typeof window !== 'undefined') {
             localStorage.removeItem('userInfo');
-            if (!window.location.pathname.includes('/login')) {
-              window.location.href = '/login';
+            const currentPath = window.location.pathname;
+            if (!currentPath.includes('/login') && currentPath !== '/' && currentPath !== '/en' && currentPath !== '/km') {
+              window.location.href = '/';
             }
           }
         }
@@ -151,8 +153,9 @@ api.interceptors.response.use(
       // Clear user data and redirect to login on critical errors
       if (typeof window !== 'undefined') {
         localStorage.removeItem('userInfo');
-        if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes('/login') && currentPath !== '/' && currentPath !== '/en' && currentPath !== '/km') {
+          window.location.href = '/';
         }
       }
     }

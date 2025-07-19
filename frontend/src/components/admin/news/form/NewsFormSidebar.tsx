@@ -24,17 +24,18 @@ const NewsFormSidebar: React.FC<NewsFormSidebarProps> = ({
   onSwitchChange,
 }) => {
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Publication</CardTitle>
-          <CardDescription>Manage article visibility and status.</CardDescription>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      {/* Publication Card */}
+      <Card className="border-gray-200">
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="text-base sm:text-lg">Publication</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Manage article visibility and status.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="status" className="text-sm font-medium">Status</Label>
             <Select value={formData.status} onValueChange={onStatusChange}>
-              <SelectTrigger id="status">
+              <SelectTrigger id="status" className="h-9 sm:h-10">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
@@ -44,38 +45,52 @@ const NewsFormSidebar: React.FC<NewsFormSidebarProps> = ({
             </Select>
           </div>
           <Separator />
-          <div className="flex items-center justify-between">
-            <Label htmlFor="isFeatured">Featured Article</Label>
+          <div className="flex items-center justify-between py-1">
+            <Label htmlFor="isFeatured" className="text-sm font-medium flex-1">Featured Article</Label>
             <Switch
               id="isFeatured"
               checked={formData.isFeatured}
               onCheckedChange={(checked) => onSwitchChange(checked, "isFeatured")}
+              className="ml-2"
             />
           </div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="isBreaking">Breaking News</Label>
+          <div className="flex items-center justify-between py-1">
+            <Label htmlFor="isBreaking" className="text-sm font-medium flex-1">Breaking News</Label>
             <Switch
               id="isBreaking"
               checked={formData.isBreaking}
               onCheckedChange={(checked) => onSwitchChange(checked, "isBreaking")}
+              className="ml-2"
             />
           </div>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Statistics</CardTitle>
-          <CardDescription>Live counts of your content.</CardDescription>
+      
+      {/* Statistics Card */}
+      <Card className="border-gray-200">
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="text-base sm:text-lg">Statistics</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Live counts of your content.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-600 dark:text-slate-400">Word Count:</span>
-            <span className="font-medium text-slate-900 dark:text-slate-100">{formStats.wordCount.en} (EN) / {formStats.wordCount.kh} (KH)</span>
-          </div>
-          <Separator className="my-2" />
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-600 dark:text-slate-400">Character Count:</span>
-            <span className="font-medium text-slate-900 dark:text-slate-100">{formStats.charCount.en} (EN) / {formStats.charCount.kh} (KH)</span>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+              <span className="text-xs sm:text-sm text-muted-foreground font-medium">Word Count:</span>
+              <div className="text-xs sm:text-sm font-medium">
+                <span className="inline-block">{formStats.wordCount.en} (EN)</span>
+                <span className="mx-1 text-muted-foreground">/</span>
+                <span className="inline-block">{formStats.wordCount.kh} (KH)</span>
+              </div>
+            </div>
+            <Separator />
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+              <span className="text-xs sm:text-sm text-muted-foreground font-medium">Character Count:</span>
+              <div className="text-xs sm:text-sm font-medium">
+                <span className="inline-block">{formStats.charCount.en} (EN)</span>
+                <span className="mx-1 text-muted-foreground">/</span>
+                <span className="inline-block">{formStats.charCount.kh} (KH)</span>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

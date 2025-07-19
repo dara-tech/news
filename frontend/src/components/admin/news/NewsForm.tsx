@@ -523,12 +523,12 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
 
     try {
       await onSubmit(data);
-      toast.success(isEditMode ? "Article updated successfully!" : "Article created successfully!");
+      // Success toast is handled by the parent page component to avoid duplicates
       setHasUnsavedChanges(false); // Clear unsaved changes after successful submission
       setOriginalData(JSON.parse(JSON.stringify(formData))); // Update original data to reflect saved state
     } catch (error) {
       console.error("Submission failed:", error);
-      toast.error(isEditMode ? "Failed to update article." : "Failed to create article.");
+      // Error toast is handled by the parent page component to avoid duplicates
     }
   };
 
@@ -568,8 +568,10 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
   // Main form rendering.
   return (
     <TooltipProvider>
-      <form onSubmit={handleSubmit} className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-        <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
+      <div className="min-h-screen bg-muted/10">
+        <div className="mx-auto max-w-7xl p-3 sm:p-4 lg:p-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <div className="w-full">
           {/* Header component */}
           <NewsFormHeader
             isEditMode={isEditMode}
@@ -582,11 +584,12 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
             isSubmitting={isSubmitting} // Pass isSubmitting to header for button state
           />
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="content">Content</TabsTrigger>
-              <TabsTrigger value="media">Media</TabsTrigger>
-              <TabsTrigger value="seo">SEO</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
+            {/* Mobile-optimized tabs */}
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+              <TabsTrigger value="content" className="text-xs sm:text-sm py-2 sm:py-2.5">Content</TabsTrigger>
+              <TabsTrigger value="media" className="text-xs sm:text-sm py-2 sm:py-2.5">Media</TabsTrigger>
+              <TabsTrigger value="seo" className="text-xs sm:text-sm py-2 sm:py-2.5">SEO</TabsTrigger>
+              <TabsTrigger value="details" className="text-xs sm:text-sm py-2 sm:py-2.5">Details</TabsTrigger>
             </TabsList>
             <TabsContent value="content">
               <NewsFormContentTab
@@ -630,26 +633,31 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
             </TabsContent>
           </Tabs>
           {Object.keys(validationErrors).some(key => validationErrors[key]) && (
-            <Alert variant="destructive" className="mt-6">
+            <Alert variant="destructive" className="mt-3 sm:mt-4 lg:mt-6">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Validation Error</AlertTitle>
-              <AlertDescription>
+              <AlertTitle className="text-sm sm:text-base">Validation Error</AlertTitle>
+              <AlertDescription className="text-xs sm:text-sm">
                 Please fix the validation errors before submitting.
               </AlertDescription>
             </Alert>
           )}
+            </div>
+            
+            {/* Sidebar - Full width on mobile, better positioned */}
+            <div className="w-full">
+              <NewsFormSidebar
+                isSubmitting={isSubmitting}
+                formData={formData}
+                formStats={formStats}
+                onStatusChange={handleStatusChange}
+                onSwitchChange={handleSwitchChange}
+                // Note: category and tags handlers are now passed to DetailsTab, not Sidebar directly.
+                // Sidebar only needs formData.status for its own display.
+              />
+            </div>
+          </form>
         </div>
-        {/* Sidebar component */}
-        <NewsFormSidebar
-          isSubmitting={isSubmitting}
-          formData={formData}
-          formStats={formStats}
-          onStatusChange={handleStatusChange}
-          onSwitchChange={handleSwitchChange}
-          // Note: category and tags handlers are now passed to DetailsTab, not Sidebar directly.
-          // Sidebar only needs formData.status for its own display.
-        />
-      </form>
+      </div>
     </TooltipProvider>
   );
 };

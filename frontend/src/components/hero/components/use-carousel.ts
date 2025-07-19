@@ -1,33 +1,37 @@
-"use client"
+import { useCallback, useEffect, useState } from "react"
 
-import { useState, useEffect, useCallback } from "react"
+interface UseCarouselProps {
+  itemCount: number
+  autoRotate?: boolean
+  autoRotateInterval?: number
+}
 
-/**
- * A custom hook to manage carousel state and logic.
- * @param count The total number of items in the carousel.
- * @param intervalMs The auto-play interval in milliseconds.
- * @param autoPlay Whether the carousel should auto-play.
- * @returns The current index, and functions to navigate to the next/previous item or a specific index.
- */
-export const useCarousel = (count: number, intervalMs: number = 8000, autoPlay: boolean = true) => {
+export function useCarousel({
+  itemCount,
+  autoRotate = true,
+  autoRotateInterval = 5000,
+}: UseCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
 
   const next = useCallback(() => {
-    if (count === 0) return
-    setCurrentIndex((prev) => (prev + 1) % count)
-  }, [count])
-
-  const prev = useCallback(() => {
-    if (count === 0) return
-    setCurrentIndex((prev) => (prev - 1 + count) % count)
-  }, [count])
+    setCurrentIndex((prev) => (prev + 1) % itemCount)
+  }, [itemCount])
 
   useEffect(() => {
-    if (!autoPlay || count === 0) return
+    if (!autoRotate || isPaused) return
+    const interval = setInterval(() => next(), autoRotateInterval)
+    return () => clearInterval(interval)
+  }, [autoRotate, isPaused, autoRotateInterval, next])
 
-    const timer = setInterval(next, intervalMs)
-    return () => clearInterval(timer)
-  }, [count, intervalMs, next, autoPlay])
+  const play = () => setIsPaused(false)
+  const pause = () => setIsPaused(true)
 
-  return { currentIndex, setCurrentIndex, next, prev }
+  return {
+    currentIndex,
+    isPaused,
+    play,
+    pause,
+    setCurrentIndex,
+  }
 }
