@@ -13,7 +13,7 @@ interface NewsFormHeaderProps {
   lastSaved: Date | null
   hasUnsavedChanges: boolean
   isSubmitting: boolean
-  status: "draft" | "published"
+  status: "draft" | "published" | "archived"
   onRevert: () => void
 }
 

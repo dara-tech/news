@@ -4,7 +4,9 @@ import type React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Sparkles } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea"
 import type { NewsFormData } from "../NewsForm"
 
@@ -12,14 +14,29 @@ interface NewsFormSEOTabProps {
   formData: NewsFormData;
   validationErrors: Record<string, string>;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onGenerateSEO: () => Promise<void>;
+  isGenerating: boolean;
 }
 
-const NewsFormSEOTab: React.FC<NewsFormSEOTabProps> = ({ formData, validationErrors, onInputChange }) => {
+const NewsFormSEOTab: React.FC<NewsFormSEOTabProps> = ({ formData, validationErrors, onInputChange, onGenerateSEO, isGenerating }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>SEO Configuration</CardTitle>
-        <CardDescription>Optimize your article for search engines.</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>SEO Configuration</CardTitle>
+            <CardDescription>Optimize your article for search engines.</CardDescription>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onGenerateSEO}
+            disabled={isGenerating || !formData.title.en}
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            {isGenerating ? 'Generating...' : 'Generate with AI'}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">

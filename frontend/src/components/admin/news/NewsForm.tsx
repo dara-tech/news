@@ -15,23 +15,27 @@ import { AlertCircle } from "lucide-react"
 import NewsFormHeader from "./form/NewsFormHeader"
 import NewsFormContentTab from "./form/NewsFormContentTab"
 import NewsFormMediaTab from "./form/NewsFormMediaTab"
-import NewsFormSEOTab from "./form/NewsFormSEOTab"
+import NewsFormSEOTab from "./form/NewsFormSEOTab";
+import { useGenerateSEO } from '@/hooks/useGenerateSEO';
 import NewsFormDetailsTab from "./form/NewsFormDetailsTab"
 import NewsFormSidebar from "./form/NewsFormSidebar"
 
 // Defines the structure for news article data, including multilingual fields and file types.
 export interface NewsFormData {
+  id?: string;
   title: { en: string; kh: string };
   content: { en: string; kh: string };
   description: { en: string; kh: string };
   category: { _id: string; name: { en: string; kh: string }; image?: string } | string;
-  tags: string[] | string; // Allows string for initial input (comma-separated) or array for internal use
+  tags: string[];
   isFeatured: boolean;
   isBreaking: boolean;
-  status: "draft" | "published";
-  thumbnail: File | string | null; // Can be File object (new upload) or string (existing URL)
-  images: (File | string)[]; // Can be File objects (new uploads) or strings (existing URLs)
-  seo: { // Renamed from 'meta' to 'seo'
+  status: "draft" | "published" | "archived";
+  scheduledAt: Date | null;
+  thumbnail: File | string | null;
+  images: (File | string)[];
+  authorId: string;
+  seo: {
     metaTitle: { en: string; kh: string };
     metaDescription: { en: string; kh: string };
     keywords: string;
@@ -83,12 +87,14 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  
   const [formStats, setFormStats] = useState<FormStats>({
     wordCount: { en: 0, kh: 0 },
     charCount: { en: 0, kh: 0 },
     completionPercentage: 0,
     estimatedReadTime: 0,
   });
+
 
   // Effect to fetch categories on component mount
   useEffect(() => {
@@ -147,8 +153,8 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
         ...initialData,
         // Ensure category is just the ID string for the form state
         category: (initialData.category && typeof initialData.category === 'object' && '_id' in initialData.category) ? initialData.category._id : initialData.category || "",
-        // Convert tags array to a comma-separated string for the input field
-        tags: Array.isArray(initialData.tags) ? initialData.tags.join(', ') : initialData.tags || "",
+        // Keep tags as array for consistency with NewsFormData interface
+        tags: Array.isArray(initialData.tags) ? initialData.tags : (initialData.tags ? [initialData.tags] : []),
         seo: {
           metaTitle: initialData.title || { en: "", kh: "" },
           metaDescription: ('metaDescription' in initialData && initialData.metaDescription) ? initialData.metaDescription as { en: string; kh: string } : (initialData.seo?.metaDescription || { en: "", kh: "" }),
@@ -157,7 +163,7 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
         },
       };
 
-      setFormData(processedData as NewsFormData);
+      setFormData(processedData as unknown as NewsFormData);
       setOriginalData(JSON.parse(JSON.stringify(processedData)) as NewsFormData); // Deep copy original data
 
       // Set thumbnail preview if an initial thumbnail URL is provided.
@@ -189,8 +195,10 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
         status: "draft",
         isFeatured: false,
         isBreaking: false,
+        scheduledAt: null,
         thumbnail: null,
         images: [],
+        authorId: "",
         seo: {
           metaTitle: { en: "", kh: "" },
           metaDescription: { en: "", kh: "" },
@@ -322,7 +330,9 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
   // Handles tags input changes (comma-separated string).
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setFormData(prev => prev ? { ...prev, tags: value } : prev);
+    // Convert comma-separated string to array
+    const tagsArray = value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    setFormData(prev => prev ? { ...prev, tags: tagsArray } : prev);
   };
 
   // Handles file input changes (for thumbnail, images, and metaImage).
@@ -455,6 +465,41 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
       toast.info("Changes have been reverted.", { duration: 2000 });
     }
   }, [originalData, originalThumbnailUrl, thumbnailPreview]);
+
+  const { isGenerating, error: generationError, generateSEO } = useGenerateSEO();
+
+  const handleGenerateSEO = async () => {
+    if (!formData?.title.en) {
+      toast.error("Please enter an English title first to generate SEO content.");
+      return;
+    }
+
+    const result = await generateSEO(formData.title.en);
+
+    if (result) {
+      setFormData(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          seo: {
+            ...prev.seo,
+            metaTitle: {
+              en: result.metaTitle.en,
+              kh: result.metaTitle.kh,
+            },
+            metaDescription: {
+              en: result.metaDescription.en,
+              kh: result.metaDescription.kh,
+            },
+            keywords: result.keywords,
+          },
+        };
+      });
+      toast.success("SEO content generated successfully!");
+    } else if (generationError) {
+      toast.error(generationError);
+    }
+  };
 
   // Handles form submission.
   const handleSubmit = async (e: React.FormEvent) => {
@@ -619,6 +664,8 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
                 formData={formData}
                 validationErrors={validationErrors}
                 onInputChange={handleInputChange}
+                onGenerateSEO={handleGenerateSEO}
+                isGenerating={isGenerating}
               />
             </TabsContent>
             <TabsContent value="details">

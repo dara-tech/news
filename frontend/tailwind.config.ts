@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-kantumruy-pro)'],
+        sans: ['Hanuman', 'sans-serif'],
       },
     },
   },

@@ -30,7 +30,6 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
               src={article.thumbnail}
               alt={article.title?.[locale] || 'Feature article image'}
               fill
-              priority // Prioritize loading for LCP
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
               onError={(e) => { e.currentTarget.src = '/placeholder.jpg' }}
