@@ -41,6 +41,7 @@ import {
   ChevronRight,
   Languages,
 } from "lucide-react"
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 // =================================================================
 // --- TYPES ---
@@ -80,20 +81,7 @@ const useAuth = (): AuthContextType => ({
   },
 })
 
-// Mock Language Switcher
-const LanguageSwitcher: FC = () => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button variant="ghost" size="icon">
-        <Languages className="h-5 w-5" />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end">
-      <DropdownMenuItem>English</DropdownMenuItem>
-      <DropdownMenuItem>Español</DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-)
+// Remove the mock LanguageSwitcher implementation
 
 
 // =================================================================
