@@ -30,7 +30,7 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
           <Image
             fill
             src={article.thumbnail}
-            alt={article.title?.[locale] || 'News article thumbnail'}
+            alt={typeof article.title === 'string' ? article.title : article.title?.[locale] || 'News article thumbnail'}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-in-out"
           />
@@ -43,12 +43,12 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
             href={`/${locale === 'kh' ? 'km' : 'en'}/category/${article.category.slug}`}
             className="inline-block self-start bg-white/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 border border-white/30 capitalize hover:bg-white/30 transition-colors"
           >
-            {article.category.name?.[locale]}
+            {typeof article.category.name === 'string' ? article.category.name : article.category.name?.[locale]}
           </Link>
         )}
         <h3 className="text-xl font-bold text-white leading-tight line-clamp-2">
           <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news/${article.slug}`} className="hover:underline" prefetch={false}>
-            {article.title?.[locale]}
+            {typeof article.title === 'string' ? article.title : article.title?.[locale]}
           </Link>
         </h3>
       </div>

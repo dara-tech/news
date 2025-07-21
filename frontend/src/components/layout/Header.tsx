@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect, FC, useCallback } from "react"
+import { useState, useEffect, FC } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
-import type { User } from "@/types"
 import { cn } from "@/lib/utils"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion"
@@ -42,7 +41,6 @@ import {
   Sun,
   Moon,
   Search,
-  Sparkles,
   ChevronRight,
   Languages,
 } from "lucide-react"
@@ -52,52 +50,58 @@ interface NavLink {
   href: string
   label: string
   icon: React.ElementType
-  badge?: number
   isNew?: boolean
 }
 
 // --- CONSTANTS ---
+// UPDATED: Removed the `badge` property to get rid of the numbers.
 const NAV_LINKS: NavLink[] = [
   { href: "/", icon: Home, label: "Home" },
-  { href: "/category/technology", icon: Computer, label: "Technology", badge: 12 },
-  { href: "/category/business", icon: Briefcase, label: "Business", badge: 8 },
+  { href: "/category/technology", icon: Computer, label: "Technology" },
+  { href: "/category/business", icon: Briefcase, label: "Business" },
   { href: "/category/sports", icon: Trophy, label: "Sports", isNew: true },
 ]
 
-// --- MAIN HEADER COMPONENT --- //
+const COMMAND_ITEMS = [
+  { href: "/", label: "Go to Home", icon: Home },
+  { href: "/admin/profile", label: "View Profile", icon: UserIcon },
+  { href: "/settings", label: "Open Settings", icon: Settings },
+]
+
+// =================================================================
+// --- MAIN HEADER COMPONENT ---
+// =================================================================
 const Header: FC = () => {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isHidden, setIsHidden] = useState(false)
   const { scrollY } = useScroll()
 
-  // Hide header on scroll down, show on scroll up
   useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious()
-    // Add null check for previous value
-    if (previous === undefined) return
-    
+    const previous = scrollY.getPrevious() ?? 0
     if (latest > previous && latest > 150) {
       setIsHidden(true)
-    } else if (latest < previous) {
-      if (latest < 150) {
-        setIsHidden(false)
-      }
+    } else {
+      setIsHidden(false)
     }
   })
+
+  const pathname = usePathname()
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setIsMobileMenuOpen(false)
+    }
+  }, [pathname, isMobileMenuOpen])
 
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev)
 
   return (
     <>
       <motion.header
-        variants={{
-          visible: { y: 0 },
-          hidden: { y: "-100%" },
-        }}
+        variants={{ visible: { y: 0 }, hidden: { y: "-100%" } }}
         animate={isHidden ? "hidden" : "visible"}
         transition={{ duration: 0.35, ease: "easeInOut" }}
-        className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl"
+        className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm"
       >
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
@@ -110,36 +114,30 @@ const Header: FC = () => {
             <div className="hidden md:flex">
               <LanguageSwitcher />
             </div>
-            {user ? (
-              <UserDropdown user={user} logout={logout} />
-            ) : (
-              <Button asChild variant="ghost" className="hidden md:flex">
-                <Link href="en/login">Login</Link>
-              </Button>
-            )}
+            {user ? <UserDropdown /> : <LoginButton />}
             <MobileMenuToggle isOpen={isMobileMenuOpen} toggle={toggleMobileMenu} />
           </div>
         </div>
       </motion.header>
 
       <AnimatePresence>
-        {isMobileMenuOpen && (
-          <MobileNav user={user} logout={logout} closeMenu={toggleMobileMenu} />
-        )}
+        {isMobileMenuOpen && <MobileNav />}
       </AnimatePresence>
     </>
   )
 }
 
-// --- SUBCOMPONENTS --- //
+// =================================================================
+// --- SUBCOMPONENTS ---
+// =================================================================
 
 const Logo: FC = () => (
   <Link href="/" className="flex items-center gap-2 group">
     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-xl">
-      D
+      N
     </div>
     <span className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
-      DeepNews
+      Newsly
     </span>
   </Link>
 )
@@ -147,34 +145,31 @@ const Logo: FC = () => (
 const DesktopNav: FC = () => {
   const pathname = usePathname()
   return (
-    <nav className="hidden lg:flex items-center gap-2">
+    <nav className="hidden lg:flex items-center gap-1">
       {NAV_LINKS.map((link) => {
-        // More robust active check for nested routes
-        const isActive =
-          link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)
-
+        const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)
         return (
           <Link
             key={link.href}
             href={link.href}
             className={cn(
-              "relative rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary",
-              isActive ? "text-primary" : "text-muted-foreground"
+              "relative rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              // UPDATED: Active link has contrasting text for the primary background.
+              isActive
+                ? "text-primary-foreground"
+                : "text-muted-foreground hover:text-primary"
             )}
           >
             <span className="relative z-10 flex items-center gap-1.5">
               {link.label}
-              {link.badge && <Badge variant="secondary">{link.badge}</Badge>}
-              {link.isNew && (
-                <Badge className="animate-pulse">
-                  <Sparkles className="h-3 w-3" />
-                </Badge>
-              )}
+              {/* UPDATED: Removed badge rendering logic. */}
+              {link.isNew && <Badge className="bg-sky-500 text-sky-50 hover:bg-sky-400">New</Badge>}
             </span>
             {isActive && (
               <motion.div
                 layoutId="active-nav-link"
-                className="absolute inset-0 bg-muted rounded-md"
+                // UPDATED: Active link background is now the solid primary color.
+                className="absolute inset-0 bg-primary rounded-md"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             )}
@@ -185,10 +180,7 @@ const DesktopNav: FC = () => {
   )
 }
 
-const MobileMenuToggle: FC<{ isOpen: boolean; toggle: () => void }> = ({
-  isOpen,
-  toggle,
-}) => (
+const MobileMenuToggle: FC<{ isOpen: boolean; toggle: () => void }> = ({ isOpen, toggle }) => (
   <Button variant="ghost" size="icon" className="md:hidden" onClick={toggle}>
     <AnimatePresence initial={false} mode="wait">
       <motion.div
@@ -205,41 +197,16 @@ const MobileMenuToggle: FC<{ isOpen: boolean; toggle: () => void }> = ({
   </Button>
 )
 
-const MobileNav: FC<{
-  user: User | null
-  logout: () => void
-  closeMenu: () => void
-}> = ({ user, logout, closeMenu }) => {
+const MobileNav: FC = () => {
+  const { user, logout } = useAuth()
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
 
-  const handleLogout = () => {
-    logout()
-    closeMenu()
-  }
-
   const menuVariants = {
-    hidden: {
-      opacity: 0,
-      transition: { when: "afterChildren", staggerChildren: 0.05, staggerDirection: -1 },
-    },
-    visible: {
-      opacity: 1,
-      transition: { when: "beforeChildren", staggerChildren: 0.08 },
-    },
+    hidden: { opacity: 0, transition: { when: "afterChildren", staggerChildren: 0.05, staggerDirection: -1 } },
+    visible: { opacity: 1, transition: { when: "beforeChildren", staggerChildren: 0.08 } },
   }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 },
-  }
-
-  const MobileLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
-    <Link href={href} onClick={closeMenu} className="flex items-center justify-between w-full p-3 text-lg font-medium rounded-lg hover:bg-muted">
-      {children}
-      <ChevronRight className="h-5 w-5 text-muted-foreground" />
-    </Link>
-  )
+  const itemVariants = { hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }
 
   return (
     <motion.div
@@ -256,55 +223,48 @@ const MobileNav: FC<{
         className="absolute top-16 left-0 w-full h-[calc(100vh-4rem)] p-4 flex flex-col"
       >
         <div className="flex-grow space-y-2">
-          {NAV_LINKS.map((link) => (
-            <motion.div key={link.href} variants={itemVariants}>
-              <MobileLink href={link.href}>
-                <span className={cn("flex items-center gap-3", pathname.startsWith(link.href) && "text-primary")}>
-                  <link.icon className="h-5 w-5" /> {link.label}
-                </span>
-              </MobileLink>
-            </motion.div>
-          ))}
+          {NAV_LINKS.map((link) => {
+            // UPDATED: More robust active check for mobile view.
+            const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)
+            return (
+              <motion.div key={link.href} variants={itemVariants}>
+                <Link
+                  href={link.href}
+                  className="flex items-center justify-between w-full p-3 text-lg font-medium rounded-lg hover:bg-muted"
+                >
+                  <span className={cn(
+                    "flex items-center gap-3",
+                    // UPDATED: Active link is bold and uses the primary color.
+                    isActive && "text-primary font-bold"
+                  )}>
+                    <link.icon className="h-5 w-5" /> {link.label}
+                  </span>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+              </motion.div>
+            )
+          })}
         </div>
-        
-        {/* --- Bottom Controls --- */}
-        <div className="flex-shrink-0 border-t pt-4">
-          <motion.div variants={itemVariants}>
-            <div className="flex items-center justify-between w-full p-3 text-lg font-medium rounded-lg">
-              <span className="flex items-center gap-3">
-                <Sun className="h-5 w-5" /> Theme
-              </span>
-              <div className="flex items-center gap-2 rounded-full p-1 bg-muted">
-                <Button size="icon" variant={theme === 'light' ? 'default' : 'ghost'} onClick={() => setTheme('light')}> <Sun className="h-4 w-4" /> </Button>
-                <Button size="icon" variant={theme === 'dark' ? 'default' : 'ghost'} onClick={() => setTheme('dark')}> <Moon className="h-4 w-4" /> </Button>
-              </div>
+
+        <div className="flex-shrink-0 border-t pt-4 space-y-2">
+          <motion.div variants={itemVariants} className="p-3 flex items-center justify-between">
+            <div className="flex items-center gap-3 text-lg font-medium"><Sun className="h-5 w-5" />Theme</div>
+            <div className="flex items-center gap-1 rounded-full p-1 bg-muted">
+              <Button size="icon" variant={theme === "light" ? "default" : "ghost"} onClick={() => setTheme("light")} className="h-8 w-8 rounded-full"><Sun className="h-4 w-4" /></Button>
+              <Button size="icon" variant={theme === "dark" ? "default" : "ghost"} onClick={() => setTheme("dark")} className="h-8 w-8 rounded-full"><Moon className="h-4 w-4" /></Button>
             </div>
           </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <div className="flex items-center justify-between w-full p-3 text-lg font-medium rounded-lg">
-              <span className="flex items-center gap-3">
-                <Languages className="h-5 w-5" /> Language
-              </span>
-              <LanguageSwitcher />
-            </div>
+          <motion.div variants={itemVariants} className="p-3 flex items-center justify-between">
+            <div className="flex items-center gap-3 text-lg font-medium"><Languages className="h-5 w-5" />Language</div>
+            <LanguageSwitcher />
           </motion.div>
-          
           <motion.div variants={itemVariants} className="mt-2">
             {user ? (
-              <>
-                <MobileLink href="/profile"><UserIcon className="h-5 w-5" /> Profile</MobileLink>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 p-3 text-lg font-medium text-destructive hover:bg-destructive/10 rounded-lg"
-                >
-                  <LogOut className="h-5 w-5" /> Log Out
-                </button>
-              </>
-            ) : (
-              <Button asChild className="w-full h-12 text-md">
-                <Link href="en/login" onClick={closeMenu}>Login</Link>
+              <Button onClick={logout} variant="ghost" className="w-full justify-start h-12 text-lg text-destructive hover:text-destructive hover:bg-destructive/10">
+                <LogOut className="mr-3 h-5 w-5" /> Log Out
               </Button>
+            ) : (
+              <Button asChild className="w-full h-12 text-md"><Link href={`/en/login`}>Login</Link></Button>
             )}
           </motion.div>
         </div>
@@ -313,8 +273,12 @@ const MobileNav: FC<{
   )
 }
 
-const UserDropdown: FC<{ user: User; logout: () => void }> = ({ user, logout }) => {
+const UserDropdown: FC = () => {
+  const { user, logout } = useAuth()
   const { theme, setTheme } = useTheme()
+
+  if (!user) return null
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -324,26 +288,21 @@ const UserDropdown: FC<{ user: User; logout: () => void }> = ({ user, logout }) 
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem asChild>
-          <Link href="/profile" className="flex items-center gap-2">
-            <UserIcon className="h-4 w-4" /> Profile
-          </Link>
+          <Link href="/profile" className="flex items-center gap-2"><UserIcon className="h-4 w-4" /> Profile</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" /> Settings
-          </Link>
+          <Link href="/settings" className="flex items-center gap-2"><Settings className="h-4 w-4" /> Settings</Link>
         </DropdownMenuItem>
         {user.role === "admin" && (
           <DropdownMenuItem asChild>
-            <Link href="/admin" className="flex items-center gap-2">
-              <UserCog className="h-4 w-4" /> Admin
-            </Link>
+            <Link href="/admin/dashboard" className="flex items-center gap-2"><UserCog className="h-4 w-4" /> Admin Panel</Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-          {theme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
-          Toggle Theme
+          <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span>Toggle theme</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive">
@@ -353,6 +312,12 @@ const UserDropdown: FC<{ user: User; logout: () => void }> = ({ user, logout }) 
     </DropdownMenu>
   )
 }
+
+const LoginButton: FC = () => (
+  <Button asChild variant="ghost" className="hidden md:flex">
+    <Link href="/en/login">Login</Link>
+  </Button>
+)
 
 const SearchCommand: FC = () => {
   const [open, setOpen] = useState(false)
@@ -369,10 +334,10 @@ const SearchCommand: FC = () => {
     return () => document.removeEventListener("keydown", down)
   }, [])
 
-  const runCommand = useCallback((command: () => unknown) => {
+  const handleSelect = (href: string) => {
+    router.push(href)
     setOpen(false)
-    command()
-  }, [])
+  }
 
   return (
     <>
@@ -388,12 +353,11 @@ const SearchCommand: FC = () => {
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Suggestions">
-            <CommandItem onSelect={() => runCommand(() => router.push("/"))}>
-              <Home className="mr-2 h-4 w-4" /> Go to Home
-            </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push("/category/technology"))}>
-              <Computer className="mr-2 h-4 w-4" /> Technology
-            </CommandItem>
+            {COMMAND_ITEMS.map((item) => (
+              <CommandItem key={item.href} onSelect={() => handleSelect(item.href)}>
+                <item.icon className="mr-2 h-4 w-4" /> {item.label}
+              </CommandItem>
+            ))}
           </CommandGroup>
         </CommandList>
       </CommandDialog>

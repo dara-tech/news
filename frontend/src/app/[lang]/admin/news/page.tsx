@@ -76,6 +76,66 @@ const NewsPage = () => {
     ));
   };
 
+  const handleExport = () => {
+    try {
+      // Convert articles to CSV format
+      const headers = ['Title', 'Status', 'Author', 'Created Date', 'Views', 'Category'];
+      const csvContent = [
+        headers.join(','),
+        ...filteredArticles.map(article => [
+          `"${article.title.en.replace(/"/g, '""')}"`,
+          article.status,
+          `"${article.author?.name || 'Unknown'}"`,
+          new Date(article.createdAt).toLocaleDateString(),
+          article.views || 0,
+          `"${article.category?.name?.en || 'Uncategorized'}"`
+        ].join(','))
+      ].join('\n');
+
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `news-articles-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Articles exported successfully!');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to export articles.');
+    }
+  };
+
+  const handleBulkDelete = async (selectedArticles: NewsArticle[]) => {
+    if (!confirm(`Are you sure you want to delete ${selectedArticles.length} article(s)? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const deletePromises = selectedArticles.map(article => 
+        api.delete(`/news/${article._id}`)
+      );
+      
+      await Promise.all(deletePromises);
+      
+      const deletedIds = selectedArticles.map(article => article._id);
+      setArticles(articles.filter(article => !deletedIds.includes(article._id)));
+      
+      toast.success(`${selectedArticles.length} article(s) deleted successfully.`);
+    } catch (error) {
+      console.error('Bulk delete failed:', error);
+      toast.error('Failed to delete some articles.');
+    }
+  };
+
+  const handleAdd = () => {
+    window.location.href = '/admin/news/create';
+  };
+
   // Filtering and Pagination logic
   const filteredArticles = articles.filter((article) =>
     article.title.en.toLowerCase().includes(searchTerm.toLowerCase())
@@ -105,7 +165,15 @@ const NewsPage = () => {
 
     return (
       <>
-        <NewsTable articles={currentArticles} onDelete={handleDelete} onDuplicate={handleDuplicate} onStatusChange={handleStatusChange} />
+        <NewsTable 
+          articles={currentArticles} 
+          onDelete={handleDelete} 
+          onDuplicate={handleDuplicate} 
+          onStatusChange={handleStatusChange}
+          onAdd={handleAdd}
+          onExport={handleExport}
+          onBulkDelete={handleBulkDelete}
+        />
         <NewsPagination
           currentPage={currentPage}
           totalPages={totalPages}

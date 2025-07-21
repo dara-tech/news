@@ -38,3 +38,150 @@ export const createCategory = asyncHandler(async (req, res) => {
   const createdCategory = await category.save();
   res.status(201).json({ success: true, data: createdCategory });
 });
+
+// @desc    Get category by ID
+// @route   GET /api/categories/:id
+// @access  Public
+export const getCategoryById = asyncHandler(async (req, res) => {
+  console.log('getCategoryById called with ID:', req.params.id);
+  
+  try {
+    const category = await Category.findById(req.params.id);
+    console.log('Category found:', category ? 'Yes' : 'No');
+
+    if (!category) {
+      console.log('Category not found in database');
+      res.status(404);
+      throw new Error('Category not found');
+    }
+
+    console.log('Returning category:', category._id);
+    res.json({ success: true, data: category });
+  } catch (error) {
+    console.error('Error in getCategoryById:', error);
+    throw error;
+  }
+});
+
+// @desc    Update category
+// @route   PUT /api/categories/:id
+// @access  Private/Admin
+export const updateCategory = asyncHandler(async (req, res) => {
+  const { name, description, color, isActive } = req.body;
+
+  const category = await Category.findById(req.params.id);
+
+  if (!category) {
+    res.status(404);
+    throw new Error('Category not found');
+  }
+
+  // Check if the new name conflicts with existing categories (excluding current one)
+  if (name && name.en) {
+    const slug = name.en.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    const existingCategory = await Category.findOne({ 
+      slug, 
+      _id: { $ne: req.params.id } 
+    });
+
+    if (existingCategory) {
+      res.status(400);
+      throw new Error('A category with this name already exists.');
+    }
+  }
+
+  // Update fields
+  if (name) category.name = name;
+  if (description) category.description = description;
+  if (color !== undefined) category.color = color;
+  if (isActive !== undefined) category.isActive = isActive;
+
+  const updatedCategory = await category.save();
+  res.json({ success: true, data: updatedCategory });
+});
+
+// @desc    Delete category
+// @route   DELETE /api/categories/:id
+// @access  Private/Admin
+export const deleteCategory = asyncHandler(async (req, res) => {
+  const category = await Category.findById(req.params.id);
+
+  if (!category) {
+    res.status(404);
+    throw new Error('Category not found');
+  }
+
+  // Check if category is being used by any news articles
+  // Note: You might want to import your News model and check for references
+  // const newsCount = await News.countDocuments({ category: req.params.id });
+  // if (newsCount > 0) {
+  //   res.status(400);
+  //   throw new Error('Cannot delete category that is being used by news articles');
+  // }
+
+  await Category.findByIdAndDelete(req.params.id);
+  res.json({ success: true, message: 'Category deleted successfully' });
+});
+
+// @desc    Bulk delete categories
+// @route   DELETE /api/categories/bulk
+// @access  Private/Admin
+export const bulkDeleteCategories = asyncHandler(async (req, res) => {
+  const { ids } = req.body;
+
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    res.status(400);
+    throw new Error('Please provide an array of category IDs to delete');
+  }
+
+  // Check if categories exist
+  const categories = await Category.find({ _id: { $in: ids } });
+  if (categories.length !== ids.length) {
+    res.status(404);
+    throw new Error('One or more categories not found');
+  }
+
+  // Check if any categories are being used by news articles
+  // Note: You might want to import your News model and check for references
+  // const newsCount = await News.countDocuments({ category: { $in: ids } });
+  // if (newsCount > 0) {
+  //   res.status(400);
+  //   throw new Error('Cannot delete categories that are being used by news articles');
+  // }
+
+  const result = await Category.deleteMany({ _id: { $in: ids } });
+  res.json({ 
+    success: true, 
+    message: `${result.deletedCount} categories deleted successfully`,
+    deletedCount: result.deletedCount
+  });
+});
+
+// @desc    Get category by slug
+// @route   GET /api/categories/slug/:slug
+// @access  Public
+export const getCategoryBySlug = asyncHandler(async (req, res) => {
+  const slug = req.params.slug;
+  
+  // First try to find by direct slug match (new format)
+  let category = await Category.findOne({ slug });
+  
+  // If not found, try to find by English slug in the name object (legacy format)
+  if (!category) {
+    category = await Category.findOne({ 'name.en': { $regex: new RegExp('^' + slug + '$', 'i') } });
+  }
+
+  // If still not found, try case-insensitive search on the slug field
+  if (!category) {
+    category = await Category.findOne({ 
+      slug: { $regex: new RegExp('^' + slug + '$', 'i') } 
+    });
+  }
+
+  if (!category) {
+    res.status(404);
+    throw new Error('Category not found');
+  }
+
+  res.json({ success: true, data: category });
+});

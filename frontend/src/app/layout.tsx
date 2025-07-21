@@ -11,7 +11,7 @@ const kantumruyPro = Kantumruy_Pro({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://your-domain.com'), // Replace with your actual domain
+  metadataBase: new URL('http://localhost:3000'), // Replace with your actual domain
   title: {
     default: 'NewsApp - Your Daily Source of News',
     template: '%s | NewsApp',

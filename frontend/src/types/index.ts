@@ -12,6 +12,7 @@ export interface Category {
 }
 
 export interface Article {
+  id: string;
   _id: string;
   slug: LocalizedString;
   title: LocalizedString;

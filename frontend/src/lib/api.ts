@@ -18,7 +18,9 @@ const api: AxiosInstance = axios.create({
   // Timeout settings
   timeout: 30000, // 30 seconds
   maxRedirects: 3, // Maximum number of redirects to follow
-  maxContentLength: 50 * 1024 * 1024, // 50MB max content length
+  // Handle file uploads
+  maxBodyLength: Infinity,
+  maxContentLength: Infinity, // No limit on content length for file uploads
   validateStatus: (status) => status >= 200 && status < 500, // Resolve only if status code is less than 500
 });
 
@@ -28,6 +30,11 @@ api.defaults.withCredentials = true;
 // Request interceptor
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // Skip Content-Type for FormData to let the browser set it with the correct boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     // Only add auth token for server-side rendered requests
     if (typeof window !== 'undefined') {
       const userInfo = localStorage.getItem('userInfo');
@@ -43,11 +50,24 @@ api.interceptors.request.use(
       }
     }
     
-    console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`, {
-      data: config.data,
+    // Enhanced logging for debugging
+    console.group(`[API] ${config.method?.toUpperCase()} ${config.url}`);
+    console.log('Request Config:', {
+      method: config.method,
+      url: config.url,
+      baseURL: config.baseURL,
       params: config.params,
-      headers: config.headers
+      data: config.data,
+      headers: {
+        ...config.headers,
+        // Don't log the full auth token for security
+        Authorization: config.headers.Authorization ? 'Bearer [token]' : undefined,
+      },
+      withCredentials: config.withCredentials,
+      xsrfCookieName: config.xsrfCookieName,
+      xsrfHeaderName: config.xsrfHeaderName,
     });
+    console.groupEnd();
     
     return config;
   },
@@ -60,10 +80,14 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log(`[API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, {
+    console.group(`[API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`);
+    console.log('Response:', {
+      status: response.status,
+      statusText: response.statusText,
       data: response.data,
       headers: response.headers
     });
+    console.groupEnd();
     return response;
   },
   async (error: AxiosError) => {

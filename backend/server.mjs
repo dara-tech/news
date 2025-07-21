@@ -8,7 +8,6 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import path from "path"
 import { fileURLToPath } from "url"
-import cron from 'node-cron';
 import connectDB from "./config/db.mjs"
 import connectCloudinary from "./utils/cloudinary.mjs"
 import errorHandler from "./middleware/error.mjs"
@@ -194,34 +193,95 @@ let server = app.listen(PORT, () => {
 
 })
 
-// Schedule server restart every 10 minutes
-const restartServer = () => {
-  console.log('🔄 Scheduling server restart in 10 minutes...');
+// Auto-reload ping function to keep server alive on hosting platforms
+const autoReload = () => {
+  const targetUrl = process.env.AUTO_RELOAD_URL || "http://localhost:5001";
+  const timeout = parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000; // 10 seconds
   
-  // Close all connections and restart
-  const restart = () => {
-    console.log('🔄 Server restart initiated...');
-    server.close(() => {
-      console.log('🔒 Server closed');
-      process.exit(0); // Exit with success code, process manager will restart
+  console.log(`[${new Date().toISOString()}] 🔄 Starting auto-reload ping to ${targetUrl}`);
+  
+  const https = require('https');
+  const http = require('http');
+  const protocol = targetUrl.startsWith('https:') ? https : http;
+  
+  const request = protocol.get(targetUrl, (res) => {
+    let data = '';
+    
+    res.on('data', (chunk) => {
+      data += chunk;
     });
-  };
-
-  // Schedule the restart
-  const restartInterval = 10; // minutes
-  setTimeout(restart, restartInterval * 60 * 1000);
+    
+    res.on('end', () => {
+      console.log(`[${new Date().toISOString()}] ✅ Auto-reload ping successful. Status: ${res.statusCode}`);
+      if (res.statusCode >= 400) {
+        console.warn(`[${new Date().toISOString()}] ⚠️ Auto-reload received error status: ${res.statusCode}`);
+      }
+    });
+  });
+  
+  request.on("error", (err) => {
+    console.error(`[${new Date().toISOString()}] ❌ Auto-reload failed: ${err.message}`);
+    // Retry after 30 seconds on error
+    setTimeout(() => {
+      console.log(`[${new Date().toISOString()}] 🔄 Retrying auto-reload ping...`);
+      autoReload();
+    }, 30000);
+  });
+  
+  request.on("timeout", () => {
+    console.warn(`[${new Date().toISOString()}] ⚠️ Auto-reload request timed out after ${timeout}ms`);
+    request.destroy();
+    // Retry after 30 seconds on timeout
+    setTimeout(() => {
+      console.log(`[${new Date().toISOString()}] 🔄 Retrying auto-reload ping after timeout...`);
+      autoReload();
+    }, 30000);
+  });
+  
+  request.setTimeout(timeout);
 };
 
-// Start the restart schedule when server starts
-if (process.env.NODE_ENV !== 'production') {
-  restartServer();
+// Auto-reload scheduler
+const startAutoReload = () => {
+  const interval = parseInt(process.env.AUTO_RELOAD_INTERVAL) || 14 * 60 * 1000; // 14 minutes default
+  const enabled = process.env.AUTO_RELOAD_ENABLED !== 'false'; // Enabled by default
   
-  // Also schedule it to run every 10 minutes
-  cron.schedule(`*/10 * * * *`, () => {
-    if (process.env.NODE_ENV !== 'production') {
-      restartServer();
-    }
+  if (!enabled) {
+    console.log(`[${new Date().toISOString()}] 🚫 Auto-reload is disabled`);
+    return;
+  }
+  
+  console.log(`[${new Date().toISOString()}] 🕐 Auto-reload scheduled every ${interval / 1000 / 60} minutes`);
+  
+  // Initial ping after 1 minute
+  setTimeout(() => {
+    autoReload();
+  }, 60000);
+  
+  // Set up recurring pings
+  setInterval(() => {
+    autoReload();
+  }, interval);
+};
+
+// Health check with auto-reload info
+app.get("/auto-reload-status", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    autoReload: {
+      enabled: process.env.AUTO_RELOAD_ENABLED !== 'false',
+      url: process.env.AUTO_RELOAD_URL || "https://crypto-nmz7.onrender.com/",
+      interval: `${(parseInt(process.env.AUTO_RELOAD_INTERVAL) || 14 * 60 * 1000) / 1000 / 60} minutes`,
+      timeout: `${parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000}ms`
+    },
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
   });
+});
+
+// Start auto-reload if in production
+if (process.env.NODE_ENV === 'production') {
+  startAutoReload();
 }
 
 // Graceful shutdown handlers

@@ -17,6 +17,20 @@ const categorySchema = new mongoose.Schema({
     en: { type: String, trim: true },
     kh: { type: String, trim: true },
   },
+  color: {
+    type: String,
+    default: '#3B82F6', // Default blue color
+    validate: {
+      validator: function(v) {
+        return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(v);
+      },
+      message: 'Color must be a valid hex color code'
+    }
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
 }, { timestamps: true });
 
 // Pre-save hook to generate slug from the English name if not provided
