@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
+import api from "@/lib/api"
 
 interface BilingualText {
   en: string
@@ -171,19 +172,10 @@ export default function EditCategoryPage({ params }: PageProps) {
         isActive: formData.isActive,
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-      const response = await fetch(`${apiUrl}/api/categories/${categoryId}`, {
-        method: "PUT",
-        credentials: 'include',
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      })
+      const response = await api.put(`/categories/${categoryId}`, updateData)
 
-      if (!response.ok) {
-        const error = (await response.json()) as { message: string }
-        throw new Error(error.message || "Failed to update category")
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to update category")
       }
 
       toast.success("Category updated successfully")

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CategoryForm, { CategoryData, BilingualText } from '@/components/admin/categories/CategoryForm';
+import api from '@/lib/api';
 
 const getBilingualValue = (value: string | BilingualText): BilingualText => {
   if (typeof value === 'string') {
@@ -21,7 +22,7 @@ export default function CreateCategoryClientPage() {
   const handleSubmit = async (formData: CategoryData) => {
     setIsSubmitting(true);
     setError(null);
-
+  
     try {
       const payload = {
         name: getBilingualValue(formData.name),
@@ -30,31 +31,13 @@ export default function CreateCategoryClientPage() {
         color: formData.color,
         isActive: formData.isActive ?? true,
       };
-
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-      const response = await fetch(`${apiUrl}/api/categories`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create category');
-      }
-
-      router.push(`/admin/categories`);
+  
+      await api.post('/categories', payload);
+      router.push('/admin/categories');
       router.refresh();
     } catch (err: unknown) {
       console.error('Error creating category:', err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred.');
-      }
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
     } finally {
       setIsSubmitting(false);
     }
