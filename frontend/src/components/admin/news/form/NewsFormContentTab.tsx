@@ -12,14 +12,28 @@ interface NewsFormContentTabProps {
   formData: NewsFormData;
   validationErrors: Record<string, string>;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onGenerateContent: () => void;
+  isGenerating: boolean;
 }
 
-const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({ formData, validationErrors, onInputChange }) => {
+const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({ formData, validationErrors, onInputChange, onGenerateContent, isGenerating }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Article Content</CardTitle>
-        <CardDescription>Write the main body of your article in English and Khmer.</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Article Content</CardTitle>
+            <CardDescription>Write the main body of your article in English and Khmer.</CardDescription>
+          </div>
+          <button
+            type="button"
+            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-60"
+            onClick={onGenerateContent}
+            disabled={isGenerating}
+          >
+            {isGenerating ? 'Generating...' : 'Generate with AI'}
+          </button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">

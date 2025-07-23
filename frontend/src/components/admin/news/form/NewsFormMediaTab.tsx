@@ -21,6 +21,8 @@ interface NewsFormMediaTabProps {
   onRemoveThumbnail: () => void;
   onRemoveImage: (index: number) => void;
   onRemoveMetaImage: () => void;
+  onGenerateImage: () => void;
+  isGeneratingImage: boolean;
 }
 
 const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
@@ -36,6 +38,8 @@ const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
   onRemoveThumbnail,
   onRemoveImage,
   onRemoveMetaImage,
+  onGenerateImage,
+  isGeneratingImage,
 }) => {
   return (
     <Card>
@@ -72,7 +76,7 @@ const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
                 </Button>
               </>
             ) : (
-              <div className="text-center">
+              <div className="text-center flex flex-col items-center gap-2">
                 <UploadCloud className="mx-auto h-12 w-12 text-slate-400 mb-4" />
                 <p className="mb-2">Drop your thumbnail here or</p>
                 <Label htmlFor="thumbnail-upload" className="cursor-pointer text-blue-600 font-semibold hover:underline">
@@ -86,6 +90,14 @@ const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
                   className="hidden"
                   id="thumbnail-upload"
                 />
+                <button
+                  type="button"
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-60 mt-2"
+                  onClick={onGenerateImage}
+                  disabled={isGeneratingImage}
+                >
+                  {isGeneratingImage ? 'Generating...' : 'Generate with AI'}
+                </button>
               </div>
             )}
           </div>

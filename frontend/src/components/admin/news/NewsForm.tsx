@@ -19,6 +19,8 @@ import NewsFormSEOTab from "./form/NewsFormSEOTab";
 import { useGenerateSEO } from '@/hooks/useGenerateSEO';
 import NewsFormDetailsTab from "./form/NewsFormDetailsTab"
 import NewsFormSidebar from "./form/NewsFormSidebar"
+import { useGenerateContent } from '@/hooks/useGenerateContent';
+import { useGenerateImage } from '@/hooks/useGenerateImage';
 
 // Defines the structure for news article data, including multilingual fields and file types.
 export interface NewsFormData {
@@ -467,6 +469,8 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
   }, [originalData, originalThumbnailUrl, thumbnailPreview]);
 
   const { isGenerating, error: generationError, generateSEO } = useGenerateSEO();
+  const { isGenerating: isGeneratingContent, error: contentGenerationError, generateContent, isGeneratingTags, tagsError, generateTags } = useGenerateContent();
+  const { isGeneratingImage, imageGenerationError, generateImage } = useGenerateImage();
 
   const handleGenerateSEO = async () => {
     if (!formData?.title.en) {
@@ -498,6 +502,57 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
       toast.success("SEO content generated successfully!");
     } else if (generationError) {
       toast.error(generationError);
+    }
+  };
+
+  const handleGenerateContent = async () => {
+    if (!formData?.title.en) {
+      toast.error("Please enter an English title first to generate content.");
+      return;
+    }
+    const result = await generateContent(formData.title.en);
+    if (result) {
+      setFormData(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          title: result.title,
+          description: result.description,
+          content: result.content,
+        };
+      });
+      toast.success("Content generated successfully!");
+    } else if (contentGenerationError) {
+      toast.error(contentGenerationError);
+    }
+  };
+
+  const handleGenerateTags = async () => {
+    if (!formData?.title.en && !formData?.content.en) {
+      toast.error("Please enter a title or content to generate tags.");
+      return;
+    }
+    const tags = await generateTags({ title: formData.title.en, content: formData.content.en });
+    if (tags && tags.length > 0) {
+      setFormData(prev => prev ? { ...prev, tags } : prev);
+      toast.success("Tags generated successfully!");
+    } else if (tagsError) {
+      toast.error(tagsError);
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!formData?.title.en) {
+      toast.error("Please enter an English title to generate an image.");
+      return;
+    }
+    const result = await generateImage(formData.title.en);
+    if (result && result.file) {
+      setFormData(prev => prev ? { ...prev, thumbnail: result.file } : prev);
+      setThumbnailPreview(URL.createObjectURL(result.file));
+      toast.success("Image generated and set as thumbnail!");
+    } else if (imageGenerationError) {
+      toast.error(imageGenerationError);
     }
   };
 
@@ -641,6 +696,8 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
                 formData={formData}
                 validationErrors={validationErrors}
                 onInputChange={handleInputChange}
+                onGenerateContent={handleGenerateContent}
+                isGenerating={isGeneratingContent}
               />
             </TabsContent>
             <TabsContent value="media">
@@ -657,6 +714,8 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
+                onGenerateImage={handleGenerateImage}
+                isGeneratingImage={isGeneratingImage}
               />
             </TabsContent>
             <TabsContent value="seo">
@@ -676,6 +735,8 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
                 onCategoryChange={handleCategoryChange}
                 onTagsChange={handleTagsChange}
                 onSwitchChange={handleSwitchChange} // Pass switch handler to details tab
+                onGenerateTags={handleGenerateTags}
+                isGeneratingTags={isGeneratingTags}
               />
             </TabsContent>
           </Tabs>

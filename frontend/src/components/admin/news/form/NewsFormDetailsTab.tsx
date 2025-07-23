@@ -15,6 +15,8 @@ interface NewsFormDetailsTabProps {
   onSwitchChange: (checked: boolean, name: "isFeatured" | "isBreaking") => void;
   onCategoryChange: (value: string) => void;
   onTagsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onGenerateTags: () => void;
+  isGeneratingTags: boolean;
 }
 
 const NewsFormDetailsTab: React.FC<NewsFormDetailsTabProps> = ({ 
@@ -23,7 +25,9 @@ const NewsFormDetailsTab: React.FC<NewsFormDetailsTabProps> = ({
   validationErrors, 
   onSwitchChange, 
   onCategoryChange, 
-  onTagsChange 
+  onTagsChange, 
+  onGenerateTags, 
+  isGeneratingTags
 }) => {
   return (
     <Card>
@@ -50,13 +54,23 @@ const NewsFormDetailsTab: React.FC<NewsFormDetailsTabProps> = ({
         </div>
         <div className="space-y-2">
           <Label htmlFor="tags">Tags</Label>
-          <Input
-            id="tags"
-            name="tags"
-            value={Array.isArray(formData.tags) ? formData.tags.join(", ") : formData.tags}
-            onChange={onTagsChange}
-            placeholder="e.g., AI, Startups, Cambodia"
-          />
+          <div className="flex gap-2 items-center">
+            <Input
+              id="tags"
+              name="tags"
+              value={Array.isArray(formData.tags) ? formData.tags.join(", ") : formData.tags}
+              onChange={onTagsChange}
+              placeholder="e.g., AI, Startups, Cambodia"
+            />
+            <button
+              type="button"
+              className="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800 hover:bg-green-200 disabled:opacity-60"
+              onClick={onGenerateTags}
+              disabled={isGeneratingTags}
+            >
+              {isGeneratingTags ? 'Generating...' : 'Generate with AI'}
+            </button>
+          </div>
           <p className="text-xs text-slate-500">Separate tags with commas.</p>
         </div>
         <div className="flex items-center justify-between rounded-lg border p-4">

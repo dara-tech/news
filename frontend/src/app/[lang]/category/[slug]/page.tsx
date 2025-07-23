@@ -5,7 +5,6 @@ import CategoryPageClient from "./CategoryPageClient"
 
 interface CategoryPageProps {
   params: Promise<{ lang: string; slug: string }>
-  searchParams?: Promise<{ page?: string }>
 }
 
 async function getCategoryBySlug(slug: string) {
@@ -21,7 +20,37 @@ async function getCategoryBySlug(slug: string) {
   }
 }
 
+// Fetch latest news for a category, sorted by newest first
+async function getLatestNewsByCategory(categorySlug: string) {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+    const response = await fetch(`${apiUrl}/api/news/category/slug/${encodeURIComponent(categorySlug)}`);
+    const data = await response.json();
+    console.log(data)
+    return data.success ? data.news : [];
+
+  } catch (error) {
+    console.error("Error fetching latest news for category:", error);
+    return [];
+  }
+}
+
 // ----- METADATA & HELPER -----
+function getLocalizedText(
+  text: string | { [key: string]: string | undefined } | undefined,
+  lang: string
+): string {
+  const safeLang = lang === 'km' ? 'kh' : lang;
+  if (!text) return '';
+  if (typeof text === 'string') return text;
+  if (typeof text === 'object') {
+    if (typeof text[safeLang] === 'string') return text[safeLang]!;
+    const values = Object.values(text).filter(Boolean);
+    if (values.length > 0) return values[0] as string;
+  }
+  return '';
+}
+
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   // Await the params Promise
   const { lang, slug } = await params
@@ -33,14 +62,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     }
   }
 
-  const title =
-    typeof category.name === "string"
-      ? category.name
-      : category.name[lang as "en" | "kh"] || category.name.en || "Category"
-  const description =
-    typeof category.description === "string"
-      ? category.description
-      : category.description?.[lang as "en" | "kh"] || category.description?.en || ""
+  const title = getLocalizedText(category.name, lang) || "Category";
+  const description = getLocalizedText(category.description, lang) || `${title}`;
   const siteName = lang === "kh" ? "ព័ត៌មានថ្មីៗ" : "Latest News"
 
   return {
@@ -70,9 +93,13 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 }
 
 // ----- PAGE COMPONENT -----
-export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
-  const resolvedParams = await params
-  const resolvedSearchParams = await searchParams
-
-  return <CategoryPageClient params={resolvedParams} searchParams={resolvedSearchParams} />
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const resolvedParams = await params;
+  const { slug } = resolvedParams;
+  const category = await getCategoryBySlug(slug);
+  if (!category) {
+    return <div>Category not found</div>;
+  }
+  const articles = await getLatestNewsByCategory(category.slug);
+  return <CategoryPageClient params={resolvedParams} category={{ category, articles }} />;
 }
