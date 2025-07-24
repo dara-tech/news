@@ -17,8 +17,6 @@ import newsRoutes from "./routes/news.mjs"
 import categoryRoutes from "./routes/categoryRoutes.mjs"
 import dashboardRoutes from "./routes/dashboard.mjs"
 
-
-
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,7 +37,6 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(express.json({ limit: "10mb" }))
 app.use(cookieParser())
-
 
 // Session configuration
 const sessionSecret = process.env.SESSION_SECRET || 'your-secret-key';
@@ -190,88 +187,73 @@ const PORT = process.env.PORT || 5001
 
 let server = app.listen(PORT, () => {
   console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
-
 })
 
-// Auto-reload ping function to keep server alive on hosting platforms
-const autoReload = () => {
-  const targetUrl = process.env.AUTO_RELOAD_URL || "http://localhost:5001";
+// --- Prevent server from sleeping (keep-alive ping every 5 minutes) ---
+const keepAlive = () => {
+  const targetUrl = process.env.AUTO_RELOAD_URL || `http://localhost:${PORT}`;
   const timeout = parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000; // 10 seconds
-  
-  console.log(`[${new Date().toISOString()}] 🔄 Starting auto-reload ping to ${targetUrl}`);
-  
+
+  console.log(`[${new Date().toISOString()}] 🔄 Sending keep-alive ping to ${targetUrl}`);
+
   const https = require('https');
   const http = require('http');
   const protocol = targetUrl.startsWith('https:') ? https : http;
-  
+
   const request = protocol.get(targetUrl, (res) => {
     let data = '';
-    
-    res.on('data', (chunk) => {
-      data += chunk;
-    });
-    
+    res.on('data', (chunk) => { data += chunk; });
     res.on('end', () => {
-      console.log(`[${new Date().toISOString()}] ✅ Auto-reload ping successful. Status: ${res.statusCode}`);
+      console.log(`[${new Date().toISOString()}] ✅ Keep-alive ping successful. Status: ${res.statusCode}`);
       if (res.statusCode >= 400) {
-        console.warn(`[${new Date().toISOString()}] ⚠️ Auto-reload received error status: ${res.statusCode}`);
+        console.warn(`[${new Date().toISOString()}] ⚠️ Keep-alive received error status: ${res.statusCode}`);
       }
     });
   });
-  
+
   request.on("error", (err) => {
-    console.error(`[${new Date().toISOString()}] ❌ Auto-reload failed: ${err.message}`);
-    // Retry after 30 seconds on error
-    setTimeout(() => {
-      console.log(`[${new Date().toISOString()}] 🔄 Retrying auto-reload ping...`);
-      autoReload();
-    }, 30000);
+    console.error(`[${new Date().toISOString()}] ❌ Keep-alive failed: ${err.message}`);
   });
-  
+
   request.on("timeout", () => {
-    console.warn(`[${new Date().toISOString()}] ⚠️ Auto-reload request timed out after ${timeout}ms`);
+    console.warn(`[${new Date().toISOString()}] ⚠️ Keep-alive request timed out after ${timeout}ms`);
     request.destroy();
-    // Retry after 30 seconds on timeout
-    setTimeout(() => {
-      console.log(`[${new Date().toISOString()}] 🔄 Retrying auto-reload ping after timeout...`);
-      autoReload();
-    }, 30000);
   });
-  
+
   request.setTimeout(timeout);
 };
 
-// Auto-reload scheduler
-const startAutoReload = () => {
-  const interval = parseInt(process.env.AUTO_RELOAD_INTERVAL) || 14 * 60 * 1000; // 14 minutes default
+// Keep-alive scheduler (every 5 minutes, no sleep)
+const startKeepAlive = () => {
+  const interval = 5 * 60 * 1000; // 5 minutes
   const enabled = process.env.AUTO_RELOAD_ENABLED !== 'false'; // Enabled by default
-  
+
   if (!enabled) {
-    console.log(`[${new Date().toISOString()}] 🚫 Auto-reload is disabled`);
+    console.log(`[${new Date().toISOString()}] 🚫 Keep-alive is disabled`);
     return;
   }
-  
-  console.log(`[${new Date().toISOString()}] 🕐 Auto-reload scheduled every ${interval / 1000 / 60} minutes`);
-  
+
+  console.log(`[${new Date().toISOString()}] 🕐 Keep-alive scheduled every 5 minutes`);
+
   // Initial ping after 1 minute
   setTimeout(() => {
-    autoReload();
+    keepAlive();
   }, 60000);
-  
-  // Set up recurring pings
+
+  // Set up recurring pings every 5 minutes
   setInterval(() => {
-    autoReload();
+    keepAlive();
   }, interval);
 };
 
-// Health check with auto-reload info
+// Health check with keep-alive info
 app.get("/auto-reload-status", (req, res) => {
   res.status(200).json({
     status: "OK",
-    autoReload: {
+    keepAlive: {
       enabled: process.env.AUTO_RELOAD_ENABLED !== 'false',
-      url: process.env.AUTO_RELOAD_URL || "https://crypto-nmz7.onrender.com/",
-      interval: `${(parseInt(process.env.AUTO_RELOAD_INTERVAL) || 14 * 60 * 1000) / 1000 / 60} minutes`,
+      url: process.env.AUTO_RELOAD_URL || `http://localhost:${PORT}`,
+      interval: `5 minutes`,
       timeout: `${parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000}ms`
     },
     timestamp: new Date().toISOString(),
@@ -279,9 +261,9 @@ app.get("/auto-reload-status", (req, res) => {
   });
 });
 
-// Start auto-reload if in production
+// Start keep-alive if in production
 if (process.env.NODE_ENV === 'production') {
-  startAutoReload();
+  startKeepAlive();
 }
 
 // Graceful shutdown handlers
