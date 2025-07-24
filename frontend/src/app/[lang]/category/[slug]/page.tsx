@@ -24,7 +24,7 @@ async function getCategoryBySlug(slug: string) {
 async function getLatestNewsByCategory(categorySlug: string) {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-    const response = await fetch(`${apiUrl}/api/news/category/slug/${encodeURIComponent(categorySlug)}`);
+    const response = await fetch(`${apiUrl}/api/news/category/${encodeURIComponent(categorySlug)}`);
     const data = await response.json();
     console.log(data)
     return data.success ? data.news : [];

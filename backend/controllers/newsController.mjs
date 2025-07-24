@@ -522,10 +522,15 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
     const page = Number(req.query.page) || 1;
     const category = req.params.category.toLowerCase();
 
-    // First, find the category by name to get its ID
-    const categoryDoc = await Category.findOne({ 
-      name: { $regex: new RegExp('^' + category + '$', 'i') } 
-    });
+    // First, try to find the category by slug
+    let categoryDoc = await Category.findOne({ slug: category });
+
+    // If not found by slug, try by name (legacy support)
+    if (!categoryDoc) {
+      categoryDoc = await Category.findOne({ 
+        name: { $regex: new RegExp('^' + category + '$', 'i') } 
+      });
+    }
 
     if (!categoryDoc) {
       console.log('Category not found:', category);
@@ -574,4 +579,37 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
+});
+
+
+// @desc    Get news by category slug
+// @route   GET /api/news/category/:slug
+// @access  Public
+export const getNewsByCategorySlug = asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+
+  // Find the category by slug
+  const categoryDoc = await Category.findOne({ slug });
+  if (!categoryDoc) {
+    return res.status(404).json({
+      success: false,
+      message: 'Category not found',
+      category: slug
+    });
+  }
+
+  // Find news with this category ObjectId
+  const news = await News.find({ 
+    category: categoryDoc._id,
+    status: 'published'
+  })
+  .sort({ publishedAt: -1 })
+  .populate('author', 'username')
+  .populate('category', 'name');
+
+  res.json({
+    success: true,
+    news,
+    category: categoryDoc.name
+  });
 });

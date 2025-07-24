@@ -10,7 +10,8 @@ import {
   getNewsByCategory,
   getNewsForAdmin,
   duplicateNews,
-  updateNewsStatus
+  updateNewsStatus,
+  getNewsByCategorySlug
 } from "../controllers/newsController.mjs";
 import { protect, admin } from "../middleware/auth.mjs";
 import upload from "../middleware/upload.mjs";
@@ -24,6 +25,7 @@ router.route('/')
 router.get('/featured', getFeaturedNews);
 router.get('/breaking', getBreakingNews);
 router.get('/category/:category', getNewsByCategory);
+
 router.get('/admin', protect, admin, getNewsForAdmin);
 
 // This route will handle both slugs and MongoDB ObjectIds
