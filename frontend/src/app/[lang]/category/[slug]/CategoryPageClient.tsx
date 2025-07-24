@@ -57,8 +57,7 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
           return
         }
 
-      } catch (error) {
-        console.error("Error in CategoryPage:", error)
+      } catch {
         // setCategoryData((prev) => ({
         //   ...prev,
         //   error: error instanceof Error ? error : new Error(String(error)),

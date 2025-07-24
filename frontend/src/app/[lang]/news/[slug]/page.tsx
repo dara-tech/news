@@ -143,8 +143,6 @@ export default async function Page({ params }: { params: Promise<{ slug: string;
   const locale = lang === 'km' ? 'kh' : 'en';
 
   // Debug: Log the article data to see what we're working with
-  console.log('Article data:', JSON.stringify(article, null, 2));
-  console.log('Author data:', JSON.stringify(article.author, null, 2));
 
   return <NewsArticleLoader article={article} locale={locale} />;
 }

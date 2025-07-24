@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 
 const generateToken = (res, user) => {
   if (!process.env.JWT_SECRET) {
-    console.error('JWT_SECRET is not defined in environment variables');
     throw new Error('Server configuration error');
   }
 
@@ -31,10 +30,8 @@ const generateToken = (res, user) => {
     cookieOptions.secure = true;
   }
 
-  console.log('Setting cookie with options:', cookieOptions);
 
   res.cookie('jwt', token, cookieOptions);
-  console.log('JWT Token generated and cookie set');
   return token;
 };
 

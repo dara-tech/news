@@ -33,7 +33,6 @@ export const getNewsForAdmin = asyncHandler(async (req, res) => {
       totalArticles: total
     });
   } catch (error) {
-    console.error('Error fetching news for admin:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -144,7 +143,6 @@ export const createNews = asyncHandler(async (req, res) => {
     const createdNews = await news.save();
     res.status(201).json(createdNews);
   } catch (error) {
-    console.error('News creation error:', error);
     res.status(500).json({
       message: 'Internal server error',
       error: error.message
@@ -156,8 +154,6 @@ export const createNews = asyncHandler(async (req, res) => {
 // @route   GET /api/news
 // @access  Public
 export const getNews = asyncHandler(async (req, res) => {
-  console.log('--- New Request Received ---');
-  console.log('Request Query Params:', req.query);
 
   // --- Pagination Parameters ---
   const pageSize = 10;
@@ -178,13 +174,11 @@ export const getNews = asyncHandler(async (req, res) => {
     ];
   }
 
-  console.log('Constructed MongoDB Query:', JSON.stringify(query, null, 2));
 
   try {
     // --- Execute Queries ---
     // First, count the total number of documents that match the query.
     const count = await News.countDocuments(query);
-    console.log('Database Count Result:', count);
 
     // Then, find the documents for the current page.
     const news = await News.find(query)
@@ -194,7 +188,6 @@ export const getNews = asyncHandler(async (req, res) => {
       .populate('author', 'username email role') // Populate author details
       .populate('category', 'name');
 
-    console.log('Database Find Result (Count):', news.length);
     
     // --- Send Response ---
     const responsePayload = {
@@ -204,11 +197,9 @@ export const getNews = asyncHandler(async (req, res) => {
       total: count
     };
 
-    console.log('--- Sending Response ---');
     res.json(responsePayload);
 
   } catch (error) {
-    console.error('!!! Error fetching news:', error);
     res.status(500).json({ message: 'Error fetching news data.' });
   }
 });
@@ -251,7 +242,6 @@ export const getNewsByIdentifier = asyncHandler(async (req, res) => {
       res.status(404);
     }
     
-    console.error(`Error fetching news by identifier: ${req.params.identifier}`, error);
     
     res.status(res.statusCode !== 200 ? res.statusCode : 500).json({
       success: false,
@@ -362,7 +352,6 @@ export const updateNews = asyncHandler(async (req, res) => {
 
     res.json({ success: true, data: populatedNews });
   } catch (error) {
-    console.error('Error updating news article:', error);
     res.status(500).json({ message: 'Error updating news article', error: error.message });
   }
 });
@@ -473,7 +462,6 @@ export const deleteNews = asyncHandler(async (req, res) => {
       throw new Error('News article not found');
     }
   } catch (error) {
-    console.error('Error deleting news:', error);
     res.status(500).json({ message: 'Server error while deleting news.' });
   }
 });
@@ -515,8 +503,6 @@ export const getBreakingNews = asyncHandler(async (req, res) => {
 // @access  Public
 export const getNewsByCategory = asyncHandler(async (req, res) => {
   try {
-    console.log('--- Get News By Category ---');
-    console.log('Category:', req.params.category);
     
     const pageSize = 10;
     const page = Number(req.query.page) || 1;
@@ -533,7 +519,6 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
     }
 
     if (!categoryDoc) {
-      console.log('Category not found:', category);
       return res.status(404).json({
         success: false,
         message: 'Category not found',
@@ -541,7 +526,6 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
       });
     }
 
-    console.log('Found category ID:', categoryDoc._id);
 
     // Count total matching documents
     const count = await News.countDocuments({ 
@@ -560,7 +544,6 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
     .populate('author', 'username')
     .populate('category', 'name');
 
-    console.log(`Found ${news.length} news items for category ${category}`);
 
     res.json({
       success: true,
@@ -572,7 +555,6 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error in getNewsByCategory:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching news by category',

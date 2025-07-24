@@ -36,8 +36,8 @@ async function getArchiveData(lang: string, page: number = 1, year?: string, mon
       years: response.data?.years || [],
       months: response.data?.months || []
     };
-  } catch (error) {
-    console.error('Failed to fetch archive:', error);
+  } catch {
+    // Remove unused error variable to fix lint error
     return {
       news: [],
       pagination: { page: 1, pages: 1, total: 0 },

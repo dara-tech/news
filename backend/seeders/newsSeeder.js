@@ -15,7 +15,6 @@ const importData = async () => {
     const adminUser = await User.findOne({ role: 'admin' });
 
     if (!adminUser) {
-      console.error('Error: No admin user found. Please create an admin user first.');
       process.exit(1);
     }
 
@@ -60,10 +59,8 @@ const importData = async () => {
 
     await News.insertMany(sampleNews);
 
-    console.log('Data Imported Successfully!');
     process.exit();
   } catch (error) {
-    console.error(`Error: ${error.message}`);
     process.exit(1);
   }
 };
@@ -72,10 +69,8 @@ const destroyData = async () => {
   try {
     await News.deleteMany();
 
-    console.log('Data Destroyed Successfully!');
     process.exit();
   } catch (error) {
-    console.error(`Error: ${error.message}`);
     process.exit(1);
   }
 };

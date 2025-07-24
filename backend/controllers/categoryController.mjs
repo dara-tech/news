@@ -52,22 +52,17 @@ export const createCategory = asyncHandler(async (req, res) => {
 // @route   GET /api/categories/:id
 // @access  Public
 export const getCategoryById = asyncHandler(async (req, res) => {
-  console.log('getCategoryById called with ID:', req.params.id);
   
   try {
     const category = await Category.findById(req.params.id);
-    console.log('Category found:', category ? 'Yes' : 'No');
 
     if (!category) {
-      console.log('Category not found in database');
       res.status(404);
       throw new Error('Category not found');
     }
 
-    console.log('Returning category:', category._id);
     res.json({ success: true, data: category });
   } catch (error) {
-    console.error('Error in getCategoryById:', error);
     throw error;
   }
 });

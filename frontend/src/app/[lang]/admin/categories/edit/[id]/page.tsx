@@ -124,12 +124,10 @@ export default function EditCategoryPage({ params }: PageProps) {
             })
           }
         } else {
-          console.error("Failed to fetch category:", response.status)
           toast.error("Failed to load category")
           router.push(`/${currentLang}/admin/categories`)
         }
-      } catch (error) {
-        console.error("Error fetching category:", error)
+      } catch {
         toast.error("Failed to load category")
         router.push(`/${currentLang}/admin/categories`)
       } finally {
@@ -188,9 +186,8 @@ export default function EditCategoryPage({ params }: PageProps) {
       setTimeout(() => {
         router.push(`/${currentLang}/admin/categories`)
       }, 1200)
-    } catch (error: unknown) {
-      console.error("Error updating category:", error)
-      const errorMessage = error instanceof Error ? error.message : "Failed to update category"
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update category"
       setShowError(errorMessage)
       toast.error(errorMessage)
     } finally {

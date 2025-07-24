@@ -37,21 +37,12 @@ const LoginPage = () => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    console.log('Login form submitted');
     setServerError(null);
     try {
-      console.log('Calling login function with email:', data.email);
       await login(data.email, data.password);
-      console.log('Login successful, should be redirected by AuthContext');
     } catch (error: unknown) {
       // Handle different types of errors
       if (error instanceof Error) {
-        console.error('Login error:', {
-          name: error.name,
-          message: error.message,
-          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
-
         let errorMessage = 'Failed to login. Please check your credentials.';
         
         // Handle Axios errors
@@ -80,7 +71,6 @@ const LoginPage = () => {
         
         setServerError(errorMessage);
       } else {
-        console.error('Unexpected login error:', error);
         setServerError('An unexpected error occurred. Please try again.');
       }
     }

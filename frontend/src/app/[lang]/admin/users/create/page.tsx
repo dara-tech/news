@@ -52,10 +52,8 @@ const CreateUserPage = () => {
       router.push('/admin/users');
         } catch (err) {
       if (err instanceof AxiosError) {
-        console.error('Failed to create user:', err);
         toast.error(err.response?.data?.message || 'Failed to create user.');
       } else {
-        console.error('An unexpected error occurred:', err);
         toast.error('An unexpected error occurred.');
       }
     } finally {

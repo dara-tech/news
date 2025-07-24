@@ -27,7 +27,6 @@ router.route('/')
 
 // Debug middleware for /:id route
 router.use('/:id', (req, res, next) => {
-  console.log('Category ID route hit:', req.method, req.params.id);
   next();
 });
 
@@ -35,9 +34,6 @@ router.route('/:id')
   .get(getCategoryById)
   .put(protect, admin, updateCategory)
   .delete((req, res, next) => {
-    console.log('DELETE /api/categories/:id - Request received');
-    console.log('Category ID to delete:', req.params.id);
-    console.log('Headers:', req.headers);
     next();
   }, protect, admin, deleteCategory);
 

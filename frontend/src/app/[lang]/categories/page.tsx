@@ -45,7 +45,6 @@ async function getCategories(): Promise<{ data: Category[] | null; error: string
 
     return { data: result.data || [], error: null }
   } catch (error) {
-    console.error("Failed to fetch categories:", error)
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred"
     return { data: null, error: errorMessage }
   }

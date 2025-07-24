@@ -49,7 +49,6 @@ export default function CreateCategoryClientPage() {
         router.refresh();
       }, 1200);
     } catch (err: unknown) {
-      console.error('Error creating category:', err);
       setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
       toast.error('Failed to create category');
     } finally {

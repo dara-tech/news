@@ -40,7 +40,7 @@ export async function getAllArticles(): Promise<Article[]> {
         };
       }
       
-      console.error('Failed to fetch articles:', errorObj);
+      console.error('Failed to fetch articles :', errorObj);
     }
     return [];
   }
@@ -50,8 +50,8 @@ export async function getAllCategories(): Promise<Category[]> {
   try {
     const response = await api.get('/categories');
     return response.data.categories || [];
-  } catch (error) {
-    console.error('Failed to fetch categories:', error);
+  } catch {
+    // console.error('Failed to fetch categories');
     return [];
   }
 }

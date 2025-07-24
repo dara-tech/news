@@ -22,7 +22,6 @@ export default function DashboardHeader() {
   const capitalizedTitle = pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
 
   const handleLogout = () => {
-    console.log("User logged out");
     // Add your logout logic here (e.g., call auth context)
   };
 

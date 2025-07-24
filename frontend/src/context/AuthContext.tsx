@@ -23,13 +23,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Function to verify user session with the backend
   const verifyUserSession = async (storedUser: string | null) => {
     if (!storedUser) {
-      console.log('ℹ️ [AuthContext] No stored user found');
       return false;
     }
 
     try {
-      console.log('🔍 [AuthContext] Verifying user session with backend...');
-      
       // Add a small delay to prevent race conditions
       await new Promise(resolve => setTimeout(resolve, 100));
       
@@ -47,7 +44,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // If we get a successful response, update the user data
       if (response.status >= 200 && response.status < 300) {
         const { data } = response;
-        console.log('✅ [AuthContext] Backend session verification successful');
         
         // Parse the stored user data
         let token: string | undefined;
@@ -55,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const currentUser = JSON.parse(storedUser);
           token = currentUser.token;
         } catch {
-          console.warn('⚠️ [AuthContext] Failed to parse stored user data');
+          // ignore parse error
         }
         
         // Create user data with token if it exists
@@ -70,17 +66,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Update localStorage with fresh user data
         localStorage.setItem('userInfo', JSON.stringify(userData));
         setUser(userData);
-        console.log('✅ [AuthContext] User session verified and state updated');
         return true;
       } else {
         // Handle non-2xx responses
-        console.error(`❌ [AuthContext] Session verification failed with status ${response.status}:`, response.data);
         localStorage.removeItem('userInfo');
         setUser(null);
         return false;
       }
-    } catch (error) {
-      console.error('❌ [AuthContext] Error during session verification:', error);
+    } catch {
       // Clear invalid session data
       localStorage.removeItem('userInfo');
       setUser(null);
@@ -91,12 +84,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Effect to handle initial session verification and route protection
   useEffect(() => {
     const verifyUser = async () => {
-      console.log('🔄 [AuthContext] Starting session verification...');
       setLoading(true);
       
       try {
         const storedUser = localStorage.getItem('userInfo');
-        console.log('📦 [AuthContext] Stored user from localStorage:', storedUser);
         
         // If we have a stored user, try to verify the session
         if (storedUser) {
@@ -108,7 +99,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         
         // If we get here, either there's no stored user or the session is invalid
-        console.log('ℹ️ [AuthContext] No valid session found, redirecting to login');
         setUser(null);
 
         const currentPath = window.location.pathname;
@@ -117,8 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           router.push('/');
         }
         
-      } catch (error) {
-        console.error('❌ [AuthContext] Error during authentication check:', error);
+      } catch {
         localStorage.removeItem('userInfo');
         setUser(null);
 
@@ -139,10 +128,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // For Next.js App Router, we'll verify on mount and when the pathname changes
     const handlePathChange = () => {
-      console.log('🔄 [AuthContext] Path changed, verifying session...');
       verifyUser();
     };
-
 
     // Add event listener for path changes
     window.addEventListener('popstate', handlePathChange);
@@ -166,15 +153,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [router]);
 
   const login = async (email: string, password: string) => {
-    console.log('🔑 [AuthContext] Login attempt started for email:', email);
-    
     try {
       // Clear any existing user data
       localStorage.removeItem('userInfo');
       setUser(null);
 
       // Make login request with credentials
-      console.log('🔍 [AuthContext] Sending login request to /auth/login');
       const loginResponse = await api.post('/auth/login', 
         { email, password },
         { 
@@ -188,22 +172,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       );
       
-      // Log response headers to verify Set-Cookie
-      console.log('🍪 [AuthContext] Response headers:', loginResponse.headers);
-      
-      console.log('✅ [AuthContext] Login response status:', loginResponse.status);
-      console.log('🔑 [AuthContext] Login response data:', loginResponse.data);
-      
-      // Verify response data structure
-      console.log('🔍 [AuthContext] Verifying login response data');
-      
       if (!loginResponse.data) {
-        console.error('❌ [AuthContext] No data in login response');
         throw new Error('No data received from server');
       }
-      
-      // Log the complete response for debugging
-      console.log('🔍 [AuthContext] Full login response:', JSON.stringify(loginResponse.data, null, 2));
       
       // Handle different response structures
       let token: string | undefined;
@@ -220,33 +191,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         token = loginResponse.headers['authorization']?.split(' ')[1]; // Try to get token from headers
       }
       
-      console.log('🔍 [AuthContext] Extracted data:', {
-        hasToken: !!token,
-        userData: userData ? Object.keys(userData) : 'No user data',
-        headers: Object.keys(loginResponse.headers)
-      });
-      
       if (!token) {
-        console.error('❌ [AuthContext] No token in response');
         throw new Error('No authentication token received');
       }
       
       // If we still don't have userData, try to get it from the profile endpoint
       if (!userData) {
-        console.log('ℹ️ [AuthContext] No user data in login response, trying profile endpoint');
         try {
           const profileResponse = await api.get('/auth/profile');
           if (profileResponse.data) {
             userData = profileResponse.data;
-            console.log('✅ [AuthContext] Retrieved user data from profile endpoint');
           }
-        } catch (profileError) {
-          console.error('❌ [AuthContext] Failed to fetch user profile:', profileError);
+        } catch {
+          // ignore
         }
       }
       
       if (!userData) {
-        console.error('❌ [AuthContext] No user data available after all attempts');
         throw new Error('Could not retrieve user information');
       }
       
@@ -255,12 +216,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const missingFields = requiredFields.filter(field => !userData[field]);
       
       if (missingFields.length > 0 || !userData._id) {
-        console.error('❌ [AuthContext] Incomplete user data:', {
-          receivedKeys: Object.keys(userData),
-          missingRequiredFields: missingFields,
-          hasId: !!userData._id,
-          hasEmail: !!userData.email
-        });
         throw new Error('Incomplete user data received');
       }
       
@@ -273,20 +228,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         token
       };
       
-      console.log('💾 [AuthContext] Storing user data in localStorage');
       localStorage.setItem('userInfo', JSON.stringify(userToStore));
       setUser(userToStore);
       
       // Verify the token by fetching user profile
       try {
-        console.log('🔍 [AuthContext] Verifying token by fetching user profile');
         const profileResponse = await api.get('/auth/profile');
         
         if (!profileResponse.data) {
           throw new Error('No profile data received');
         }
-        
-        console.log('👤 [AuthContext] Profile verification successful');
         
         // Update user data with fresh profile data
         const updatedUser = {
@@ -302,14 +253,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Determine redirect path based on role
         const redirectPath = updatedUser.role === 'admin' ? '/admin/dashboard' : '/';
-        console.log(`🔄 [AuthContext] Authentication successful, redirecting to: ${redirectPath}`);
         
         // Use router.push for client-side navigation
         router.push(redirectPath);
         
-      } catch (profileError) {
-        console.error('❌ [AuthContext] Profile verification failed:', profileError);
-        // Clear invalid token and re-throw
+      } catch {
         localStorage.removeItem('userInfo');
         setUser(null);
         throw new Error('Failed to verify user session');
@@ -334,19 +282,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return typeof e === 'object' && e !== null && 'name' in e && typeof (e as { name: unknown }).name === 'string';
       };
 
-      // Log the error with type-safe access
-      const errorResponse = isErrorWithResponse(error) ? error.response : undefined;
-      const errorData = errorResponse?.data;
-      const errorStatus = errorResponse?.status;
-      const errorRequest = isErrorWithRequest(error) ? error.request : undefined;
-      const errorMessage = isErrorWithMessage(error) ? error.message : 'Unknown error';
-
-      console.error('❌ [AuthContext] Login failed:', {
-        error: errorData || errorMessage,
-        status: errorStatus,
-        request: errorRequest ? 'Request object exists' : 'No request object'
-      });
-      
       // Clean up on error
       localStorage.removeItem('userInfo');
       setUser(null);
@@ -354,8 +289,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Provide more specific error messages
       let userFacingMessage = 'Login failed. Please try again.';
       
-      if (errorResponse) {
-        // Server responded with error status
+      if (isErrorWithResponse(error)) {
+        const errorResponse = error.response;
+        const errorData = errorResponse?.data;
+        const errorStatus = errorResponse?.status;
         if (errorStatus === 401) {
           userFacingMessage = 'Invalid email or password';
         } else if (errorStatus === 403) {
@@ -363,11 +300,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else if (typeof errorData === 'object' && errorData !== null && 'message' in errorData && typeof errorData.message === 'string') {
           userFacingMessage = errorData.message;
         }
-      } else if (errorRequest) {
-        // Request was made but no response
+      } else if (isErrorWithRequest(error)) {
         userFacingMessage = 'No response from server. Please check your connection.';
       } else if (isErrorWithMessage(error)) {
-        // Other errors with message
         userFacingMessage = error.message;
       }
       
@@ -399,7 +334,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-    
   );
 };
 

@@ -8,20 +8,16 @@ import Category from "../models/Category.mjs";
 // @access  Private/Admin
 export const getStats = asyncHandler(async (req, res) => {
   try {
-    console.log('--- Fetching Dashboard Stats ---');
     
     // Get total users
     const totalUsers = await User.countDocuments();
-    console.log('Total Users:', totalUsers);
     
     // Get total published news
     const totalNews = await News.countDocuments({ status: 'published' });
-    console.log('Total Published News:', totalNews);
     
     // Get distinct categories with count
     const categories = await Category.find({}).lean();
     const totalCategories = categories.length;
-    console.log('Total Categories:', totalCategories);
 
     // Get news count by category with category names
     const newsByCategory = await News.aggregate([
@@ -46,7 +42,6 @@ export const getStats = asyncHandler(async (req, res) => {
       { $sort: { name: 1 } }
     ]);
 
-    console.log('News by Category:', newsByCategory);
 
     // Get recent activities
     const recentNews = await News.find({ status: 'published' })
@@ -64,14 +59,12 @@ export const getStats = asyncHandler(async (req, res) => {
       recentNews
     };
 
-    console.log('--- Sending Dashboard Stats ---');
     res.json({
       success: true,
       data: stats
     });
     
   } catch (error) {
-    console.error('Error in getStats:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching dashboard statistics',

@@ -49,9 +49,8 @@ async function getCategories() {
     }
     
     return data.data;
-  } catch (error) {
-    console.error('Failed to fetch categories:', error);
-    throw error; // Re-throw instead of returning empty array
+  } catch {
+    throw new Error('Failed to fetch categories'); // Re-throw instead of returning empty array
   }
 }
 
@@ -61,12 +60,10 @@ async function getNewsData(lang: string, page: number = 1, category?: string, se
     
     if (category) {
       // Use the category-specific endpoint
-      console.log('Fetching news for category:', category);
       response = await api.get(`/news/category/${category}`, { 
         params: { page, limit: 12 } 
       });
       
-      console.log('Category response:', response.data);
       
       // Validate response structure
       if (!response.data || typeof response.data !== 'object') {
@@ -86,10 +83,8 @@ async function getNewsData(lang: string, page: number = 1, category?: string, se
       const params: Record<string, string | number> = { lang, page, limit: 12 };
       if (search) params.keyword = search;
 
-      console.log('Fetching general news with params:', params);
       response = await api.get('/news', { params });
       
-      console.log('General news response:', response.data);
       
       // Validate response structure
       if (!response.data || typeof response.data !== 'object') {
@@ -105,9 +100,8 @@ async function getNewsData(lang: string, page: number = 1, category?: string, se
         }
       };
     }
-  } catch (error) {
-    console.error('Failed to fetch news:', error);
-    throw error; // Re-throw instead of returning empty data
+  } catch {
+    throw new Error('Failed to fetch news data'); // Re-throw instead of returning empty data
   }
 }
 
@@ -117,30 +111,24 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
   const currentPage = parseInt(page || '1', 10);
   const locale: Locale = lang === 'km' ? 'kh' : 'en';
 
-  console.log('NewsPage params:', { lang, page, category, search, currentPage, locale });
 
   try {
     // Fetch categories for filter chips
     const categories = await getCategories();
-    console.log('Fetched categories:', categories.length);
     
     // Find the current category for display
     const currentCategory = category ? categories.find((c: Category) => {
       try {
         const categorySlug = getCategorySlug(c);
-        console.log(`Checking category ${c._id}: slug=${categorySlug}, looking for=${category}`);
         return categorySlug === category;
-      } catch (error) {
-        console.error(`Error getting slug for category ${c._id}:`, error);
+      } catch {
         return false;
       }
     }) : null;
 
-    console.log('Current category found:', currentCategory?._id);
 
     // Don't throw error for missing category - just show empty state
     const { news, pagination } = await getNewsData(lang, currentPage, category, search);
-    console.log('Fetched news:', { count: news.length, category, search });
 
     return (
       <div className="container mx-auto px-4 py-8">
@@ -239,8 +227,7 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
         )}
       </div>
     );
-  } catch (error) {
-    console.error('Error in NewsPage:', error);
+  } catch {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-12">
@@ -249,7 +236,7 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
               Error Loading News
             </h2>
             <p className="text-red-700 dark:text-red-300 mb-6">
-              {error instanceof Error ? error.message : 'An unexpected error occurred while loading the news.'}
+              An unexpected error occurred while loading the news.
             </p>
             <div className="flex gap-4 justify-center">
               <button

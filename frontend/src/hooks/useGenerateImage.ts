@@ -48,7 +48,6 @@ export function useGenerateImage() {
       const file = new File([blob], "generated-thumbnail.png", { type: "image/png" });
       return { file, text };
     } catch (error: unknown) {
-      console.error("Error generating image from prompt:", error);
       let message = "Image generation failed. Please try again later.";
       if (error instanceof Error) {
         message = error.message;

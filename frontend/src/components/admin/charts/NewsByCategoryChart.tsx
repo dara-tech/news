@@ -52,15 +52,13 @@ export default function NewsByCategoryChart({ data = [] }: NewsByCategoryChartPr
   const totalArticles: number = useMemo(() => {
     try {
       if (!Array.isArray(data)) {
-        console.error('Invalid data format in NewsByCategoryChart:', data);
         return 0;
       }
       return data.reduce((sum, item) => {
         const count = typeof item?.count === 'number' ? item.count : 0;
         return sum + count;
       }, 0);
-    } catch (error) {
-      console.error('Error calculating total articles:', error);
+    } catch {
       return 0;
     }
   }, [data]);

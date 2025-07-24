@@ -103,8 +103,7 @@ const NewsPage = () => {
       document.body.removeChild(link);
       
       toast.success('Articles exported successfully!');
-    } catch (error) {
-      console.error('Export failed:', error);
+    } catch {
       toast.error('Failed to export articles.');
     }
   };
@@ -125,8 +124,7 @@ const NewsPage = () => {
       setArticles(articles.filter(article => !deletedIds.includes(article._id)));
       
       toast.success(`${selectedArticles.length} article(s) deleted successfully.`);
-    } catch (error) {
-      console.error('Bulk delete failed:', error);
+    } catch {
       toast.error('Failed to delete some articles.');
     }
   };

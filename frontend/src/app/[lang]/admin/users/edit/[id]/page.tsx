@@ -43,9 +43,8 @@ const EditUserPage = () => {
         try {
           const { data } = await api.get(`/users/${id}`);
           setFormData(data);
-        } catch (err) {
+        } catch {
           toast.error('Failed to fetch user data.');
-          console.error(err);
         }
       };
       fetchUser();
@@ -77,12 +76,10 @@ const EditUserPage = () => {
       });
       toast.success('User updated successfully!');
       router.push('/admin/users');
-        } catch (err) {
-      if (err instanceof AxiosError) {
-        console.error('Failed to update user:', err);
-        toast.error(err.response?.data?.message || 'Failed to update user.');
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || 'Failed to update user.');
       } else {
-        console.error('An unexpected error occurred:', err);
         toast.error('An unexpected error occurred.');
       }
     } finally {

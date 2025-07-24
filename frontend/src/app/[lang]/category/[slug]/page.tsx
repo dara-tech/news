@@ -14,8 +14,7 @@ async function getCategoryBySlug(slug: string) {
     if (!response.ok) return null
     const data = await response.json()
     return data.success ? data.data : null
-  } catch (error) {
-    console.error("Error fetching category:", error)
+  } catch {
     return null
   }
 }
@@ -26,11 +25,9 @@ async function getLatestNewsByCategory(categorySlug: string) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
     const response = await fetch(`${apiUrl}/api/news/category/${encodeURIComponent(categorySlug)}`);
     const data = await response.json();
-    console.log(data)
     return data.success ? data.news : [];
 
-  } catch (error) {
-    console.error("Error fetching latest news for category:", error);
+  } catch {
     return [];
   }
 }

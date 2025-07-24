@@ -23,7 +23,6 @@ const CreateNewsPage = () => {
       const apiError = error as { response?: { data?: { message?: string } } }
       const errorMessage = apiError.response?.data?.message || "Failed to create news article."
       toast.error(errorMessage)
-      console.error(error)
     } finally {
       setIsSubmitting(false)
     }

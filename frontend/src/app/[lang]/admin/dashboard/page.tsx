@@ -30,71 +30,65 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMounted, setHasMounted] = useState(false);
-  
+
   // Prepare chart data with useMemo at the top level
   const chartData = useMemo(() => {
     if (!stats?.newsByCategory || !Array.isArray(stats.newsByCategory) || stats.newsByCategory.length === 0) {
-      console.warn('No valid newsByCategory data available');
       return [];
     }
-    
+
     try {
       return stats.newsByCategory.map(item => {
         try {
-          const name = item?.name 
-            ? (typeof item.name === 'string' 
-                ? item.name 
+          const name = item?.name
+            ? (typeof item.name === 'string'
+                ? item.name
                 : (item.name?.en || 'Unknown'))
             : 'Unknown';
-              
+
           return {
             name,
             count: typeof item?.count === 'number' ? item.count : 0
           };
-        } catch (itemError) {
-          console.error('Error processing category item:', { item, itemError });
+        } catch {
           return { name: 'Error', count: 0 };
         }
       });
-    } catch (error) {
-      console.error('Error preparing chart data:', error);
+    } catch {
       return [];
     }
   }, [stats?.newsByCategory]);
 
   useEffect(() => {
     setHasMounted(true);
-    
+
     const fetchStats = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        console.log('Fetching dashboard stats...');
+
         const response = await api.get<{ success: boolean; data: Stats }>('/dashboard/stats');
-        
-        console.log('Dashboard stats response:', response.data);
-        
+
         if (!response?.data?.success || !response.data.data) {
           throw new Error('Invalid data format received from server');
         }
-        
+
         // Safely transform the category data
         const safeNewsByCategory = Array.isArray(response.data.data.newsByCategory)
           ? response.data.data.newsByCategory.map((item: CategoryStats) => {
-              const name = item?.name 
-                ? (typeof item.name === 'object' 
-                    ? (item.name as CategoryName).en || 'Unknown' 
+              const name = item?.name
+                ? (typeof item.name === 'object'
+                    ? (item.name as CategoryName).en || 'Unknown'
                     : String(item.name))
                 : 'Unknown';
-                
+
               return {
                 name,
                 count: typeof item?.count === 'number' ? item.count : 0
               };
             })
           : [];
-        
+
         const transformedData: Stats = {
           totalNews: typeof response.data.data.totalNews === 'number' ? response.data.data.totalNews : 0,
           totalUsers: typeof response.data.data.totalUsers === 'number' ? response.data.data.totalUsers : 0,
@@ -102,10 +96,9 @@ export default function DashboardPage() {
           newsByCategory: safeNewsByCategory,
           recentNews: Array.isArray(response.data.data.recentNews) ? response.data.data.recentNews : []
         };
-        
-        console.log('Transformed dashboard stats:', transformedData);
+
         setStats(transformedData);
-        
+
       } catch (error: unknown) {
         const err = error as {
           response?: {
@@ -114,16 +107,10 @@ export default function DashboardPage() {
           };
           message?: string;
         };
-        const errorMessage = err.response?.data?.message || 
-                           err.message || 
+        const errorMessage = err.response?.data?.message ||
+                           err.message ||
                            'Failed to fetch dashboard statistics.';
-        
-        console.error('Error in fetchStats:', {
-          error: err,
-          status: err.response?.status,
-          data: err.response?.data
-        });
-        
+
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -133,7 +120,7 @@ export default function DashboardPage() {
     if (hasMounted) {
       fetchStats();
     }
-    
+
     return () => {
       // Cleanup if needed
     };
@@ -200,7 +187,7 @@ export default function DashboardPage() {
         <StatCard title="Total Users" value={stats.totalUsers} icon={Users} />
         <StatCard title="Total Categories" value={stats.totalCategories} icon={LayoutList} />
       </div>
-      
+
       {/* Mobile-optimized chart section */}
       <div className="w-full">
         {Array.isArray(chartData) && chartData.length > 0 ? (

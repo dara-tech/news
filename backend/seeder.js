@@ -14,10 +14,8 @@ const importData = async () => {
 
     await Category.create(categories);
 
-    console.log('Data Imported!');
     process.exit();
   } catch (error) { 
-    console.error(`${error}`);
     process.exit(1);
   }
 };
@@ -26,10 +24,8 @@ const destroyData = async () => {
   try {
     await Category.deleteMany();
 
-    console.log('Data Destroyed!');
     process.exit();
   } catch (error) {
-    console.error(`${error}`);
     process.exit(1);
   }
 };

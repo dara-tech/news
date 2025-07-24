@@ -22,7 +22,6 @@ export const protect = asyncHandler(async (req, res, next) => {
     try {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('Decoded token:', decoded);
 
       // Get user from the token and remove the password field
       req.user = await User.findById(decoded.userId).select('-password');
@@ -33,7 +32,6 @@ export const protect = asyncHandler(async (req, res, next) => {
       }
       next();
     } catch (error) {
-      console.error(error);
       res.clearCookie('jwt');
       res.status(401);
       throw new Error('Not authorized, token failed');

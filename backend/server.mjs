@@ -65,8 +65,6 @@ app.use(session({
 
 // Log session info for debugging
 app.use((req, res, next) => {
-  console.log('Session ID:', req.sessionID);
-  console.log('Session data:', req.session);
   next();
 });
 
@@ -102,11 +100,9 @@ const corsOptions = {
 
     if (!isAllowed) {
       const msg = `CORS: Origin ${origin} not allowed`;
-      console.warn(msg);
       return callback(new Error(msg), false);
     }
     
-    console.log(`CORS: Allowed origin: ${origin}`);
     return callback(null, true);
   },
   credentials: true, // Required for cookies
@@ -124,9 +120,6 @@ app.options('*', cors(corsOptions));
 
 // Log all incoming requests
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
-  console.log('Origin:', req.headers.origin);
-  console.log('Headers:', req.headers);
   next();
 });
 
@@ -186,7 +179,6 @@ app.use(errorHandler)
 const PORT = process.env.PORT || 5001
 
 let server = app.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 })
 
 // --- Prevent server from sleeping (keep-alive ping every 5 minutes) ---
@@ -194,7 +186,6 @@ const keepAlive = () => {
   const targetUrl = process.env.AUTO_RELOAD_URL || `http://localhost:${PORT}`;
   const timeout = parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000; // 10 seconds
 
-  console.log(`[${new Date().toISOString()}] 🔄 Sending keep-alive ping to ${targetUrl}`);
 
   const https = require('https');
   const http = require('http');
@@ -204,19 +195,15 @@ const keepAlive = () => {
     let data = '';
     res.on('data', (chunk) => { data += chunk; });
     res.on('end', () => {
-      console.log(`[${new Date().toISOString()}] ✅ Keep-alive ping successful. Status: ${res.statusCode}`);
       if (res.statusCode >= 400) {
-        console.warn(`[${new Date().toISOString()}] ⚠️ Keep-alive received error status: ${res.statusCode}`);
       }
     });
   });
 
   request.on("error", (err) => {
-    console.error(`[${new Date().toISOString()}] ❌ Keep-alive failed: ${err.message}`);
   });
 
   request.on("timeout", () => {
-    console.warn(`[${new Date().toISOString()}] ⚠️ Keep-alive request timed out after ${timeout}ms`);
     request.destroy();
   });
 
@@ -229,11 +216,9 @@ const startKeepAlive = () => {
   const enabled = process.env.AUTO_RELOAD_ENABLED !== 'false'; // Enabled by default
 
   if (!enabled) {
-    console.log(`[${new Date().toISOString()}] 🚫 Keep-alive is disabled`);
     return;
   }
 
-  console.log(`[${new Date().toISOString()}] 🕐 Keep-alive scheduled every 5 minutes`);
 
   // Initial ping after 1 minute
   setTimeout(() => {
@@ -268,14 +253,11 @@ if (process.env.NODE_ENV === 'production') {
 
 // Graceful shutdown handlers
 process.on("unhandledRejection", (err, promise) => {
-  console.log(`❌ Unhandled Rejection: ${err.message}`)
   server.close(() => process.exit(1))
 })
 
 process.on("SIGTERM", () => {
-  console.log("👋 SIGTERM received. Shutting down gracefully...")
   server.close(() => {
-    console.log("💤 Process terminated")
   })
 })
 

@@ -38,8 +38,7 @@ async function searchNews(query: string, lang: string, page: number = 1, categor
         total: response.data?.total || 0,
       }
     };
-  } catch (error) {
-    console.error('Failed to search news:', error);
+  } catch {
     return {
       news: [],
       pagination: { page: 1, pages: 1, total: 0 }

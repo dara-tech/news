@@ -9,7 +9,6 @@ dotenv.config();
 const migrateData = async () => {
   try {
     await connectDB();
-    console.log('MongoDB Connected...');
 
     const categories = await Category.find({});
     const categoryMap = categories.reduce((acc, category) => {
@@ -32,7 +31,6 @@ const migrateData = async () => {
       if (!article.category && defaultCategoryId) {
         article.category = defaultCategoryId;
         isModified = true;
-        console.log(`Assigned default category to article: ${article._id}`);
       }
 
       // Clean up corrupted tags
@@ -46,7 +44,6 @@ const migrateData = async () => {
         if (JSON.stringify(article.tags) !== JSON.stringify(cleanedTags)) {
             article.tags = cleanedTags;
             isModified = true;
-            console.log(`Cleaned tags for article: ${article._id}`);
         }
       }
 
@@ -67,23 +64,16 @@ const migrateData = async () => {
         try {
             await article.save();
             updatedCount++;
-            console.log(`Successfully updated article: ${article._id}`);
         } catch (e) {
-            console.error(`Failed to save article ${article._id}:`, e.message);
             failedCount++;
         }
       }
     }
 
-    console.log('\n--- Migration Complete ---');
-    console.log(`Successfully updated ${updatedCount} articles.`);
-    console.log(`Failed to migrate ${failedCount} articles (see warnings above).`);
 
   } catch (error) {
-    console.error('Migration failed:', error);
   } finally {
     await mongoose.disconnect();
-    console.log('MongoDB Disconnected.');
   }
 };
 

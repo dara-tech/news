@@ -35,7 +35,6 @@ export default function DeleteCategoryButton({ id, name, onDelete }: DeleteCateg
       }
 
       const categoryId = id.trim()
-      console.log("Deleting category with ID:", categoryId)
 
       // Ensure the ID is a valid MongoDB ObjectId format (24 hex characters)
       const objectIdRegex = /^[0-9a-fA-F]{24}$/
@@ -48,7 +47,6 @@ export default function DeleteCategoryButton({ id, name, onDelete }: DeleteCateg
 
       if (response.data.success !== false) {
         const message = response.data.message || "Category deleted successfully"
-        console.log("Success:", message)
         toast.success(message)
 
         if (onDelete) {
@@ -60,7 +58,6 @@ export default function DeleteCategoryButton({ id, name, onDelete }: DeleteCateg
         throw new Error(response.data.message || "Failed to delete category")
       }
     } catch (error: unknown) {
-      console.error("Error deleting category:", error)
 
       let errorMessage = "Failed to delete category"
 
@@ -74,7 +71,6 @@ export default function DeleteCategoryButton({ id, name, onDelete }: DeleteCateg
         errorMessage = error.message
       }
 
-      console.error("Final error message:", errorMessage)
       toast.error(errorMessage)
     } finally {
       setIsDeleting(false)

@@ -49,7 +49,6 @@ export default function CategoryFilter({ categories, currentCategory, locale, la
     params.delete('search');
     
     const newUrl = `/${lang}/news?${params.toString()}`;
-    console.log('Navigating to:', newUrl);
     router.push(newUrl);
   };
 
@@ -67,27 +66,27 @@ export default function CategoryFilter({ categories, currentCategory, locale, la
           All
         </button>
         {categories.map((cat: Category) => {
+          let categorySlug: string;
+          let categoryName: string;
           try {
-            const categorySlug = getCategorySlug(cat);
-            const categoryName = getLocalizedText(cat.name, locale);
-            
-            return (
-              <button
-                key={categorySlug}
-                onClick={() => handleCategoryClick(categorySlug)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
-                  currentCategory === categorySlug
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`}
-              >
-                {categoryName || cat._id}
-              </button>
-            );
-          } catch (error) {
-            console.error(`Skipping category ${cat._id} due to missing slug:`, error);
+            categorySlug = getCategorySlug(cat);
+            categoryName = getLocalizedText(cat.name, locale);
+          } catch {
             return null;
           }
+          return (
+            <button
+              key={categorySlug}
+              onClick={() => handleCategoryClick(categorySlug)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
+                currentCategory === categorySlug
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              {categoryName || cat._id}
+            </button>
+          );
         }).filter(Boolean)}
       </div>
     </div>

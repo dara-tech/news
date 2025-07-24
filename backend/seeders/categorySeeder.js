@@ -17,16 +17,13 @@ const categories = News.schema.path('category').enumValues;
 const seedCategories = async () => {
   try {
     await Category.deleteMany();
-    console.log('Categories destroyed');
 
     const categoryDocs = categories.map(name => ({ name }));
 
     await Category.insertMany(categoryDocs);
-    console.log('Categories created');
 
     process.exit();
   } catch (err) {
-    console.error(err);
     process.exit(1);
   }
 };

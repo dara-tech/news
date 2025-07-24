@@ -18,7 +18,6 @@ const migrateUsers = async () => {
     }).toArray();
 
     if (usersToMigrate.length === 0) {
-      console.log('No users to migrate. Database is already up-to-date.');
       process.exit();
     }
 
@@ -41,14 +40,11 @@ const migrateUsers = async () => {
       if (Object.keys(updateOps.$set).length > 0) {
         await usersCollection.updateOne({ _id: user._id }, updateOps);
         migratedCount++;
-        console.log(`Migrated user ${user._id}`);
       }
     }
 
-    console.log(`Migration complete. Migrated ${migratedCount} user(s).`);
     process.exit();
   } catch (error) {
-    console.error('Migration failed:', error);
     process.exit(1);
   }
 };

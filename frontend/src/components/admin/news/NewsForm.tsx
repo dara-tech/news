@@ -74,6 +74,11 @@ interface NewsFormProps {
   isSubmitting: boolean; // Flag for form submission state
 }
 
+// Helper type for deep object mutation in handleInputChange
+type DeepMutable<T> = {
+  -readonly [P in keyof T]: T[P] extends object ? DeepMutable<T[P]> : T[P];
+};
+
 const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }: NewsFormProps): React.ReactElement | null => {
   const [formData, setFormData] = useState<NewsFormData | null>(null);
   const [originalData, setOriginalData] = useState<NewsFormData | null>(null);
@@ -108,8 +113,7 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
         } else {
           toast.error('Could not load categories.');
         }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
+      } catch {
         toast.error('An error occurred while fetching categories.');
       }
     };
@@ -233,8 +237,7 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
       setLastSaved(new Date()); // Record save time
       toast.success("Changes auto-saved", { duration: 2000 });
       setHasUnsavedChanges(false); // Reset unsaved changes flag
-    } catch (error) {
-      console.error("Auto-save failed:", error);
+    } catch {
       toast.error("Auto-save failed.");
     } finally {
       setIsSaving(false);
@@ -290,15 +293,26 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     const { name, value } = e.target;
     setFormData(prev => {
       if (!prev) return prev;
-      const newState = structuredClone(prev); // Deep copy to avoid direct mutation
+      const newState = structuredClone(prev) as DeepMutable<NewsFormData>; // Deep copy to avoid direct mutation
       const keys = name.split('.');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let current: any = newState; // Use 'any' here as the path is dynamic and type inference is complex
-      // Traverse the object path to find the correct nested property
+      // Use unknown/object for type safety instead of any
+      let current: unknown = newState;
       for (let i = 0; i < keys.length - 1; i++) {
-        current = current[keys[i]];
+        if (
+          typeof current === "object" &&
+          current !== null &&
+          keys[i] in current
+        ) {
+          current = (current as Record<string, unknown>)[keys[i]];
+        }
       }
-      current[keys[keys.length - 1]] = value; // Set the value of the target property
+      if (
+        typeof current === "object" &&
+        current !== null &&
+        keys[keys.length - 1] in current
+      ) {
+        (current as Record<string, unknown>)[keys[keys.length - 1]] = value;
+      }
       return newState;
     });
     // Clear validation error for the changed field if it exists.
@@ -626,8 +640,7 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
       // Success toast is handled by the parent page component to avoid duplicates
       setHasUnsavedChanges(false); // Clear unsaved changes after successful submission
       setOriginalData(JSON.parse(JSON.stringify(formData))); // Update original data to reflect saved state
-    } catch (error) {
-      console.error("Submission failed:", error);
+    } catch {
       // Error toast is handled by the parent page component to avoid duplicates
     }
   };

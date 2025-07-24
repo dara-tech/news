@@ -22,10 +22,9 @@ async function getUser(): Promise<User | null> {
     });
     
     return res.data;
-  } catch (error) {
+  } catch {
     // It's common for this to fail if the user is not authenticated.
     // We can log this for debugging but shouldn't treat it as a critical error.
-    console.log('Could not fetch user in profile page:', error);
     return null;
   }
 }
@@ -35,4 +34,3 @@ export default async function ProfilePage() {
 
   return <ProfilePageClient initialUser={user} />;
 }
-

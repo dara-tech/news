@@ -16,10 +16,8 @@ function updateImportsInFile(filePath) {
     // Only write if changes were made
     if (content !== updatedContent) {
       fs.writeFileSync(filePath, updatedContent, 'utf8');
-      console.log(`Updated imports in ${filePath}`);
     }
   } catch (error) {
-    console.error(`Error processing ${filePath}:`, error.message);
   }
 }
 
@@ -43,4 +41,3 @@ function processDirectory(directory) {
 const rootDir = path.dirname(new URL(import.meta.url).pathname);
 processDirectory(rootDir);
 
-console.log('Import path updates complete!');

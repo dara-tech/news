@@ -7,7 +7,6 @@ const connectCloudinary = () => {
     api_secret: process.env.CLOUDINARY_API_SECRET,
     secure: true
   });
-  console.log('Cloudinary connected successfully');
 };
 
 // Upload an image to Cloudinary
@@ -21,7 +20,6 @@ export const uploadImage = async (filePath, folder = 'news') => {
     });
     return result;
   } catch (error) {
-    console.error('Error uploading to Cloudinary:', error);
     throw new Error('Image upload failed');
   }
 };
@@ -31,7 +29,6 @@ export const deleteImage = async (publicId) => {
   try {
     await cloudinary.uploader.destroy(publicId);
   } catch (error) {
-    console.error('Error deleting from Cloudinary:', error);
     throw new Error('Image deletion failed');
   }
 };

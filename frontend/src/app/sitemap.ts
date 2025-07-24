@@ -60,15 +60,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         
         return [...staticRoutes, ...newsRoutes];
       }
-    } catch (error) {
-      console.error('Error fetching articles for sitemap:', error);
+    } catch {
       clearTimeout(timeoutId);
     }
     
     return staticRoutes;
-  } catch (error) {
-    console.error('Error generating sitemap:', error);
+  } catch {
     return staticRoutes;
   }
 }
-
