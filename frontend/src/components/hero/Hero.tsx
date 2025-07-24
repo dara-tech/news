@@ -15,6 +15,16 @@ import { BreakingNewsTicker } from "./BreakingNewsTicker"
 import MainFeature from "./MainFeature"
 import SecondaryFeatureGrid from "./SecondaryFeatureGrid"
 
+// Helper to get localized string or fallback
+type LocalizedString = string | Record<string, string | undefined>;
+function getLocalizedString(str: LocalizedString, locale: 'en' | 'kh'): string {
+  if (typeof str === "string") return str
+  if (str && typeof str === "object") {
+    return str[locale] || str["en"] || Object.values(str)[0] || ""
+  }
+  return ""
+}
+
 interface HeroProps {
   breaking: Article[]
   featured: Article[]
@@ -48,8 +58,6 @@ const Hero: React.FC<HeroProps> = ({
     }
   }, [breaking, featured, categories])
 
-
-
   // Toggle ticker pause state when hovering over the ticker
   const handleTickerHover = useCallback((isHovering: boolean) => {
     if (!tickerRef.current) return
@@ -61,7 +69,6 @@ const Hero: React.FC<HeroProps> = ({
       tickerRef.current.play()
     }
   }, [])
-
 
   return (
     <section className="relative" aria-label="Featured content">
@@ -156,48 +163,6 @@ const Hero: React.FC<HeroProps> = ({
                 </p>
               </div>
 
-              {/* Trending Categories Grid */}
-              <div 
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
-                role="list"
-                aria-label="Trending categories"
-              >
-                {trendingCategories.map((category) => {
-                  // Create a stable article count based on category ID to avoid hydration mismatch
-                  const stableCount = (category._id?.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 40) + 10;
-                  const articleCount = stableCount;
-                  const categoryName = category.name?.[locale] || 'Uncategorized'
-                  const categorySlug = category.slug?.[locale] || category._id
-                  
-                  return (
-                    <div key={category._id} role="listitem">
-                      <Link 
-                        href={`/category/${categorySlug}`}
-                        className="block h-full"
-                        aria-label={`View ${categoryName} category with ${articleCount} articles`}
-                      >
-                        <Card className="h-full group hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
-                          <CardContent className="p-4 md:p-6 text-center space-y-3 h-full flex flex-col items-center justify-center">
-                            <div className="w-10 h-10 md:w-12 md:h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                              <Globe className="w-5 h-5 md:w-6 md:h-6 text-primary" aria-hidden="true" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">
-                                {categoryName}
-                              </h3>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {articleCount} {articleCount === 1 ? 'article' : 'articles'}
-                              </p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </Link>
-                    </div>
-                    
-                  )
-                })}
-              </div>
-
               {/* All Categories Button */}
               {allCategories.length > 0 && (
                 <div className="text-center pt-2">
@@ -212,6 +177,48 @@ const Hero: React.FC<HeroProps> = ({
                   </Button>
                 </div>
               )}
+
+              {/* Trending Categories Grid */}
+              <div 
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+                role="list"
+                aria-label="Trending categories"
+              >
+                {trendingCategories.map((category) => {
+                  const articleCount = category.articlesCount ?? 0;
+                  const categoryName = getLocalizedString(category.name as LocalizedString, locale) || 'Uncategorized';
+                  const categorySlug = typeof category.slug === 'string' ? category.slug : category._id;
+
+                  return (
+                    <div key={category._id} role="listitem">
+                      <Link 
+                        href={`/${locale === 'kh' ? 'km' : 'en'}/category/${categorySlug}`}
+                        className="block h-full"
+                        aria-label={`View ${categoryName} category with ${articleCount} articles`}
+                      >
+                        <Card className="h-full group hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+                          <CardContent className="p-4 md:p-6 text-center space-y-3 h-full flex flex-col items-center justify-center">
+                            <div
+                              className="w-10 h-10 md:w-12 md:h-12 mx-auto rounded-xl flex items-center justify-center group-hover:shadow-lg transition-colors border-2 border-white"
+                              style={{ backgroundColor: category.color || 'var(--primary)' }}
+                            >
+                              <Globe className="w-5 h-5 md:w-6 md:h-6 text-white" aria-hidden="true" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">
+                                {categoryName}
+                              </h3>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {articleCount} {articleCount === 1 ? 'article' : 'articles'}
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

@@ -5,8 +5,17 @@ import Category from "../models/Category.mjs";
 // @route   GET /api/categories
 // @access  Public
 export const getCategories = asyncHandler(async (req, res) => {
+  // Fetch all categories
   const categories = await Category.find({}).sort({ 'name.en': 1 });
-  res.json({ success: true, data: categories });
+
+  // For each category, count the number of published news articles
+  const News = (await import('../models/News.mjs')).default;
+  const categoriesWithCounts = await Promise.all(categories.map(async (cat) => {
+    const count = await News.countDocuments({ category: cat._id, status: 'published' });
+    return { ...cat.toObject(), articlesCount: count };
+  }));
+
+  res.json({ success: true, data: categoriesWithCounts });
 });
 
 // @desc    Create a new category

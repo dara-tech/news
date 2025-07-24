@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { Article } from '@/types';
+import { Article, Category } from '@/types';
 import HomePage from '@/components/home/HomePage';
 import ErrorDisplay from '@/components/common/ErrorDisplay';
 
@@ -32,12 +32,26 @@ async function getNewsData(lang: 'en' | 'km'): Promise<NewsData> {
   }
 }
 
+async function getCategories(): Promise<Category[]> {
+  try {
+    const response = await api.get('/categories');
+    return response.data?.data || response.data || [];
+  } catch (err) {
+    console.error('Failed to fetch categories:', err);
+    return [];
+  }
+}
+
 export default async function Home({ params }: HomeProps) {
   const { lang } = await params;
 
   try {
-    const newsData = await getNewsData(lang);
-    return <HomePage lang={lang} newsData={newsData} />;
+    const [newsData, categories] = await Promise.all([
+      getNewsData(lang),
+      getCategories(),
+    ]);
+    
+    return <HomePage lang={lang} newsData={newsData} categories={categories} />;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'An unknown error occurred.';
     return (

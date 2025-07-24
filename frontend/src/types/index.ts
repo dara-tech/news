@@ -5,10 +5,13 @@ export type LocalizedString = {
 };
 
 export interface Category {
+  newsCount: number;
   _id: string;
   name: LocalizedString;
   slug?: LocalizedString;
   description?: LocalizedString;
+  color?: string;
+  articlesCount?: number;
 }
 
 export interface Article {
@@ -22,6 +25,7 @@ export interface Article {
     _id: string;
     name: LocalizedString;
     slug?: LocalizedString;
+    color?: string;
   };
   thumbnail?: string;
   images?: string[];

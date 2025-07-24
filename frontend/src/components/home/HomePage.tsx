@@ -13,20 +13,12 @@ interface HomePageProps {
     featured: Article[];
     latest: Article[];
   };
+  categories: Category[];
 }
 
-export default function HomePage({ lang, newsData }: HomePageProps) {
+export default function HomePage({ lang, newsData, categories }: HomePageProps) {
   const locale = lang === 'km' ? 'kh' : 'en';
   const { breaking, featured, latest } = newsData;
-
-  // Extract unique categories from featured articles
-  const categories: Category[] = Array.from(
-    new Map(
-      featured
-        .filter(article => article?.category?._id)
-        .map(article => [article.category._id, article.category])
-    ).values()
-  );
 
   return (
     <motion.div
