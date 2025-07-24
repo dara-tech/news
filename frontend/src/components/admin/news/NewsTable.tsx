@@ -206,8 +206,8 @@ const NewsTable = ({
       header: "Author",
       cell: ({ row }) => {
         const article = row.original;
-        const authorName = typeof article.author === 'object' && article.author?.name
-          ? article.author.name
+        const authorName = typeof article.author === 'object' && article.author?.email
+          ? article.author.email
           : 'Unknown';
         return (
           <div className="text-xs sm:text-sm font-medium min-w-[80px]">

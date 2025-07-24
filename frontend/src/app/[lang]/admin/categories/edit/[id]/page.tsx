@@ -5,9 +5,9 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Save, Loader2 } from "lucide-react"
+import { ArrowLeft, Save, Loader2, Palette, CheckCircle2, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -48,6 +48,8 @@ export default function EditCategoryPage({ params }: PageProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [currentLang, setCurrentLang] = useState<"en" | "kh">("en")
   const [categoryId, setCategoryId] = useState<string>("")
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [showError, setShowError] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
     nameEn: "",
@@ -143,17 +145,20 @@ export default function EditCategoryPage({ params }: PageProps) {
     e.preventDefault()
 
     if (!formData.nameEn.trim()) {
+      setShowError("English name is required")
       toast.error("English name is required")
       return
     }
 
     if (!formData.slugEn.trim()) {
+      setShowError("English slug is required")
       toast.error("English slug is required")
       return
     }
 
     try {
       setIsSaving(true)
+      setShowError(null)
 
       const updateData = {
         name: {
@@ -178,11 +183,15 @@ export default function EditCategoryPage({ params }: PageProps) {
         throw new Error(response.data.message || "Failed to update category")
       }
 
+      setShowSuccess(true)
       toast.success("Category updated successfully")
-      router.push(`/${currentLang}/admin/categories`)
+      setTimeout(() => {
+        router.push(`/${currentLang}/admin/categories`)
+      }, 1200)
     } catch (error: unknown) {
       console.error("Error updating category:", error)
       const errorMessage = error instanceof Error ? error.message : "Failed to update category"
+      setShowError(errorMessage)
       toast.error(errorMessage)
     } finally {
       setIsSaving(false)
@@ -209,17 +218,19 @@ export default function EditCategoryPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-500 mb-4" />
+        <span className="text-gray-500 dark:text-gray-400 text-lg">Loading category...</span>
       </div>
     )
   }
 
   if (!category) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">Category not found</p>
-        <Button className="mt-4" asChild>
+      <div className="flex flex-col items-center justify-center py-16">
+        <XCircle className="w-12 h-12 text-red-500 mb-4" />
+        <p className="text-gray-500 dark:text-gray-400 text-lg mb-2">Category not found</p>
+        <Button className="mt-2" asChild>
           <Link href={`/${currentLang}/admin/categories`}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Categories
@@ -230,35 +241,41 @@ export default function EditCategoryPage({ params }: PageProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
+    <div className="container mx-auto max-w-2xl py-10">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" asChild className="rounded-full">
             <Link href={`/${currentLang}/admin/categories`}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              <ArrowLeft className="w-5 h-5" />
             </Link>
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Category</h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">Update category information</p>
+            <p className="text-gray-600 dark:text-gray-300 mt-1 text-base">Update category information</p>
           </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <Card className="shadow-lg border border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Category Information</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="w-5 h-5 text-blue-500" />
+              Category Information
+            </CardTitle>
+            <CardDescription>
+              Please fill out the details below to update the category.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-8">
             {/* English Fields */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">English</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h3 className="text-lg font-semibold text-blue-600 flex items-center gap-2">
+                <span role="img" aria-label="English">🇬🇧</span> English
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="nameEn">Name *</Label>
+                  <Label htmlFor="nameEn">Name <span className="text-red-500">*</span></Label>
                   <Input
                     id="nameEn"
                     value={formData.nameEn}
@@ -271,21 +288,21 @@ export default function EditCategoryPage({ params }: PageProps) {
                     }}
                     placeholder="Enter category name"
                     required
+                    className="focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="slugEn">Slug *</Label>
+                  <Label htmlFor="slugEn">Slug <span className="text-red-500">*</span></Label>
                   <Input
                     id="slugEn"
                     value={formData.slugEn}
                     onChange={(e) => handleInputChange("slugEn", e.target.value)}
                     placeholder="category-slug"
                     required
+                    className="focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="descriptionEn">Description</Label>
                 <Textarea
@@ -294,15 +311,17 @@ export default function EditCategoryPage({ params }: PageProps) {
                   onChange={(e) => handleInputChange("descriptionEn", e.target.value)}
                   placeholder="Enter category description"
                   rows={3}
+                  className="focus:ring-2 focus:ring-blue-400"
                 />
               </div>
             </div>
 
             {/* Khmer Fields */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">ខ្មែរ (Khmer)</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h3 className="text-lg font-semibold text-green-700 flex items-center gap-2">
+                <span role="img" aria-label="Khmer">🇰🇭</span> ខ្មែរ (Khmer)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="nameKh">ឈ្មោះ (Name)</Label>
                   <Input
@@ -316,9 +335,9 @@ export default function EditCategoryPage({ params }: PageProps) {
                       }
                     }}
                     placeholder="បញ្ចូលឈ្មោះប្រភេទ"
+                    className="focus:ring-2 focus:ring-green-400"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="slugKh">Slug</Label>
                   <Input
@@ -326,10 +345,10 @@ export default function EditCategoryPage({ params }: PageProps) {
                     value={formData.slugKh}
                     onChange={(e) => handleInputChange("slugKh", e.target.value)}
                     placeholder="category-slug-kh"
+                    className="focus:ring-2 focus:ring-green-400"
                   />
                 </div>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="descriptionKh">ការពិពណ៌នា (Description)</Label>
                 <Textarea
@@ -338,59 +357,95 @@ export default function EditCategoryPage({ params }: PageProps) {
                   onChange={(e) => handleInputChange("descriptionKh", e.target.value)}
                   placeholder="បញ្ចូលការពិពណ៌នាប្រភេទ"
                   rows={3}
+                  className="focus:ring-2 focus:ring-green-400"
                 />
               </div>
             </div>
 
             {/* Settings */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Settings</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+                <span role="img" aria-label="Settings">⚙️</span> Settings
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="color">Color</Label>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-3">
                     <input
                       type="color"
                       id="color"
                       value={formData.color}
                       onChange={(e) => handleInputChange("color", e.target.value)}
-                      className="w-12 h-10 rounded border border-gray-300"
+                      className="w-10 h-10 rounded border border-gray-300 shadow"
+                      style={{ background: formData.color }}
                     />
                     <Input
                       value={formData.color}
                       onChange={(e) => handleInputChange("color", e.target.value)}
                       placeholder="#3B82F6"
+                      className="w-32"
                     />
                   </div>
                 </div>
-
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-3 mt-6 md:mt-0">
                   <Switch
                     id="isActive"
                     checked={formData.isActive}
                     onCheckedChange={(checked) => handleInputChange("isActive", checked)}
                   />
-                  <Label htmlFor="isActive">Active</Label>
+                  <Label htmlFor="isActive" className="text-gray-700">Active</Label>
+                  {formData.isActive ? (
+                    <span className="inline-flex items-center gap-1 text-green-600 text-sm">
+                      <CheckCircle2 className="w-4 h-4" /> Enabled
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-red-500 text-sm">
+                      <XCircle className="w-4 h-4" /> Disabled
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="flex items-center justify-end space-x-4">
-          <Button type="button" variant="outline" asChild>
+        {/* Feedback messages */}
+        {showError && (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-md">
+            <XCircle className="w-5 h-5" />
+            <span>{showError}</span>
+          </div>
+        )}
+        {showSuccess && (
+          <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-md">
+            <CheckCircle2 className="w-5 h-5" />
+            <span>Category updated successfully!</span>
+          </div>
+        )}
+
+        <div className="flex items-center justify-end gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            asChild
+            className="rounded-md px-6 py-2"
+            disabled={isSaving}
+          >
             <Link href={`/${currentLang}/admin/categories`}>Cancel</Link>
           </Button>
-          <Button type="submit" disabled={isSaving}>
+          <Button
+            type="submit"
+            disabled={isSaving}
+            className="rounded-md px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2"
+          >
             {isSaving ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 Updating...
               </>
             ) : (
               <>
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="w-4 h-4" />
                 Update Category
               </>
             )}

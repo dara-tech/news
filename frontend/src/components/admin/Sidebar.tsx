@@ -93,14 +93,14 @@ const data = {
           title: 'All Users',
           url: '/admin/users',
         },
-        {
-          title: 'User Roles',
-          url: '/admin/users/roles',
-        },
-        {
-          title: 'Permissions',
-          url: '/admin/users/permissions',
-        },
+        // {
+        //   title: 'User Roles',
+        //   url: '/admin/users/roles',
+        // },
+        // {
+        //   title: 'Permissions',
+        //   url: '/admin/users/permissions',
+        // },
       ],
     },
     {
