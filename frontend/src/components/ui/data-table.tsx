@@ -109,13 +109,13 @@ export function DataTable<TData, TValue>({
       {/* Mobile-optimized Header with Actions */}
       <div className="flex flex-col gap-3 sm:gap-4">
         {/* Search - Full width on mobile */}
-        <div className="relative w-full sm:max-w-sm">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+        <div className="relative w-full">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground ml-1" />
           <Input
             placeholder={searchPlaceholder}
             value={globalFilter ?? ""}
             onChange={(event) => setGlobalFilter(String(event.target.value))}
-            className="pl-10 h-10 sm:h-9"
+            className="pl-10 sm:h-9 w-full"
           />
         </div>
 
@@ -153,7 +153,7 @@ export function DataTable<TData, TValue>({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="hidden sm:flex ml-auto">
                   <Filter className="mr-2 h-4 w-4" />
-                  Columns <ChevronDown className="ml-2 h-4 w-4" />
+                 <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -207,8 +207,8 @@ export function DataTable<TData, TValue>({
                   onClick={onAdd}
                   className="flex-1 sm:flex-none h-10 sm:h-9"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
-                  <span className="hidden sm:inline">Add New</span>
+                  <Plus className="h-4 w-4 items-center ml-1.5" />
+                  <span className="hidden sm:inline"></span>
                   <span className="sm:hidden">Add</span>
                 </Button>
               )}

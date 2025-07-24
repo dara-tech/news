@@ -22,7 +22,6 @@ const NewsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
   const articlesPerPage = 10;
 
   useEffect(() => {
@@ -137,9 +136,7 @@ const NewsPage = () => {
   };
 
   // Filtering and Pagination logic
-  const filteredArticles = articles.filter((article) =>
-    article.title.en.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredArticles = articles;
 
   const indexOfLastArticle = currentPage * articlesPerPage;
   const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
@@ -160,7 +157,7 @@ const NewsPage = () => {
     }
 
     if (filteredArticles.length === 0) {
-      return <EmptyState title="No Matching Articles" description={`Your search for '${searchTerm}' did not return any results.`} />;
+      return <EmptyState title="No Matching Articles" description="Your search for '${searchTerm}' did not return any results." />;
     }
 
     return (
@@ -188,13 +185,7 @@ const NewsPage = () => {
 
   return (
     <Card>
-      <NewsHeader
-        searchTerm={searchTerm}
-        onSearchChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setSearchTerm(e.target.value);
-          setCurrentPage(1); // Reset to first page on new search
-        }}
-      />
+      <NewsHeader />
       <CardContent>
         {renderContent()}
       </CardContent>

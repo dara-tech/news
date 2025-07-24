@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog"
 import { CategorySkeleton } from "@/components/admin/categories/CategorySkeleton"
 import { toast } from "sonner"
-import api from "@/lib/api" // Import your axios client
+import api from "@/lib/api"
 import { AxiosError } from "axios"
 
 interface BilingualText {
@@ -20,20 +20,19 @@ interface BilingualText {
 interface CategoryData {
   id?: string
   _id?: string
-  name: string | BilingualText
-  slug: string | BilingualText
-  description: string | BilingualText
+  name: BilingualText
+  slug: string
+  description: BilingualText
   color: string
   isActive: boolean
-  newsCount?: number
+  articlesCount?: number
   createdAt?: string
   updatedAt?: string
+  newsCount?: number
 }
 
-// Helper function to get text from bilingual field
-const getBilingualText = (text: string | BilingualText | undefined, lang: "en" | "kh" = "en"): string => {
+const getBilingualText = (text: BilingualText | undefined, lang: "en" | "kh" = "en"): string => {
   if (!text) return ""
-  if (typeof text === "string") return text
   return text[lang] || text.en || ""
 }
 
@@ -42,6 +41,65 @@ interface PageProps {
     lang: "en" | "kh"
   }>
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+type BilingualInput = string | { en?: unknown; kh?: unknown } | undefined
+
+function normalizeBilingual(val: BilingualInput): BilingualText {
+  if (typeof val === "string") {
+    return { en: val, kh: val }
+  }
+  if (val && typeof val === "object") {
+    return {
+      en: typeof (val as { en?: unknown }).en === "string" ? (val as { en: string }).en : "",
+      kh: typeof (val as { kh?: unknown }).kh === "string" ? (val as { kh: string }).kh : "",
+    }
+  }
+  return { en: "", kh: "" }
+}
+
+function extractSlug(slug: unknown): string {
+  if (typeof slug === "string") return slug
+  if (
+    slug &&
+    typeof slug === "object" &&
+    "en" in slug &&
+    typeof (slug as { en?: unknown }).en === "string"
+  ) {
+    return (slug as { en: string }).en
+  }
+  return ""
+}
+
+function mapApiCategory(cat: unknown): CategoryData {
+  if (!cat || typeof cat !== "object") {
+    return {
+      name: { en: "", kh: "" },
+      slug: "",
+      description: { en: "", kh: "" },
+      color: "",
+      isActive: false,
+    }
+  }
+  const c = cat as Record<string, unknown>
+  return {
+    id: typeof c.id === "string" ? c.id : undefined,
+    _id: typeof c._id === "string" ? c._id : undefined,
+    name: normalizeBilingual(c.name as BilingualInput),
+    slug: extractSlug(c.slug),
+    description: normalizeBilingual(c.description as BilingualInput),
+    color: typeof c.color === "string" ? c.color : "",
+    isActive: typeof c.isActive === "boolean" ? c.isActive : false,
+    articlesCount:
+      typeof c.articlesCount === "number"
+        ? c.articlesCount
+        : typeof c.newsCount === "number"
+        ? c.newsCount
+        : 0,
+    createdAt: typeof c.createdAt === "string" ? c.createdAt : undefined,
+    updatedAt: typeof c.updatedAt === "string" ? c.updatedAt : undefined,
+    newsCount: typeof c.newsCount === "number" ? c.newsCount : undefined,
+  }
 }
 
 export default function CategoriesPage({ params }: PageProps) {
@@ -58,7 +116,6 @@ export default function CategoriesPage({ params }: PageProps) {
     categoryName: "",
   })
 
-  // Resolve params and set current language
   useEffect(() => {
     const resolveParams = async () => {
       const resolvedParams = await params
@@ -67,23 +124,24 @@ export default function CategoriesPage({ params }: PageProps) {
     resolveParams()
   }, [params])
 
-  // Fetch categories using axios client
   useEffect(() => {
-    if (!currentLang) return // Wait for params to be resolved
+    if (!currentLang) return
 
     const fetchCategories = async () => {
       try {
         setIsLoading(true)
         const response = await api.get(`/categories?lang=${currentLang}`)
-
-        if (response.data.success) {
-          setCategories(response.data.data || [])
+        if (response.data && response.data.success) {
+          const apiCategories: CategoryData[] = Array.isArray(response.data.data)
+            ? response.data.data.map(mapApiCategory)
+            : []
+          setCategories(apiCategories)
         } else {
-          console.error("Failed to fetch categories:", response.data.message)
+          setCategories([])
           toast.error("Failed to load categories")
         }
-      } catch (error) {
-        console.error("Error fetching categories:", error)
+      } catch {
+        setCategories([])
         toast.error("Failed to load categories")
       } finally {
         setIsLoading(false)
@@ -93,7 +151,6 @@ export default function CategoriesPage({ params }: PageProps) {
     fetchCategories()
   }, [currentLang])
 
-  // Handle delete confirmation dialog open
   const openDeleteDialog = (categoryId: string, categoryName: string) => {
     setDeleteDialog({
       isOpen: true,
@@ -102,31 +159,24 @@ export default function CategoriesPage({ params }: PageProps) {
     })
   }
 
-  // Handle delete using axios client
   const handleDelete = async () => {
     try {
-      console.log("Deleting category with ID:", deleteDialog.categoryId)
-
       const response = await api.delete(`/categories/${deleteDialog.categoryId}`)
-
-      if (response.data.success !== false) {
-        // Refresh the categories list
+      if (response.data && response.data.success !== false) {
         const categoriesResponse = await api.get(`/categories?lang=${currentLang}`)
-        if (categoriesResponse.data.success) {
-          setCategories(categoriesResponse.data.data || [])
+        if (categoriesResponse.data && categoriesResponse.data.success) {
+          const apiCategories: CategoryData[] = Array.isArray(categoriesResponse.data.data)
+            ? categoriesResponse.data.data.map(mapApiCategory)
+            : []
+          setCategories(apiCategories)
         }
-
-        // Close the dialog and show success message
         setDeleteDialog((prev) => ({ ...prev, isOpen: false }))
         toast.success(response.data.message || "Category deleted successfully")
       } else {
-        throw new Error(response.data.message || "Failed to delete category")
+        throw new Error(response.data?.message || "Failed to delete category")
       }
     } catch (error: unknown) {
-      console.error("Error deleting category:", error)
-
       let errorMessage = "Failed to delete category"
-
       if (error instanceof AxiosError) {
         if (error.response?.data?.message) {
           errorMessage = error.response.data.message
@@ -136,15 +186,13 @@ export default function CategoriesPage({ params }: PageProps) {
       } else if (error instanceof Error) {
         errorMessage = error.message
       }
-
       toast.error(errorMessage)
     }
   }
 
-  // Calculate statistics
   const totalCategories = categories.length
   const activeCategories = categories.filter((cat) => cat.isActive).length
-  const totalArticles = categories.reduce((sum, cat) => sum + (cat.newsCount || 0), 0)
+  const totalArticles = categories.reduce((sum, cat) => sum + (cat.articlesCount || 0), 0)
   const avgArticles = totalCategories > 0 ? Math.round(totalArticles / totalCategories) : 0
 
   if (isLoading) {
@@ -250,7 +298,7 @@ export default function CategoriesPage({ params }: PageProps) {
                             <span className="block text-sm text-gray-500">{getBilingualText(category.name, "kh")}</span>
                           )}
                         </div>
-                        <div className="text-sm text-gray-500">/{getBilingualText(category.slug, "en")}</div>
+                        <div className="text-sm text-gray-500">/{category.slug}</div>
                       </div>
                     </div>
 
@@ -258,7 +306,7 @@ export default function CategoriesPage({ params }: PageProps) {
                       <Badge variant={category.isActive ? "default" : "secondary"}>
                         {category.isActive ? "Active" : "Inactive"}
                       </Badge>
-                      <span className="text-sm text-gray-500">{category.newsCount || 0} articles</span>
+                      <span className="text-sm text-gray-500">{category.articlesCount || 0} articles</span>
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/${currentLang}/admin/categories/edit/${category._id || category.id}`}>
                           <Edit className="w-4 h-4" />
