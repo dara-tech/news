@@ -8,7 +8,7 @@ export interface Category {
   newsCount: number;
   _id: string;
   name: LocalizedString;
-  slug?: LocalizedString;
+  slug?: string;
   description?: LocalizedString;
   color?: string;
   articlesCount?: number;
@@ -24,7 +24,7 @@ export interface Article {
   category: {
     _id: string;
     name: LocalizedString;
-    slug?: LocalizedString;
+    slug?: string;
     color?: string;
   };
   thumbnail?: string;

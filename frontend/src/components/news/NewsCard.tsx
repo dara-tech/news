@@ -41,10 +41,7 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
     typeof article.slug === 'string'
       ? article.slug
       : article.slug?.[locale] || article.slug?.en || article._id;
-  const categorySlug =
-    typeof article.category?.slug === 'string'
-      ? article.category.slug
-      : article.category?.slug?.[locale] || article.category?.slug?.en || '';
+  const categorySlug = article.category?.slug || '';
   const title = getLocalizedText(article.title, locale) || 'News article';
   const categoryName = getLocalizedText(article.category?.name, locale);
 
