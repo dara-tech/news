@@ -185,7 +185,7 @@ let server = app.listen(PORT, () => {
 })
 
 // --- Auto-Reload (Keep-Alive) Ping ---
-const AUTO_RELOAD_URL = process.env.AUTO_RELOAD_URL || "https://news-eta-vert.vercel.app";
+const AUTO_RELOAD_URL = process.env.AUTO_RELOAD_URL || "https://news-vzdx.onrender.com";
 const AUTO_RELOAD_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 const autoReload = () => {
