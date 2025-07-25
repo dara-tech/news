@@ -236,7 +236,7 @@ app.get("/auto-reload-status", (req, res) => {
     status: "OK",
     keepAlive: {
       enabled: process.env.AUTO_RELOAD_ENABLED !== 'false',
-      url: "https://news-eta-vert.vercel.app",
+      url: "https://news-vzdx.onrender.com",
       interval: `5 minutes`,
       timeout: `${parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000}ms`
     },
