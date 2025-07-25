@@ -74,7 +74,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'https://news-eta-vert.vercel.app', // Replace with your production domain
-  'https://news-vzdx.onrender.com',   // Your current API domain
+  'https://news-vzdx.onrender.com', 
+  'https://newslys.netlify.app',  // Your current API domain
   // Regex patterns
   /^http:\/\/localhost(:\d+)?$/,    // Local development with any port
   /^https?:\/\/localhost(:\d+)?$/,  // Local development with any protocol
