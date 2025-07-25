@@ -1,28 +1,21 @@
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
+const bundleAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Allow SVG images to be loaded
     dangerouslyAllowSVG: true,
-    
-    // Define remote image sources
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'api.dicebear.com', // Dicebear API for avatars
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com', // Cloudinary for hosted images
-        pathname: '/**', // Allow all paths under this domain
-      },
+      { protocol: 'https', hostname: 'api.dicebear.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' },
     ],
   },
-  
-  // Enable CORS for API routes
   async headers() {
     return [
       {
-        // Apply these headers to all routes
         source: '/:path*',
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
@@ -33,18 +26,11 @@ const nextConfig = {
       },
     ];
   },
-  
-  // Enable server-side rendering for all pages
   output: 'standalone',
-  
-  // Configure page extensions
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-  
-  // Configure webpack
-  webpack: (config, { isServer }) => {
-    // Important: return the modified config
+  webpack(config) {
     return config;
   },
 };
 
-export default nextConfig;
+export default bundleAnalyzer(nextConfig);
