@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import type { NewsFormData } from "../NewsForm"
+import dynamic from "next/dynamic";
+
+const TiptapEditor = dynamic(() => import("./TiptapEditor"), { ssr: false });
 
 interface NewsFormContentTabProps {
   formData: NewsFormData;
@@ -16,14 +19,35 @@ interface NewsFormContentTabProps {
   isGenerating: boolean;
 }
 
-const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({ formData, validationErrors, onInputChange, onGenerateContent, isGenerating }) => {
+// Helper to create a synthetic event compatible with onInputChange
+function createSyntheticInputEvent(
+  name: string,
+  value: string
+): React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> {
+  return {
+    target: {
+      name,
+      value,
+    },
+  } as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
+}
+
+const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({
+  formData,
+  validationErrors,
+  onInputChange,
+  onGenerateContent,
+  isGenerating,
+}) => {
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Article Content</CardTitle>
-            <CardDescription>Write the main body of your article in English and Khmer.</CardDescription>
+            <CardDescription>
+              Write the main body of your article in English and Khmer.
+            </CardDescription>
           </div>
           <button
             type="button"
@@ -31,7 +55,7 @@ const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({ formData, valid
             onClick={onGenerateContent}
             disabled={isGenerating}
           >
-            {isGenerating ? 'Generating...' : 'Generate with AI'}
+            {isGenerating ? "Generating..." : "Generate with AI"}
           </button>
         </div>
       </CardHeader>
@@ -46,7 +70,11 @@ const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({ formData, valid
               onChange={onInputChange}
               className={validationErrors["title.en"] ? "border-red-500" : ""}
             />
-            {validationErrors["title.en"] && <p className="text-sm text-red-500">{validationErrors["title.en"]}</p>}
+            {validationErrors["title.en"] && (
+              <p className="text-sm text-red-500">
+                {validationErrors["title.en"]}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="title.kh">Title (Khmer)</Label>
@@ -57,7 +85,11 @@ const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({ formData, valid
               onChange={onInputChange}
               className={validationErrors["title.kh"] ? "border-red-500" : ""}
             />
-            {validationErrors["title.kh"] && <p className="text-sm text-red-500">{validationErrors["title.kh"]}</p>}
+            {validationErrors["title.kh"] && (
+              <p className="text-sm text-red-500">
+                {validationErrors["title.kh"]}
+              </p>
+            )}
           </div>
         </div>
         <Separator />
@@ -71,7 +103,11 @@ const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({ formData, valid
             rows={3}
             className={validationErrors["description.en"] ? "border-red-500" : ""}
           />
-          {validationErrors["description.en"] && <p className="text-sm text-red-500">{validationErrors["description.en"]}</p>}
+          {validationErrors["description.en"] && (
+            <p className="text-sm text-red-500">
+              {validationErrors["description.en"]}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="description.kh">Description (Khmer)</Label>
@@ -83,36 +119,36 @@ const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({ formData, valid
             rows={3}
             className={validationErrors["description.kh"] ? "border-red-500" : ""}
           />
-          {validationErrors["description.kh"] && <p className="text-sm text-red-500">{validationErrors["description.kh"]}</p>}
+          {validationErrors["description.kh"] && (
+            <p className="text-sm text-red-500">
+              {validationErrors["description.kh"]}
+            </p>
+          )}
         </div>
         <Separator />
         <div className="space-y-2">
-          <Label htmlFor="content.en">Main Content (English)</Label>
-          <Textarea
-            id="content.en"
-            name="content.en"
+          <TiptapEditor
             value={formData.content.en}
-            onChange={onInputChange}
-            rows={12}
-            className={validationErrors["content.en"] ? "border-red-500" : ""}
+            onChange={val =>
+              onInputChange(createSyntheticInputEvent("content.en", val))
+            }
+            error={validationErrors["content.en"]}
+            label="Main Content (English)"
           />
-          {validationErrors["content.en"] && <p className="text-sm text-red-500">{validationErrors["content.en"]}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="content.kh">Main Content (Khmer)</Label>
-          <Textarea
-            id="content.kh"
-            name="content.kh"
+          <TiptapEditor
             value={formData.content.kh}
-            onChange={onInputChange}
-            rows={12}
-            className={validationErrors["content.kh"] ? "border-red-500" : ""}
+            onChange={val =>
+              onInputChange(createSyntheticInputEvent("content.kh", val))
+            }
+            error={validationErrors["content.kh"]}
+            label="Main Content (Khmer)"
           />
-          {validationErrors["content.kh"] && <p className="text-sm text-red-500">{validationErrors["content.kh"]}</p>}
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default NewsFormContentTab
+export default NewsFormContentTab;

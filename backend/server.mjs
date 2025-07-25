@@ -16,6 +16,8 @@ import userRoutes from "./routes/users.mjs"
 import newsRoutes from "./routes/news.mjs"
 import categoryRoutes from "./routes/categoryRoutes.mjs"
 import dashboardRoutes from "./routes/dashboard.mjs"
+import http from 'http';
+import https from 'https';
 
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -182,53 +184,37 @@ const PORT = process.env.PORT || 5001
 let server = app.listen(PORT, () => {
 })
 
-// --- Prevent server from sleeping (keep-alive ping every 5 minutes) ---
-const keepAlive = () => {
-  // Always reload to https://news-eta-vert.vercel.app
-  const targetUrl = "https://news-eta-vert.vercel.app";
-  const timeout = parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000; // 10 seconds
+// --- Auto-Reload (Keep-Alive) Ping ---
+const AUTO_RELOAD_URL = process.env.AUTO_RELOAD_URL || "https://news-eta-vert.vercel.app";
+const AUTO_RELOAD_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
-  const https = require('https');
-  const protocol = https;
-
-  const request = protocol.get(targetUrl, (res) => {
-    let data = '';
-    res.on('data', (chunk) => { data += chunk; });
-    res.on('end', () => {
-      if (res.statusCode >= 400) {
-      }
-    });
-  });
-
-  request.on("error", (err) => {
-  });
-
-  request.on("timeout", () => {
-    request.destroy();
-  });
-
-  request.setTimeout(timeout);
+const autoReload = () => {
+  console.log(`[${new Date().toISOString()}] 🔄 Sending auto-reload request to: ${AUTO_RELOAD_URL}`);
+  const isHttps = AUTO_RELOAD_URL.startsWith('https://');
+  const protocol = isHttps ? https : http;
+  protocol.get(AUTO_RELOAD_URL, (res) => {
+    console.log(`[${new Date().toISOString()}] 🔄 Auto-reload request sent. Status: ${res.statusCode}`);
+  }).on("error", (err) => {
+    console.error(`[${new Date().toISOString()}] ❌ Auto-reload failed: ${err.message}`);
+  }).on("timeout", () => {
+    console.warn(`[${new Date().toISOString()}] ⚠️ Auto-reload request timed out.`);
+  }).setTimeout(10000);
 };
 
-// Keep-alive scheduler (every 5 minutes, no sleep)
 const startKeepAlive = () => {
-  const interval = 5 * 60 * 1000; // 5 minutes
-  const enabled = process.env.AUTO_RELOAD_ENABLED !== 'false'; // Enabled by default
-
-  if (!enabled) {
-    return;
-  }
-
   // Initial ping after 1 minute
   setTimeout(() => {
-    keepAlive();
+    autoReload();
   }, 60000);
 
-  // Set up recurring pings every 5 minutes
-  setInterval(() => {
-    keepAlive();
-  }, interval);
+  // Set up recurring pings
+  setInterval(autoReload, AUTO_RELOAD_INTERVAL);
 };
+
+// Start keep-alive pings after server starts
+// if (process.env.NODE_ENV === 'production') {
+startKeepAlive();
+// }
 
 // Health check with keep-alive info
 app.get("/auto-reload-status", (req, res) => {
@@ -237,7 +223,7 @@ app.get("/auto-reload-status", (req, res) => {
     keepAlive: {
       enabled: process.env.AUTO_RELOAD_ENABLED !== 'false',
       url: "https://news-vzdx.onrender.com",
-      interval: `5 minutes`,
+      interval: `1 second`,
       timeout: `${parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000}ms`
     },
     timestamp: new Date().toISOString(),
