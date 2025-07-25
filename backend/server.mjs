@@ -184,13 +184,12 @@ let server = app.listen(PORT, () => {
 
 // --- Prevent server from sleeping (keep-alive ping every 5 minutes) ---
 const keepAlive = () => {
-  const targetUrl = process.env.AUTO_RELOAD_URL || `http://localhost:${PORT}`;
+  // Always reload to https://news-eta-vert.vercel.app
+  const targetUrl = "https://news-eta-vert.vercel.app";
   const timeout = parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000; // 10 seconds
 
-
   const https = require('https');
-  const http = require('http');
-  const protocol = targetUrl.startsWith('https:') ? https : http;
+  const protocol = https;
 
   const request = protocol.get(targetUrl, (res) => {
     let data = '';
@@ -220,7 +219,6 @@ const startKeepAlive = () => {
     return;
   }
 
-
   // Initial ping after 1 minute
   setTimeout(() => {
     keepAlive();
@@ -238,7 +236,7 @@ app.get("/auto-reload-status", (req, res) => {
     status: "OK",
     keepAlive: {
       enabled: process.env.AUTO_RELOAD_ENABLED !== 'false',
-      url: process.env.AUTO_RELOAD_URL || `http://localhost:${PORT}`,
+      url: "https://news-eta-vert.vercel.app",
       interval: `5 minutes`,
       timeout: `${parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000}ms`
     },
