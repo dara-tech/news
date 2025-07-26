@@ -18,7 +18,7 @@ export const getNewsForAdmin = asyncHandler(async (req, res) => {
     
     const articles = await News.find(query)
       .populate('author', 'name email')
-      .populate('category', 'name color slug')
+      .populate('category', 'name')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);

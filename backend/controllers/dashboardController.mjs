@@ -48,7 +48,7 @@ export const getStats = asyncHandler(async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('author', 'username')
-      .populate('category', 'name color slug')
+      .populate('category', 'name')
       .lean();
 
     const stats = {
