@@ -88,7 +88,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-wrap items-center justify-between gap-4 mb-8 p-6 rounded-2xl border shadow-lg bg-white/80 backdrop-blur"
+          className="flex flex-wrap items-center justify-between gap-4 mb-8 p-6 rounded-2xl border border-border/20 shadow-xl bg-card/60 backdrop-blur-md"
         >
           <div className="flex items-center flex-wrap gap-6">
             <div className="flex items-center gap-3">
@@ -149,9 +149,9 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
           {/* Right: Sidebar (sticky on desktop) */}
           <aside className="lg:col-span-1 flex flex-col gap-7 sticky top-24 h-fit">
             {/* More Stories - Minimalistic & Advanced */}
-            <div className="bg-white/95 rounded-2xl border border-neutral-200 shadow-sm p-5">
-              <h3 className="font-semibold text-base mb-3 text-neutral-900 tracking-tight flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-400" />
+            <div className="bg-card/50 rounded-2xl border border-border/20 shadow-lg backdrop-blur-sm p-5">
+              <h3 className="font-semibold text-base mb-3 text-foreground tracking-tight flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
                 More Stories
               </h3>
               <div className="space-y-3">
@@ -159,21 +159,21 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
                   <Link
                     key={article._id || idx}
                     href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug || article._id}`}
-                    className="block group rounded-lg transition-all duration-200 hover:bg-neutral-50 px-2 py-2"
+                    className="block group rounded-lg transition-all duration-200 hover:bg-muted/30 px-2 py-2"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center overflow-hidden border border-neutral-200">
-                        <Globe className="w-5 h-5 text-blue-400" />
+                      <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center overflow-hidden border border-border/30">
+                        <Globe className="w-5 h-5 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm group-hover:text-blue-700 transition-colors line-clamp-2">
+                        <h4 className="font-medium text-sm group-hover:text-primary transition-colors line-clamp-2">
                           {getLocalizedString(article.title, locale)}
                         </h4>
-                        <p className="text-xs text-neutral-400 line-clamp-1 mt-0.5">
+                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                           {getLocalizedString(article.category?.name, locale)}
                         </p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-neutral-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   </Link>
                 ))}
@@ -181,9 +181,9 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
             </div>
             {/* Trending Categories - Minimalistic & Advanced */}
             {trendingCategories.length > 0 && (
-              <div className="bg-white/95 rounded-2xl border border-neutral-200 shadow-sm p-5">
-                <h3 className="font-semibold text-base mb-3 flex items-center gap-2 text-neutral-900 tracking-tight">
-                  <Globe className="w-4 h-4 text-blue-400" />
+              <div className="bg-card/50 rounded-2xl border border-border/20 shadow-lg backdrop-blur-sm p-5">
+                <h3 className="font-semibold text-base mb-3 flex items-center gap-2 text-foreground tracking-tight">
+                  <Globe className="w-4 h-4 text-primary" />
                   Trending Categories
                 </h3>
                 <div className="flex flex-wrap gap-2">

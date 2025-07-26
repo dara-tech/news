@@ -35,6 +35,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher"
 import { useAuth } from "@/context/AuthContext"
 import api from "@/lib/api"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 
 type Category = {
   _id: string
@@ -336,7 +337,7 @@ const Header = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.avatar || "/placeholder.svg"} alt={user?.username || "User"} />
+                            <AvatarImage src={user?.avatar || "/placeholder.jpg"} alt={user?.username || "User"} />
             <AvatarFallback>{user?.username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
           </Avatar>
         </Button>
@@ -529,6 +530,7 @@ const Header = () => {
 
             {/* Mobile actions */}
             <div className="flex items-center justify-center gap-3 mt-auto pt-6 border-t border-border">
+              <ThemeToggle />
               <LanguageSwitcher />
               {user ? (
                 <Button
@@ -590,6 +592,7 @@ const Header = () => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <LanguageSwitcher />
 
             {/* Notifications (if user is logged in) */}

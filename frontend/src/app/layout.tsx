@@ -60,7 +60,7 @@ export default function RootLayout({
   const fontVariables = kantumruyPro.variable;
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${fontVariables} antialiased`}>
         <AppProviders>{children}</AppProviders>
       </body>
