@@ -30,6 +30,7 @@ export interface Article {
   thumbnail?: string;
   images?: string[];
   createdAt: string;
+  publishedAt: string;
   updatedAt: string;
   author: {
     _id: string;

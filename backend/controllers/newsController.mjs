@@ -18,7 +18,7 @@ export const getNewsForAdmin = asyncHandler(async (req, res) => {
     
     const articles = await News.find(query)
       .populate('author', 'name email')
-      .populate('category', 'name')
+      .populate('category', 'name color slug')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
@@ -186,7 +186,7 @@ export const getNews = asyncHandler(async (req, res) => {
       .limit(pageSize)
       .skip(pageSize * (page - 1)) // Handle pagination
       .populate('author', 'username email role') // Populate author details
-      .populate('category', 'name');
+      .populate('category', 'name color slug');
 
     
     // --- Send Response ---
@@ -221,7 +221,7 @@ export const getNewsByIdentifier = asyncHandler(async (req, res) => {
 
     const news = await News.findOne(query)
       .populate('author', 'name email role')
-      .populate('category', 'name');
+      .populate('category', 'name color slug');
 
     if (!news) {
       res.status(404);
@@ -348,7 +348,7 @@ export const updateNews = asyncHandler(async (req, res) => {
 
     // Save and return the updated news article
     const savedNews = await news.save();
-    const populatedNews = await News.findById(savedNews._id).populate('author', 'username role').populate('category', 'name');
+    const populatedNews = await News.findById(savedNews._id).populate('author', 'username role').populate('category', 'name color slug');
 
     res.json({ success: true, data: populatedNews });
   } catch (error) {
@@ -477,7 +477,7 @@ export const getFeaturedNews = asyncHandler(async (req, res) => {
   .sort({ publishedAt: -1 })
   .limit(5)
   .populate('author', 'username')
-  .populate('category', 'name');
+  .populate('category', 'name color slug');
   
   res.json(featuredNews);
 });
@@ -493,7 +493,7 @@ export const getBreakingNews = asyncHandler(async (req, res) => {
   .sort({ publishedAt: -1 })
   .limit(5)
   .populate('author', 'username')
-  .populate('category', 'name');
+  .populate('category', 'name color slug');
   
   res.json(breakingNews);
 });
@@ -542,7 +542,7 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
     .limit(pageSize)
     .skip(pageSize * (page - 1))
     .populate('author', 'username')
-    .populate('category', 'name');
+    .populate('category', 'name color slug');
 
 
     res.json({
@@ -587,7 +587,7 @@ export const getNewsByCategorySlug = asyncHandler(async (req, res) => {
   })
   .sort({ publishedAt: -1 })
   .populate('author', 'username')
-  .populate('category', 'name');
+  .populate('category', 'name color slug');
 
   res.json({
     success: true,

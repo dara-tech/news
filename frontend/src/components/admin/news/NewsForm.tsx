@@ -605,6 +605,9 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
       }
     });
 
+    // Explicitly append status field
+    data.append('status', formData.status);
+
     // Append complex fields
     data.append('title', JSON.stringify(formData.title));
     data.append('content', JSON.stringify(formData.content));
