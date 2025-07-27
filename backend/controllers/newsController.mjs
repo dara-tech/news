@@ -156,9 +156,14 @@ export const createNews = asyncHandler(async (req, res) => {
 export const getNews = asyncHandler(async (req, res) => {
 
   // --- Pagination Parameters ---
-  const pageSize = 10;
+  const pageSize = Number(req.query.limit) || 10;
   const page = Number(req.query.page) || 1;
   const keyword = req.query.keyword;
+  const category = req.query.category;
+  const dateRange = req.query.dateRange;
+  const sortBy = req.query.sortBy;
+  const featured = req.query.featured;
+  const breaking = req.query.breaking;
 
   // --- Build the MongoDB Query ---
   // Start with a base query to only find documents with 'published' status.
@@ -170,10 +175,76 @@ export const getNews = asyncHandler(async (req, res) => {
       { 'title.en': { $regex: keyword, $options: 'i' } },
       { 'title.kh': { $regex: keyword, $options: 'i' } },
       { 'content.en': { $regex: keyword, $options: 'i' } },
-      { 'content.kh': { $regex: keyword, $options: 'i' } }
+      { 'content.kh': { $regex: keyword, $options: 'i' } },
+      { 'description.en': { $regex: keyword, $options: 'i' } },
+      { 'description.kh': { $regex: keyword, $options: 'i' } },
+      { 'tags': { $regex: keyword, $options: 'i' } }
     ];
   }
 
+  // Category filter
+  if (category) {
+    query.category = category;
+  }
+
+  // Date range filter
+  if (dateRange && dateRange !== 'all') {
+    const now = new Date();
+    let startDate;
+    
+    switch (dateRange) {
+      case 'today':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        break;
+    }
+    
+    if (startDate) {
+      query.createdAt = { $gte: startDate };
+    }
+  }
+
+  // Featured filter
+  if (featured === 'true') {
+    query.isFeatured = true;
+  }
+
+  // Breaking filter
+  if (breaking === 'true') {
+    query.isBreaking = true;
+  }
+
+  // Build sort object
+  let sortObject = { publishedAt: -1, createdAt: -1 }; // Default sort
+  
+  if (sortBy) {
+    switch (sortBy) {
+      case 'date':
+        sortObject = { publishedAt: -1, createdAt: -1 };
+        break;
+      case 'views':
+        sortObject = { views: -1 };
+        break;
+      case 'title':
+        sortObject = { 'title.en': 1 };
+        break;
+      case 'relevance':
+      default:
+        // For relevance, we'll keep the default sort but could implement text score
+        if (keyword) {
+          sortObject = { score: { $meta: 'textScore' } };
+        }
+        break;
+    }
+  }
 
   try {
     // --- Execute Queries ---
@@ -181,13 +252,19 @@ export const getNews = asyncHandler(async (req, res) => {
     const count = await News.countDocuments(query);
 
     // Then, find the documents for the current page.
-    const news = await News.find(query)
-      .sort({ publishedAt: -1, createdAt: -1 }) // Sort by newest first
+    let newsQuery = News.find(query)
+      .sort(sortObject)
       .limit(pageSize)
-      .skip(pageSize * (page - 1)) // Handle pagination
-      .populate('author', 'username email role') // Populate author details
+      .skip(pageSize * (page - 1))
+      .populate('author', 'username email role name')
       .populate('category', 'name color slug');
 
+    // If sorting by relevance and keyword exists, add text score
+    if (sortBy === 'relevance' && keyword) {
+      newsQuery = newsQuery.select({ score: { $meta: 'textScore' } });
+    }
+
+    const news = await newsQuery;
     
     // --- Send Response ---
     const responsePayload = {

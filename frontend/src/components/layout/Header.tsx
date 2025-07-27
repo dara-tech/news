@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher"
+import NewsSearch from "@/components/search/NewsSearch"
 import { useAuth } from "@/context/AuthContext"
 import api from "@/lib/api"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
@@ -211,7 +212,7 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [uiState.isCategoriesOpen])
 
-  // Keyboard navigation
+  // Keyboard navigation and body scroll lock
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -228,9 +229,26 @@ const Header = () => {
       }
     }
 
+    // Body scroll lock for mobile menu
+    if (uiState.isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+    } else {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+
     document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [])
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown)
+      // Cleanup body styles
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+  }, [uiState.isMobileMenuOpen])
 
   // Enhanced logout without toast
   const handleLogout = useCallback(async () => {
@@ -415,15 +433,25 @@ const Header = () => {
   )
 
   // Mobile navigation
+  // FADE right-to-left (opacity + x)
   const MobileNav = () => (
     <AnimatePresence>
       {uiState.isMobileMenuOpen && (
         <motion.div
-          initial={{ x: "100%" }}
-          animate={{ x: 0 }}
-          exit={{ x: "100%" }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed inset-0 z-50 bg-background/95 backdrop-blur-lg flex flex-col"
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 100 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="fixed inset-0 z-50 bg-background/95 backdrop-blur-lg flex flex-col overflow-hidden"
+          style={{ 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 50,
+            overflow: 'hidden'
+          }}
         >
           {/* Mobile header */}
           <div className="flex justify-between items-center p-4 border-b border-border bg-background/80">
@@ -451,7 +479,12 @@ const Header = () => {
           </div>
 
           {/* Mobile content */}
-          <div className="flex flex-col gap-4 p-6 flex-1 overflow-y-auto">
+          <div className="flex flex-col gap-4 p-6 flex-1 overflow-y-auto overscroll-contain">
+            {/* Mobile Search */}
+            <div className="lg:hidden">
+              <NewsSearch />
+            </div>
+            
             {/* Navigation links */}
             {NAV_LINKS.map((link) => (
               <Link
@@ -589,6 +622,11 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <DesktopNav />
+
+          {/* Search Component */}
+          <div className="hidden lg:block flex-1 max-w-md mx-8">
+            <NewsSearch />
+          </div>
 
           {/* Right side actions */}
           <div className="flex items-center gap-3">
