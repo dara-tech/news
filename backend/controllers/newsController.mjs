@@ -2,6 +2,8 @@ import asyncHandler from "express-async-handler";
 import mongoose from "mongoose";
 import News from "../models/News.mjs";
 import Category from "../models/Category.mjs";
+import Notification from "../models/Notification.mjs";
+import User from "../models/User.mjs";
 import { v2 as cloudinary } from "cloudinary";
 
 // @desc    Get all news articles for admin (including drafts)
@@ -485,19 +487,72 @@ export const updateNewsStatus = asyncHandler(async (req, res) => {
     throw new Error(`Invalid status. Must be one of: ${allowedStatuses.join(', ')}`);
   }
 
-  const news = await News.findById(req.params.id);
+  const news = await News.findById(req.params.id)
+    .populate('category', 'name color')
+    .populate('author', 'username');
 
   if (!news) {
     res.status(404);
     throw new Error('News article not found');
   }
 
+  const wasPublished = news.status === 'published';
   news.status = status;
+  
   if (status === 'published' && !news.publishedAt) {
     news.publishedAt = Date.now();
   }
 
   const updatedNews = await news.save();
+
+  // Create notifications when news is published for the first time
+  if (status === 'published' && !wasPublished) {
+    try {
+      // Get all users except the author
+      const users = await User.find({ 
+        _id: { $ne: news.author._id },
+        role: { $in: ['user', 'editor', 'admin'] } 
+      });
+
+      const notifications = [];
+      const notificationType = news.isBreaking ? 'breaking_news' : 'news_published';
+
+      for (const user of users) {
+        const notificationData = {
+          recipient: user._id,
+          type: notificationType,
+          title: {
+            en: notificationType === 'breaking_news' ? 'Breaking News!' : 'New Article Published',
+            kh: notificationType === 'breaking_news' ? 'ព័ត៌មានថ្មី!' : 'អត្ថបទថ្មីត្រូវបានចេញផ្សាយ'
+          },
+          message: {
+            en: `${news.title.en} has been ${notificationType === 'breaking_news' ? 'published as breaking news' : 'published'}`,
+            kh: `${news.title.kh} ត្រូវបាន${notificationType === 'breaking_news' ? 'ចេញផ្សាយជាព័ត៌មានថ្មី' : 'ចេញផ្សាយ'}`
+          },
+          data: {
+            newsId: news._id,
+            categoryId: news.category._id,
+            actionUrl: `/news/${news.slug}`,
+            imageUrl: news.thumbnail
+          },
+          isImportant: notificationType === 'breaking_news',
+          expiresAt: notificationType === 'breaking_news' ? new Date(Date.now() + 24 * 60 * 60 * 1000) : null // 24 hours for breaking news
+        };
+
+        const notification = new Notification(notificationData);
+        notifications.push(notification);
+      }
+
+      if (notifications.length > 0) {
+        await Notification.insertMany(notifications);
+        console.log(`Created ${notifications.length} notifications for news: ${news.title.en}`);
+      }
+    } catch (error) {
+      console.error('Error creating notifications:', error);
+      // Don't fail the request if notification creation fails
+    }
+  }
+
   res.json(updatedNews);
 });
 

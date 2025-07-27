@@ -49,5 +49,6 @@ export interface User {
   email: string;
   role: string;
   avatar?: string;
+  profileImage?: string;
   token?: string;
 }

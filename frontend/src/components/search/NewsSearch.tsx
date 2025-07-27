@@ -71,9 +71,8 @@ interface SearchFilters {
 }
 
 const NewsSearch = () => {
-
   const params = useParams()
-  const lang = params?.lang as string || 'en'
+  const lang = (params?.lang as string) || 'en'
 
   // Refs
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -91,10 +90,14 @@ const NewsSearch = () => {
   const [totalResults, setTotalResults] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
   // Debounced search
   const debouncedSearch = useCallback((searchQuery: string) => {
-    const timeoutId = setTimeout(() => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => {
       if (searchQuery.trim()) {
         performSearch(searchQuery, 1, true)
       } else {
@@ -102,8 +105,8 @@ const NewsSearch = () => {
         setSuggestions([])
       }
     }, 300)
-    return () => clearTimeout(timeoutId)
-  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, lang])
 
   // Fetch categories
   useEffect(() => {
@@ -138,8 +141,8 @@ const NewsSearch = () => {
       if (filters.category) params.category = filters.category
       if (filters.dateRange && filters.dateRange !== 'all') params.dateRange = filters.dateRange
       if (filters.sortBy) params.sortBy = filters.sortBy
-      if (filters.featured) params.featured = filters.featured
-      if (filters.breaking) params.breaking = filters.breaking
+      if (typeof filters.featured === "boolean") params.featured = filters.featured
+      if (typeof filters.breaking === "boolean") params.breaking = filters.breaking
 
       const response = await api.get("/news", { params })
       const data = response.data
@@ -162,7 +165,7 @@ const NewsSearch = () => {
             const title = typeof item.title === 'string'
               ? item.title
               : item.title[lang === 'km' ? 'kh' : 'en']
-            return title.split(' ').slice(0, 3).join(' ')
+            return title ? title.split(' ').slice(0, 3).join(' ') : ''
           })
           .filter((suggestion: string | undefined): suggestion is string => Boolean(suggestion))
         setSuggestions(newSuggestions)
@@ -446,7 +449,7 @@ const NewsSearch = () => {
             value={query}
             onChange={(e) => handleSearchChange(e.target.value)}
             onFocus={() => setIsSearchOpen(true)}
-            className="pl-10 pr-12 h-12 text-base"
+            className="pl-10 pr-12 h-10 text-base"
           />
           {query && (
             <Button
@@ -469,7 +472,7 @@ const NewsSearch = () => {
             variant="ghost"
             size="icon"
             className="absolute right-1 top-1/2 transform -translate-y-1/2 h-10 w-10"
-            onClick={() => setShowFilters(!showFilters)}
+            onClick={() => setShowFilters((prev) => !prev)}
           >
             <Filter className="h-4 w-4" />
           </Button>

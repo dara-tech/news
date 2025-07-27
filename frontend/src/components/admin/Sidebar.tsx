@@ -252,7 +252,7 @@ export default function AdminSidebar() {
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage 
-                      src={user?.avatar || data.user.avatar} 
+                      src={user?.profileImage || user?.avatar || data.user.avatar} 
                       alt={user?.username || data.user.name} 
                     />
                     <AvatarFallback className="rounded-lg">

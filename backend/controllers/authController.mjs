@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/User.mjs";
 import generateToken from "../utils/generateToken.mjs";
+import passport from "passport";
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -31,6 +32,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      profileImage: user.profileImage,
       role: user.role,
     });
   } else {
@@ -55,6 +57,7 @@ const loginUser = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      profileImage: user.profileImage,
       role: user.role,
       token: token // Include token in response for debugging
     });
@@ -62,6 +65,80 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(401);
     throw new Error('Invalid email or password');
   }
+});
+
+// @desc    Google OAuth login/register
+// @route   GET /api/auth/google
+// @access  Public
+const googleAuth = (req, res, next) => {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    return res.redirect(`${frontendUrl}/en/login?error=google_oauth_not_configured`);
+  }
+  
+  // Check if Google strategy is available
+  const googleStrategy = passport._strategies.google;
+  if (!googleStrategy) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    return res.redirect(`${frontendUrl}/en/login?error=google_oauth_strategy_unavailable`);
+  }
+  
+  return passport.authenticate('google', {
+    scope: ['profile', 'email', 'https://www.googleapis.com/auth/userinfo.profile']
+  })(req, res, next);
+};
+
+// @desc    Google OAuth callback
+// @route   GET /api/auth/google/callback
+// @access  Public
+const googleAuthCallback = asyncHandler(async (req, res) => {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    return res.redirect(`${frontendUrl}/en/login?error=oauth_not_configured`);
+  }
+
+  // Check if Google strategy is available
+  const googleStrategy = passport._strategies.google;
+  if (!googleStrategy) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    return res.redirect(`${frontendUrl}/en/login?error=oauth_strategy_unavailable`);
+  }
+
+  passport.authenticate('google', { session: false }, async (err, user) => {
+    if (err) {
+      console.error('Google OAuth error:', err);
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(`${frontendUrl}/en/login?error=google_auth_failed`);
+    }
+
+    try {
+      if (!user) {
+        console.error('No user received from Google OAuth');
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        return res.redirect(`${frontendUrl}/en/login?error=no_user`);
+      }
+
+      // Generate token
+      const token = generateToken(res, user);
+
+      // Redirect to frontend with success parameter
+      const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const redirectUrl = user.role === 'admin' 
+        ? `${baseUrl}/admin/dashboard?auth=success`
+        : `${baseUrl}?auth=success`;
+      
+      res.redirect(redirectUrl);
+    } catch (error) {
+      console.error('Google OAuth error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        name: error.name
+      });
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      res.redirect(`${frontendUrl}/en/login?error=registration_failed`);
+    }
+  })(req, res);
 });
 
 // @desc    Get user profile
@@ -77,6 +154,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     _id: req.user._id,
     username: req.user.username,
     email: req.user.email,
+    profileImage: req.user.profileImage,
     role: req.user.role,
   });
 });
@@ -173,6 +251,8 @@ const updateUserPassword = asyncHandler(async (req, res) => {
 export {
   registerUser,
   loginUser,
+  googleAuth,
+  googleAuthCallback,
   getUserProfile,
   logoutUser,
   promoteToAdmin,

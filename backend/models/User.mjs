@@ -22,9 +22,20 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Please add a password'],
+      required: function() {
+        return !this.googleId; // Password is required only if not using Google OAuth
+      },
       minlength: 6,
       select: false,
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows multiple null values
+    },
+    profileImage: {
+      type: String,
+      default: null,
     },
     role: {
       type: String,

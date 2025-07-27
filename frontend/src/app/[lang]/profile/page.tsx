@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers';
-import api from '@/lib/api';
 import { User } from '@/types';
 import ProfilePageClient from '@/components/profile/ProfilePageClient';
 
@@ -7,24 +6,29 @@ async function getUser(): Promise<User | null> {
   'use server';
   try {
     const cookieStore = cookies();
-    const token = (await cookieStore).get('token')?.value;
+    const jwtCookie = (await cookieStore).get('jwt')?.value;
 
-    if (!token) {
+    if (!jwtCookie) {
       return null;
     }
 
-    // Use the api instance, assuming it's configured for server-side use
-    // or can handle the token appropriately.
-    const res = await api.get('/auth/me', {
+    // Make a request to the profile endpoint using the JWT cookie
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/auth/profile`, {
       headers: {
-        Cookie: `token=${token}`,
+        'Cookie': `jwt=${jwtCookie}`,
+        'Content-Type': 'application/json',
       },
+      credentials: 'include',
     });
-    
-    return res.data;
-  } catch {
-    // It's common for this to fail if the user is not authenticated.
-    // We can log this for debugging but shouldn't treat it as a critical error.
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const userData = await response.json();
+    return userData;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
     return null;
   }
 }

@@ -4,25 +4,31 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Eye, EyeOff, LogIn, Loader2, Mail, Globe, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, Loader2, Mail, User, Globe, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 import { useAuth } from '@/context/AuthContext';
 import { useSearchParams } from 'next/navigation';
 
 // Schema Validation
-const loginSchema = z.object({
+const registerSchema = z.object({
+  username: z.string().min(3, { message: 'Username must be at least 3 characters.' }),
   email: z.string().email({ message: 'A valid email is required.' }),
-  password: z.string().min(1, { message: 'Password is required.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const { login, loginWithGoogle } = useAuth();
+  const { register: registerUser, loginWithGoogle } = useAuth();
   const searchParams = useSearchParams();
 
   // Check for error parameters in URL
@@ -33,10 +39,10 @@ const LoginPage = () => {
       
       switch (error) {
         case 'google_oauth_not_configured':
-          errorMessage = 'Google OAuth is not configured. Please use email/password login instead.';
+          errorMessage = 'Google OAuth is not configured. Please use email/password registration instead.';
           break;
         case 'google_oauth_strategy_unavailable':
-          errorMessage = 'Google OAuth is not available. Please use email/password login instead.';
+          errorMessage = 'Google OAuth is not available. Please use email/password registration instead.';
           break;
         case 'google_auth_failed':
           errorMessage = 'Google authentication failed. Please try again.';
@@ -51,7 +57,7 @@ const LoginPage = () => {
           errorMessage = 'Registration failed. Please try again.';
           break;
         case 'no_email':
-          errorMessage = 'Google account email not found. Please use a different Google account or email/password login.';
+          errorMessage = 'Google account email not found. Please use a different Google account or email/password registration.';
           break;
         default:
           errorMessage = 'An error occurred. Please try again.';
@@ -65,21 +71,23 @@ const LoginPage = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      username: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: RegisterFormValues) => {
     setServerError(null);
     try {
-      await login(data.email, data.password);
+      await registerUser(data.username, data.email, data.password);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        let errorMessage = 'Failed to login. Please check your credentials.';
+        let errorMessage = 'Failed to register. Please try again.';
         if ('isAxiosError' in error && error.isAxiosError) {
           const axiosError = error as {
             response?: {
@@ -88,8 +96,8 @@ const LoginPage = () => {
             };
           };
           if (axiosError.response) {
-            if (axiosError.response.status === 401) {
-              errorMessage = 'Invalid email or password.';
+            if (axiosError.response.status === 409) {
+              errorMessage = 'User already exists with this email or username.';
             } else if (axiosError.response.status && axiosError.response.status >= 500) {
               errorMessage = 'Server error. Please try again later.';
             } else if (axiosError.response.data?.message) {
@@ -109,10 +117,9 @@ const LoginPage = () => {
   const handleGoogleLogin = async () => {
     try {
       setIsGoogleLoading(true);
-      setServerError(null);
       await loginWithGoogle();
     } catch (error) {
-      setServerError(error instanceof Error ? error.message : 'Google authentication failed. Please use email/password login instead.');
+      setServerError(error instanceof Error ? error.message : 'Google authentication failed. Please use email/password registration instead.');
     } finally {
       setIsGoogleLoading(false);
     }
@@ -125,7 +132,7 @@ const LoginPage = () => {
         <div className="flex flex-col gap-8">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">Newsly</h1>
-            <p className="text-blue-50 dark:text-blue-100 text-lg">Login page</p>
+            <p className="text-blue-50 dark:text-blue-100 text-lg">Create account</p>
           </div>
           
           {/* Abstract Logo */}
@@ -140,7 +147,7 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Right Panel - Login Form */}
+      {/* Right Panel - Register Form */}
       <div className="flex-1 lg:w-1/2 bg-white dark:bg-gray-900 flex flex-col">
         {/* Header with Language Selector */}
         <div className="flex items-center justify-between p-6">
@@ -154,13 +161,13 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Login Form */}
+        {/* Register Form */}
         <div className="flex-1 flex items-center justify-center px-8">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Login</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Step into the world of digital news and real-time updates.
+                Join our community and stay updated with the latest news.
               </p>
             </div>
 
@@ -170,7 +177,7 @@ const LoginPage = () => {
               </div>
             )}
 
-            {/* Google Sign In Button */}
+            {/* Google Sign Up Button */}
             <button
               type="button"
               onClick={handleGoogleLogin}
@@ -181,13 +188,25 @@ const LoginPage = () => {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  <path
+                    fill="currentColor"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="currentColor"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="currentColor"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="currentColor"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
                 </svg>
               )}
-              {isGoogleLoading ? 'Signing in...' : 'Sign in with Google'}
+              {isGoogleLoading ? 'Signing up...' : 'Sign up with Google'}
             </button>
 
             {/* Divider */}
@@ -197,12 +216,35 @@ const LoginPage = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-                  or sign in with email
+                  or sign up with email
                 </span>
               </div>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Username Input */}
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Username
+                </label>
+                <div className="relative">
+                  <input
+                    id="username"
+                    type="text"
+                    autoComplete="username"
+                    {...register('username')}
+                    placeholder="johndoe"
+                    className={`w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                      errors.username ? 'border-red-500 focus:ring-red-500' : ''
+                    }`}
+                  />
+                  <User className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                </div>
+                {errors.username && (
+                  <span className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.username.message}</span>
+                )}
+              </div>
+
               {/* Email Input */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -235,7 +277,7 @@ const LoginPage = () => {
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                     {...register('password')}
                     placeholder="••••••••"
                     className={`w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-12 ${
@@ -256,25 +298,37 @@ const LoginPage = () => {
                 )}
               </div>
 
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 rounded focus:ring-blue-500 focus:ring-2"
-                    defaultChecked
-                  />
-                  Remember me?
+              {/* Confirm Password Input */}
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Confirm Password
                 </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition"
-                >
-                  Forgot password?
-                </Link>
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    {...register('confirmPassword')}
+                    placeholder="••••••••"
+                    className={`w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-12 ${
+                      errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <span className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.confirmPassword.message}</span>
+                )}
               </div>
 
-              {/* Login Button */}
+              {/* Register Button */}
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -283,24 +337,24 @@ const LoginPage = () => {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Signing In...
+                    Creating Account...
                   </>
                 ) : (
                   <>
-                    <LogIn className="w-5 h-5" />
-                    Login
+                    <UserPlus className="w-5 h-5" />
+                    Create Account
                   </>
                 )}
               </button>
 
-              {/* Create Account Link */}
+              {/* Login Link */}
               <div className="text-center">
                 <Link
-                  href="/register"
+                  href="/login"
                   className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition flex items-center justify-center gap-2"
                 >
-                  <ArrowRight className="w-4 h-4" />
-                  Not registered yet? Create an account
+                  <ArrowLeft className="w-4 h-4" />
+                  Already have an account? Sign in
                 </Link>
               </div>
             </form>
@@ -316,4 +370,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage; 

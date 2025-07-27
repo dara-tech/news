@@ -16,6 +16,7 @@ import userRoutes from "./routes/users.mjs"
 import newsRoutes from "./routes/news.mjs"
 import categoryRoutes from "./routes/categoryRoutes.mjs"
 import dashboardRoutes from "./routes/dashboard.mjs"
+import notificationRoutes from "./routes/notifications.mjs"
 import http from 'http';
 import https from 'https';
 
@@ -25,6 +26,9 @@ const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config()
+
+// Import passport after environment variables are loaded
+import passport, { initializeGoogleOAuth } from "./config/passport.mjs"
 
 // Connect to services
 connectDB()
@@ -64,6 +68,15 @@ app.use(session({
     domain: isProduction ? 'news-eta-vert.vercel.app' : undefined, // Set your domain in production
   }
 }));
+
+// Initialize Google OAuth strategy if not already initialized
+if (!passport._strategies.google) {
+  initializeGoogleOAuth();
+}
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Log session info for debugging
 app.use((req, res, next) => {
@@ -146,6 +159,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/news", newsRoutes)
 app.use("/api/categories", categoryRoutes)
 app.use("/api/dashboard", dashboardRoutes)
+app.use("/api/notifications", notificationRoutes)
 
 // Serve Next.js frontend in production
 if (process.env.NODE_ENV === 'production') {
@@ -182,6 +196,7 @@ app.use(errorHandler)
 const PORT = process.env.PORT || 5001
 
 let server = app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 })
 
 // --- Auto-Reload (Keep-Alive) Ping ---
@@ -195,55 +210,43 @@ const autoReload = () => {
   protocol.get(AUTO_RELOAD_URL, (res) => {
     console.log(`[${new Date().toISOString()}] 🔄 Auto-reload request sent. Status: ${res.statusCode}`);
   }).on("error", (err) => {
-    console.error(`[${new Date().toISOString()}] ❌ Auto-reload failed: ${err.message}`);
-  }).on("timeout", () => {
-    console.warn(`[${new Date().toISOString()}] ⚠️ Auto-reload request timed out.`);
-  }).setTimeout(10000);
-};
-
-const startKeepAlive = () => {
-  // Initial ping after 1 minute
-  setTimeout(() => {
-    autoReload();
-  }, 60000);
-
-  // Set up recurring pings
-  setInterval(autoReload, AUTO_RELOAD_INTERVAL);
-};
-
-// Start keep-alive pings after server starts
-// if (process.env.NODE_ENV === 'production') {
-startKeepAlive();
-// }
-
-// Health check with keep-alive info
-app.get("/auto-reload-status", (req, res) => {
-  res.status(200).json({
-    status: "OK",
-    keepAlive: {
-      enabled: process.env.AUTO_RELOAD_ENABLED !== 'false',
-      url: "https://news-vzdx.onrender.com",
-      interval: `1 second`,
-      timeout: `${parseInt(process.env.AUTO_RELOAD_TIMEOUT) || 10000}ms`
-    },
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
+    console.log(`[${new Date().toISOString()}] ❌ Auto-reload request failed: ${err.message}`);
   });
-});
+};
 
-// Start keep-alive if in production
-if (process.env.NODE_ENV === 'production') {
-  startKeepAlive();
+// Start auto-reload if URL is configured and not in development
+if (AUTO_RELOAD_URL && AUTO_RELOAD_URL !== "https://news-vzdx.onrender.com" && process.env.NODE_ENV !== "development") {
+  console.log(`[${new Date().toISOString()}] 🚀 Starting auto-reload service for: ${AUTO_RELOAD_URL}`);
+  setInterval(autoReload, AUTO_RELOAD_INTERVAL);
+  autoReload(); // Initial ping
 }
 
-// Graceful shutdown handlers
-process.on("unhandledRejection", (err, promise) => {
-  server.close(() => process.exit(1))
-})
+// Graceful shutdown - only in production
+if (process.env.NODE_ENV === 'production') {
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      console.log('Process terminated');
+    });
+  });
 
-process.on("SIGTERM", () => {
-  server.close(() => {
-  })
-})
+  process.on('SIGINT', () => {
+    console.log('SIGINT received, shutting down gracefully');
+    server.close(() => {
+      console.log('Process terminated');
+    });
+  });
+} else {
+  // In development, ignore SIGINT to keep server running
+  process.on('SIGINT', () => {
+    console.log('SIGINT received in development mode - ignoring to keep server running');
+    console.log('Use Ctrl+C again to force quit, or stop the process manually');
+  });
+  
+  // Also ignore SIGTERM in development
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received in development mode - ignoring to keep server running');
+  });
+}
 
-export default app
+export default app;

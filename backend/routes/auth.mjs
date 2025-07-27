@@ -2,6 +2,8 @@ import express from "express";
 import {
   registerUser,
   loginUser,
+  googleAuth,
+  googleAuthCallback,
   getUserProfile,
   logoutUser,
   updateUserProfile,
@@ -13,6 +15,8 @@ const router = express.Router();
 
 router.route('/register').post(registerUser);
 router.post('/login', loginUser);
+router.get('/google', googleAuth);
+router.get('/google/callback', googleAuthCallback);
 router
   .route('/profile')
   .get(protect, getUserProfile)

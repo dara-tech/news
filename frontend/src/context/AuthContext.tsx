@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { User } from '@/types';
@@ -8,6 +8,8 @@ import { User } from '@/types';
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   loading: boolean;
@@ -20,121 +22,147 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Function to verify user session with the backend
-  const verifyUserSession = async (storedUser: string | null) => {
-    if (!storedUser) {
-      return false;
-    }
-
+  // Helper: get token from stored user string
+  const extractToken = (storedUser: string | null): string | undefined => {
+    if (!storedUser) return undefined;
     try {
-      // Add a small delay to prevent race conditions
+      const parsed = JSON.parse(storedUser);
+      return parsed.token;
+    } catch {
+      return undefined;
+    }
+  };
+
+  // Verify user session with backend and update state/localStorage
+  const verifyUserSession = useCallback(async (storedUser: string | null) => {
+    if (!storedUser) return false;
+    try {
       await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const response = await api.get('/auth/profile', { 
+      const response = await api.get('/auth/profile', {
         withCredentials: true,
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        // Don't retry on 401/403
         validateStatus: (status) => status < 500
       });
 
-      // If we get a successful response, update the user data
       if (response.status >= 200 && response.status < 300) {
         const { data } = response;
-        
-        // Parse the stored user data
-        let token: string | undefined;
-        try {
-          const currentUser = JSON.parse(storedUser);
-          token = currentUser.token;
-        } catch {
-          // ignore parse error
-        }
-        
-        // Create user data with token if it exists
+        const token = extractToken(storedUser);
         const userData: User = {
           _id: data._id,
           username: data.username || data.email?.split('@')[0] || 'user',
           email: data.email,
+          profileImage: data.profileImage,
           role: data.role || 'user',
-          ...(token && { token })
+          ...(token ? { token } : {})
         };
-        
-        // Update localStorage with fresh user data
         localStorage.setItem('userInfo', JSON.stringify(userData));
         setUser(userData);
         return true;
       } else {
-        // Handle non-2xx responses
         localStorage.removeItem('userInfo');
         setUser(null);
         return false;
       }
     } catch {
-      // Clear invalid session data
       localStorage.removeItem('userInfo');
       setUser(null);
       return false;
     }
-  };
+  }, []);
 
-  // Effect to handle initial session verification and route protection
+  // Effect: verify session on mount and on route change
   useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+
     const verifyUser = async () => {
-      setLoading(true);
-      
       try {
+        // Google OAuth callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const authSuccess = urlParams.get('auth');
+        if (authSuccess === 'success') {
+          const newUrl = new URL(window.location.href);
+          newUrl.searchParams.delete('auth');
+          window.history.replaceState({}, '', newUrl.toString());
+          try {
+            const response = await api.get('/auth/profile', {
+              withCredentials: true,
+              headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'X-Requested-With': 'XMLHttpRequest'
+              },
+              validateStatus: (status) => status < 500
+            });
+            if (response.status >= 200 && response.status < 300) {
+              const { data } = response;
+              const userData: User = {
+                _id: data._id,
+                username: data.username || data.email?.split('@')[0] || 'user',
+                email: data.email,
+                profileImage: data.profileImage,
+                role: data.role || 'user'
+              };
+              localStorage.setItem('userInfo', JSON.stringify(userData));
+              if (isMounted) setUser(userData);
+              if (isMounted) setLoading(false);
+              return;
+            }
+          } catch (error) {
+            console.error('Failed to verify Google OAuth session:', error);
+          }
+        }
+
         const storedUser = localStorage.getItem('userInfo');
-        
-        // If we have a stored user, try to verify the session
         if (storedUser) {
           const isSessionValid = await verifyUserSession(storedUser);
           if (isSessionValid) {
-            setLoading(false);
+            if (isMounted) setLoading(false);
             return;
           }
         }
-        
-        // If we get here, either there's no stored user or the session is invalid
-        setUser(null);
 
+        if (isMounted) setUser(null);
         const currentPath = window.location.pathname;
-        // Prevent redirect loop if already on a language homepage
-        if (!currentPath.includes('/login') && currentPath !== '/' && currentPath !== '/en' && currentPath !== '/km') {
+        if (
+          !currentPath.includes('/login') &&
+          currentPath !== '/' &&
+          currentPath !== '/en' &&
+          currentPath !== '/km'
+        ) {
           router.push('/');
         }
-        
       } catch {
         localStorage.removeItem('userInfo');
-        setUser(null);
-
-        const currentPathOnError = window.location.pathname;
-        if (!currentPathOnError.includes('/login') && currentPathOnError !== '/' && currentPathOnError !== '/en' && currentPathOnError !== '/km') {
+        if (isMounted) setUser(null);
+        const currentPath = window.location.pathname;
+        if (
+          !currentPath.includes('/login') &&
+          currentPath !== '/' &&
+          currentPath !== '/en' &&
+          currentPath !== '/km'
+        ) {
           router.push('/');
         }
-        
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-    // Add a small delay to ensure auth state is properly initialized
+    // Debounce initial verification
     const timeoutId = setTimeout(() => {
       verifyUser();
     }, 100);
 
-    // For Next.js App Router, we'll verify on mount and when the pathname changes
+    // Listen for route changes
     const handlePathChange = () => {
       verifyUser();
     };
-
-    // Add event listener for path changes
     window.addEventListener('popstate', handlePathChange);
-    
-    // For Next.js App Router, we can use the router's events if available
     if (typeof window !== 'undefined') {
       window.addEventListener('routeChangeStart', handlePathChange as EventListener);
     }
@@ -142,183 +170,292 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Initial verification
     verifyUser();
 
-    // Cleanup
     return () => {
+      isMounted = false;
       clearTimeout(timeoutId);
       window.removeEventListener('popstate', handlePathChange);
       if (typeof window !== 'undefined') {
         window.removeEventListener('routeChangeStart', handlePathChange as EventListener);
       }
     };
-  }, [router]);
+  }, [router, verifyUserSession]);
 
+  // Login function
   const login = async (email: string, password: string) => {
     try {
-      // Clear any existing user data
       localStorage.removeItem('userInfo');
       setUser(null);
 
-      // Make login request with credentials
-      const loginResponse = await api.post('/auth/login', 
+      const loginResponse = await api.post(
+        '/auth/login',
         { email, password },
-        { 
+        {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
           },
-          timeout: 10000, // 10 second timeout
-          withCredentials: true // Include credentials (cookies) with the request
+          timeout: 10000,
+          withCredentials: true
         }
       );
-      
-      if (!loginResponse.data) {
-        throw new Error('No data received from server');
-      }
-      
-      // Handle different response structures
+
+      if (!loginResponse.data) throw new Error('No data received from server');
+
       let token: string | undefined;
       let userData: Partial<User> | null = null;
-      
-      // Case 1: Response has token and user fields
+
       if ('token' in loginResponse.data) {
         token = loginResponse.data.token;
-        userData = loginResponse.data.user || loginResponse.data; // Try both user field and root level
-      } 
-      // Case 2: Response might have the user data directly (without token)
-      else if ('_id' in loginResponse.data) {
+        userData = loginResponse.data.user || loginResponse.data;
+      } else if ('_id' in loginResponse.data) {
         userData = loginResponse.data;
-        token = loginResponse.headers['authorization']?.split(' ')[1]; // Try to get token from headers
+        token = loginResponse.headers['authorization']?.split(' ')[1];
       }
-      
-      if (!token) {
-        throw new Error('No authentication token received');
-      }
-      
-      // If we still don't have userData, try to get it from the profile endpoint
+
+      if (!token) throw new Error('No authentication token received');
+
       if (!userData) {
         try {
           const profileResponse = await api.get('/auth/profile');
-          if (profileResponse.data) {
-            userData = profileResponse.data;
-          }
+          if (profileResponse.data) userData = profileResponse.data;
         } catch {
           // ignore
         }
       }
-      
-      if (!userData) {
-        throw new Error('Could not retrieve user information');
-      }
-      
-      // Ensure required fields exist and are non-empty
+
+      if (!userData) throw new Error('Could not retrieve user information');
+
       const requiredFields = ['_id', 'email'] as const;
-      const missingFields = requiredFields.filter(field => !userData[field]);
-      
+      const missingFields = requiredFields.filter(field => !userData![field]);
       if (missingFields.length > 0 || !userData._id) {
         throw new Error('Incomplete user data received');
       }
-      
-      // Store user data in localStorage
+
       const userToStore: User = {
-        _id: userData._id, // We've already verified this exists
+        _id: userData._id,
         username: userData.username || email.split('@')[0],
         email: userData.email || email,
         role: (userData.role as User['role']) || 'user',
         token
       };
-      
+
       localStorage.setItem('userInfo', JSON.stringify(userToStore));
       setUser(userToStore);
-      
-      // Verify the token by fetching user profile
+
+      // Verify token by fetching profile
       try {
         const profileResponse = await api.get('/auth/profile');
-        
-        if (!profileResponse.data) {
-          throw new Error('No profile data received');
-        }
-        
-        // Update user data with fresh profile data
-        const updatedUser = {
+        if (!profileResponse.data) throw new Error('No profile data received');
+        const updatedUser: User = {
           _id: profileResponse.data._id || userData._id,
           username: profileResponse.data.username || userToStore.username,
           email: profileResponse.data.email || userToStore.email,
+          profileImage: profileResponse.data.profileImage,
           role: profileResponse.data.role || userToStore.role,
           token
         };
-        
         localStorage.setItem('userInfo', JSON.stringify(updatedUser));
         setUser(updatedUser);
-        
-        // Determine redirect path based on role
         const redirectPath = updatedUser.role === 'admin' ? '/admin/dashboard' : '/';
-        
-        // Use router.push for client-side navigation
         router.push(redirectPath);
-        
       } catch {
         localStorage.removeItem('userInfo');
         setUser(null);
         throw new Error('Failed to verify user session');
       }
-      
     } catch (error: unknown) {
-      // Type guard to check if error is an object
-      const isErrorWithResponse = (e: unknown): e is { response: { data?: unknown; status?: number } } => {
-        return typeof e === 'object' && e !== null && 'response' in e;
-      };
-
-      const isErrorWithRequest = (e: unknown): e is { request: unknown } => {
-        return typeof e === 'object' && e !== null && 'request' in e;
-      };
-
-      const isErrorWithMessage = (e: unknown): e is { message: string } => {
-        return typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message: unknown }).message === 'string';
-      };
-
-      // Type guard to check if error has a name property
-      const isErrorWithName = (e: unknown): e is { name: string } => {
-        return typeof e === 'object' && e !== null && 'name' in e && typeof (e as { name: unknown }).name === 'string';
-      };
-
-      // Clean up on error
       localStorage.removeItem('userInfo');
       setUser(null);
-      
-      // Provide more specific error messages
+
       let userFacingMessage = 'Login failed. Please try again.';
-      
-      if (isErrorWithResponse(error)) {
-        const errorResponse = error.response;
-        const errorData = errorResponse?.data;
-        const errorStatus = errorResponse?.status;
-        if (errorStatus === 401) {
-          userFacingMessage = 'Invalid email or password';
-        } else if (errorStatus === 403) {
-          userFacingMessage = 'Account not authorized';
-        } else if (typeof errorData === 'object' && errorData !== null && 'message' in errorData && typeof errorData.message === 'string') {
-          userFacingMessage = errorData.message;
+
+      if (error && typeof error === 'object') {
+        if ('response' in error && error.response) {
+          const errorResponse = error.response as { data?: unknown; status?: number };
+          const errorData = errorResponse?.data;
+          const errorStatus = errorResponse?.status;
+          if (errorStatus === 401) {
+            userFacingMessage = 'Invalid email or password';
+          } else if (errorStatus === 403) {
+            userFacingMessage = 'Account not authorized';
+          } else if (
+            typeof errorData === 'object' &&
+            errorData !== null &&
+            'message' in errorData &&
+            typeof (errorData as { message: unknown }).message === 'string'
+          ) {
+            userFacingMessage = (errorData as { message: string }).message;
+          }
+        } else if ('request' in error) {
+          userFacingMessage = 'No response from server. Please check your connection.';
+        } else if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
+          userFacingMessage = (error as { message: string }).message;
         }
-      } else if (isErrorWithRequest(error)) {
-        userFacingMessage = 'No response from server. Please check your connection.';
-      } else if (isErrorWithMessage(error)) {
-        userFacingMessage = error.message;
       }
-      
-      // Create a new error with the appropriate message
+
       const loginError = new Error(userFacingMessage);
-      loginError.name = isErrorWithName(error) ? error.name : 'LoginError';
+      loginError.name =
+        error && typeof error === 'object' && 'name' in error && typeof (error as { name: unknown }).name === 'string'
+          ? (error as { name: string }).name
+          : 'LoginError';
       throw loginError;
     }
   };
 
+  // Register function
+  const register = async (username: string, email: string, password: string) => {
+    try {
+      localStorage.removeItem('userInfo');
+      setUser(null);
+
+      const registerResponse = await api.post(
+        '/auth/register',
+        { username, email, password },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          timeout: 10000,
+          withCredentials: true
+        }
+      );
+
+      if (!registerResponse.data) throw new Error('No data received from server');
+
+      let token: string | undefined;
+      let userData: Partial<User> | null = null;
+
+      if ('token' in registerResponse.data) {
+        token = registerResponse.data.token;
+        userData = registerResponse.data.user || registerResponse.data;
+      } else if ('_id' in registerResponse.data) {
+        userData = registerResponse.data;
+        token = registerResponse.headers['authorization']?.split(' ')[1];
+      }
+
+      if (!token) throw new Error('No authentication token received');
+
+      if (!userData) {
+        try {
+          const profileResponse = await api.get('/auth/profile');
+          if (profileResponse.data) userData = profileResponse.data;
+        } catch {
+          // ignore
+        }
+      }
+
+      if (!userData) throw new Error('Could not retrieve user information');
+
+      const userToStore: User = {
+        _id: userData._id || '',
+        username: userData.username || username,
+        email: userData.email || email,
+        role: (userData.role as User['role']) || 'user',
+        token
+      };
+
+      localStorage.setItem('userInfo', JSON.stringify(userToStore));
+      setUser(userToStore);
+
+      // Verify token by fetching profile
+      try {
+        const profileResponse = await api.get('/auth/profile');
+        if (!profileResponse.data) throw new Error('No profile data received');
+        const updatedUser: User = {
+          _id: profileResponse.data._id || userData._id,
+          username: profileResponse.data.username || userToStore.username,
+          email: profileResponse.data.email || userToStore.email,
+          profileImage: profileResponse.data.profileImage,
+          role: profileResponse.data.role || userToStore.role,
+          token
+        };
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        const redirectPath = updatedUser.role === 'admin' ? '/admin/dashboard' : '/';
+        router.push(redirectPath);
+      } catch {
+        localStorage.removeItem('userInfo');
+        setUser(null);
+        throw new Error('Failed to verify user session');
+      }
+    } catch (error: unknown) {
+      localStorage.removeItem('userInfo');
+      setUser(null);
+
+      let userFacingMessage = 'Registration failed. Please try again.';
+
+      if (error && typeof error === 'object') {
+        if ('response' in error && error.response) {
+          const errorResponse = error.response as { data?: unknown; status?: number };
+          const errorStatus = errorResponse?.status;
+          const errorData = errorResponse?.data;
+          if (errorStatus === 409) {
+            userFacingMessage = 'User already exists with this email or username.';
+          } else if (errorStatus === 400) {
+            userFacingMessage = 'Invalid registration data. Please check your input.';
+          } else if (
+            typeof errorData === 'object' &&
+            errorData !== null &&
+            'message' in errorData &&
+            typeof (errorData as { message: unknown }).message === 'string'
+          ) {
+            userFacingMessage = (errorData as { message: string }).message;
+          }
+        } else if ('request' in error) {
+          userFacingMessage = 'No response from server. Please check your connection.';
+        } else if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
+          userFacingMessage = (error as { message: string }).message;
+        }
+      }
+
+      const registerError = new Error(userFacingMessage);
+      registerError.name =
+        error && typeof error === 'object' && 'name' in error && typeof (error as { name: unknown }).name === 'string'
+          ? (error as { name: string }).name
+          : 'RegisterError';
+      throw registerError;
+    }
+  };
+
+  // Google login
+  const loginWithGoogle = async () => {
+    try {
+      localStorage.removeItem('userInfo');
+      setUser(null);
+      const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/auth/google`;
+      window.location.href = googleAuthUrl;
+    } catch (error: unknown) {
+      localStorage.removeItem('userInfo');
+      setUser(null);
+      let userFacingMessage = 'Google authentication is not available. Please use email/password login instead.';
+      if (error && typeof error === 'object') {
+        if ('response' in error && error.response) {
+          const errorResponse = error.response as { data?: unknown };
+          const errorData = errorResponse?.data;
+          if (errorData && typeof errorData === 'object' && 'message' in errorData && typeof (errorData as { message: unknown }).message === 'string') {
+            userFacingMessage = (errorData as { message: string }).message;
+          }
+        } else if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
+          userFacingMessage = (error as { message: string }).message;
+        }
+      }
+      const googleError = new Error(userFacingMessage);
+      googleError.name = 'GoogleAuthError';
+      throw googleError;
+    }
+  };
+
+  // Logout
   const logout = () => {
     localStorage.removeItem('userInfo');
     setUser(null);
     router.push('/');
   };
 
+  // Update user in state and localStorage
   const updateUser = (userData: Partial<User>) => {
     setUser(prevUser => {
       if (!prevUser) return null;
@@ -328,7 +465,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const value = { user, loading, login, logout, updateUser };
+  const value = { user, loading, login, register, loginWithGoogle, logout, updateUser };
 
   return (
     <AuthContext.Provider value={value}>

@@ -4,6 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
 import { LanguageProvider } from '@/context/LanguageContext'
 import { AuthProvider } from '@/context/AuthContext'
+import { NotificationProvider } from '@/context/NotificationContext'
 import AppBody from '@/components/layout/AppBody'
 import { Toaster } from 'sonner'
 
@@ -23,10 +24,12 @@ export default function AppProviders({ children }: { children: React.ReactNode }
       <ThemeProvider>
         <LanguageProvider>
           <AuthProvider>
-            <AppBody>
-              {children}
-            </AppBody>
-            <Toaster richColors position="top-right" />
+            <NotificationProvider>
+              <AppBody>
+                {children}
+              </AppBody>
+              <Toaster richColors position="top-right" />
+            </NotificationProvider>
           </AuthProvider>
         </LanguageProvider>
       </ThemeProvider>

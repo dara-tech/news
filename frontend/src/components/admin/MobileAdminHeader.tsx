@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, X, Bell, Search, User } from 'lucide-react';
+import { Menu, X, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { useNotifications } from '@/context/NotificationContext';
+import MobileNotificationDropdown from '@/components/notifications/MobileNotificationDropdown';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,9 +40,12 @@ export function MobileAdminHeader({
   title = "Admin Dashboard",
   showSearch = true,
   showNotifications = true,
-  notificationCount = 0,
+  // notificationCount: propNotificationCount = 0, // Removed unused variable
   user
 }: MobileAdminHeaderProps) {
+  // const { unreadCount } = useNotifications(); // Remove if not used elsewhere
+  useNotifications(); // Call for side effects if needed, but don't assign
+  // Removed unused notificationCount variable
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
@@ -92,18 +96,7 @@ export function MobileAdminHeader({
 
           {/* Notifications */}
           {showNotifications && (
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 relative">
-              <Bell className="h-4 w-4" />
-              {notificationCount > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
-                >
-                  {notificationCount > 9 ? '9+' : notificationCount}
-                </Badge>
-              )}
-              <span className="sr-only">Notifications</span>
-            </Button>
+            <MobileNotificationDropdown />
           )}
 
           {/* User Menu */}

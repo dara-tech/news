@@ -16,7 +16,6 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
-  Bell,
   User,
   Settings,
 } from "lucide-react"
@@ -37,6 +36,8 @@ import NewsSearch from "@/components/search/NewsSearch"
 import { useAuth } from "@/context/AuthContext"
 import api from "@/lib/api"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import NotificationDropdown from "@/components/notifications/NotificationDropdown"
+import MobileNotificationDropdown from "@/components/notifications/MobileNotificationDropdown"
 
 type Category = {
   _id: string
@@ -354,8 +355,11 @@ const Header = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
-                            <AvatarImage src={user?.avatar || "/placeholder.jpg"} alt={user?.username || "User"} />
+                    <Avatar className="h-10 w-10">
+            <AvatarImage 
+              src={user?.profileImage || user?.avatar || "/placeholder.jpg"} 
+              alt={user?.username || "User"} 
+            />
             <AvatarFallback>{user?.username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
           </Avatar>
         </Button>
@@ -565,6 +569,7 @@ const Header = () => {
             <div className="flex items-center justify-center gap-3 mt-auto pt-6 border-t border-border">
               <ThemeToggle />
               <LanguageSwitcher />
+              {user && <MobileNotificationDropdown />}
               {user ? (
                 <Button
                   variant="outline"
@@ -635,12 +640,9 @@ const Header = () => {
 
             {/* Notifications (if user is logged in) */}
             {user && (
-              <Button variant="ghost" size="icon" className="hidden lg:flex relative">
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                  3
-                </Badge>
-              </Button>
+              <div className="hidden lg:flex">
+                <NotificationDropdown />
+              </div>
             )}
 
             {/* User actions */}
