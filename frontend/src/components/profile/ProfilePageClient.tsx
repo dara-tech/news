@@ -22,7 +22,6 @@ import {
   Edit3,
   Eye,
   EyeOff,
-
 } from 'lucide-react';
 
 // --- ZOD SCHEMAS ---
@@ -139,42 +138,38 @@ const FormInput = <T extends FieldValues>({ id, label, register, error, type = '
   );
 };
 
+// Redesigned ProfileHeader: no background, more compact, image left, info right, no colored bg or gradients
 const ProfileHeader = ({ user }: { user: User }) => (
-  <div className="rounded-2xl p-6 mb-8">
-    <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-      <div className="relative group">
-        <div className="relative">
-          <Image
-            src={user.profileImage || user.avatar || `https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
-            alt="User Avatar"
-            width={120}
-            height={120}
-            className="rounded-2xl ring-4 ring-offset-4 ring-offset-white dark:ring-offset-gray-900 ring-blue-500 shadow-lg transition-all duration-300 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        </div>
-        <button className="absolute -bottom-2 -right-2 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-500/50">
-          <Camera size={18} />
-          <span className="sr-only">Change photo</span>
-        </button>
-        <div className="absolute -top-2 -left-2 bg-green-500 w-4 h-4 rounded-full border-2 border-white dark:border-gray-900 animate-pulse" />
-      </div>
-      <div className="text-center sm:text-left">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{user.username}</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-3 flex items-center justify-center sm:justify-start gap-2">
-          <Mail size={16} />
-          {user.email}
-        </p>
-        <div className="flex items-center justify-center sm:justify-start gap-3">
-          <span className="inline-flex items-center gap-2 bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-md">
-            <Settings size={14} />
-            {user.role}
-          </span>
-          <span className="inline-flex items-center gap-2 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-sm font-medium px-3 py-1 rounded-full">
-            <CheckCircle size={12} />
-            Active
-          </span>
-        </div>
+  <div className="flex items-center gap-6 mb-8">
+    <div className="relative">
+      <Image
+        src={user.profileImage || user.avatar || `https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
+        alt="User Avatar"
+        width={80}
+        height={80}
+        className="rounded-xl border border-gray-200 dark:border-gray-700 shadow"
+      />
+      <button className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+        <Camera size={16} />
+        <span className="sr-only">Change photo</span>
+      </button>
+      <div className="absolute -top-1 -left-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900" />
+    </div>
+    <div>
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{user.username}</h2>
+      <p className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2 mb-2">
+        <Mail size={14} />
+        {user.email}
+      </p>
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center gap-1 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+          <Settings size={12} />
+          {user.role}
+        </span>
+        <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-xs font-medium px-2 py-0.5 rounded-full">
+          <CheckCircle size={10} />
+          Active
+        </span>
       </div>
     </div>
   </div>
@@ -419,11 +414,11 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as 'profile' | 'security')}
-                                      className={`flex-1 flex items-center justify-center gap-2 py-4 px-3 text-sm font-medium transition-all duration-200 ${
-                        activeTab === tab.id
-                          ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600'
-                          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                      }`}>
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 px-3 text-sm font-medium transition-all duration-200 ${
+                      activeTab === tab.id
+                        ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    }`}>
                   <tab.Icon className="h-4 w-4" />
                   <span>{tab.label}</span>
                 </button>
