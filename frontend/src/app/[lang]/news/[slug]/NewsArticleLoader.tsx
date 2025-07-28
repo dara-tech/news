@@ -31,7 +31,6 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
   
   // Handle author display with fallbacks
   const getAuthorName = () => {
-    if (author?.name) return author.name;
     if (author?.username) return author.username;
     if (author?.email) return author.email.split('@')[0]; // Use the part before @ if email exists
     return 'Anonymous';
@@ -119,7 +118,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
                   <div className="w-12 h-12 rounded-full overflow-hidden">
                     <Image
                       src={author.avatar}
-                      alt={author.name || 'Author'}
+                      alt={author.username || 'Author'}
                       width={48}
                       height={48}
                       className="object-cover"

@@ -19,7 +19,7 @@ export const getNewsForAdmin = asyncHandler(async (req, res) => {
     }
     
     const articles = await News.find(query)
-      .populate('author', 'name email')
+      .populate('author', 'username email')
       .populate('category', 'name')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -258,7 +258,7 @@ export const getNews = asyncHandler(async (req, res) => {
       .sort(sortObject)
       .limit(pageSize)
       .skip(pageSize * (page - 1))
-      .populate('author', 'username email role name')
+      .populate('author', 'username email role')
       .populate('category', 'name color slug');
 
     // If sorting by relevance and keyword exists, add text score
@@ -299,7 +299,7 @@ export const getNewsByIdentifier = asyncHandler(async (req, res) => {
     }
 
     const news = await News.findOne(query)
-      .populate('author', 'name email role')
+      .populate('author', 'username email role')
       .populate('category', 'name color slug');
 
     if (!news) {

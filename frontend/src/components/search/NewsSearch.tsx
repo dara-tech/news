@@ -50,7 +50,6 @@ interface SearchResult {
   }
   author: {
     _id: string
-    name?: string
     username?: string
     email?: string
   }
@@ -207,8 +206,8 @@ const NewsSearch = () => {
   }
 
   // Get author name
-  const getAuthorName = (author: { name?: string; username?: string; email?: string } | undefined) => {
-    return author?.name || author?.username ||
+  const getAuthorName = (author: { username?: string; email?: string } | undefined) => {
+    return author?.username ||
       (author?.email ? author.email.split('@')[0] : 'Anonymous')
   }
 

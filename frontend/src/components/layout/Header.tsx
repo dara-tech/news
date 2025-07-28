@@ -16,7 +16,7 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
-  User,
+  // User, // Removed
   Settings,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -355,7 +355,7 @@ const Header = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10">
+            <Avatar className="h-10 w-10">
             <AvatarImage 
               src={user?.profileImage || user?.avatar || "/placeholder.jpg"} 
               alt={user?.username || "User"} 
@@ -372,18 +372,25 @@ const Header = () => {
           </div>
         </div>
         <DropdownMenuSeparator />
+        {/* Profile link for all users */}
         <DropdownMenuItem asChild>
           <Link href={`/${lang}/profile`} className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
+            <Settings className="mr-2 h-4 w-4" />
             Profile
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={`/${lang}/admin/dashboard`} className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" />
-            Admin Panel
-          </Link>
-        </DropdownMenuItem>
+        {/* Admin Panel - only for admin users */}
+        {user?.role === 'admin' && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href={`/${lang}/admin/dashboard`} className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                Admin Panel
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />

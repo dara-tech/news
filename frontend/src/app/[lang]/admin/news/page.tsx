@@ -84,9 +84,9 @@ const NewsPage = () => {
         ...filteredArticles.map(article => [
           `"${article.title.en.replace(/"/g, '""')}"`,
           article.status,
-          `"${article.author?.name || 'Unknown'}"`,
+          `"${article.author?.email || 'Unknown'}"`,
           new Date(article.createdAt).toLocaleDateString(),
-          article.views || 0,
+          article.views || 0, 
           `"${article.category?.name?.en || 'Uncategorized'}"`
         ].join(','))
       ].join('\n');

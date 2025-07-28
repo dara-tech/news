@@ -12,7 +12,7 @@ export interface NewsArticle {
   tags: string[];
   thumbnail?: string;
   images?: string[];
-  author: { _id: string; name: string; email: string };
+  author: { _id: string; name: string, email: string };
   publishedAt?: string;
   views: number;
   meta?: {

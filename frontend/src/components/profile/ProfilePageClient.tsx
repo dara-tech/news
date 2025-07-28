@@ -139,41 +139,57 @@ const FormInput = <T extends FieldValues>({ id, label, register, error, type = '
 };
 
 // Redesigned ProfileHeader: no background, more compact, image left, info right, no colored bg or gradients
-const ProfileHeader = ({ user }: { user: User }) => (
-  <div className="flex items-center gap-6 mb-8">
-    <div className="relative">
-      <Image
-        src={user.profileImage || user.avatar || `https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
-        alt="User Avatar"
-        width={80}
-        height={80}
-        className="rounded-xl border border-gray-200 dark:border-gray-700 shadow"
-      />
-      <button className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
-        <Camera size={16} />
-        <span className="sr-only">Change photo</span>
-      </button>
-      <div className="absolute -top-1 -left-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900" />
-    </div>
-    <div>
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{user.username}</h2>
-      <p className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2 mb-2">
-        <Mail size={14} />
-        {user.email}
-      </p>
-      <div className="flex items-center gap-2">
-        <span className="inline-flex items-center gap-1 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-          <Settings size={12} />
-          {user.role}
-        </span>
-        <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-xs font-medium px-2 py-0.5 rounded-full">
-          <CheckCircle size={10} />
-          Active
-        </span>
+const ProfileHeader = ({ user }: { user: User }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageSrc, setImageSrc] = useState(
+    user.profileImage || user.avatar || `https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`
+  );
+
+  const handleImageError = () => {
+    if (!imageError) {
+      setImageError(true);
+      setImageSrc(`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-6 mb-8">
+      <div className="relative">
+        <Image
+          src={imageSrc}
+          alt={`${user.username}'s Avatar`}
+          width={80}
+          height={80}
+          className="rounded-xl border border-gray-200 dark:border-gray-700 shadow object-cover"
+          onError={handleImageError}
+          priority
+        />
+        <button className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+          <Camera size={16} />
+          <span className="sr-only">Change photo</span>
+        </button>
+                <div className="absolute -top-1 -left-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900" />
+      </div>
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{user.username}</h2>
+        <p className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2 mb-2">
+          <Mail size={14} />
+          {user.email}
+        </p>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+            <Settings size={12} />
+            {user.role}
+          </span>
+          <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-xs font-medium px-2 py-0.5 rounded-full">
+            <CheckCircle size={10} />
+            Active
+          </span>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ProfileSettings = ({ onProfileSubmit, isSubmitting, user }: { onProfileSubmit: (data: ProfileFormValues) => void; isSubmitting: boolean; user: User; }) => {
   const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormValues>({
@@ -183,7 +199,7 @@ const ProfileSettings = ({ onProfileSubmit, isSubmitting, user }: { onProfileSub
 
   return (
     <div className="space-y-6">
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+      <div className="border border-blue-200 dark:border-blue-800 rounded-xl p-4">
         <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 mb-2">
           <Edit3 size={16} />
           <span className="text-sm font-medium">Profile Information</span>
@@ -239,7 +255,7 @@ const SecuritySettings = ({ onPasswordSubmit, isSubmitting }: { onPasswordSubmit
 
   return (
     <div className="space-y-6">
-      <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
+      <div className="border border-orange-200 dark:border-orange-800 rounded-xl p-4">
         <div className="flex items-center gap-2 text-orange-800 dark:text-orange-300 mb-2">
           <Shield size={16} />
           <span className="text-sm font-medium">Security Settings</span>
@@ -258,7 +274,7 @@ const SecuritySettings = ({ onPasswordSubmit, isSubmitting }: { onPasswordSubmit
           </div>
         </div>
         
-        <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Password Requirements</h4>
           <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
             <li className="flex items-center gap-2">
@@ -386,7 +402,7 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
+    <div className="min-h-screen text-gray-800 dark:text-gray-200 font-sans">
       <div className="mx-auto max-w-4xl p-4 sm:p-6 lg:p-8">
         <header className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -406,7 +422,7 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
           onDismiss={() => setNotification({ message: '', type: '' as NotificationType })}
         />
 
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg overflow-hidden">
+        <div className="border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg overflow-hidden">
           {/* Mobile Tab Navigation */}
           <div className="sm:hidden border-b border-gray-200 dark:border-gray-700">
             <nav className="flex" aria-label="Tabs">

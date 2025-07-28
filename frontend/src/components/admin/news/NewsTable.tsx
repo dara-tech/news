@@ -12,6 +12,32 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
+/**
+ * Why is username still "Unknown" even when author is present?
+ * 
+ * In the NewsTable, the author column tries to display `article.author.username`.
+ * If `author` is missing, not an object, or does not have a `username` property, it falls back to "Unknown".
+ * 
+ * If you see that `article.author` is an object, but `username` is still missing or undefined (even though the user schema requires it),
+ * this is almost always because the backend is not populating the `username` field for the author.
+ * 
+ * For example, in Mongoose, if you use `.populate('author', 'email')`, only the `email` field is included, not `username`.
+ * If you use `.populate('author', 'username')`, only `username` is included, not `email`.
+ * 
+ * If you want to see the username in the frontend, you must ensure the backend populates the `username` field:
+ * 
+ * Example (Mongoose):
+ *   .populate('author', 'username')
+ *   // or, if you want both username and email:
+ *   .populate('author', 'username email')
+ * 
+ * See backend/models/User.mjs for the user schema: both `username` and `email` are required.
+ * 
+ * If you see "Unknown" in the Author column, but you know the user exists, your backend is not populating the `username` field.
+ * 
+ * Solution: Update your backend to always populate the `username` field for the author.
+ */
+
 interface NewsTableProps {
   articles: NewsArticle[];
   onDelete: (id: string) => void;
@@ -206,9 +232,13 @@ const NewsTable = ({
       header: "Author",
       cell: ({ row }) => {
         const article = row.original;
-        const authorName = typeof article.author === 'object' && article.author?.email
-          ? article.author.email
-          : 'Unknown';
+        // Only show username, not email. If username is missing, show "Unknown".
+        let authorName = 'Unknown';
+        if (article.author && typeof article.author === 'object') {
+          if (typeof article.author.email === 'string' && article.author.email.trim() !== '') {
+            authorName = article.author.email;
+          }
+        }
         return (
           <div className="text-xs sm:text-sm font-medium min-w-[80px]">
             {authorName}
