@@ -123,11 +123,21 @@ const googleAuthCallback = asyncHandler(async (req, res) => {
       console.log('✅ Google OAuth successful - Token generated for user:', user.email);
       console.log('🔗 Redirecting to:', process.env.FRONTEND_URL || 'http://localhost:3000');
 
-      // Redirect to frontend with success parameter
+      // Create user data to pass to frontend
+      const userData = {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImage: user.profileImage,
+        role: user.role
+      };
+
+      // Redirect to frontend with success parameter and user data
       const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const userDataEncoded = encodeURIComponent(JSON.stringify(userData));
       const redirectUrl = user.role === 'admin' 
-        ? `${baseUrl}/admin/dashboard?auth=success`
-        : `${baseUrl}?auth=success`;
+        ? `${baseUrl}/admin/dashboard?auth=success&user=${userDataEncoded}`
+        : `${baseUrl}?auth=success&user=${userDataEncoded}`;
       
       console.log('🎯 Final redirect URL:', redirectUrl);
       res.redirect(redirectUrl);

@@ -84,36 +84,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Google OAuth callback
         const urlParams = new URLSearchParams(window.location.search);
         const authSuccess = urlParams.get('auth');
-        if (authSuccess === 'success') {
+        const userDataParam = urlParams.get('user');
+        
+        if (authSuccess === 'success' && userDataParam) {
           const newUrl = new URL(window.location.href);
           newUrl.searchParams.delete('auth');
+          newUrl.searchParams.delete('user');
           window.history.replaceState({}, '', newUrl.toString());
+          
           try {
-            const response = await api.get('/auth/profile', {
-              withCredentials: true,
-              headers: {
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'X-Requested-With': 'XMLHttpRequest'
-              },
-              validateStatus: (status) => status < 500
-            });
-            if (response.status >= 200 && response.status < 300) {
-              const { data } = response;
-              const userData: User = {
-                _id: data._id,
-                username: data.username || data.email?.split('@')[0] || 'user',
-                email: data.email,
-                profileImage: data.profileImage,
-                role: data.role || 'user'
-              };
-              localStorage.setItem('userInfo', JSON.stringify(userData));
-              if (isMounted) setUser(userData);
-              if (isMounted) setLoading(false);
-              return;
-            }
+            // Parse user data from URL
+            const userData = JSON.parse(decodeURIComponent(userDataParam));
+            const userToStore: User = {
+              _id: userData._id,
+              username: userData.username || userData.email?.split('@')[0] || 'user',
+              email: userData.email,
+              profileImage: userData.profileImage,
+              role: userData.role || 'user'
+            };
+            
+            localStorage.setItem('userInfo', JSON.stringify(userToStore));
+            if (isMounted) setUser(userToStore);
+            if (isMounted) setLoading(false);
+            return;
           } catch (error) {
-            console.error('Failed to verify Google OAuth session:', error);
+            console.error('Failed to parse user data from OAuth callback:', error);
           }
         }
 
