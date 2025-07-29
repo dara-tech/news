@@ -25,7 +25,8 @@ const generateToken = (res, user) => {
 
   // Configure for production
   if (isProduction) {
-    cookieOptions.domain = '.onrender.com';
+    // Remove domain restriction to allow cross-domain cookies
+    // cookieOptions.domain = '.onrender.com'; // This was causing the issue
     cookieOptions.sameSite = 'none';
     cookieOptions.secure = true;
   }

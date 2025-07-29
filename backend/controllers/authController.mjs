@@ -120,6 +120,8 @@ const googleAuthCallback = asyncHandler(async (req, res) => {
 
       // Generate token
       const token = generateToken(res, user);
+      console.log('✅ Google OAuth successful - Token generated for user:', user.email);
+      console.log('🔗 Redirecting to:', process.env.FRONTEND_URL || 'http://localhost:3000');
 
       // Redirect to frontend with success parameter
       const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -127,6 +129,7 @@ const googleAuthCallback = asyncHandler(async (req, res) => {
         ? `${baseUrl}/admin/dashboard?auth=success`
         : `${baseUrl}?auth=success`;
       
+      console.log('🎯 Final redirect URL:', redirectUrl);
       res.redirect(redirectUrl);
     } catch (error) {
       console.error('Google OAuth error:', error);

@@ -65,7 +65,8 @@ app.use(session({
     httpOnly: true,
     secure: isProduction, // Only send over HTTPS in production
     sameSite: isProduction ? 'none' : 'lax', // Handle cross-site cookies in production
-    domain: isProduction ? 'news-eta-vert.vercel.app' : undefined, // Set your domain in production
+    // Remove domain restriction to allow cross-domain cookies
+    // domain: isProduction ? 'news-eta-vert.vercel.app' : undefined, // This was incorrect
   }
 }));
 
