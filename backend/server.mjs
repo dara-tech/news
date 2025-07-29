@@ -219,7 +219,7 @@ function pingRender() {
 }
 
 // Only start pinging in production (never in development)
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development") {
   setInterval(pingRender, AUTO_RELOAD_INTERVAL);
   // Initial ping
   pingRender();
