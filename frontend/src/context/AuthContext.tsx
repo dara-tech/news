@@ -100,7 +100,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               username: userData.username || userData.email?.split('@')[0] || 'user',
               email: userData.email,
               profileImage: userData.profileImage,
-              role: userData.role || 'user'
+              role: userData.role || 'user',
+              token: userData.token // Store the JWT token for API calls
             };
             
             localStorage.setItem('userInfo', JSON.stringify(userToStore));

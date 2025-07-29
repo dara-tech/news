@@ -123,13 +123,14 @@ const googleAuthCallback = asyncHandler(async (req, res) => {
       console.log('✅ Google OAuth successful - Token generated for user:', user.email);
       console.log('🔗 Redirecting to:', process.env.FRONTEND_URL || 'http://localhost:3000');
 
-      // Create user data to pass to frontend
+      // Create user data to pass to frontend (including token)
       const userData = {
         _id: user._id,
         username: user.username,
         email: user.email,
         profileImage: user.profileImage,
-        role: user.role
+        role: user.role,
+        token: token // Include the JWT token for frontend API calls
       };
 
       // Redirect to frontend with success parameter and user data
