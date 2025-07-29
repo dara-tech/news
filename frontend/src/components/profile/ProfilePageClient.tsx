@@ -24,7 +24,8 @@ import {
   EyeOff,
 } from 'lucide-react';
 
-// --- ZOD SCHEMAS ---
+import { toast } from 'sonner';
+
 const profileSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters.'),
   email: z
@@ -50,56 +51,28 @@ const passwordSchema = z
 type ProfileFormValues = z.infer<typeof profileSchema>;
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
-type NotificationType = 'success' | 'error' | '';
-
 type FormInputProps<T extends FieldValues> = {
-    id: Path<T>;
-    label: string;
-    register: UseFormRegister<T>;
-    error?: FieldError;
-    type?: string;
-    Icon?: ElementType;
+  id: Path<T>;
+  label: string;
+  register: UseFormRegister<T>;
+  error?: FieldError;
+  type?: string;
+  Icon?: ElementType;
 } & Omit<ComponentPropsWithoutRef<'input'>, 'id'>;
 
 interface ProfilePageClientProps {
   initialUser: User | null;
 }
 
-// --- SUB-COMPONENTS ---
-const Notification = (
-    { message, type, onDismiss }: 
-    { message: string; type: NotificationType; onDismiss: () => void; }
-) => {
-  if (!message) return null;
-
-  const isSuccess = type === 'success';
-  const Icon = isSuccess ? CheckCircle : AlertTriangle;
-  const colors = isSuccess
-    ? 'bg-green-50 border-green-400 text-green-800 dark:bg-green-900/20 dark:border-green-500/30 dark:text-green-200'
-    : 'bg-red-50 border-red-400 text-red-800 dark:bg-red-900/20 dark:border-red-500/30 dark:text-red-200';
-
-  return (
-    <div className={`fixed top-4 left-4 right-4 z-50 p-4 rounded-xl border ${colors} flex items-start space-x-3 shadow-lg mb-6 transition-all duration-300 transform animate-in slide-in-from-top-2 sm:left-auto sm:right-4 sm:w-auto sm:max-w-md`}>
-      <Icon className="h-5 w-5 mt-0.5 flex-shrink-0" />
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm">{isSuccess ? 'Success' : 'Error'}</p>
-        <p className="text-xs mt-1">{message}</p>
-      </div>
-      <button 
-        type="button" 
-        onClick={onDismiss} 
-        className="text-current opacity-70 hover:opacity-100 p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-      >
-        <span className="sr-only">Dismiss</span>
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-  );
-};
-
-const FormInput = <T extends FieldValues>({ id, label, register, error, type = 'text', Icon, ...props }: FormInputProps<T>) => {
+const FormInput = <T extends FieldValues>({
+  id,
+  label,
+  register,
+  error,
+  type = 'text',
+  Icon,
+  ...props
+}: FormInputProps<T>) => {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === 'password';
   const inputType = isPassword && showPassword ? 'text' : type;
@@ -110,19 +83,26 @@ const FormInput = <T extends FieldValues>({ id, label, register, error, type = '
         {label}
       </label>
       <div className="relative">
-        {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 z-10" />}
+        {Icon && (
+          <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 z-10" />
+        )}
         <input
           id={id}
           type={inputType}
           {...register(id)}
-          className={`w-full ${Icon ? 'pl-10' : 'pl-4'} ${isPassword ? 'pr-12' : 'pr-4'} py-3 border rounded-xl bg-white dark:bg-gray-800 transition-all duration-200 ${error ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20'} focus:outline-none focus:ring-4 focus:ring-opacity-20`}
+          className={`w-full ${Icon ? 'pl-10' : 'pl-4'} ${isPassword ? 'pr-12' : 'pr-4'} py-3 border rounded-xl bg-white dark:bg-gray-800 transition-all duration-200 ${
+            error
+              ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
+              : 'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20'
+          } focus:outline-none focus:ring-4 focus:ring-opacity-20`}
           {...props}
         />
         {isPassword && (
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={() => setShowPassword((v) => !v)}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            tabIndex={-1}
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
@@ -138,7 +118,6 @@ const FormInput = <T extends FieldValues>({ id, label, register, error, type = '
   );
 };
 
-// Redesigned ProfileHeader: no background, more compact, image left, info right, no colored bg or gradients
 const ProfileHeader = ({ user }: { user: User }) => {
   const [imageError, setImageError] = useState(false);
   const [imageSrc, setImageSrc] = useState(
@@ -164,11 +143,14 @@ const ProfileHeader = ({ user }: { user: User }) => {
           onError={handleImageError}
           priority
         />
-        <button className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+        <button
+          className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+          tabIndex={-1}
+        >
           <Camera size={16} />
           <span className="sr-only">Change photo</span>
         </button>
-                <div className="absolute -top-1 -left-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900" />
+        <div className="absolute -top-1 -left-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900" />
       </div>
       <div>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{user.username}</h2>
@@ -191,11 +173,24 @@ const ProfileHeader = ({ user }: { user: User }) => {
   );
 };
 
-const ProfileSettings = ({ onProfileSubmit, isSubmitting, user }: { onProfileSubmit: (data: ProfileFormValues) => void; isSubmitting: boolean; user: User; }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormValues>({
+const ProfileSettings = ({
+  onProfileSubmit,
+  isSubmitting,
+  user,
+}: {
+  onProfileSubmit: (data: ProfileFormValues) => void;
+  isSubmitting: boolean;
+  user: User;
+}) => {
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: { username: user.username, email: user.email },
   });
+
+  // Reset form to initial user values
+  const handleCancel = () => {
+    reset({ username: user.username, email: user.email });
+  };
 
   return (
     <div className="space-y-6">
@@ -208,17 +203,17 @@ const ProfileSettings = ({ onProfileSubmit, isSubmitting, user }: { onProfileSub
           Update your basic profile information. Changes will be reflected immediately.
         </p>
       </div>
-      
+
       <form onSubmit={handleSubmit(onProfileSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <FormInput id="username" label="Username" register={register} error={errors.username} Icon={UserIcon} />
           <FormInput id="email" label="Email Address" register={register} error={errors.email} type="email" Icon={Mail} />
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <button 
-            type="submit" 
-            disabled={isSubmitting} 
+          <button
+            type="submit"
+            disabled={isSubmitting}
             className="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-xl shadow-lg text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 transform hover:scale-105"
           >
             {isSubmitting ? (
@@ -233,8 +228,9 @@ const ProfileSettings = ({ onProfileSubmit, isSubmitting, user }: { onProfileSub
               </>
             )}
           </button>
-          <button 
-            type="button" 
+          <button
+            type="button"
+            onClick={handleCancel}
             className="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
           >
             Cancel
@@ -245,8 +241,16 @@ const ProfileSettings = ({ onProfileSubmit, isSubmitting, user }: { onProfileSub
   );
 };
 
-const SecuritySettings = ({ onPasswordSubmit, isSubmitting }: { onPasswordSubmit: (data: PasswordFormValues) => void; isSubmitting: boolean; }) => {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<PasswordFormValues>({ resolver: zodResolver(passwordSchema) });
+const SecuritySettings = ({
+  onPasswordSubmit,
+  isSubmitting,
+}: {
+  onPasswordSubmit: (data: PasswordFormValues) => void;
+  isSubmitting: boolean;
+}) => {
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordSchema),
+  });
 
   const onSubmit = async (data: PasswordFormValues) => {
     await onPasswordSubmit(data);
@@ -264,7 +268,7 @@ const SecuritySettings = ({ onPasswordSubmit, isSubmitting }: { onPasswordSubmit
           Change your password to keep your account secure. Use a strong password with at least 8 characters.
         </p>
       </div>
-      
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-6">
           <FormInput id="currentPassword" label="Current Password" register={register} error={errors.currentPassword} type="password" Icon={Lock} />
@@ -273,7 +277,7 @@ const SecuritySettings = ({ onPasswordSubmit, isSubmitting }: { onPasswordSubmit
             <FormInput id="confirmPassword" label="Confirm Password" register={register} error={errors.confirmPassword} type="password" Icon={Lock} />
           </div>
         </div>
-        
+
         <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Password Requirements</h4>
           <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
@@ -291,11 +295,11 @@ const SecuritySettings = ({ onPasswordSubmit, isSubmitting }: { onPasswordSubmit
             </li>
           </ul>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <button 
-            type="submit" 
-            disabled={isSubmitting} 
+          <button
+            type="submit"
+            disabled={isSubmitting}
             className="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-xl shadow-lg text-white bg-orange-600 hover:bg-orange-700 transition-all duration-200 transform hover:scale-105"
           >
             {isSubmitting ? (
@@ -310,8 +314,8 @@ const SecuritySettings = ({ onPasswordSubmit, isSubmitting }: { onPasswordSubmit
               </>
             )}
           </button>
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => reset()}
             className="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
           >
@@ -323,18 +327,11 @@ const SecuritySettings = ({ onPasswordSubmit, isSubmitting }: { onPasswordSubmit
   );
 };
 
-// --- MAIN CLIENT COMPONENT ---
 export default function ProfilePageClient({ initialUser }: ProfilePageClientProps) {
   const { user: authUser, updateUser } = useAuth();
   const [user, setUser] = useState<User | null>(initialUser || authUser);
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
-  const [notification, setNotification] = useState({ message: '', type: '' as NotificationType });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSetNotification = (message: string, type: NotificationType) => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification({ message: '', type: 'success' as NotificationType }), 5000);
-  };
 
   // Update user state when auth context changes
   useEffect(() => {
@@ -348,9 +345,9 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
     try {
       const res = await api.put('/auth/profile', data);
       const updatedUserData = res.data;
-      setUser(updatedUserData); // Update local state
-      updateUser?.(updatedUserData); // Update context state
-      handleSetNotification('Profile updated successfully!', 'success');
+      setUser(updatedUserData);
+      updateUser?.(updatedUserData);
+      toast.success('Profile updated successfully!');
     } catch (error: unknown) {
       let message = 'An unknown error occurred.';
       if (isAxiosError(error)) {
@@ -358,7 +355,7 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
       } else if (error instanceof Error) {
         message = error.message;
       }
-      handleSetNotification(message, 'error');
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -368,7 +365,7 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
     setIsSubmitting(true);
     try {
       await api.put('/auth/password', data);
-      handleSetNotification('Password changed successfully!', 'success');
+      toast.success('Password changed successfully!');
     } catch (error: unknown) {
       let message = 'An unknown error occurred while changing password.';
       if (isAxiosError(error)) {
@@ -376,7 +373,7 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
       } else if (error instanceof Error) {
         message = error.message;
       }
-      handleSetNotification(message, 'error');
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -416,12 +413,6 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
 
         <ProfileHeader user={user} />
 
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onDismiss={() => setNotification({ message: '', type: '' as NotificationType })}
-        />
-
         <div className="border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg overflow-hidden">
           {/* Mobile Tab Navigation */}
           <div className="sm:hidden border-b border-gray-200 dark:border-gray-700">
@@ -431,10 +422,11 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as 'profile' | 'security')}
                   className={`flex-1 flex items-center justify-center gap-2 py-4 px-3 text-sm font-medium transition-all duration-200 ${
-                      activeTab === tab.id
-                        ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                    }`}>
+                    activeTab === tab.id
+                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                  }`}
+                >
                   <tab.Icon className="h-4 w-4" />
                   <span>{tab.label}</span>
                 </button>
@@ -450,10 +442,11 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as 'profile' | 'security')}
                   className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
-                      activeTab === tab.id
-                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
-                    }`}>
+                    activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
+                  }`}
+                >
                   <tab.Icon className="h-5 w-5" />
                   <span>{tab.label}</span>
                 </button>

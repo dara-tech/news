@@ -200,25 +200,29 @@ let server = app.listen(PORT, () => {
 })
 
 // --- Auto-Reload (Keep-Alive) Ping ---
-const AUTO_RELOAD_URL = process.env.AUTO_RELOAD_URL || "https://news-vzdx.onrender.com";
-const AUTO_RELOAD_INTERVAL = 5 * 60 * 1000; // 5 minutes
+// Fix: Always ping the deployed Render URL, not the current server's own URL.
+// This keeps the Render instance alive, regardless of which deployment is running this code.
 
-const autoReload = () => {
-  console.log(`[${new Date().toISOString()}] 🔄 Sending auto-reload request to: ${AUTO_RELOAD_URL}`);
-  const isHttps = AUTO_RELOAD_URL.startsWith('https://');
+const RENDER_URL = "https://news-vzdx.onrender.com"; // The Render deployment URL to keep alive
+const AUTO_RELOAD_INTERVAL = 1000 * 60 * 5; // 5 minutes
+
+function pingRender() {
+  const url = RENDER_URL;
+  const isHttps = url.startsWith('https://');
   const protocol = isHttps ? https : http;
-  protocol.get(AUTO_RELOAD_URL, (res) => {
-    console.log(`[${new Date().toISOString()}] 🔄 Auto-reload request sent. Status: ${res.statusCode}`);
+  console.log(`[${new Date().toISOString()}] 🔄 Pinging Render at: ${url}`);
+  protocol.get(url, (res) => {
+    console.log(`[${new Date().toISOString()}] 🔄 Render ping status: ${res.statusCode}`);
   }).on("error", (err) => {
-    console.log(`[${new Date().toISOString()}] ❌ Auto-reload request failed: ${err.message}`);
+    console.log(`[${new Date().toISOString()}] ❌ Render ping failed: ${err.message}`);
   });
-};
+}
 
-// Start auto-reload if URL is configured and not in development
-if (AUTO_RELOAD_URL && AUTO_RELOAD_URL !== "https://news-vzdx.onrender.com" && process.env.NODE_ENV !== "development") {
-  console.log(`[${new Date().toISOString()}] 🚀 Starting auto-reload service for: ${AUTO_RELOAD_URL}`);
-  setInterval(autoReload, AUTO_RELOAD_INTERVAL);
-  autoReload(); // Initial ping
+// Only start pinging in production (never in development)
+if (process.env.NODE_ENV === "production") {
+  setInterval(pingRender, AUTO_RELOAD_INTERVAL);
+  // Initial ping
+  pingRender();
 }
 
 // Graceful shutdown - only in production
