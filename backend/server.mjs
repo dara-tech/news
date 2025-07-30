@@ -17,8 +17,11 @@ import newsRoutes from "./routes/news.mjs"
 import categoryRoutes from "./routes/categoryRoutes.mjs"
 import dashboardRoutes from "./routes/dashboard.mjs"
 import notificationRoutes from "./routes/notifications.mjs"
+import likeRoutes from "./routes/likes.mjs"
+import commentRoutes from "./routes/comments.mjs"
 import http from 'http';
 import https from 'https';
+import CommentWebSocket from './websocket.mjs';
 
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -161,6 +164,16 @@ app.use("/api/news", newsRoutes)
 app.use("/api/categories", categoryRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/api/notifications", notificationRoutes)
+app.use("/api/likes", likeRoutes)
+app.use("/api/comments", commentRoutes)
+
+// WebSocket test endpoint
+app.get('/api/websocket-test', (req, res) => {
+  res.json({ 
+    message: 'WebSocket server is running',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Serve Next.js frontend in production
 if (process.env.NODE_ENV === 'production') {
@@ -196,9 +209,28 @@ app.use(errorHandler)
 // Server configuration
 const PORT = process.env.PORT || 5001
 
-let server = app.listen(PORT, () => {
+// Create HTTP server for WebSocket support
+import { createServer } from 'http';
+const server = createServer(app);
+
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 })
+
+// Initialize WebSocket for real-time comments
+const commentWebSocket = new CommentWebSocket(server);
+
+// Connect WebSocket to comment controller
+import { setCommentWebSocket } from './controllers/commentController.mjs';
+setCommentWebSocket(commentWebSocket);
+
+// Add WebSocket test endpoint
+app.get('/api/websocket-test', (req, res) => {
+  res.json({ 
+    message: 'WebSocket server is running',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // --- Auto-Reload (Keep-Alive) Ping ---
 // Fix: Always ping the deployed Render URL, not the current server's own URL.

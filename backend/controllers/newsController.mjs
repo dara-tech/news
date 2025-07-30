@@ -19,7 +19,7 @@ export const getNewsForAdmin = asyncHandler(async (req, res) => {
     }
     
     const articles = await News.find(query)
-      .populate('author', 'username email')
+      .populate('author', 'username email profileImage')
       .populate('category', 'name')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -258,7 +258,10 @@ export const getNews = asyncHandler(async (req, res) => {
       .sort(sortObject)
       .limit(pageSize)
       .skip(pageSize * (page - 1))
-      .populate('author', 'username email role')
+      .populate({
+        path: 'author',
+        select: 'username email role profileImage'
+      })
       .populate('category', 'name color slug');
 
     // If sorting by relevance and keyword exists, add text score
@@ -267,6 +270,11 @@ export const getNews = asyncHandler(async (req, res) => {
     }
 
     const news = await newsQuery;
+    
+    // Debug: Log first news item author
+    if (news.length > 0) {
+      console.log('DEBUG - First news author:', JSON.stringify(news[0].author, null, 2));
+    }
     
     // --- Send Response ---
     const responsePayload = {
@@ -299,8 +307,14 @@ export const getNewsByIdentifier = asyncHandler(async (req, res) => {
     }
 
     const news = await News.findOne(query)
-      .populate('author', 'username email role')
+      .populate({
+        path: 'author',
+        select: 'username email role profileImage'
+      })
       .populate('category', 'name color slug');
+
+    // Debug: Log the author data
+    console.log('DEBUG getNewsByIdentifier - Author:', JSON.stringify(news?.author, null, 2));
 
     if (!news) {
       res.status(404);
@@ -427,7 +441,7 @@ export const updateNews = asyncHandler(async (req, res) => {
 
     // Save and return the updated news article
     const savedNews = await news.save();
-    const populatedNews = await News.findById(savedNews._id).populate('author', 'username role').populate('category', 'name color slug');
+    const populatedNews = await News.findById(savedNews._id).populate('author', 'username role profileImage').populate('category', 'name color slug');
 
     res.json({ success: true, data: populatedNews });
   } catch (error) {
@@ -726,4 +740,95 @@ export const getNewsByCategorySlug = asyncHandler(async (req, res) => {
     news,
     category: categoryDoc.name
   });
+});
+
+// @desc    Get author profile and articles
+// @route   GET /api/news/author/:authorId
+// @access  Public
+export const getAuthorProfile = asyncHandler(async (req, res) => {
+  console.log('getAuthorProfile called with params:', req.params);
+  try {
+    const { authorId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    // Validate author ID
+    if (!mongoose.Types.ObjectId.isValid(authorId)) {
+      res.status(400);
+      throw new Error('Invalid author ID format.');
+    }
+
+    // Get author information
+    const author = await User.findById(authorId).select('username email avatar profileImage role createdAt');
+    console.log('🔍 Raw author from DB:', JSON.stringify(author, null, 2));
+    if (!author) {
+      res.status(404);
+      throw new Error('Author not found.');
+    }
+
+    // Get author's published articles
+    const articles = await News.find({ 
+      author: authorId,
+      status: 'published' 
+    })
+    .populate('category', 'name color slug')
+    .sort({ publishedAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+    // Get total count for pagination
+    const totalArticles = await News.countDocuments({ 
+      author: authorId,
+      status: 'published' 
+    });
+
+    // Calculate author stats
+    const totalViews = await News.aggregate([
+      { $match: { author: new mongoose.Types.ObjectId(authorId), status: 'published' } },
+      { $group: { _id: null, totalViews: { $sum: { $ifNull: ['$views', 0] } } } }
+    ]);
+
+    const totalLikes = await News.aggregate([
+      { $match: { author: new mongoose.Types.ObjectId(authorId), status: 'published' } },
+      { $group: { _id: null, totalLikes: { $sum: { $ifNull: ['$likes', 0] } } } }
+    ]);
+
+    // Get author's join date (first article date or user creation date)
+    const firstArticle = await News.findOne({ 
+      author: authorId,
+      status: 'published' 
+    }).sort({ publishedAt: 1 });
+
+    const authorStats = {
+      totalArticles,
+      totalViews: totalViews[0]?.totalViews || 0,
+      totalLikes: totalLikes[0]?.totalLikes || 0,
+      joinDate: firstArticle?.publishedAt || author.createdAt
+    };
+
+    res.json({
+      success: true,
+      author: {
+        _id: author._id,
+        username: author.username,
+        email: author.email,
+        avatar: author.avatar,
+        profileImage: author.profileImage,
+        role: author.role,
+        stats: authorStats
+      },
+      articles,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalArticles / limit),
+        totalArticles
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching author profile',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 });

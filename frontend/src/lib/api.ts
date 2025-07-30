@@ -39,9 +39,11 @@ api.interceptors.request.use(
     // Only add auth token for server-side rendered requests
     if (typeof window !== 'undefined') {
       const userInfo = localStorage.getItem('userInfo');
+      
       if (userInfo) {
         try {
           const { token } = JSON.parse(userInfo);
+          
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
           }
@@ -109,58 +111,71 @@ api.interceptors.response.use(
         error.response.data
       );
 
-      // Handle 401 Unauthorized
-      if (error.response.status === 401) {
-        // Only handle 401 if we're not already retrying
-        if (!originalRequest._retry) {
-          originalRequest._retry = true;
+          // Handle 401 Unauthorized
+    if (error.response.status === 401) {
+      // Only handle 401 if we're not already retrying
+      if (!originalRequest._retry) {
+        originalRequest._retry = true;
+        
+        try {
+          // Try to refresh the token if possible
+          const refreshResponse = await axios.post(
+            `${apiUrl}/api/auth/refresh-token`,
+            {},
+            { withCredentials: true }
+          );
           
-          try {
-            // Try to refresh the token if possible
-            const refreshResponse = await axios.post(
-              `${apiUrl}/api/auth/refresh-token`,
-              {},
-              { withCredentials: true }
-            );
+          if (refreshResponse.data.token) {
+            // Update the stored token
+            const userInfo = localStorage.getItem('userInfo');
+            if (userInfo) {
+              const user = JSON.parse(userInfo);
+              user.token = refreshResponse.data.token;
+              localStorage.setItem('userInfo', JSON.stringify(user));
+            }
             
-            if (refreshResponse.data.token) {
-              // Update the stored token
-              const userInfo = localStorage.getItem('userInfo');
-              if (userInfo) {
-                const user = JSON.parse(userInfo);
-                user.token = refreshResponse.data.token;
-                localStorage.setItem('userInfo', JSON.stringify(user));
-              }
-              
-              // Update the Authorization header
-              originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.token}`;
-              
-              // Retry the original request
-              return api(originalRequest);
-            }
-          } catch (refreshError) {
-            console.error('[API] Token refresh failed:', refreshError);
-            // If refresh fails, log the user out
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem('userInfo');
-              const currentPath = window.location.pathname;
-              // Prevent redirect loop if already on a language homepage
-              if (!currentPath.includes('/login') && currentPath !== '/' && currentPath !== '/en' && currentPath !== '/km') {
-                window.location.href = '/';
-              }
-            }
+            // Update the Authorization header
+            originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.token}`;
+            
+            // Retry the original request
+            return api(originalRequest);
           }
-        } else {
-          // If we've already retried and still get 401, log out
+        } catch (refreshError) {
+          console.error('[API] Token refresh failed:', refreshError);
+          // If refresh fails, log the user out
           if (typeof window !== 'undefined') {
             localStorage.removeItem('userInfo');
             const currentPath = window.location.pathname;
-            if (!currentPath.includes('/login') && currentPath !== '/' && currentPath !== '/en' && currentPath !== '/km') {
+            // Only redirect for protected routes, not public routes like news articles
+            if (!currentPath.includes('/login') && 
+                !currentPath.includes('/news/') && 
+                !currentPath.includes('/categories/') && 
+                !currentPath.includes('/search') && 
+                currentPath !== '/' && 
+                currentPath !== '/en' && 
+                currentPath !== '/km') {
               window.location.href = '/';
             }
           }
         }
+      } else {
+        // If we've already retried and still get 401, log out
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('userInfo');
+          const currentPath = window.location.pathname;
+          // Only redirect for protected routes, not public routes like news articles
+          if (!currentPath.includes('/login') && 
+              !currentPath.includes('/news/') && 
+              !currentPath.includes('/categories/') && 
+              !currentPath.includes('/search') && 
+              currentPath !== '/' && 
+              currentPath !== '/en' && 
+              currentPath !== '/km') {
+            window.location.href = '/';
+          }
+        }
       }
+    }
     } else if (error.request) {
       // The request was made but no response was received
       console.error('[API] No response received:', error.request);
@@ -179,7 +194,14 @@ api.interceptors.response.use(
       if (typeof window !== 'undefined') {
         localStorage.removeItem('userInfo');
         const currentPath = window.location.pathname;
-        if (!currentPath.includes('/login') && currentPath !== '/' && currentPath !== '/en' && currentPath !== '/km') {
+        // Only redirect for protected routes, not public routes like news articles
+        if (!currentPath.includes('/login') && 
+            !currentPath.includes('/news/') && 
+            !currentPath.includes('/categories/') && 
+            !currentPath.includes('/search') && 
+            currentPath !== '/' && 
+            currentPath !== '/en' && 
+            currentPath !== '/km') {
           window.location.href = '/';
         }
       }
@@ -198,3 +220,16 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+// Author API functions
+export const getAuthorProfile = async (authorId: string, page = 1, limit = 10) => {
+  try {
+    const response = await api.get(`/news/author/${authorId}`, {
+      params: { page, limit }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching author profile:', error);
+    throw error;
+  }
+};

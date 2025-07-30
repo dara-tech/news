@@ -134,6 +134,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function Page({ params }: { params: Promise<{ slug: string; lang: string }> }) {
   const { slug, lang } = await params;
+  
   const article = await getArticle(slug);
 
   if (!article) {
@@ -141,8 +142,6 @@ export default async function Page({ params }: { params: Promise<{ slug: string;
   }
 
   const locale = lang === 'km' ? 'kh' : 'en';
-
-  // Debug: Log the article data to see what we're working with
 
   return <NewsArticleLoader article={article} locale={locale} />;
 }

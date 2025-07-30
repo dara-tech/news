@@ -80,6 +80,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
 
     const verifyUser = async () => {
+      // Check if we're on a public route first
+      const currentPath = window.location.pathname;
+      const isPublicRoute = currentPath.includes('/news/') || 
+                           currentPath.includes('/categories/') || 
+                           currentPath.includes('/search') || 
+                           currentPath === '/' || 
+                           currentPath === '/en' || 
+                           currentPath === '/km';
+      
+      // Skip authentication for public routes
+      if (isPublicRoute) {
+        if (isMounted) setLoading(false);
+        return;
+      }
+      
       try {
         // Google OAuth callback
         const urlParams = new URLSearchParams(window.location.search);
@@ -124,10 +139,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (isMounted) setUser(null);
         const currentPath = window.location.pathname;
+        // Only redirect for protected routes, not public routes like news articles
         if (
-          !currentPath.includes('/login') &&
-          currentPath !== '/' &&
-          currentPath !== '/en' &&
+          !currentPath.includes('/login') && 
+          !currentPath.includes('/news/') && 
+          !currentPath.includes('/categories/') && 
+          !currentPath.includes('/search') && 
+          currentPath !== '/' && 
+          currentPath !== '/en' && 
           currentPath !== '/km'
         ) {
           router.push('/');
@@ -136,10 +155,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem('userInfo');
         if (isMounted) setUser(null);
         const currentPath = window.location.pathname;
+        // Only redirect for protected routes, not public routes like news articles
         if (
-          !currentPath.includes('/login') &&
-          currentPath !== '/' &&
-          currentPath !== '/en' &&
+          !currentPath.includes('/login') && 
+          !currentPath.includes('/news/') && 
+          !currentPath.includes('/categories/') && 
+          !currentPath.includes('/search') && 
+          currentPath !== '/' && 
+          currentPath !== '/en' && 
           currentPath !== '/km'
         ) {
           router.push('/');

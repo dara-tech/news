@@ -27,18 +27,24 @@ export const protect = asyncHandler(async (req, res, next) => {
       req.user = await User.findById(decoded.userId).select('-password');
 
       if (!req.user) {
-        res.status(401);
-        throw new Error('Not authorized, user not found');
+        return res.status(401).json({
+          success: false,
+          message: 'Not authorized, user not found'
+        });
       }
       next();
     } catch (error) {
       res.clearCookie('jwt');
-      res.status(401);
-      throw new Error('Not authorized, token failed');
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized, token failed'
+      });
     }
   } else {
-    res.status(401);
-    throw new Error('Not authorized, no token');
+    return res.status(401).json({
+      success: false,
+      message: 'Not authorized, no token'
+    });
   }
 });
 
@@ -47,7 +53,9 @@ export const admin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
   } else {
-    res.status(401);
-    throw new Error('Not authorized as an admin');
+    return res.status(401).json({
+      success: false,
+      message: 'Not authorized as an admin'
+    });
   }
 };

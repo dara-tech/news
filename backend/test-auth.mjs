@@ -1,74 +1,59 @@
-import axios from 'axios';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+import Like from './models/Like.mjs';
+import News from './models/News.mjs';
+import User from './models/User.mjs';
 
 dotenv.config();
 
-const API_URL = 'https://news-vzdx.onrender.com/api';
-
-// Helper function to extract cookie
-function getCookie(cookies, name) {
-  const cookie = cookies.find(cookie => cookie.startsWith(`${name}=`));
-  return cookie ? cookie.split(';')[0].split('=')[1] : null;
-}
-
-async function testAuth() {
-  
+const testAuthAndLikes = async () => {
   try {
-    // 1. Test login with admin credentials
-    const loginRes = await axios.post(`${API_URL}/auth/login`, {
-      email: 'admin@example.com',
-      password: '123456'
-    }, {
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    
-      id: loginRes.data._id,
-      email: loginRes.data.email,
-      role: loginRes.data.role
-    });
-    
-    // 2. Extract token from cookies
-    const cookies = loginRes.headers['set-cookie'] || [];
-    
-    const token = getCookie(cookies, 'jwt');
-    
-    if (!token) {
-      throw new Error('No JWT token found in response cookies');
-    }
-    
-    
-    // 3. Test protected endpoint
-    const statsRes = await axios.get(`${API_URL}/dashboard/stats`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      withCredentials: true
-    });
-    
-    
-  } catch (error) {
-    
-    if (error.response) {
-      // The request was made and the server responded with a status code
-    } else if (error.request) {
-      // The request was made but no response was received
-    } else {
-      // Something happened in setting up the request
-    }
-    
-    if (error.config) {
-        url: error.config.url,
-        method: error.config.method,
-        headers: error.config.headers,
-        data: error.config.data
-      });
-    }
-  }
-}
+    // Connect to database
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('Connected to database');
 
-testAuth();
+    const newsId = '6888ce4fa505394887a39417';
+    
+    // Get a test user
+    const user = await User.findOne();
+    if (!user) {
+      console.log('No users found in database');
+      return;
+    }
+    
+    console.log('Test user:', user.username, user._id);
+    
+    // Create a JWT token for the user
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    
+    console.log('Generated token:', token.substring(0, 20) + '...');
+    
+    // Test the like status endpoint manually
+    const likeCount = await Like.countDocuments({ news: newsId });
+    const userLike = await Like.findOne({ user: user._id, news: newsId });
+    const hasLiked = !!userLike;
+    
+    console.log('Like count:', likeCount);
+    console.log('User has liked:', hasLiked);
+    console.log('User like document:', userLike);
+    
+    // Test the news article
+    const news = await News.findById(newsId);
+    console.log('News exists:', !!news);
+    if (news) {
+      console.log('News title:', news.title.en);
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    await mongoose.disconnect();
+  }
+};
+
+testAuthAndLikes();

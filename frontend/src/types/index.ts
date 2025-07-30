@@ -32,6 +32,7 @@ export interface Article {
   createdAt: string;
   publishedAt: string;
   updatedAt: string;
+  views?: number;
   author: {
     _id: string;
     avatar?: string;
@@ -51,4 +52,10 @@ export interface User {
   avatar?: string;
   profileImage?: string;
   token?: string;
+  profession?: string;
+  interests?: string[];
+  age?: number;
+  company?: string;
+  industry?: string;
+  experience?: 'junior' | 'mid' | 'senior' | 'executive';
 }

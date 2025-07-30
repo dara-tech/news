@@ -8,8 +8,10 @@ import {
   logoutUser,
   updateUserProfile,
   updateUserPassword,
+  updateUserProfileImage,
 } from "../controllers/authController.mjs";
 import { protect } from "../middleware/auth.mjs";
+import upload from "../middleware/upload.mjs";
 
 const router = express.Router();
 
@@ -23,5 +25,6 @@ router
   .put(protect, updateUserProfile);
 router.post('/logout', logoutUser);
 router.put('/password', protect, updateUserPassword);
+router.put('/profile/image', protect, upload.single('profileImage'), updateUserProfileImage);
 
 export default router;

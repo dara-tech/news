@@ -242,6 +242,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     _id: updatedUser._id,
     username: updatedUser.username,
     email: updatedUser.email,
+    profileImage: updatedUser.profileImage,
     role: updatedUser.role,
   });
 });
@@ -262,6 +263,47 @@ const updateUserPassword = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update user profile image
+// @route   PUT /api/auth/profile/image
+// @access  Private
+const updateUserProfileImage = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!req.file) {
+    res.status(400);
+    throw new Error('No image file provided');
+  }
+
+  try {
+    // Upload to Cloudinary
+    const { v2: cloudinary } = await import('cloudinary');
+    
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'profile-images',
+      public_id: `user-${user._id}-${Date.now()}`,
+      transformation: [
+        { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+        { quality: 'auto' }
+      ]
+    });
+
+    // Update user profile image
+    user.profileImage = result.secure_url;
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      profileImage: user.profileImage,
+      role: user.role,
+    });
+  } catch (error) {
+    res.status(500);
+    throw new Error('Failed to upload image');
+  }
+});
+
 export {
   registerUser,
   loginUser,
@@ -273,4 +315,5 @@ export {
   updateUserRole,
   updateUserProfile,
   updateUserPassword,
+  updateUserProfileImage,
 };
