@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
 import type { NewsFormData, FormStats } from "../NewsForm"
-
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@/components/ui/switch"
+import { Save, Send, Loader2 } from "lucide-react";
 
 interface NewsFormSidebarProps {
   formData: NewsFormData;
@@ -20,6 +21,7 @@ interface NewsFormSidebarProps {
 const NewsFormSidebar: React.FC<NewsFormSidebarProps> = ({
   formData,
   formStats,
+  isSubmitting,
   onStatusChange,
   onSwitchChange,
 }) => {
@@ -94,6 +96,40 @@ const NewsFormSidebar: React.FC<NewsFormSidebarProps> = ({
           </div>
         </CardContent>
       </Card>
+      
+      {/* Submit/Publish Button */}
+      <div className="md:col-span-2">
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className={`w-full py-3 h-auto text-base font-semibold ${
+            formData.status === 'published' 
+              ? 'bg-green-600 hover:bg-green-700' 
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              {formData.status === 'published' ? 'Publishing...' : 'Saving...'}
+            </>
+          ) : (
+            <>
+              {formData.status === 'published' ? (
+                <>
+                  <Send className="w-5 h-5 mr-2" />
+                  Publish Article
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5 mr-2" />
+                  Save Draft
+                </>
+              )}
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   )
 }

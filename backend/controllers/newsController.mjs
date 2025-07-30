@@ -56,6 +56,7 @@ export const createNews = asyncHandler(async (req, res) => {
       tags, 
       isFeatured, 
       isBreaking,
+      status,
       seo,
       thumbnailUrl // Add thumbnailUrl to destructuring
     } = req.body;
@@ -111,8 +112,13 @@ export const createNews = asyncHandler(async (req, res) => {
       author: req.user._id,
       isFeatured: isFeatured === 'true',
       isBreaking: isBreaking === 'true',
-      status: 'draft'
+      status: status || 'draft'
     });
+
+    // Set publishedAt if creating as published
+    if (status === 'published') {
+      news.publishedAt = Date.now();
+    }
 
     if (seoObj) {
       if (seoObj.metaDescription) news.metaDescription = seoObj.metaDescription;

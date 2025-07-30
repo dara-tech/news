@@ -80,26 +80,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
 
     const verifyUser = async () => {
-      // Check if we're on a public route first
-      const currentPath = window.location.pathname;
-      const isPublicRoute = currentPath.includes('/news/') || 
-                           currentPath.includes('/categories/') || 
-                           currentPath.includes('/search') || 
-                           currentPath === '/' || 
-                           currentPath === '/en' || 
-                           currentPath === '/km';
-      
-      // Skip authentication for public routes
-      if (isPublicRoute) {
-        if (isMounted) setLoading(false);
-        return;
-      }
-      
       try {
-        // Google OAuth callback
+        // Check for Google OAuth callback FIRST (before checking public routes)
         const urlParams = new URLSearchParams(window.location.search);
         const authSuccess = urlParams.get('auth');
         const userDataParam = urlParams.get('user');
+        
+        // Debug OAuth callback
+        console.log('🔍 OAuth Debug:', {
+          currentUrl: window.location.href,
+          authSuccess,
+          hasUserData: !!userDataParam,
+          userDataLength: userDataParam?.length
+        });
         
         if (authSuccess === 'success' && userDataParam) {
           const newUrl = new URL(window.location.href);
@@ -109,7 +102,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           
           try {
             // Parse user data from URL
+            console.log('📦 Raw user data param:', userDataParam);
             const userData = JSON.parse(decodeURIComponent(userDataParam));
+            console.log('🔓 Parsed user data:', userData);
+            
             const userToStore: User = {
               _id: userData._id,
               username: userData.username || userData.email?.split('@')[0] || 'user',
@@ -119,13 +115,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               token: userData.token // Store the JWT token for API calls
             };
             
+            console.log('💾 Storing user:', userToStore);
             localStorage.setItem('userInfo', JSON.stringify(userToStore));
             if (isMounted) setUser(userToStore);
             if (isMounted) setLoading(false);
+            console.log('✅ OAuth login successful!');
             return;
           } catch (error) {
-            console.error('Failed to parse user data from OAuth callback:', error);
+            console.error('❌ Failed to parse user data from OAuth callback:', error);
+            console.error('Raw userDataParam:', userDataParam);
           }
+        }
+
+        // Check if we're on a public route (after processing OAuth callback)
+        const currentPath = window.location.pathname;
+        const isPublicRoute = currentPath.includes('/news/') || 
+                             currentPath.includes('/categories/') || 
+                             currentPath.includes('/search') || 
+                             currentPath === '/' || 
+                             currentPath === '/en' || 
+                             currentPath === '/km';
+        
+        // Skip further authentication for public routes (but still process OAuth above)
+        if (isPublicRoute) {
+          if (isMounted) setLoading(false);
+          return;
         }
 
         const storedUser = localStorage.getItem('userInfo');
@@ -138,8 +152,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         if (isMounted) setUser(null);
-        const currentPath = window.location.pathname;
         // Only redirect for protected routes, not public routes like news articles
+        // Use the already-declared currentPath above to avoid redeclaration
         if (
           !currentPath.includes('/login') && 
           !currentPath.includes('/news/') && 
