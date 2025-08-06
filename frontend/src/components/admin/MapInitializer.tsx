@@ -57,7 +57,7 @@ export default function MapInitializer({
 
     const loadHeatmapPlugin = () => {
       return new Promise<void>((resolve) => {
-        if (window.L.heatLayer) {
+        if (window.L && window.L.heatLayer) {
           resolve();
           return;
         }
@@ -72,7 +72,7 @@ export default function MapInitializer({
 
     const loadClusteringPlugin = () => {
       return new Promise<void>((resolve) => {
-        if (window.L.markerClusterGroup) {
+        if (window.L && window.L.markerClusterGroup) {
           resolve();
           return;
         }

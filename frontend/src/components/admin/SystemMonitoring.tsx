@@ -206,12 +206,12 @@ export default function SystemMonitoring() {
 
   if (loading && !metrics) {
     return (
-      <div className="grid gap-6">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 p-4 sm:p-6">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
-              <CardContent className="p-6">
-                <div className="h-20 bg-gray-200 rounded animate-pulse"></div>
+              <CardContent className="p-4 sm:p-6">
+                <div className="h-16 sm:h-20 bg-gray-200 rounded animate-pulse"></div>
               </CardContent>
             </Card>
           ))}
@@ -223,58 +223,60 @@ export default function SystemMonitoring() {
   if (!metrics) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">System Monitoring</h2>
-          <p className="text-muted-foreground">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight">System Monitoring</h2>
+          <p className="text-sm text-muted-foreground">
             Real-time system health and performance metrics
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
           {lastRefresh && (
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <Clock className="h-3 w-3" />
               Updated {lastRefresh.toLocaleTimeString()}
             </p>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            className={autoRefresh ? 'bg-green-50 text-green-700' : ''}
-          >
-            {autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchMetrics}
-            disabled={loading}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className={`flex-1 sm:flex-none text-xs sm:text-sm ${autoRefresh ? 'bg-green-50 text-green-700' : ''}`}
+            >
+              {autoRefresh ? 'Auto ON' : 'Auto OFF'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchMetrics}
+              disabled={loading}
+              className="flex-1 sm:flex-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+            >
+              <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* System Overview */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Server Status</CardTitle>
-            <Server className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Server Status</CardTitle>
+            <Server className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-2">
             <div className="flex items-center gap-2">
-              <Badge className={getStatusColor(metrics.server.status)}>
+              <Badge className={`text-xs ${getStatusColor(metrics.server.status)}`}>
                 {getStatusIcon(metrics.server.status)}
                 <span className="ml-1 capitalize">{metrics.server.status}</span>
               </Badge>
             </div>
-            <div className="text-xs text-muted-foreground mt-2">
+            <div className="text-xs text-muted-foreground">
               Uptime: {metrics.server.uptime}
             </div>
           </CardContent>
@@ -282,17 +284,17 @@ export default function SystemMonitoring() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Database</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Database</CardTitle>
+            <Database className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-2">
             <div className="flex items-center gap-2">
-              <Badge className={getStatusColor(metrics.database.status)}>
+              <Badge className={`text-xs ${getStatusColor(metrics.database.status)}`}>
                 {getStatusIcon(metrics.database.status)}
                 <span className="ml-1 capitalize">{metrics.database.status}</span>
               </Badge>
             </div>
-            <div className="text-xs text-muted-foreground mt-2">
+            <div className="text-xs text-muted-foreground">
               Size: {metrics.database.size}
             </div>
           </CardContent>
@@ -300,11 +302,11 @@ export default function SystemMonitoring() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Response Time</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Response Time</CardTitle>
+            <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.server.responseTime}ms</div>
+          <CardContent className="space-y-2">
+            <div className="text-lg sm:text-2xl font-bold">{metrics.server.responseTime}ms</div>
             <div className="flex items-center text-xs text-muted-foreground">
               <TrendingUp className="h-3 w-3 text-green-600 mr-1" />
               Average response time
@@ -314,11 +316,11 @@ export default function SystemMonitoring() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Requests/min</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Requests/min</CardTitle>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.server.requestsPerMinute}</div>
+          <CardContent className="space-y-2">
+            <div className="text-lg sm:text-2xl font-bold">{metrics.server.requestsPerMinute}</div>
             <div className="text-xs text-muted-foreground">
               Active traffic
             </div>
@@ -329,21 +331,21 @@ export default function SystemMonitoring() {
       {/* Performance Metrics */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Cpu className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Cpu className="h-4 w-4 sm:h-5 sm:w-5" />
             Performance Metrics
           </CardTitle>
-          <CardDescription>System resource utilization</CardDescription>
+          <CardDescription className="text-xs sm:text-sm">System resource utilization</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <CardContent className="space-y-4 sm:space-y-6">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Cpu className="h-4 w-4" />
-                  <span className="text-sm font-medium">CPU Usage</span>
+                  <Cpu className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-xs sm:text-sm font-medium">CPU Usage</span>
                 </div>
-                <span className="text-sm text-muted-foreground">{metrics.performance.cpuUsage}%</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">{metrics.performance.cpuUsage}%</span>
               </div>
               <Progress 
                 value={metrics.performance.cpuUsage} 
@@ -354,10 +356,10 @@ export default function SystemMonitoring() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <MemoryStick className="h-4 w-4" />
-                  <span className="text-sm font-medium">Memory Usage</span>
+                  <MemoryStick className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-xs sm:text-sm font-medium">Memory Usage</span>
                 </div>
-                <span className="text-sm text-muted-foreground">{metrics.performance.memoryUsage}%</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">{metrics.performance.memoryUsage}%</span>
               </div>
               <Progress 
                 value={metrics.performance.memoryUsage} 
@@ -368,10 +370,10 @@ export default function SystemMonitoring() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <HardDrive className="h-4 w-4" />
-                  <span className="text-sm font-medium">Disk Usage</span>
+                  <HardDrive className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-xs sm:text-sm font-medium">Disk Usage</span>
                 </div>
-                <span className="text-sm text-muted-foreground">{metrics.performance.diskUsage}%</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">{metrics.performance.diskUsage}%</span>
               </div>
               <Progress 
                 value={metrics.performance.diskUsage} 
@@ -382,10 +384,10 @@ export default function SystemMonitoring() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Wifi className="h-4 w-4" />
-                  <span className="text-sm font-medium">Network Latency</span>
+                  <Wifi className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-xs sm:text-sm font-medium">Network Latency</span>
                 </div>
-                <span className="text-sm text-muted-foreground">{metrics.performance.networkLatency}ms</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">{metrics.performance.networkLatency}ms</span>
               </div>
               <Progress 
                 value={Math.min(metrics.performance.networkLatency / 2, 100)} 
@@ -396,31 +398,31 @@ export default function SystemMonitoring() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 xl:grid-cols-2">
         {/* Endpoint Health */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Wifi className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Wifi className="h-4 w-4 sm:h-5 sm:w-5" />
               Endpoint Health
             </CardTitle>
-            <CardDescription>Status of critical system endpoints</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">Status of critical system endpoints</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {metrics.endpoints.map((endpoint, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-3">
-                    <Badge className={getStatusColor(endpoint.status)}>
+                <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-muted/50 gap-2 sm:gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                    <Badge className={`text-xs ${getStatusColor(endpoint.status)} shrink-0`}>
                       {getStatusIcon(endpoint.status)}
                     </Badge>
-                    <div>
-                      <div className="font-medium text-sm">{endpoint.name}</div>
-                      <div className="text-xs text-muted-foreground">{endpoint.url}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-xs sm:text-sm truncate">{endpoint.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">{endpoint.url}</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium">{endpoint.responseTime}ms</div>
+                  <div className="text-right shrink-0 self-start sm:self-center">
+                    <div className="text-xs sm:text-sm font-medium">{endpoint.responseTime}ms</div>
                     <div className="text-xs text-muted-foreground">
                       {new Date(endpoint.lastChecked).toLocaleTimeString()}
                     </div>
@@ -434,30 +436,30 @@ export default function SystemMonitoring() {
         {/* Recent Errors */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
               Recent Events
             </CardTitle>
-            <CardDescription>Recent system events and errors</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">Recent system events and errors</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {metrics.errors.map((error, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                <div key={index} className="flex items-start gap-2 sm:gap-3 p-3 rounded-lg bg-muted/50">
                   <Badge 
                     variant={error.level === 'error' ? 'destructive' : error.level === 'warning' ? 'secondary' : 'outline'}
-                    className="mt-0.5"
+                    className="mt-0.5 text-xs shrink-0"
                   >
                     {error.level}
                   </Badge>
-                  <div className="flex-1 space-y-1">
-                    <div className="text-sm font-medium">{error.message}</div>
-                    <div className="flex items-center justify-between">
+                  <div className="flex-1 space-y-1 min-w-0">
+                    <div className="text-xs sm:text-sm font-medium leading-tight">{error.message}</div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                       <div className="text-xs text-muted-foreground">
                         {new Date(error.timestamp).toLocaleString()}
                       </div>
                       {error.count > 1 && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs self-start sm:self-center">
                           {error.count}x
                         </Badge>
                       )}

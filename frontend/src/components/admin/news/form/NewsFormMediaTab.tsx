@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { UploadCloud, X } from "lucide-react"
+import { MdOutlineSmartToy } from "react-icons/md"
 
 interface NewsFormMediaTabProps {
   thumbnailPreview: string | null;
@@ -90,14 +91,15 @@ const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
                   className="hidden"
                   id="thumbnail-upload"
                 />
-                <button
+                <Button
                   type="button"
                   className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-60 mt-2"
                   onClick={onGenerateImage}
                   disabled={isGeneratingImage}
                 >
+                  <MdOutlineSmartToy className="mr-2 text-sm sm:text-base" />
                   {isGeneratingImage ? 'Generating...' : 'Generate with AI'}
-                </button>
+                </Button>
               </div>
             )}
           </div>

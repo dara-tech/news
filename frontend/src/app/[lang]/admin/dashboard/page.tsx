@@ -509,27 +509,27 @@ export default function DashboardPage() {
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            Overview
+            <span className="hidden sm:inline">Overview</span>
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
-            Analytics
+            <span className="hidden sm:inline">Analytics</span>
           </TabsTrigger>
           <TabsTrigger value="comments" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
-            Comments
+            <span className="hidden sm:inline">Comments</span>
           </TabsTrigger>
           <TabsTrigger value="likes" className="flex items-center gap-2">
             <Heart className="h-4 w-4" />
-            Likes
+            <span className="hidden sm:inline">Likes</span>
           </TabsTrigger>
           <TabsTrigger value="map" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
-            User Map
+            <span className="hidden sm:inline">User Map</span>
           </TabsTrigger>
           <TabsTrigger value="monitoring" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
-            Monitoring
+            <span className="hidden sm:inline">Monitoring</span>
           </TabsTrigger>
         </TabsList>
         
@@ -548,7 +548,7 @@ export default function DashboardPage() {
                 value={filters.sortBy}
                 onValueChange={(value: any) => setFilters(prev => ({ ...prev, sortBy: value }))}
               >
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-fit">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>

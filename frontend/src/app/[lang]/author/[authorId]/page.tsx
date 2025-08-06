@@ -138,7 +138,7 @@ export default function AuthorProfilePage() {
   if (error) {
     return (
       <div className="min-h-screen ">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-4 lg:px-8 ">
           <div className="mb-8">
             <Link href={`/${lang}`}>
               <Button variant="ghost" className="mb-4">
@@ -198,10 +198,10 @@ export default function AuthorProfilePage() {
 
   return (
     <div className="min-h-screen ">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-4 lg:px-8 ">
         <div className="mb-8">
           <Link href={`/${lang}`}>
-            <Button variant="ghost" className="mb-4">
+            <Button variant="ghost" className="mb-2">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
             </Button>

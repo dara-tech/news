@@ -71,6 +71,7 @@ const NewsTable = ({
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
+          className="sm:scale-100 scale-90"
         />
       ),
       cell: ({ row }) => (
@@ -78,10 +79,12 @@ const NewsTable = ({
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          className="sm:scale-100 scale-90"
         />
       ),
       enableSorting: false,
       enableHiding: false,
+      size: 30,
     },
     {
       accessorKey: "title",
@@ -91,30 +94,31 @@ const NewsTable = ({
       cell: ({ row }) => {
         const article = row.original;
         return (
-          <div className="flex flex-col space-y-1 min-w-[200px] max-w-[300px]">
-            <div className="font-medium line-clamp-2 text-sm sm:text-base">
+          <div className="flex flex-col space-y-1 min-w-[180px] sm:min-w-[200px] max-w-[280px] sm:max-w-[300px]">
+            <div className="font-medium line-clamp-2 text-xs sm:text-sm md:text-base leading-tight">
               {article.title.en || article.title.kh || 'Untitled'}
             </div>
-            <div className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+            <div className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">
               {article.description?.en || article.description?.kh || 'No description'}
             </div>
-            {/* Mobile: Show category and status inline */}
-            <div className="flex items-center gap-2 sm:hidden">
-              <Badge variant="outline" className="text-xs">
+            {/* Mobile: Show compact category and status */}
+            <div className="flex items-center gap-1 sm:hidden flex-wrap">
+              <Badge variant="outline" className="text-[9px] px-1 py-0.5 h-auto">
                 {typeof article.category === 'object' && article.category?.name?.en
-                  ? article.category.name.en
-                  : 'Uncategorized'}
+                  ? article.category.name.en.substring(0, 8) + (article.category.name.en.length > 8 ? '...' : '')
+                  : 'Uncat.'}
               </Badge>
               {article.isFeatured && (
-                <Badge variant="secondary" className="text-xs">Featured</Badge>
+                <Badge variant="secondary" className="text-[9px] px-1 py-0.5 h-auto">F</Badge>
               )}
               {article.isBreaking && (
-                <Badge variant="destructive" className="text-xs">Breaking</Badge>
+                <Badge variant="destructive" className="text-[9px] px-1 py-0.5 h-auto">B</Badge>
               )}
             </div>
           </div>
         );
       },
+      minSize: 180,
     },
     {
       accessorKey: "category",
@@ -127,8 +131,8 @@ const NewsTable = ({
           ? article.category.name.en
           : 'Uncategorized';
         return (
-          <Badge variant="outline" className="whitespace-nowrap text-xs">
-            {categoryName}
+          <Badge variant="outline" className="whitespace-nowrap text-[10px] sm:text-xs px-2 py-1">
+            {categoryName.length > 12 ? categoryName.substring(0, 12) + '...' : categoryName}
           </Badge>
         );
       },
@@ -142,6 +146,7 @@ const NewsTable = ({
       meta: {
         className: "hidden sm:table-cell"
       },
+      size: 100,
     },
     {
       accessorKey: "status",
@@ -151,16 +156,19 @@ const NewsTable = ({
       cell: ({ row }) => {
         const article = row.original;
         return (
-          <NewsStatusChanger 
-            articleId={article._id} 
-            currentStatus={article.status} 
-            onStatusChange={onStatusChange} 
-          />
+          <div className="min-w-[80px] sm:min-w-[100px]">
+            <NewsStatusChanger 
+              articleId={article._id} 
+              currentStatus={article.status} 
+              onStatusChange={onStatusChange} 
+            />
+          </div>
         );
       },
       filterFn: (row, id, value) => {
         return row.getValue(id) === value;
       },
+      size: 100,
     },
     {
       accessorKey: "flags",
@@ -168,19 +176,21 @@ const NewsTable = ({
       cell: ({ row }) => {
         const article = row.original;
         return (
-          <div className="flex items-center gap-1 flex-wrap">
+          <div className="flex items-center gap-1 flex-wrap min-w-[60px]">
             {article.isFeatured && (
-              <Badge variant="secondary" className="text-xs">
-                Featured
+              <Badge variant="secondary" className="text-[10px] sm:text-xs px-1 py-0.5">
+                <span className="sm:hidden">F</span>
+                <span className="hidden sm:inline">Featured</span>
               </Badge>
             )}
             {article.isBreaking && (
-              <Badge variant="destructive" className="text-xs">
-                Breaking
+              <Badge variant="destructive" className="text-[10px] sm:text-xs px-1 py-0.5">
+                <span className="sm:hidden">B</span>
+                <span className="hidden sm:inline">Breaking</span>
               </Badge>
             )}
             {!article.isFeatured && !article.isBreaking && (
-              <span className="text-muted-foreground text-sm">—</span>
+              <span className="text-muted-foreground text-xs sm:text-sm">—</span>
             )}
           </div>
         );
@@ -189,6 +199,7 @@ const NewsTable = ({
       meta: {
         className: "hidden sm:table-cell"
       },
+      size: 80,
     },
     {
       accessorKey: "views",
@@ -198,14 +209,15 @@ const NewsTable = ({
       cell: ({ row }) => {
         const views = row.getValue("views") as number;
         return (
-          <div className="text-center font-medium text-sm">
-            {views?.toLocaleString() || 0}
+          <div className="text-center font-medium text-xs sm:text-sm min-w-[50px]">
+            {views ? (views >= 1000 ? `${(views/1000).toFixed(1)}k` : views.toLocaleString()) : 0}
           </div>
         );
       },
       meta: {
         className: "hidden md:table-cell"
       },
+      size: 60,
     },
     {
       accessorKey: "createdAt",
@@ -215,8 +227,8 @@ const NewsTable = ({
       cell: ({ row }) => {
         const date = new Date(row.getValue("createdAt"));
         return (
-          <div className="text-xs sm:text-sm min-w-[80px]">
-            <div>{date.toLocaleDateString()}</div>
+          <div className="text-[10px] sm:text-xs min-w-[70px] sm:min-w-[80px]">
+            <div>{date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}</div>
             <div className="text-muted-foreground hidden sm:block">
               {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </div>
@@ -226,6 +238,7 @@ const NewsTable = ({
       meta: {
         className: "hidden lg:table-cell"
       },
+      size: 80,
     },
     {
       accessorKey: "author",
@@ -239,9 +252,11 @@ const NewsTable = ({
             authorName = article.author.email;
           }
         }
+        // Truncate long emails for better display
+        const displayName = authorName.length > 15 ? authorName.substring(0, 15) + '...' : authorName;
         return (
-          <div className="text-xs sm:text-sm font-medium min-w-[80px]">
-            {authorName}
+          <div className="text-[10px] sm:text-xs font-medium min-w-[60px] sm:min-w-[80px]" title={authorName}>
+            {displayName}
           </div>
         );
       },
@@ -249,6 +264,7 @@ const NewsTable = ({
       meta: {
         className: "hidden xl:table-cell"
       },
+      size: 80,
     },
     {
       id: "actions",
@@ -256,12 +272,12 @@ const NewsTable = ({
       cell: ({ row }) => {
         const article = row.original;
         return (
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-0.5 sm:gap-1 min-w-[60px]">
             <Button
               variant="ghost"
               size="sm"
               asChild
-              className="h-8 w-8 p-0"
+              className="h-6 w-6 sm:h-8 sm:w-8 p-0"
             >
               <Link href={`/en/news/${article.slug || article._id}`} target="_blank">
                 <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -279,6 +295,7 @@ const NewsTable = ({
       },
       enableSorting: false,
       enableHiding: false,
+      size: 60,
     },
   ];
 
@@ -309,15 +326,17 @@ const NewsTable = ({
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={articles}
-      searchPlaceholder="Search articles..."
-      onAdd={onAdd}
-      onExport={onExport}
-      onBulkDelete={onBulkDelete}
-      filterOptions={filterOptions}
-    />
+    <div className="w-full overflow-hidden">
+      <DataTable
+        columns={columns}
+        data={articles}
+        searchPlaceholder="Search articles..."
+        onAdd={onAdd}
+        onExport={onExport}
+        onBulkDelete={onBulkDelete}
+        filterOptions={filterOptions}
+      />
+    </div>
   );
 };
 

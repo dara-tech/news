@@ -7,7 +7,9 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { NewsFormData, Category, ValidationErrors } from "../NewsForm";
-
+import { Button } from "@/components/ui/button";
+import { MdOutlineSmartToy } from "react-icons/md";
+  
 interface NewsFormDetailsTabProps {
   formData: NewsFormData;
   categories: Category[];
@@ -39,7 +41,7 @@ const NewsFormDetailsTab: React.FC<NewsFormDetailsTabProps> = ({
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
           <Select value={typeof formData.category === 'object' && formData.category !== null ? formData.category._id : formData.category || ''} onValueChange={onCategoryChange}>
-            <SelectTrigger id="category" className={validationErrors.category ? "border-red-500" : ""}>
+            <SelectTrigger id="category" className={validationErrors.category ? "border-red-500 w-full" : ""}>
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
             <SelectContent>
@@ -54,22 +56,24 @@ const NewsFormDetailsTab: React.FC<NewsFormDetailsTabProps> = ({
         </div>
         <div className="space-y-2">
           <Label htmlFor="tags">Tags</Label>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
             <Input
               id="tags"
               name="tags"
               value={Array.isArray(formData.tags) ? formData.tags.join(", ") : formData.tags}
               onChange={onTagsChange}
               placeholder="e.g., AI, Startups, Cambodia"
+              className="flex-1"
             />
-            <button
+            <Button
               type="button"
-              className="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800 hover:bg-green-200 disabled:opacity-60"
+              className="inline-flex items-center justify-center px-3 py-1.5 text-xs sm:text-sm font-medium rounded bg-green-100 text-green-800 hover:bg-green-200 disabled:opacity-60 w-full sm:w-auto"
               onClick={onGenerateTags}
               disabled={isGeneratingTags}
             >
+              <MdOutlineSmartToy className="mr-2 text-sm sm:text-base" />
               {isGeneratingTags ? 'Generating...' : 'Generate with AI'}
-            </button>
+            </Button>
           </div>
           <p className="text-xs text-slate-500">Separate tags with commas.</p>
         </div>

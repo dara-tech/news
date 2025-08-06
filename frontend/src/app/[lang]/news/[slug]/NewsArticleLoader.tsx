@@ -47,7 +47,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-4 lg:px-8">
         {/* Back Navigation */}
         <div className="mb-8">
           <Button 

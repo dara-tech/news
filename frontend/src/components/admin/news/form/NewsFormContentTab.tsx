@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import type { NewsFormData } from "../NewsForm"
 import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
+import { MdOutlineSmartToy } from "react-icons/md"
 
 const TiptapEditor = dynamic(() => import("./TiptapEditor"), { ssr: false });
 
@@ -42,21 +44,22 @@ const NewsFormContentTab: React.FC<NewsFormContentTabProps> = ({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <CardTitle>Article Content</CardTitle>
             <CardDescription>
               Write the main body of your article in English and Khmer.
             </CardDescription>
           </div>
-          <button
+          <Button
             type="button"
-            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-60"
+            className="inline-flex items-center justify-center px-3 py-1.5 text-xs sm:text-sm font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-60 w-full sm:w-auto"
             onClick={onGenerateContent}
             disabled={isGenerating}
           >
-            {isGenerating ? "Generating..." : "Generate with AI"}
-          </button>
+            <MdOutlineSmartToy className="mr-2 text-sm sm:text-base" />
+            {isGenerating ? "Generating..." : "Generate Content"}
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
