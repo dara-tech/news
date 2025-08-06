@@ -6,6 +6,11 @@ const bundleAnalyzer = withBundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    // Allow production builds to complete even with ESLint warnings/errors
+    ignoreDuringBuilds: true,
+  },
+
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [

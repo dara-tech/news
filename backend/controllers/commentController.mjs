@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import mongoose from "mongoose";
 import Comment from '../models/Comment.mjs';
 import News from '../models/News.mjs';
+import { checkModerationRequired } from '../middleware/settings.mjs';
 
 // WebSocket instance will be injected
 let commentWebSocket = null;
@@ -41,7 +42,7 @@ const getComments = asyncHandler(async (req, res) => {
       sortObj = { createdAt: -1 };
   }
 
-  // Get top-level comments (no parent)
+  // Get top-level comments (no parent) - only approved for public
   const comments = await Comment.find({
     news: newsId,
     parentComment: null,
@@ -116,26 +117,32 @@ const createComment = asyncHandler(async (req, res) => {
     }
   }
 
-  // Create comment
+  // Check if moderation is required
+  const moderationRequired = await checkModerationRequired();
+  
+  // Create comment with appropriate status
   const comment = await Comment.create({
     user: userId,
     news: newsId,
     content: content.trim(),
-    parentComment: parentCommentId || null
+    parentComment: parentCommentId || null,
+    status: moderationRequired ? 'pending' : 'approved'
   });
 
   // Populate user details
   await comment.populate('user', 'username profileImage avatar');
 
-  // Broadcast real-time update
-  if (commentWebSocket) {
+  // Broadcast real-time update only if approved
+  if (comment.status === 'approved' && commentWebSocket) {
     commentWebSocket.broadcastCommentCreated(newsId, comment);
   }
 
   res.status(201).json({
     success: true,
     data: comment,
-    message: 'Comment created successfully'
+    message: moderationRequired 
+      ? 'Comment submitted for approval' 
+      : 'Comment created successfully'
   });
 });
 

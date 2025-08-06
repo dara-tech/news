@@ -11,11 +11,12 @@ import {
   updateUserProfileImage,
 } from "../controllers/authController.mjs";
 import { protect } from "../middleware/auth.mjs";
+import { registrationMiddleware } from "../middleware/settings.mjs";
 import upload from "../middleware/upload.mjs";
 
 const router = express.Router();
 
-router.route('/register').post(registerUser);
+router.route('/register').post(registrationMiddleware, registerUser);
 router.post('/login', loginUser);
 router.get('/google', googleAuth);
 router.get('/google/callback', googleAuthCallback);

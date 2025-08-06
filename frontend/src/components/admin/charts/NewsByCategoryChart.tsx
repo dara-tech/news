@@ -4,6 +4,7 @@ import React, { useState, useMemo, useCallback, JSX } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, TooltipProps } from 'recharts';
 import { Newspaper, Zap } from 'lucide-react';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import { Card } from '@/components/ui/card';
 
 // --- TYPE DEFINITIONS ---
 interface ChartData {
@@ -76,11 +77,11 @@ export default function NewsByCategoryChart({ data = [] }: NewsByCategoryChartPr
   }, []);
 
   return (
-    <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-xl shadow-md border border-gray-100 font-sans">
+    <Card className="p-3 sm:p-4 lg:p-6 rounded-xl shadow-md font-sans">
       {/* Mobile-optimized Header Section */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 space-y-2 sm:space-y-0">
         <div className="flex-1">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-800">Category Insights</h3>
+          <h3 className="text-lg sm:text-xl font-bold ">Category Insights</h3>
           <p className="text-xs sm:text-sm text-gray-500">Article volume by category</p>
         </div>
         {/* Mobile: Show total articles prominently */}
@@ -170,6 +171,6 @@ export default function NewsByCategoryChart({ data = [] }: NewsByCategoryChartPr
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

@@ -79,6 +79,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let isMounted = true;
     setLoading(true);
 
+    // Initialize user from localStorage immediately (synchronously)
+    const storedUser = localStorage.getItem('userInfo');
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser && parsedUser._id && parsedUser.email) {
+          setUser(parsedUser);
+        }
+      } catch (error) {
+        console.error('Failed to parse stored user data:', error);
+        localStorage.removeItem('userInfo');
+      }
+    }
+
     const verifyUser = async () => {
       try {
         // Check for Google OAuth callback FIRST (before checking public routes)
@@ -136,12 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                              currentPath === '/en' || 
                              currentPath === '/km';
         
-        // Skip further authentication for public routes (but still process OAuth above)
-        if (isPublicRoute) {
-          if (isMounted) setLoading(false);
-          return;
-        }
-
+        // Always check localStorage for stored user, even on public routes
         const storedUser = localStorage.getItem('userInfo');
         if (storedUser) {
           const isSessionValid = await verifyUserSession(storedUser);
@@ -149,6 +158,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (isMounted) setLoading(false);
             return;
           }
+        }
+
+        // For public routes, don't redirect even if no valid session
+        if (isPublicRoute) {
+          if (isMounted) setLoading(false);
+          return;
         }
 
         if (isMounted) setUser(null);

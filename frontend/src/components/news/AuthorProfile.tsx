@@ -17,12 +17,14 @@ import {
   Linkedin,
   Globe,
   Mail,
-  Plus,
-  Minus
+  Award,
+  TrendingUp,
+  Users,
+  Clock
 } from 'lucide-react';
+import FollowButton from '@/components/common/FollowButton';
+import FollowStats from '@/components/common/FollowStats';
 import { format } from 'date-fns';
-
-// Import Next.js Image component for article thumbnails
 import Image from 'next/image';
 
 interface AuthorProfileProps {
@@ -72,7 +74,6 @@ export default function AuthorProfile({
   authorStats: providedStats,
   authorArticles: providedArticles,
 }: AuthorProfileProps) {
-  const [isFollowing, setIsFollowing] = useState(false);
   const [showAllArticles, setShowAllArticles] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [authorStats, setAuthorStats] = useState<AuthorStats>({
@@ -85,7 +86,6 @@ export default function AuthorProfile({
   const [authorArticles, setAuthorArticles] = useState<AuthorArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Debug: Log what we receive in AuthorProfile
   console.log('🔍 AuthorProfile Debug:', {
     author,
     profileImage: author.profileImage,
@@ -95,14 +95,12 @@ export default function AuthorProfile({
     imageError
   });
 
-  // Use provided data or fall back to mock data
   useEffect(() => {
     if (providedStats && providedArticles) {
       setAuthorStats(providedStats);
       setAuthorArticles(providedArticles);
       setIsLoading(false);
     } else {
-      // Fallback to mock data if no real data provided
       setTimeout(() => {
         setAuthorStats({
           totalArticles: 24,
@@ -164,335 +162,298 @@ export default function AuthorProfile({
   const authorName = getAuthorName();
   const displayArticles = showAllArticles ? authorArticles : authorArticles.slice(0, 3);
 
-  const handleFollowToggle = () => {
-    setIsFollowing(!isFollowing);
-    // In real app, make API call to follow/unfollow
-  };
-
   if (isLoading) {
     return (
-      <div className="space-y-4 md:space-y-6 lg:space-y-8 px-4 sm:px-0">
-        {/* Main Author Card Skeleton */}
-        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-black">
-          <div className="p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
-              {/* Profile Section Skeleton */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
-                {/* Avatar Skeleton */}
-                <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse" />
-                
-                {/* Info Skeleton */}
-                <div className="flex-1 space-y-3 sm:space-y-4 min-w-0">
-                  <div>
-                    <div className="h-6 sm:h-8 lg:h-10 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-48 mx-auto sm:mx-0" />
-                    <div className="h-4 sm:h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-full max-w-md mt-2 mx-auto sm:mx-0" />
-                    <div className="h-4 sm:h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-3/4 max-w-sm mt-1 mx-auto sm:mx-0" />
-                  </div>
-                  
-                  {/* Stats Pills Skeleton */}
-                  <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-3 pt-2">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-7 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse w-24" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              
-              {/* Action Buttons Skeleton */}
-              <div className="flex flex-col sm:flex-row lg:flex-col gap-2 sm:gap-3 w-full sm:w-auto">
-                <div className="h-9 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-full sm:w-28 lg:w-32" />
-                <div className="h-9 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-full sm:w-28 lg:w-32" />
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Hero Section Skeleton */}
+        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-8">
+          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+            <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+            <div className="flex-1 text-center lg:text-left space-y-4">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-64 mx-auto lg:mx-0" />
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-full max-w-md mx-auto lg:mx-0" />
+              <div className="flex flex-wrap justify-center lg:justify-start gap-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse w-24" />
+                ))}
               </div>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Stats Grid Skeleton */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-black">
-              <CardContent className="p-4 sm:p-6 text-center">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 dark:bg-gray-800 rounded-xl mx-auto mb-2 sm:mb-3 animate-pulse" />
-                <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-12 mx-auto mb-1" />
-                <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-16 mx-auto" />
-              </CardContent>
-            </Card>
+            <div key={i} className="bg-white dark:bg-black rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-xl mx-auto mb-4 animate-pulse" />
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16 mx-auto mb-2" />
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-20 mx-auto" />
+            </div>
           ))}
         </div>
 
-        {/* Articles Section Skeleton */}
-        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-black">
-          <CardHeader className="p-4 sm:p-6">
-            <div className="h-5 sm:h-6 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-48" />
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
-            <div className="space-y-3 sm:space-y-4">
+        {/* Content Tabs Skeleton */}
+        <div className="bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-48" />
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black">
-                  <div className="flex gap-3 sm:gap-4">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
-                    <div className="flex-1 min-w-0">
-                      <div className="h-4 sm:h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-full mb-2" />
-                      <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-3/4 mb-2" />
-                      <div className="flex gap-3 sm:gap-4">
-                        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-12" />
-                        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-12" />
-                        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-12" />
-                      </div>
+                <div key={i} className="flex gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-full" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4" />
+                    <div className="flex gap-4">
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16" />
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16" />
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16" />
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 lg:space-y-8 px-4 sm:px-0">
-      {/* Modern Clean Author Card */}
-      <Card className="relative overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-black">
-        {/* Clean Header Section - No Background */}
-        <div className="relative p-6 sm:p-8">
-          {/* Role Badge - Mobile Top Right */}
-          {author?.role && (
-            <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
-              <Badge 
-                className={`
-                  px-3 py-1.5 text-xs sm:text-sm font-semibold shadow-md border-0
-                  ${author.role === 'admin' ? 'bg-red-500 text-white' : ''}
-                  ${author.role === 'editor' ? 'bg-blue-500 text-white' : ''}
-                  ${author.role === 'user' ? 'bg-green-500 text-white' : ''}
-                `}
-              >
-                {author.role.charAt(0).toUpperCase() + author.role.slice(1)}
-              </Badge>
-            </div>
-          )}
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-8 overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-black dark:bg-white rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-black dark:bg-white rounded-full translate-y-12 -translate-x-12"></div>
         </div>
         
-        <CardHeader className="relative p-6 sm:p-8 -mt-6 sm:-mt-8">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
-            {/* Profile Section - Mobile Centered, Desktop Left */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
-              {/* Modern Avatar */}
-              <div className="relative group">
-                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 border-4 border-white dark:border-gray-900 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105 bg-white dark:bg-gray-800">
-                  <AvatarImage 
-                    src={author.profileImage || author.avatar} 
-                    alt={authorName}
-                    className="object-contain"
-                    onError={() => {
-                      console.log('🚨 Avatar image failed to load:', author.profileImage || author.avatar);
-                      setImageError(true);
-                    }}
-                  />
-                  <AvatarFallback className="bg-black text-white text-xl sm:text-2xl lg:text-3xl font-bold">
-                    {authorName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                {/* Status Indicator */}
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full border-3 border-white dark:border-gray-900 shadow-lg"></div>
-              </div>
+        <div className="relative flex flex-col lg:flex-row items-center lg:items-start gap-8">
+          {/* Avatar Section */}
+          <div className="relative group">
+            <div className="relative">
+              <Avatar className="w-32 h-32 border-4 border-white dark:border-gray-800 shadow-2xl">
+                <AvatarImage 
+                  src={author.profileImage || author.avatar} 
+                  alt={authorName}
+                  className="object-cover"
+                  onError={() => {
+                    console.log('🚨 Avatar image failed to load:', author.profileImage || author.avatar);
+                    setImageError(true);
+                  }}
+                />
+                <AvatarFallback className="bg-black text-white text-4xl font-bold">
+                  {authorName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               
-              {/* Author Info - Responsive */}
-              <div className="flex-1 space-y-3 sm:space-y-4 min-w-0">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                    {authorName}
-                  </h1>
-                  <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-none sm:max-w-2xl">
-                    📝 Experienced content creator and storyteller passionate about delivering engaging insights to readers. Bringing ideas to life through compelling narratives and thought-provoking content.
-                  </p>
+              {/* Status Indicator */}
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white dark:border-gray-800 shadow-lg"></div>
+              
+              {/* Role Badge */}
+              {author?.role && (
+                <div className="absolute -top-2 -right-2">
+                  <Badge 
+                    className={`
+                      px-3 py-1 text-xs font-bold shadow-lg border-0
+                      ${author.role === 'admin' ? 'bg-red-500 text-white' : ''}
+                      ${author.role === 'editor' ? 'bg-blue-500 text-white' : ''}
+                      ${author.role === 'user' ? 'bg-green-500 text-white' : ''}
+                    `}
+                  >
+                    {author.role.charAt(0).toUpperCase() + author.role.slice(1)}
+                  </Badge>
                 </div>
-                
-                {/* Quick Stats Pills - Clean Design */}
-                <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-3 pt-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg text-xs sm:text-sm bg-white dark:bg-black">
-                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      Joined {format(authorStats.joinDate, 'MMM yyyy')}
-                    </span>
-                  </div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg text-xs sm:text-sm bg-white dark:bg-black">
-                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 dark:text-green-400" />
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      {authorStats.totalArticles} articles
-                    </span>
-                  </div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg text-xs sm:text-sm bg-white dark:bg-black">
-                    <Eye className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 dark:text-purple-400" />
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      {authorStats.totalViews.toLocaleString()} views
-                    </span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
-            
-            {/* Action Buttons - Mobile Full Width, Desktop Compact */}
-            <div className="flex flex-col sm:flex-row lg:flex-col gap-2 sm:gap-3 w-full sm:w-auto">
-              <Button
-                onClick={handleFollowToggle}
-                variant={isFollowing ? "outline" : "default"}
+          </div>
+          
+          {/* Author Info */}
+          <div className="flex-1 text-center lg:text-left space-y-6">
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-3 justify-between ">
+                <div className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-3">
+                  {authorName}
+                </div>
+                 {/* Action Buttons */}
+                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+              <FollowButton
+                userId={author._id}
                 size="sm"
-                className={`
-                  w-full sm:w-auto sm:min-w-[120px] lg:min-w-[140px] font-semibold transition-all duration-300 group text-sm sm:text-base
-                  ${isFollowing 
-                    ? 'border-red-300 text-red-600 hover:bg-gray-100 dark:border-red-600 dark:text-red-400 dark:hover:bg-gray-900' 
-                    : 'bg-black hover:bg-gray-900 text-white shadow-md hover:shadow-lg'
-                  }
-                `}
-              >
-                {isFollowing ? (
-                  <>
-                    <Minus className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 group-hover:scale-110 transition-transform" />
-                    Unfollow
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 group-hover:scale-110 transition-transform" />
-                    Follow
-                  </>
-                )}
-              </Button>
-              
+                className="px-8 py-3 text-base font-semibold bg-black hover:bg-gray-900 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              />
               <Button 
                 variant="outline" 
                 size="sm"
-                className="w-full sm:w-auto sm:min-w-[120px] lg:min-w-[140px] border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 transition-all duration-300 group text-sm sm:text-base bg-white dark:bg-black"
+                className="px-8 py-3 text-base border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 transition-all duration-300"
               >
-                <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 group-hover:scale-110 transition-transform" />
-                Contact
+                <Mail className="w-4 h-4 mr-2" />
+                Contact Author
               </Button>
             </div>
-          </div>
-        </CardHeader>
-      </Card>
 
-      {/* Modern Stats Grid - Responsive */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer bg-white dark:bg-black">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-xl mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">
-              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                
+              
+              </div>
+              
+              
+              {/* Quick Stats */}
+              <div className="flex flex-wrap justify-center lg:justify-start gap-3">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-black rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Joined {format(authorStats.joinDate, 'MMM yyyy')}
+                  </span>
+                </div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-black rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <Award className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {authorStats.totalArticles} articles
+                  </span>
+                </div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-black rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {authorStats.totalViews.toLocaleString()} views
+                  </span>
+                </div>
+              </div>
+              
+              {/* Follow Stats */}
+              <FollowStats userId={author._id} className="pt-2" showDetails={true} />
             </div>
-            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+            
+           
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer">
+          <CardContent className="p-6 text-center">
+            <div className="flex items-center justify-center w-14 h-14 bg-blue-500 rounded-2xl mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+              <FileText className="w-7 h-7 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
               {authorStats.totalArticles}
             </div>
-            <div className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Articles</div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Articles Published</div>
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer bg-white dark:bg-black">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-emerald-500 rounded-xl mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">
-              <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer">
+          <CardContent className="p-6 text-center">
+            <div className="flex items-center justify-center w-14 h-14 bg-emerald-500 rounded-2xl mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+              <Eye className="w-7 h-7 text-white" />
             </div>
-            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+            <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">
               {authorStats.totalViews.toLocaleString()}
             </div>
-            <div className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Views</div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Views</div>
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer bg-white dark:bg-black">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-rose-500 rounded-xl mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">
-              <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer">
+          <CardContent className="p-6 text-center">
+            <div className="flex items-center justify-center w-14 h-14 bg-rose-500 rounded-2xl mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+              <Heart className="w-7 h-7 text-white" />
             </div>
-            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-rose-600 dark:text-rose-400 mb-1">
+            <div className="text-3xl font-bold text-rose-600 dark:text-rose-400 mb-2">
               {authorStats.totalLikes.toLocaleString()}
             </div>
-            <div className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Likes</div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Likes</div>
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer bg-white dark:bg-black">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-violet-500 rounded-xl mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">
-              <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer">
+          <CardContent className="p-6 text-center">
+            <div className="flex items-center justify-center w-14 h-14 bg-violet-500 rounded-2xl mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+              <MessageCircle className="w-7 h-7 text-white" />
             </div>
-            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-violet-600 dark:text-violet-400 mb-1">
+            <div className="text-3xl font-bold text-violet-600 dark:text-violet-400 mb-2">
               {authorStats.totalComments.toLocaleString()}
             </div>
-            <div className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Comments</div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Comments</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Author's Articles - Mobile Optimized */}
-      <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-black">
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="text-base sm:text-lg">Recent Articles by {authorName}</span>
+      {/* Content Tabs */}
+      <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm">
+        <CardHeader className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <CardTitle className="flex items-center gap-3 text-2xl">
+            <FileText className="w-6 h-6" />
+            <span>Articles by {authorName}</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
+        <CardContent className="p-6">
           <Tabs defaultValue="recent" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10 bg-white dark:bg-black">
-              <TabsTrigger value="recent" className="text-xs sm:text-sm">Recent</TabsTrigger>
-              <TabsTrigger value="popular" className="text-xs sm:text-sm">Popular</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 h-12 bg-gray-100 dark:bg-gray-800">
+              <TabsTrigger value="recent" className="text-sm font-medium">Recent Articles</TabsTrigger>
+              <TabsTrigger value="popular" className="text-sm font-medium">Popular Articles</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="recent" className="space-y-3 sm:space-y-4">
-              <div className="grid gap-3 sm:gap-4">
+            <TabsContent value="recent" className="space-y-4 mt-6">
+              <div className="grid gap-4">
                 {displayArticles.map((article) => (
                   <div
                     key={article._id}
-                    className={`p-3 sm:p-4 border rounded-lg transition-all duration-200 hover:shadow-md ${
+                    className={`p-6 border rounded-xl transition-all duration-300 hover:shadow-lg ${
                       article._id === currentArticleId
-                        ? 'border-black bg-gray-100 dark:bg-gray-900'
+                        ? 'border-black bg-gray-50 dark:bg-gray-900'
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-black'
                     }`}
                   >
-                    <div className="flex gap-3 sm:gap-4">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0 bg-white dark:bg-black">
+                    <div className="flex gap-6">
+                      <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
                         <Image
                           src={article.thumbnail || '/placeholder.jpg'}
                           alt={getLocalizedString(article.title)}
-                          width={80}
-                          height={80}
+                          width={96}
+                          height={96}
                           className="object-cover w-full h-full"
                         />
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white line-clamp-2">
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-2">
                             {getLocalizedString(article.title)}
                           </h3>
                           {article._id === currentArticleId && (
-                            <Badge variant="secondary" className="ml-2 text-xs">
-                              Current
+                            <Badge variant="secondary" className="ml-3 text-xs">
+                              Current Article
                             </Badge>
                           )}
                         </div>
                         
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
-                          <span>{format(new Date(article.createdAt), 'MMM d, yyyy')}</span>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            <span>{format(new Date(article.createdAt), 'MMM d, yyyy')}</span>
+                          </div>
                           {article.category && (
-                            <Badge variant="outline" className="text-xs w-fit bg-white dark:bg-black">
+                            <Badge variant="outline" className="text-xs w-fit">
                               {article.category}
                             </Badge>
                           )}
                         </div>
                         
-                        <div className="flex items-center gap-3 sm:gap-4 text-xs text-gray-500 dark:text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Eye className="w-3 h-3" />
-                            <span className="text-xs">{article.views.toLocaleString()}</span>
+                        <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-500">
+                          <div className="flex items-center gap-2">
+                            <Eye className="w-4 h-4" />
+                            <span className="font-medium">{article.views.toLocaleString()}</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Heart className="w-3 h-3" />
-                            <span className="text-xs">{article.likes.toLocaleString()}</span>
+                          <div className="flex items-center gap-2">
+                            <Heart className="w-4 h-4" />
+                            <span className="font-medium">{article.likes.toLocaleString()}</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <MessageCircle className="w-3 h-3" />
-                            <span className="text-xs">{article.comments.toLocaleString()}</span>
+                          <div className="flex items-center gap-2">
+                            <MessageCircle className="w-4 h-4" />
+                            <span className="font-medium">{article.comments.toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
@@ -502,54 +463,55 @@ export default function AuthorProfile({
               </div>
               
               {authorArticles.length > 3 && (
-                <div className="text-center pt-3 sm:pt-4">
+                <div className="text-center pt-6">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="lg"
                     onClick={() => setShowAllArticles(!showAllArticles)}
-                    className="text-xs sm:text-sm bg-white dark:bg-black"
+                    className="px-8 py-3 text-base"
                   >
-                    {showAllArticles ? 'Show Less' : `Show All ${authorArticles.length} Articles`}
+                    {showAllArticles ? 'Show Less' : `View All ${authorArticles.length} Articles`}
                   </Button>
                 </div>
               )}
             </TabsContent>
             
-            <TabsContent value="popular" className="space-y-4">
-              <div className="text-center py-6 sm:py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-black rounded-lg">
-                <FileText className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 opacity-50" />
-                <p className="text-sm sm:text-base">Popular articles will be displayed here</p>
+            <TabsContent value="popular" className="space-y-4 mt-6">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg">Popular articles will be displayed here</p>
+                <p className="text-sm mt-2">Coming soon...</p>
               </div>
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
 
-      {/* Social Links - Mobile Optimized */}
-      <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-black">
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="text-base sm:text-lg">Connect with {authorName}</span>
+      {/* Social Connections */}
+      <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm">
+        <CardHeader className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <CardTitle className="flex items-center gap-3 text-2xl">
+            <Share2 className="w-6 h-6" />
+            <span>Connect with {authorName}</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
-            <Button variant="outline" size="sm" className="flex items-center justify-center gap-2 text-xs sm:text-sm bg-white dark:bg-black">
-              <Twitter className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Twitter</span>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Button variant="outline" size="lg" className="flex items-center justify-center gap-3 p-6 h-auto">
+              <Twitter className="w-5 h-5" />
+              <span className="font-medium">Twitter</span>
             </Button>
-            <Button variant="outline" size="sm" className="flex items-center justify-center gap-2 text-xs sm:text-sm bg-white dark:bg-black">
-              <Linkedin className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">LinkedIn</span>
+            <Button variant="outline" size="lg" className="flex items-center justify-center gap-3 p-6 h-auto">
+              <Linkedin className="w-5 h-5" />
+              <span className="font-medium">LinkedIn</span>
             </Button>
-            <Button variant="outline" size="sm" className="flex items-center justify-center gap-2 text-xs sm:text-sm bg-white dark:bg-black">
-              <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Website</span>
+            <Button variant="outline" size="lg" className="flex items-center justify-center gap-3 p-6 h-auto">
+              <Globe className="w-5 h-5" />
+              <span className="font-medium">Website</span>
             </Button>
-            <Button variant="outline" size="sm" className="flex items-center justify-center gap-2 text-xs sm:text-sm bg-white dark:bg-black">
-              <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Email</span>
+            <Button variant="outline" size="lg" className="flex items-center justify-center gap-3 p-6 h-auto">
+              <Mail className="w-5 h-5" />
+              <span className="font-medium">Email</span>
             </Button>
           </div>
         </CardContent>

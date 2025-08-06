@@ -1,6 +1,24 @@
 {
-  "watch": ["./"],
-  "ext": "js,json",
-  "ignore": ["node_modules/", "cookie.txt"],
+  "watch": ["server.mjs", "routes/", "controllers/", "models/", "middleware/", "config/", "utils/"],
+  "ext": "js,json,mjs",
+  "ignore": [
+    "node_modules/", 
+    "cookies.txt",
+    "test-*.mjs",
+    "debug-*.mjs",
+    "check-*.mjs",
+    "disable-*.mjs",
+    "clear-*.mjs",
+    "generate-*.mjs",
+    "initialize-*.mjs",
+    "list-*.mjs",
+    "create-*.mjs",
+    "migration.mjs",
+    "seeder.js",
+    "update-*.js",
+    "quick-*.mjs",
+    "dev-*.mjs",
+    "analytics-data.json"
+  ],
   "exec": "node server.mjs"
 }

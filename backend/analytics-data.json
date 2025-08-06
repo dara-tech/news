@@ -1,0 +1,158 @@
+{
+  "pageViews": {
+    "/news/breaking": 290,
+    "/news": 324,
+    "/news/featured": 293,
+    "/categories": 603,
+    "/notifications/count": 1598,
+    "/dashboard/advanced-stats": 360,
+    "/maintenance-status": 155,
+    "/auth/login": 20,
+    "/auth/profile": 253,
+    "/notifications": 254,
+    "/dashboard/stats": 821,
+    "/admin/settings/audit": 14,
+    "/admin/settings/integrations": 4,
+    "/admin/settings/security": 7,
+    "/admin/security/stats": 7,
+    "/admin/settings/general": 4,
+    "/dashboard/analytics": 72,
+    "/admin/system/metrics": 36,
+    "/dashboard/export": 2,
+    "/admin/user-logins/map": 387,
+    "/auth/google": 9,
+    "/auth/google/callback": 2,
+    "/admin/user-login": 2,
+    "/test-map": 2,
+    "/test-simple": 51,
+    "/dashboard/user-logins/map": 3,
+    "/news/admin": 4,
+    "/health": 1,
+    "/new": 1,
+    "/admin/likes": 11,
+    "/admin/comments": 11,
+    "/admin/activity": 7,
+    "/admin/activity/security": 7,
+    "/admin/activity/stats": 7,
+    "/admin/activity/export": 1,
+    "/admin/roles/permissions": 3,
+    "/admin/roles": 3,
+    "/admin/roles/stats": 3,
+    "/users": 2,
+    "/auth/profile/image": 2,
+    "/news/is-cambodia-really-the-oldest-country": 28,
+    "/likes/688f3745270d0fd8b27db112/status": 15,
+    "/comments/688f3745270d0fd8b27db112": 16,
+    "/comments/688f3745270d0fd8b27db112/stats": 15,
+    "/likes/688f3745270d0fd8b27db112/toggle": 2,
+    "/admin/user-logins/export": 1,
+    "/follows/507f1f77bcf86cd799439011/followers/count": 2,
+    "/follows/507f1f77bcf86cd799439011/following/count": 2,
+    "/follows/507f1f77bcf86cd799439011/check": 2,
+    "/news/author/687362dbfcd8692cef0917df": 12,
+    "/follows/687362dbfcd8692cef0917df/followers/count": 15,
+    "/follows/687362dbfcd8692cef0917df/following/count": 11,
+    "/follows/687362dbfcd8692cef0917df/check": 8,
+    "/follows/687362dbfcd8692cef0917df/toggle": 2,
+    "/follows/687362dbfcd8692cef0917df/followers": 9,
+    "/follows/687362dbfcd8692cef0917df/following": 9,
+    "/news/author/6883582d3572b0a8c26cca57": 16,
+    "/follows/6883582d3572b0a8c26cca57/followers/count": 37,
+    "/follows/6883582d3572b0a8c26cca57/following/count": 37,
+    "/follows/6883582d3572b0a8c26cca57/check": 35,
+    "/follows/6883582d3572b0a8c26cca57/following": 25,
+    "/follows/6883582d3572b0a8c26cca57/followers": 25,
+    "/news/author/undefined": 1,
+    "/follows/6883582d3572b0a8c26cca57/toggle": 2,
+    "/categories/slug/education": 2,
+    "/news/category/education": 2,
+    "/admin/follows": 10,
+    "/admin/follows/6891565b652d8cab7571bc60": 3,
+    "/user/activity": 2,
+    "/user/activity/stats": 1,
+    "/news/category/business": 3,
+    "/news/category/entertainment": 1,
+    "/categories/slug/business": 2,
+    "/admin/settings/logo": 160,
+    "/admin/settings/logo/preview": 41,
+    "/admin/settings/logo/generate": 1,
+    "/admin/settings/logo/upload": 3,
+    "/news/information-war-navigating-the-complex-landscape-of-disinformation": 8,
+    "/news/author/6886733416315db847ca5e74": 1,
+    "/follows/6886733416315db847ca5e74/check": 1,
+    "/follows/6886733416315db847ca5e74/followers/count": 1,
+    "/follows/6886733416315db847ca5e74/following/count": 1,
+    "/follows/6886733416315db847ca5e74/followers": 1,
+    "/follows/6886733416315db847ca5e74/following": 1,
+    "/admin/settings/logo/versions": 7,
+    "/admin/settings/logo/analytics": 7,
+    "/admin/settings/logo/optimize": 1,
+    "/admin/settings/logo/export": 1
+  },
+  "userActions": {},
+  "dailyStats": {
+    "2025-08-03": {
+      "pageViews": 1247,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 159,
+        "Referral": 1088
+      },
+      "deviceTypes": {
+        "Desktop": 1247
+      }
+    },
+    "2025-08-04": {
+      "pageViews": 2627,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 702,
+        "Referral": 1925
+      },
+      "deviceTypes": {
+        "Desktop": 2627
+      }
+    },
+    "2025-08-05": {
+      "pageViews": 1948,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 464,
+        "Referral": 1484
+      },
+      "deviceTypes": {
+        "Desktop": 1948
+      }
+    },
+    "2025-08-06": {
+      "pageViews": 402,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 65,
+        "Referral": 337
+      },
+      "deviceTypes": {
+        "Desktop": 402
+      }
+    }
+  },
+  "trafficSources": {
+    "Direct": 1390,
+    "Referral": 4834
+  },
+  "deviceTypes": {
+    "Desktop": 6224
+  }
+}

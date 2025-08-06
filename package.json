@@ -1,4 +1,14 @@
 {
+  "name": "news-app-tests",
+  "version": "1.0.0",
+  "description": "Test suite for news application site features",
+  "type": "module",
+  "scripts": {
+    "test:health": "node test-backend-health.mjs",
+    "test:manual": "node test-manual-features.mjs",
+    "test:full": "node test-site-features.mjs",
+    "test:all": "npm run test:health && npm run test:manual"
+  },
   "dependencies": {
     "@tiptap/extension-blockquote": "^3.0.7",
     "@tiptap/extension-link": "^3.0.7",

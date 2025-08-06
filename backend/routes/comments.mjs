@@ -8,6 +8,7 @@ import {
   getCommentStats
 } from '../controllers/commentController.mjs';
 import { protect } from '../middleware/auth.mjs';
+import { commentsMiddleware } from '../middleware/settings.mjs';
 
 const router = express.Router();
 
@@ -19,9 +20,9 @@ router.get('/:newsId/stats', getCommentStats);
 router.use(protect);
 
 // Comment management
-router.post('/:newsId', createComment);
-router.put('/:commentId', updateComment);
+router.post('/:newsId', commentsMiddleware, createComment);
+router.put('/:commentId', commentsMiddleware, updateComment);
 router.delete('/:commentId', deleteComment);
-router.post('/:commentId/like', toggleCommentLike);
+router.post('/:commentId/like', commentsMiddleware, toggleCommentLike);
 
 export default router; 

@@ -1,7 +1,7 @@
 import api from '@/lib/api';
 import { Article, Category } from '@/types';
+import MaintenanceCheck from '@/components/MaintenanceCheck';
 import HomePage from '@/components/home/HomePage';
-import ErrorDisplay from '@/components/common/ErrorDisplay';
 
 interface HomeProps {
   params: Promise<{ lang: 'en' | 'km' }>;
@@ -15,47 +15,56 @@ interface NewsData {
 
 async function getNewsData(lang: 'en' | 'km'): Promise<NewsData> {
   try {
+    console.log('Fetching news data for lang:', lang);
     const [breakingRes, featuredRes, latestRes] = await Promise.all([
       api.get('/news/breaking', { params: { lang } }),
       api.get('/news/featured', { params: { lang } }),
       api.get('/news', { params: { lang } }),
     ]);
 
+    console.log('Breaking news response:', breakingRes);
+    console.log('Featured news response:', featuredRes);
+    console.log('Latest news response:', latestRes);
+
     return {
       breaking: breakingRes.data?.data || breakingRes.data || [],
       featured: featuredRes.data?.data || featuredRes.data || [],
       latest: latestRes.data?.news || latestRes.data?.data || latestRes.data || [],
     };
-  } catch {
+  } catch (error) {
+    console.error('Error fetching news data:', error);
     throw new Error('Could not load news. Please try refreshing the page.');
   }
 }
 
 async function getCategories(): Promise<Category[]> {
   try {
-    const response = await api.get('/categories');
+    console.log('Fetching categories...');
+    const response = await api.get('/categories', { timeout: 15000 });
+    console.log('Categories response:', response);
     return response.data?.data || response.data || [];
-  } catch {
+  } catch (error) {
+    console.error('Error fetching categories:', error);
     return [];
   }
 }
 
 export default async function Home({ params }: HomeProps) {
-  const { lang } = await params;
+  console.log('Home page: component rendering');
+  
+  const resolvedParams = await params;
+  const [newsData, categories] = await Promise.all([
+    getNewsData(resolvedParams.lang),
+    getCategories()
+  ]);
 
-  try {
-    const [newsData, categories] = await Promise.all([
-      getNewsData(lang),
-      getCategories(),
-    ]);
-    
-    return <HomePage lang={lang} newsData={newsData} categories={categories} />;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'An unknown error occurred.';
-    return (
-      <div className="container mx-auto py-12">
-        <ErrorDisplay message={message} />
-      </div>
-    );
-  }
+  return (
+    <MaintenanceCheck>
+      <HomePage 
+        lang={resolvedParams.lang}
+        newsData={newsData}
+        categories={categories}
+      />
+    </MaintenanceCheck>
+  );
 }

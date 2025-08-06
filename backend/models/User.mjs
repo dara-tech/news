@@ -42,6 +42,24 @@ const userSchema = new mongoose.Schema(
       enum: ['user', 'editor', 'admin'],
       default: 'user',
     },
+    lastLogin: {
+      type: Date,
+      default: null,
+    },
+    lastLogout: {
+      type: Date,
+      default: null,
+    },
+    sessions: {
+      invalidated: {
+        type: Boolean,
+        default: false,
+      },
+      lastInvalidation: {
+        type: Date,
+        default: null,
+      },
+    },
   },
   {
     timestamps: true,
@@ -73,6 +91,44 @@ userSchema.methods.getSignedJwtToken = function () {
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
+// Virtual for followers count
+userSchema.virtual('followersCount', {
+  ref: 'Follow',
+  localField: '_id',
+  foreignField: 'following',
+  count: true
+});
+
+// Virtual for following count
+userSchema.virtual('followingCount', {
+  ref: 'Follow',
+  localField: '_id',
+  foreignField: 'follower',
+  count: true
+});
+
+// Virtual for followers
+userSchema.virtual('followers', {
+  ref: 'Follow',
+  localField: '_id',
+  foreignField: 'following',
+  populate: {
+    path: 'follower',
+    select: 'username profileImage'
+  }
+});
+
+// Virtual for following
+userSchema.virtual('following', {
+  ref: 'Follow',
+  localField: '_id',
+  foreignField: 'follower',
+  populate: {
+    path: 'following',
+    select: 'username profileImage'
+  }
+});
 
 const User = mongoose.model('User', userSchema);
 

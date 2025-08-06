@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Loader2, CheckCircle2, AlertTriangle, Plus } from 'lucide-react';
 import CategoryForm, { CategoryData, BilingualText } from '@/components/admin/categories/CategoryForm';
 import { toast } from 'sonner';
 import api from '@/lib/api';
@@ -57,12 +57,15 @@ export default function CreateCategoryClientPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-2xl">
+    <div className="container mx-auto py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Category</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Plus className="w-8 h-8 text-blue-600" />
+            Create New Category
+          </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Add a new news category to organize your articles.
+            Add a new news category to organize your articles with bilingual support.
           </p>
         </div>
         <Button
@@ -72,46 +75,52 @@ export default function CreateCategoryClientPage() {
         >
           <Link href={`/${lang}/admin/categories`}>
             <ArrowLeft className="w-4 h-4" />
-            Back
+            Back to Categories
           </Link>
         </Button>
       </div>
 
-      <Card className="shadow-lg border border-muted-foreground/10">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Badge variant="secondary" className="rounded-full px-2 py-1 text-xs font-semibold">
-              New
-            </Badge>
-            Category Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CategoryForm
-            onSubmit={handleSubmit}
-            isLoading={isSubmitting}
-            isEditing={false}
-          />
-          {isSubmitting && (
-            <div className="flex items-center gap-2 mt-6 text-primary">
-              <Loader2 className="animate-spin w-5 h-5" />
-              <span>Creating category...</span>
-            </div>
-          )}
-          {success && (
-            <div className="flex items-center gap-2 mt-6 text-green-600 dark:text-green-400">
+      {/* Success/Error Messages */}
+      {success && (
+        <Card className="mb-6 border-green-200 bg-green-50 dark:bg-green-900/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
               <CheckCircle2 className="w-5 h-5" />
               <span>Category created successfully! Redirecting...</span>
             </div>
-          )}
-          {error && (
-            <div className="flex items-center gap-2 mt-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-              <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
-              <p className="text-red-600 dark:text-red-400">{error}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {error && (
+        <Card className="mb-6 border-red-200 bg-red-50 dark:bg-red-900/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
+              <AlertTriangle className="w-5 h-5" />
+              <span>{error}</span>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Loading State */}
+      {isSubmitting && (
+        <Card className="mb-6 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Creating category...</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Category Form */}
+      <CategoryForm
+        onSubmit={handleSubmit}
+        isLoading={isSubmitting}
+        isEditing={false}
+      />
     </div>
   );
 }

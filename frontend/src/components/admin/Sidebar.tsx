@@ -11,8 +11,13 @@ import {
   Home,
   ChevronRight,
   MoreHorizontal,
+  Shield,
+  Activity,
+  Heart,
+  MessageSquare,
+  Palette,
 } from 'lucide-react';
-
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -93,14 +98,37 @@ const data = {
           title: 'All Users',
           url: '/admin/users',
         },
-        // {
-        //   title: 'User Roles',
-        //   url: '/admin/users/roles',
-        // },
-        // {
-        //   title: 'Permissions',
-        //   url: '/admin/users/permissions',
-        // },
+        {
+          title: 'User Roles',
+          url: '/admin/users/roles',
+          icon: Shield,
+        },
+        {
+          title: 'Activity Logs',
+          url: '/admin/activity',
+          icon: Activity,
+        },
+      ],
+    },
+    {
+      title: 'Engagements',
+      icon: Heart,
+      items: [
+        {
+          title: 'Likes',
+          url: '/admin/likes',
+          icon: Heart,
+        },
+        {
+          title: 'Comments',
+          url: '/admin/comments',
+          icon: MessageSquare,
+        },
+        {
+          title: 'Follows',
+          url: '/admin/follows',
+          icon: Users,
+        },
       ],
     },
     {
@@ -112,12 +140,21 @@ const data = {
           url: '/admin/settings/general',
         },
         {
+          title: 'Logo Management',
+          url: '/admin/settings/logo',
+          icon: Palette,
+        },
+        {
           title: 'Security',
           url: '/admin/settings/security',
         },
         {
           title: 'Integrations',
           url: '/admin/settings/integrations',
+        },
+        {
+          title: 'Audit Log',
+          url: '/admin/settings/audit',
         },
       ],
     },
@@ -195,6 +232,10 @@ export default function AdminSidebar() {
                                 isActive={isPathActive(subItem.url)}
                               >
                                 <Link href={getFullHref(subItem.url)}>
+                                  {(() => {
+                                    const Icon = (subItem as { icon?: React.ComponentType<{ className?: string }> }).icon;
+                                    return Icon ? <Icon className="h-4 w-4" /> : null;
+                                  })()}
                                   <span>{subItem.title}</span>
                                 </Link>
                               </SidebarMenuSubButton>
@@ -305,10 +346,13 @@ export function AdminSidebarProvider({ children }: { children: React.ReactNode }
         <AdminSidebar />
         <main className="flex-1 flex flex-col min-w-0">
           {/* Mobile-optimized header */}
-          <div className="flex h-14 sm:h-16 shrink-0 items-center gap-2 border-b bg-background px-3 sm:px-4">
-            <SidebarTrigger className="-ml-1 h-8 w-8 sm:h-auto sm:w-auto" />
-            <div className="h-4 w-px bg-sidebar-border hidden sm:block" />
-            <h1 className="text-base sm:text-lg font-semibold truncate">Admin Dashboard</h1>
+          <div className="flex h-14 sm:h-16 shrink-0 items-center justify-between gap-2 border-b bg-background px-3 sm:px-4">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="-ml-1 h-8 w-8 sm:h-auto sm:w-auto" />
+              <div className="h-4 w-px bg-sidebar-border hidden sm:block" />
+              <h1 className="text-base sm:text-lg font-semibold truncate">Admin Dashboard</h1>
+            </div>
+            <ThemeToggle />
           </div>
           {/* Mobile-optimized content area */}
           <div className="flex-1 overflow-auto bg-muted/10 p-3 sm:p-4 lg:p-6">

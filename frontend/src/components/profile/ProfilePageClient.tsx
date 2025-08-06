@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { isAxiosError } from 'axios';
 import api from '@/lib/api';
-import { User as UserIcon, Shield, Settings } from 'lucide-react';
+import { User as UserIcon, Shield, Settings, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { User } from '@/types';
@@ -31,7 +31,7 @@ type PasswordFormData = {
 export default function ProfilePageClient({ initialUser }: ProfilePageClientProps) {
   const { user: authUser, updateUser } = useAuth();
   const [user, setUser] = useState<User | null>(initialUser || authUser);
-  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'activity'>('profile');
   const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
   const [isImageUploading, setIsImageUploading] = useState(false);
@@ -126,6 +126,7 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
   const tabs = [
     { id: 'profile', label: 'Profile', Icon: UserIcon },
     { id: 'security', label: 'Security', Icon: Shield },
+    { id: 'activity', label: 'Activity', Icon: Activity },
   ];
 
   return (
@@ -190,6 +191,24 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
             )}
             {activeTab === 'security' && (
               <SecuritySettings onPasswordSubmit={onPasswordSubmit} isSubmitting={isPasswordSubmitting} />
+            )}
+            {activeTab === 'activity' && (
+              <div className="space-y-6">
+                <div className="text-center py-8">
+                  <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Activity History</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    View your account activity and track your interactions
+                  </p>
+                  <a
+                    href="/profile/activity"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Activity className="h-4 w-4" />
+                    View My Activity
+                  </a>
+                </div>
+              </div>
             )}
           </div>
         </div>

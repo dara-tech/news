@@ -100,7 +100,6 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
             </div>
             <div className="h-6 w-px bg-border" />
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Sparkles className="w-4 h-4" />
               <span className="text-sm">Real-time updates</span>
             </div>
           </div>

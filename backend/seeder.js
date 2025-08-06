@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import connectDB from './config/db.js';
-import Category from './models/Category.js';
-import categories from './data/categories.js';
+import connectDB from './config/db.mjs';
+import Category from './models/Category.mjs';
+import categories from './data/categories.mjs';
 
 dotenv.config();
 

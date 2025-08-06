@@ -28,6 +28,28 @@ const registerUser = asyncHandler(async (req, res) => {
   if (user) {
     generateToken(res, user);
     
+    // Log user registration activity
+    try {
+      const { logActivity } = await import('./activityController.mjs');
+      await logActivity({
+        userId: user._id,
+        action: 'user.register',
+        entity: 'user',
+        entityId: user._id.toString(),
+        description: `New user registered: ${user.username}`,
+        metadata: {
+          email: user.email,
+          username: user.username,
+          role: user.role,
+          registrationMethod: 'email'
+        },
+        severity: 'low',
+        req
+      });
+    } catch (error) {
+      console.error('Failed to log registration activity:', error);
+    }
+    
     res.status(201).json({
       _id: user._id,
       username: user.username,
@@ -53,6 +75,27 @@ const loginUser = asyncHandler(async (req, res) => {
   if (user && (await user.matchPassword(password))) {
     const token = generateToken(res, user);
 
+    // Log successful login activity
+    try {
+      const { logActivity } = await import('./activityController.mjs');
+      await logActivity({
+        userId: user._id,
+        action: 'user.login',
+        entity: 'user',
+        entityId: user._id.toString(),
+        description: `User ${user.username} logged in successfully`,
+        metadata: {
+          email: user.email,
+          role: user.role,
+          loginMethod: 'password'
+        },
+        severity: 'low',
+        req
+      });
+    } catch (error) {
+      console.error('Failed to log login activity:', error);
+    }
+
     res.status(200).json({
       _id: user._id,
       username: user.username,
@@ -62,6 +105,25 @@ const loginUser = asyncHandler(async (req, res) => {
       token: token // Include token in response for debugging
     });
   } else {
+    // Log failed login attempt
+    try {
+      const { logActivity } = await import('./activityController.mjs');
+      await logActivity({
+        userId: null, // No user ID for failed login
+        action: 'user.login_failed',
+        entity: 'user',
+        description: `Failed login attempt for email: ${email}`,
+        metadata: {
+          email,
+          reason: 'invalid_credentials'
+        },
+        severity: 'medium',
+        req
+      });
+    } catch (error) {
+      console.error('Failed to log failed login activity:', error);
+    }
+
     res.status(401);
     throw new Error('Invalid email or password');
   }
@@ -177,6 +239,28 @@ const getUserProfile = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/logout
 // @access  Private
 const logoutUser = asyncHandler(async (req, res) => {
+  // Log logout activity
+  if (req.user) {
+    try {
+      const { logActivity } = await import('./activityController.mjs');
+      await logActivity({
+        userId: req.user._id,
+        action: 'user.logout',
+        entity: 'user',
+        entityId: req.user._id.toString(),
+        description: `User ${req.user.username} logged out`,
+        metadata: {
+          email: req.user.email,
+          role: req.user.role
+        },
+        severity: 'low',
+        req
+      });
+    } catch (error) {
+      console.error('Failed to log logout activity:', error);
+    }
+  }
+
   res.clearCookie('jwt');
   res.json({ message: 'Logged out successfully' });
 });

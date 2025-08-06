@@ -19,6 +19,17 @@ import dashboardRoutes from "./routes/dashboard.mjs"
 import notificationRoutes from "./routes/notifications.mjs"
 import likeRoutes from "./routes/likes.mjs"
 import commentRoutes from "./routes/comments.mjs"
+import adminCommentRoutes from "./routes/adminComments.mjs"
+import adminLikeRoutes from "./routes/adminLikes.mjs"
+import analyticsRoutes from "./routes/analytics.mjs"
+import settingsRoutes from "./routes/settings.mjs"
+import roleRoutes from "./routes/roles.mjs"
+import activityRoutes from "./routes/activity.mjs"
+import userActivityRoutes from "./routes/userActivity.mjs"
+import userLoginRoutes from "./routes/userLogins.mjs"
+import systemRoutes from "./routes/system.mjs"
+import followRoutes from "./routes/follows.mjs"
+import adminFollowRoutes from "./routes/adminFollows.mjs"
 import http from 'http';
 import https from 'https';
 import CommentWebSocket from './websocket.mjs';
@@ -40,8 +51,8 @@ connectCloudinary()
 // Initialize Express app
 const app = express()
 
-// Trust first proxy (important for production with HTTPS)
-app.set('trust proxy', 1);
+// Trust first proxy (important for production with HTTPS and real IP detection)
+app.set('trust proxy', true);
 
 // Middleware
 app.use(express.json({ limit: "10mb" }))
@@ -157,6 +168,80 @@ app.get("/health", (req, res) => {
   })
 })
 
+// Apply maintenance mode middleware to non-admin API routes only
+import { maintenanceModeMiddleware } from './middleware/settings.mjs';
+import { trackPageView } from './middleware/analytics.mjs';
+
+// Apply analytics tracking to all API routes
+app.use('/api', trackPageView);
+
+// Test route at the very beginning
+app.get('/api/test-simple', (req, res) => {
+  console.log('🎯 SIMPLE TEST ROUTE CALLED');
+  res.json({ success: true, message: 'Simple test route working!' });
+});
+
+// Note: Maintenance mode is now handled on the frontend
+// Admin routes are not affected by maintenance mode
+
+// Public maintenance status endpoint (with auth check)
+app.get("/api/maintenance-status", async (req, res) => {
+  try {
+    // Import Settings model directly
+    const Settings = (await import('./models/Settings.mjs')).default;
+    
+    // Get maintenance mode setting directly from database
+    const maintenanceSetting = await Settings.findOne({ 
+      category: 'general', 
+      key: 'maintenanceMode' 
+    });
+    
+    console.log('Maintenance setting from DB:', maintenanceSetting);
+    const isMaintenanceMode = maintenanceSetting?.value === true;
+    console.log('Is maintenance mode:', isMaintenanceMode);
+    
+    // Check if user is authenticated and is admin
+    let isAdmin = false;
+    let isAuthenticated = false;
+    
+    if (req.user) {
+      isAuthenticated = true;
+      isAdmin = req.user.role === 'admin';
+    }
+    
+    // Set headers to prevent caching
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
+    res.json({
+      success: true,
+      maintenance: isMaintenanceMode,
+      isAuthenticated: isAuthenticated,
+      isAdmin: isAdmin,
+      canAccess: isAdmin || !isMaintenanceMode
+    });
+  } catch (error) {
+    console.error('Error checking maintenance status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to check maintenance status'
+    });
+  }
+});
+
+// Test endpoint to verify server is working
+app.get("/api/test-maintenance", (req, res) => {
+  res.json({
+    success: true,
+    message: "Server is working",
+    maintenance: true,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // API routes
 app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
@@ -165,7 +250,20 @@ app.use("/api/categories", categoryRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/api/notifications", notificationRoutes)
 app.use("/api/likes", likeRoutes)
+app.use("/api/follows", followRoutes)
 app.use("/api/comments", commentRoutes)
+app.use("/api/admin/comments", adminCommentRoutes)
+app.use("/api/admin/likes", adminLikeRoutes)
+app.use("/api/admin/analytics", analyticsRoutes)
+app.use("/api/admin/settings", settingsRoutes)
+app.use("/api/admin/roles", roleRoutes)
+app.use("/api/admin/activity", activityRoutes)
+app.use("/api/user/activity", userActivityRoutes)
+
+// Enable user login routes
+app.use("/api/admin/user-logins", userLoginRoutes)
+app.use("/api/admin/system", systemRoutes)
+app.use("/api/admin/follows", adminFollowRoutes)
 
 // WebSocket test endpoint
 app.get('/api/websocket-test', (req, res) => {
@@ -186,6 +284,9 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Root endpoint
 app.get("/", (req, res) => {
   res.json({
@@ -195,7 +296,7 @@ app.get("/", (req, res) => {
   })
 })
 
-// 404 handler for undefined routes
+// 404 handler for undefined routesd
 app.use("*", (req, res) => {
   res.status(404).json({
     success: false,

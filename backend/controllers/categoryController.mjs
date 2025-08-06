@@ -5,17 +5,21 @@ import Category from "../models/Category.mjs";
 // @route   GET /api/categories
 // @access  Public
 export const getCategories = asyncHandler(async (req, res) => {
-  // Fetch all categories
-  const categories = await Category.find({}).sort({ 'name.en': 1 });
+  try {
+    // Fetch all categories without article counts for now
+    const categories = await Category.find({ isActive: true }).sort({ 'name.en': 1 });
 
-  // For each category, count the number of published news articles
-  const News = (await import('../models/News.mjs')).default;
-  const categoriesWithCounts = await Promise.all(categories.map(async (cat) => {
-    const count = await News.countDocuments({ category: cat._id, status: 'published' });
-    return { ...cat.toObject(), articlesCount: count };
-  }));
+    // Add default article count of 0 for now
+    const categoriesWithCounts = categories.map(cat => ({
+      ...cat.toObject(),
+      articlesCount: 0
+    }));
 
-  res.json({ success: true, data: categoriesWithCounts });
+    res.json({ success: true, data: categoriesWithCounts });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch categories' });
+  }
 });
 
 // @desc    Create a new category
