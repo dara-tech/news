@@ -630,3 +630,249 @@ export const getLogoPreview = asyncHandler(async (req, res) => {
     }
   });
 });
+
+// @desc    Get social media settings
+// @route   GET /api/admin/settings/social-media
+// @access  Private/Admin
+export const getSocialMediaSettings = asyncHandler(async (req, res) => {
+  const settings = await Settings.getCategorySettings('social-media');
+  
+  console.log('Retrieved social media settings:', settings);
+  
+  res.json({
+    success: true,
+    settings
+  });
+});
+
+// @desc    Update social media settings
+// @route   PUT /api/admin/settings/social-media
+// @access  Private/Admin
+export const updateSocialMediaSettings = asyncHandler(async (req, res) => {
+  const { settings } = req.body;
+  
+  if (!settings) {
+    res.status(400);
+    throw new Error('Social media settings data is required');
+  }
+
+  // Get previous settings for logging
+  const previousSettings = await Settings.getCategorySettings('social-media');
+  
+  // Update settings
+  const updatedSettings = await Settings.updateCategorySettings('social-media', settings, req.user._id);
+
+  // Clear settings cache
+  clearSettingsCache();
+
+  // Log activity
+  await logSettingsActivity('social-media', {
+    previous: previousSettings,
+    updated: settings,
+    changedFields: Object.keys(settings)
+  }, req);
+
+  res.json({
+    success: true,
+    message: 'Social media settings updated successfully',
+    settings: updatedSettings
+  });
+});
+
+// @desc    Test social media connection
+// @route   POST /api/admin/settings/social-media/test
+// @access  Private/Admin
+export const testSocialMediaConnection = asyncHandler(async (req, res) => {
+  const { platform } = req.body;
+  
+  if (!platform) {
+    res.status(400);
+    throw new Error('Platform is required');
+  }
+
+  try {
+    const settings = await Settings.getCategorySettings('social-media');
+    const socialMediaService = (await import('../services/socialMediaService.mjs')).default;
+    
+    const result = await socialMediaService.testConnection(platform, settings);
+    
+    res.json({
+      success: result.success,
+      message: result.message,
+      platform
+    });
+  } catch (error) {
+    console.error('Social media test error:', error);
+    res.status(500);
+    throw new Error('Failed to test social media connection');
+  }
+});
+
+// @desc    Get social media posting statistics
+// @route   GET /api/admin/settings/social-media/stats
+// @access  Private/Admin
+export const getSocialMediaStats = asyncHandler(async (req, res) => {
+  try {
+    const socialMediaService = (await import('../services/socialMediaService.mjs')).default;
+    const stats = await socialMediaService.getPostingStats();
+    
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error) {
+    console.error('Social media stats error:', error);
+    res.status(500);
+    throw new Error('Failed to get social media statistics');
+  }
+});
+
+// @desc    Manually post to social media
+// @route   POST /api/admin/settings/social-media/post
+// @access  Private/Admin
+export const manualSocialMediaPost = asyncHandler(async (req, res) => {
+  const { newsId, platforms } = req.body;
+  
+  if (!newsId) {
+    res.status(400);
+    throw new Error('News ID is required');
+  }
+
+  try {
+    // Get the news article
+    const News = (await import('../models/News.mjs')).default;
+    const news = await News.findById(newsId)
+      .populate('category', 'name')
+      .populate('author', 'username');
+
+    if (!news) {
+      res.status(404);
+      throw new Error('News article not found');
+    }
+
+    const socialMediaService = (await import('../services/socialMediaService.mjs')).default;
+    const result = await socialMediaService.autoPostContent(news, req.user);
+    
+    res.json({
+      success: result.success,
+      message: result.message,
+      results: result.results,
+      totalPlatforms: result.totalPlatforms,
+      successfulPosts: result.successfulPosts
+    });
+  } catch (error) {
+    console.error('Manual social media post error:', error);
+    res.status(500);
+    throw new Error('Failed to post to social media');
+  }
+});
+
+// @desc    Get footer settings
+// @route   GET /api/admin/settings/footer
+// @access  Private/Admin
+export const getFooterSettings = asyncHandler(async (req, res) => {
+  const settings = await Settings.getCategorySettings('footer');
+  
+  console.log('Retrieved footer settings:', settings);
+  
+  res.json({
+    success: true,
+    settings
+  });
+});
+
+// @desc    Update footer settings
+// @route   PUT /api/admin/settings/footer
+// @access  Private/Admin
+export const updateFooterSettings = asyncHandler(async (req, res) => {
+  const { settings } = req.body;
+  
+  if (!settings) {
+    res.status(400);
+    throw new Error('Footer settings data is required');
+  }
+
+  // Get previous settings for logging
+  const previousSettings = await Settings.getCategorySettings('footer');
+  
+  // Update settings
+  const updatedSettings = await Settings.updateCategorySettings('footer', settings, req.user._id);
+
+  // Clear settings cache
+  clearSettingsCache();
+
+  // Log activity
+  await logSettingsActivity('footer', {
+    previous: previousSettings,
+    updated: settings,
+    changedFields: Object.keys(settings)
+  }, req);
+
+  res.json({
+    success: true,
+    message: 'Footer settings updated successfully',
+    settings: updatedSettings
+  });
+});
+
+// @desc    Get social media settings (public)
+// @route   GET /api/settings/social-media
+// @access  Public
+export const getPublicSocialMediaSettings = asyncHandler(async (req, res) => {
+  try {
+    const settings = await Settings.getCategorySettings('social-media');
+    
+    // If no social links are configured, provide some default ones
+    if (!settings.socialLinks || settings.socialLinks.length === 0) {
+      settings.socialLinks = [
+        {
+          platform: 'facebook',
+          url: '#',
+          isActive: false,
+          displayName: 'Facebook'
+        },
+        {
+          platform: 'twitter',
+          url: '#',
+          isActive: false,
+          displayName: 'Twitter'
+        },
+        {
+          platform: 'linkedin',
+          url: '#',
+          isActive: false,
+          displayName: 'LinkedIn'
+        },
+        {
+          platform: 'instagram',
+          url: '#',
+          isActive: false,
+          displayName: 'Instagram'
+        },
+        {
+          platform: 'youtube',
+          url: '#',
+          isActive: false,
+          displayName: 'YouTube'
+        },
+        {
+          platform: 'github',
+          url: '#',
+          isActive: false,
+          displayName: 'GitHub'
+        }
+      ];
+    }
+    
+    console.log('Retrieved public social media settings:', settings);
+    
+    res.json({
+      success: true,
+      settings
+    });
+  } catch (error) {
+    console.error('Error fetching public social media settings:', error);
+    res.status(500);
+    throw new Error('Failed to fetch social media settings');
+  }
+});

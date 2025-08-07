@@ -1,18 +1,136 @@
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Github, Twitter, Linkedin, Rss } from 'lucide-react';
+import { 
+  Github, 
+  Twitter, 
+  Linkedin, 
+  Rss,
+  Facebook,
+  Instagram,
+  Youtube,
+  Globe,
+  Mail,
+  Phone,
+  MapPin
+} from 'lucide-react';
+import api from "@/lib/api";
+
+interface LogoSettings {
+  logoUrl?: string;
+  logoDisplayMode?: 'image' | 'text';
+  logoText?: string;
+  logoTextColor?: string;
+  logoBackgroundColor?: string;
+  logoFontSize?: number;
+}
+
+interface SocialMediaLink {
+  platform: string;
+  url: string;
+  isActive: boolean;
+  displayName?: string;
+  icon?: string;
+}
+
+interface ContactInfo {
+  email: string;
+  phone: string;
+  address: string;
+  website: string;
+}
+
+interface SocialMediaSettings {
+  socialLinks: SocialMediaLink[];
+  contactInfo: ContactInfo;
+  socialSharingEnabled: boolean;
+  socialLoginEnabled: boolean;
+  socialAnalyticsEnabled: boolean;
+  autoPostEnabled: boolean;
+  socialPreviewEnabled: boolean;
+}
+
+interface FooterSettings {
+  companyName?: string;
+  companyDescription?: string;
+  contactEmail?: string;
+  newsletterEnabled?: boolean;
+}
+
+const platformIconMap: { [key: string]: any } = {
+  facebook: Facebook,
+  twitter: Twitter,
+  linkedin: Linkedin,
+  instagram: Instagram,
+  youtube: Youtube,
+  github: Github,
+  website: Globe,
+  rss: Rss,
+};
 
 const Footer: FC = () => {
   const currentYear = new Date().getFullYear();
+  const [logoSettings, setLogoSettings] = useState<LogoSettings>({
+    logoDisplayMode: 'text',
+    logoText: 'NewsApp',
+    logoTextColor: '#000000',
+    logoBackgroundColor: '#ffffff',
+    logoFontSize: 24,
+  });
+  const [footerSettings, setFooterSettings] = useState<FooterSettings>({
+    companyName: 'NewsApp',
+    companyDescription: 'Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.',
+    contactEmail: 'contact@newsapp.com',
+    newsletterEnabled: true,
+  });
+  const [socialMediaSettings, setSocialMediaSettings] = useState<SocialMediaSettings>({
+    socialLinks: [],
+    contactInfo: {
+      email: '',
+      phone: '',
+      address: '',
+      website: '',
+    },
+    socialSharingEnabled: true,
+    socialLoginEnabled: false,
+    socialAnalyticsEnabled: false,
+    autoPostEnabled: false,
+    socialPreviewEnabled: true,
+  });
+  const [imageError, setImageError] = useState(false);
 
-  const socialLinks = [
-    { name: 'Twitter', icon: Twitter, href: '#' },
-    { name: 'LinkedIn', icon: Linkedin, href: '#' },
-    { name: 'GitHub', icon: Github, href: '#' },
-    { name: 'RSS', icon: Rss, href: '#' },
-  ];
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        // Fetch logo settings
+        const logoResponse = await api.get('/admin/settings/logo');
+        if (logoResponse.data.success && logoResponse.data.settings) {
+          setLogoSettings(prev => ({ ...prev, ...logoResponse.data.settings }));
+          setImageError(false);
+        }
+
+        // Fetch footer/company settings
+        const footerResponse = await api.get('/admin/settings/footer');
+        if (footerResponse.data.success && footerResponse.data.settings) {
+          setFooterSettings(prev => ({ ...prev, ...footerResponse.data.settings }));
+        }
+
+        // Fetch social media settings (public endpoint)
+        const socialResponse = await api.get('/settings/public/social-media');
+        if (socialResponse.data.success && socialResponse.data.settings) {
+          setSocialMediaSettings(prev => ({ ...prev, ...socialResponse.data.settings }));
+        }
+      } catch (error) {
+        // Silently use default settings if API calls fail
+        console.log('Using default footer settings');
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
+  const activeSocialLinks = socialMediaSettings.socialLinks.filter(link => link.isActive && link.url);
 
   const mainLinks = [
     { name: 'Home', href: '/' },
@@ -28,6 +146,42 @@ const Footer: FC = () => {
     { name: 'Terms of Service', href: '/terms' },
   ];
 
+  const renderLogoContent = () => {
+    // If we have an image logo and URL, and no image error, display it
+    if (logoSettings.logoDisplayMode === 'image' && logoSettings.logoUrl && !imageError) {
+      return (
+        <img
+          src={logoSettings.logoUrl}
+          alt="Logo"
+          className="h-6 w-auto object-contain"
+          onError={() => {
+            setImageError(true);
+          }}
+        />
+      );
+    }
+
+    // Display text logo (fallback or default)
+    return (
+      <span
+        style={{
+          color: logoSettings.logoTextColor,
+          fontSize: `${(logoSettings.logoFontSize || 24) * 0.75}px`, // Smaller for footer
+        }}
+        className="font-bold"
+      >
+        {logoSettings.logoText || footerSettings.companyName || 'NewsApp'}
+      </span>
+    );
+  };
+
+  const renderSocialIcon = (link: SocialMediaLink) => {
+    const IconComponent = platformIconMap[link.platform];
+    if (IconComponent) {
+      return <IconComponent className="h-6 w-6" />;
+    }
+    return <Globe className="h-6 w-6" />;
+  };
 
   return (
     <footer className="bg-background border-t border-border/50">
@@ -36,17 +190,21 @@ const Footer: FC = () => {
           
           {/* About & Newsletter */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-lg font-semibold text-foreground">NewsApp</h3>
+            <div className="flex items-center gap-2">
+              {renderLogoContent()}
+            </div>
             <p className="text-muted-foreground">
-              Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.
+              {footerSettings.companyDescription}
             </p>
-            <div>
+            {footerSettings.newsletterEnabled && (
+              <div>
                 <p className="font-medium mb-2">Subscribe to our newsletter</p>
                 <form className="flex gap-2">
-                    <Input type="email" placeholder="Enter your email" className="flex-grow" />
-                    <Button type="submit">Subscribe</Button>
+                  <Input type="email" placeholder="Enter your email" className="flex-grow" />
+                  <Button type="submit">Subscribe</Button>
                 </form>
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Site Links */}
@@ -63,9 +221,9 @@ const Footer: FC = () => {
             </ul>
           </div>
 
-          {/* Legal & Contact */}
+          {/* Contact Info */}
           <div className="flex flex-col gap-4">
-            <h4 className="font-semibold text-foreground">Company</h4>
+            <h4 className="font-semibold text-foreground">Contact</h4>
             <ul className="space-y-2">
               {legalLinks.map((link) => (
                 <li key={link.name}>
@@ -74,19 +232,43 @@ const Footer: FC = () => {
                   </Link>
                 </li>
               ))}
+              {socialMediaSettings.contactInfo.email && (
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <Mail className="h-4 w-4" />
+                  <span>{socialMediaSettings.contactInfo.email}</span>
+                </li>
+              )}
+              {socialMediaSettings.contactInfo.phone && (
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                  <span>{socialMediaSettings.contactInfo.phone}</span>
+                </li>
+              )}
+              {socialMediaSettings.contactInfo.address && (
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="h-4 w-4" />
+                  <span>{socialMediaSettings.contactInfo.address}</span>
+                </li>
+              )}
             </ul>
           </div>
           
           {/* Social Media */}
           <div className="flex flex-col gap-4">
             <h4 className="font-semibold text-foreground">Follow Us</h4>
-             <div className="flex items-center gap-4">
-                {socialLinks.map((social) => (
-                    <Link href={social.href} key={social.name} className="text-muted-foreground hover:text-primary transition-colors">
-                        <social.icon className="h-6 w-6" />
-                        <span className="sr-only">{social.name}</span>
-                    </Link>
-                ))}
+            <div className="flex items-center gap-4">
+              {activeSocialLinks.map((link, index) => (
+                <Link 
+                  href={link.url} 
+                  key={index} 
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {renderSocialIcon(link)}
+                  <span className="sr-only">{link.displayName || link.platform}</span>
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -94,7 +276,7 @@ const Footer: FC = () => {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border/50 text-center text-muted-foreground text-sm">
-          <p>&copy; {currentYear} NewsApp. All rights reserved. Built with Next.js & Tailwind CSS.</p>
+          <p>&copy; {currentYear} {footerSettings.companyName || 'NewsApp'}. All rights reserved. Built with Next.js & Tailwind CSS.</p>
         </div>
       </div>
     </footer>

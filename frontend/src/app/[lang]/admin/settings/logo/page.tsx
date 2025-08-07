@@ -14,12 +14,12 @@ import {
   Image,
   Type,
   RefreshCw,
-  Eye
+  Eye,
+  Trash2,
+  Download
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-import { SimpleLogoManager } from '@/components/admin/logo/SimpleLogoManager';
 
 interface LogoSettings {
   logoDisplayMode?: 'image' | 'text';
@@ -159,6 +159,37 @@ export default function LogoSettingsPage() {
     }
   };
 
+  const renderLogoPreview = () => {
+    if (settings.logoDisplayMode === 'image' && settings.logoUrl) {
+      return (
+        <div className="flex items-center justify-center p-4 border rounded-lg bg-gray-50">
+          <img
+            src={settings.logoUrl}
+            alt="Logo Preview"
+            className="max-h-16 max-w-full object-contain"
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-center p-4 border rounded-lg bg-gray-50">
+        <span
+          style={{
+            fontSize: `${settings.logoFontSize || 24}px`,
+            color: settings.logoTextColor || '#000000',
+            backgroundColor: settings.logoBackgroundColor || '#ffffff',
+            padding: '8px',
+            borderRadius: '4px',
+            fontWeight: 'bold',
+          }}
+        >
+          {settings.logoText || 'Newsly'}
+        </span>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -170,13 +201,205 @@ export default function LogoSettingsPage() {
   }
 
   return (
- <div>
-            <SimpleLogoManager 
-        onLogoChange={(logoText) => {
-          setSettings(prev => ({ ...prev, logoText }));
-          toast.success('Logo text updated successfully!');
-        }}
-      />
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Logo Settings</h1>
+          <p className="text-muted-foreground">Manage your site logo and branding</p>
+        </div>
+      </div>
+
+      <Tabs defaultValue="upload" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="upload">Upload Logo</TabsTrigger>
+          <TabsTrigger value="settings">Text Settings</TabsTrigger>
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="upload" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5" />
+                Upload Logo
+              </CardTitle>
+              <CardDescription>
+                Upload a new logo image. Supported formats: JPEG, PNG, SVG (max 5MB)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="logo-upload">Choose Logo File</Label>
+                <Input
+                  id="logo-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="cursor-pointer"
+                />
+              </div>
+
+              {previewUrl && (
+                <div className="space-y-2">
+                  <Label>Preview</Label>
+                  <div className="flex items-center justify-center p-4 border rounded-lg bg-gray-50">
+                    <img
+                      src={previewUrl}
+                      alt="Logo Preview"
+                      className="max-h-16 max-w-full object-contain"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleUpload}
+                  disabled={!selectedFile || saving}
+                  className="flex items-center gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {saving ? 'Uploading...' : 'Upload Logo'}
+                </Button>
+                {settings.logoUrl && (
+                  <Button
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={saving}
+                    className="flex items-center gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete Logo
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Type className="h-5 w-5" />
+                Text Logo Settings
+              </CardTitle>
+              <CardDescription>
+                Configure text logo appearance and styling
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="logo-text">Logo Text</Label>
+                  <Input
+                    id="logo-text"
+                    value={settings.logoText || ''}
+                    onChange={(e) => setSettings(prev => ({ ...prev, logoText: e.target.value }))}
+                    placeholder="Enter logo text"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="logo-font-size">Font Size (px)</Label>
+                  <Input
+                    id="logo-font-size"
+                    type="number"
+                    value={settings.logoFontSize || 24}
+                    onChange={(e) => setSettings(prev => ({ ...prev, logoFontSize: parseInt(e.target.value) || 24 }))}
+                    min="12"
+                    max="72"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="logo-text-color">Text Color</Label>
+                  <Input
+                    id="logo-text-color"
+                    type="color"
+                    value={settings.logoTextColor || '#000000'}
+                    onChange={(e) => setSettings(prev => ({ ...prev, logoTextColor: e.target.value }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="logo-bg-color">Background Color</Label>
+                  <Input
+                    id="logo-bg-color"
+                    type="color"
+                    value={settings.logoBackgroundColor || '#ffffff'}
+                    onChange={(e) => setSettings(prev => ({ ...prev, logoBackgroundColor: e.target.value }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="logo-display-mode">Display Mode</Label>
+                  <Select
+                    value={settings.logoDisplayMode || 'text'}
+                    onValueChange={(value: 'image' | 'text') => 
+                      setSettings(prev => ({ ...prev, logoDisplayMode: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="text">Text Only</SelectItem>
+                      <SelectItem value="image">Image Only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex items-center gap-2"
+              >
+                <Save className="h-4 w-4" />
+                {saving ? 'Saving...' : 'Save Settings'}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="preview" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                Logo Preview
+              </CardTitle>
+              <CardDescription>
+                See how your logo will appear on the website
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label>Current Logo</Label>
+                  {renderLogoPreview()}
+                </div>
+                
+                <div className="text-sm text-muted-foreground">
+                  <p><strong>Display Mode:</strong> {settings.logoDisplayMode || 'text'}</p>
+                  {settings.logoDisplayMode === 'text' && (
+                    <>
+                      <p><strong>Text:</strong> {settings.logoText || 'Newsly'}</p>
+                      <p><strong>Font Size:</strong> {settings.logoFontSize || 24}px</p>
+                      <p><strong>Text Color:</strong> {settings.logoTextColor || '#000000'}</p>
+                      <p><strong>Background:</strong> {settings.logoBackgroundColor || '#ffffff'}</p>
+                    </>
+                  )}
+                  {settings.logoDisplayMode === 'image' && settings.logoUrl && (
+                    <p><strong>Image URL:</strong> {settings.logoUrl}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 } 

@@ -19,8 +19,11 @@ import {
   CheckCircle,
   Cpu,
   Database,
-  RefreshCw
+  RefreshCw,
+  Palette
 } from 'lucide-react';
+import LogoManagement from './LogoManagement';
+import SocialMediaManagement from './SocialMediaManagement';
 
 interface SystemHealth {
   database: 'healthy' | 'warning' | 'error';
@@ -328,6 +331,12 @@ export default function DashboardOverview() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Logo Management Widget */}
+        <LogoManagement compact={true} />
+
+        {/* Social Media Management Widget */}
+        <SocialMediaManagement compact={true} />
 
         {/* Recent Activity */}
         <Card>

@@ -10,6 +10,8 @@ import AdvancedAnalyticsChart from '@/components/admin/charts/AdvancedAnalyticsC
 import UserLoginMap from '@/components/admin/UserLoginMap';
 import CommentManager from '@/components/admin/comments/CommentManager';
 import LikeManager from '@/components/admin/likes/LikeManager';
+import LogoManagement from '@/components/admin/LogoManagement';
+import SocialMediaManagement from '@/components/admin/SocialMediaManagement';
 import { 
   Newspaper, 
   Users, 
@@ -27,7 +29,10 @@ import {
   Share2,
   Globe,
   MessageSquare,
-  Heart
+  Heart,
+  Palette,
+  Image,
+  Type
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -68,6 +73,15 @@ interface Stats {
   totalCategories: number;
   newsByCategory: CategoryStats[];
   recentNews?: unknown[];
+}
+
+interface LogoSettings {
+  logoDisplayMode?: 'image' | 'text';
+  logoText?: string;
+  logoUrl?: string;
+  logoTextColor?: string;
+  logoBackgroundColor?: string;
+  logoFontSize?: number;
 }
 
 interface DashboardSettings {
@@ -112,6 +126,13 @@ export default function DashboardPage() {
   const [filters, setFilters] = useState<FilterOptions>(defaultFilters);
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [logoSettings, setLogoSettings] = useState<LogoSettings>({
+    logoDisplayMode: 'text',
+    logoText: 'Newsly',
+    logoTextColor: '#000000',
+    logoBackgroundColor: '#ffffff',
+    logoFontSize: 24,
+  });
 
   // Smart data processing with filters and sorting
   const processedChartData = useMemo(() => {
@@ -156,6 +177,18 @@ export default function DashboardPage() {
       return [];
     }
   }, [stats?.newsByCategory, filters]);
+
+  // Fetch logo settings
+  const fetchLogoSettings = useCallback(async () => {
+    try {
+      const response = await api.get('/admin/settings/logo');
+      if (response.data.success && response.data.settings) {
+        setLogoSettings(prev => ({ ...prev, ...response.data.settings }));
+      }
+    } catch (error) {
+      console.error('Error fetching logo settings:', error);
+    }
+  }, []);
 
   // Smart refresh mechanism
   const fetchStats = useCallback(async (showLoader = true) => {
@@ -244,8 +277,9 @@ export default function DashboardPage() {
     setHasMounted(true);
     if (hasMounted) {
       fetchStats();
+      fetchLogoSettings();
     }
-  }, [hasMounted, fetchStats]);
+  }, [hasMounted, fetchStats, fetchLogoSettings]);
 
   // Settings persistence
   useEffect(() => {
@@ -506,7 +540,7 @@ export default function DashboardPage() {
 
       {/* Enhanced Tabs with Smart Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
             <span className="hidden sm:inline">Overview</span>
@@ -526,6 +560,14 @@ export default function DashboardPage() {
           <TabsTrigger value="map" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
             <span className="hidden sm:inline">User Map</span>
+          </TabsTrigger>
+          <TabsTrigger value="logo" className="flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            <span className="hidden sm:inline">Logo</span>
+          </TabsTrigger>
+          <TabsTrigger value="social" className="flex items-center gap-2">
+            <Globe className="h-4 w-4" />
+            <span className="hidden sm:inline">Social</span>
           </TabsTrigger>
           <TabsTrigger value="monitoring" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
@@ -635,6 +677,22 @@ export default function DashboardPage() {
         
         <TabsContent value="map" className="space-y-6">
           <UserLoginMap />
+        </TabsContent>
+        
+        <TabsContent value="logo" className="space-y-6">
+          <LogoManagement 
+            onSettingsChange={(newSettings) => {
+              setLogoSettings(newSettings);
+            }}
+          />
+        </TabsContent>
+        
+        <TabsContent value="social" className="space-y-6">
+          <SocialMediaManagement 
+            onSettingsChange={(newSettings) => {
+              // Handle social media settings change
+            }}
+          />
         </TabsContent>
         
         <TabsContent value="monitoring" className="space-y-6">

@@ -134,7 +134,12 @@ const createComment = asyncHandler(async (req, res) => {
 
   // Broadcast real-time update only if approved
   if (comment.status === 'approved' && commentWebSocket) {
-    commentWebSocket.broadcastCommentCreated(newsId, comment);
+    try {
+      commentWebSocket.broadcastCommentCreated(newsId, comment);
+    } catch (error) {
+      console.error('Error broadcasting comment creation:', error);
+      // Don't fail the request if WebSocket broadcast fails
+    }
   }
 
   res.status(201).json({
@@ -189,7 +194,12 @@ const updateComment = asyncHandler(async (req, res) => {
 
   // Broadcast real-time update
   if (commentWebSocket) {
-    commentWebSocket.broadcastCommentUpdated(newsId, comment);
+    try {
+      commentWebSocket.broadcastCommentUpdated(comment.news.toString(), comment);
+    } catch (error) {
+      console.error('Error broadcasting comment update:', error);
+      // Don't fail the request if WebSocket broadcast fails
+    }
   }
 
   res.json({
@@ -229,7 +239,12 @@ const deleteComment = asyncHandler(async (req, res) => {
 
   // Broadcast real-time update
   if (commentWebSocket) {
-    commentWebSocket.broadcastCommentDeleted(comment.news.toString(), commentId);
+    try {
+      commentWebSocket.broadcastCommentDeleted(comment.news.toString(), commentId);
+    } catch (error) {
+      console.error('Error broadcasting comment deletion:', error);
+      // Don't fail the request if WebSocket broadcast fails
+    }
   }
 
   res.json({
@@ -268,7 +283,12 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 
   // Broadcast real-time update
   if (commentWebSocket) {
-    commentWebSocket.broadcastCommentLiked(comment.news.toString(), comment);
+    try {
+      commentWebSocket.broadcastCommentLiked(comment.news.toString(), comment);
+    } catch (error) {
+      console.error('Error broadcasting comment like:', error);
+      // Don't fail the request if WebSocket broadcast fails
+    }
   }
 
   res.json({

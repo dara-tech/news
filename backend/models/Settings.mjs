@@ -4,7 +4,7 @@ const settingsSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['general', 'security', 'integrations', 'logo']
+    enum: ['general', 'security', 'integrations', 'logo', 'social-media', 'footer']
   },
   key: {
     type: String,
@@ -158,6 +158,32 @@ settingsSchema.statics.initializeDefaults = async function() {
       logoHeight: null,
       logoFormat: null,
       logoSize: null,
+    },
+    'social-media': {
+      socialLinks: [],
+      contactInfo: {
+        email: '',
+        phone: '',
+        address: '',
+        website: '',
+      },
+      socialSharingEnabled: true,
+      socialLoginEnabled: false,
+      socialAnalyticsEnabled: false,
+      autoPostEnabled: false,
+      socialPreviewEnabled: true,
+    },
+    footer: {
+      companyName: 'NewsApp',
+      companyDescription: 'Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.',
+      socialLinks: {
+        twitter: '#',
+        linkedin: '#',
+        github: '#',
+        rss: '#',
+      },
+      contactEmail: 'contact@newsapp.com',
+      newsletterEnabled: true,
     }
   };
 

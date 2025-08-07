@@ -88,122 +88,95 @@ function MobileCard({ article, locale, index }: { article: Article; locale: "en"
     <motion.div
       key={article._id}
       variants={cardVariants}
-      whileHover={{ y: -8, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ y: -4, scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
       className="group relative"
     >
       <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 via-white/5 to-white/10 border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-700 backdrop-blur-xl">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 via-white/5 to-white/10 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-500 backdrop-blur-sm">
           {/* Advanced background effects */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-white/5" />
-          
-          {/* Animated border glow */}
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-xl" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
           {/* Main content container */}
-          <div className="relative flex w-full h-72 sm:h-80">
-            {/* Enhanced Image Container with advanced effects */}
-            <div className="relative w-40 sm:w-44 flex-shrink-0 h-full overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10 z-10" />
+          <div className="relative flex flex-col w-full">
+            {/* Enhanced Image Container */}
+            <div className="relative w-full h-48 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/5 z-10" />
               
               <Image
                 src={article.thumbnail || "/placeholder.jpg"}
                 alt={article.title?.[locale] || "Article image"}
                 fill
-                sizes="(max-width: 640px) 160px, 176px"
-                className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                sizes="(max-width: 640px) 100vw, 50vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = "/placeholder.jpg"
                 }}
               />
               
-              {/* Advanced category indicator with gradient */}
-              {categoryName && (
-                <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              )}
+              {/* Enhanced overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/5 to-transparent" />
               
-              {/* Enhanced overlay with multiple layers */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-              
-              {/* Floating category badge with glass effect */}
+              {/* Category badge */}
               {categoryName && (
-                <div className="absolute top-4 left-4 z-20">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-white/20 backdrop-blur-md rounded-full blur-sm" />
-                    <span
-                      className="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-white/95 backdrop-blur-md shadow-lg border border-white/30"
-                      style={{ color: categoryColor }}
-                    >
-                      <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: categoryColor }} />
-                      {categoryName}
-                    </span>
-                  </div>
+                <div className="absolute top-3 left-3 z-20">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm shadow-sm border border-white/30"
+                    style={{ color: categoryColor }}
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: categoryColor }} />
+                    {categoryName}
+                  </span>
                 </div>
               )}
               
-              
-              
-           
-            </div>
-            
-            {/* Enhanced Content Area with better typography and spacing */}
-            <div className="flex-1 p-6 sm:p-7 flex flex-col justify-between min-w-0">
-              <div className="min-w-0 space-y-4 flex-1">
-                {/* Enhanced title with better typography */}
-                <h3 className="font-bold text-lg sm:text-xl leading-tight group-hover:text-primary transition-colors duration-300 tracking-tight">
-                  {article.title?.[locale] && article.title[locale].length > 60 ? (
-                    <span className="line-clamp-3 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">{article.title[locale]}</span>
-                  ) : (
-                    <span className="line-clamp-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">{article.title[locale]}</span>
-                  )}
-                </h3>
-                
-                   {/* Trending indicator for featured articles */}
+              {/* Trending indicator for featured articles */}
               {index === 0 && (
-                <div className="absolute top-4 right-4 z-20 flex items-center ">
+                <div className="absolute top-3 right-3 z-20">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-red-500/30 backdrop-blur-md rounded-full blur-sm animate-pulse" />
-                    <div className="relative p-2 bg-red-500/90 rounded-full backdrop-blur-md shadow-lg border border-red-400/30">
-                      <div className="flex items-center gap-1.5">
-                        <TrendingUp className="w-3 h-3 text-white" />
-                      </div>
+                    <div className="absolute inset-0 bg-red-500/20 backdrop-blur-sm rounded-full blur-sm animate-pulse" />
+                    <div className="relative p-1.5 bg-red-500/90 rounded-full backdrop-blur-sm shadow-lg border border-red-400/30">
+                      <TrendingUp className="w-3 h-3 text-white" />
                     </div>
                   </div>
                 </div>
               )}
-                {/* Enhanced description with better readability */}
+            </div>
+            
+            {/* Enhanced Content Area */}
+            <div className="p-4 flex flex-col justify-between min-w-0">
+              <div className="min-w-0 space-y-3">
+                {/* Enhanced title */}
+                <h3 className="font-bold text-base leading-tight group-hover:text-primary transition-colors duration-300 tracking-tight">
+                  <span className="line-clamp-3 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                    {article.title?.[locale]}
+                  </span>
+                </h3>
+                
+                {/* Enhanced description */}
                 {article.description?.[locale] && (
-                  <p className="text-muted-foreground/90 text-sm leading-relaxed font-medium">
-                    {article.description[locale].length > 120 ? (
-                      <span className="line-clamp-3">{article.description[locale]}</span>
-                    ) : (
-                      <span className="line-clamp-4">{article.description[locale]}</span>
-                    )}
+                  <p className="text-muted-foreground/90 text-sm leading-relaxed">
+                    <span className="line-clamp-2">{article.description[locale]}</span>
                   </p>
                 )}
               </div>
               
-              {/* Enhanced metadata and latest indicator justified between at the bottom */}
-              <div className="flex items-center justify-between pt-6 border-t border-white/20 mt-4">
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs text-muted-foreground/80">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span className="font-semibold">{publishDate}</span>
+              {/* Enhanced metadata at the bottom */}
+              <div className="flex items-center justify-between pt-4 mt-3 border-t border-white/10">
+                <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs text-muted-foreground/80">
+                  <Calendar className="w-3 h-3" />
+                  <span className="font-medium">{publishDate}</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
-                  <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                    <TrendingUp className="w-3 h-3" />
-                    <span className="font-medium">Latest</span>
-                  </div>
+                <div className="flex items-center gap-1 text-primary font-semibold text-xs">
+                  <span>Read</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>
               </div>
             </div>
           </div>
           
-          {/* Advanced glow effects */}
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-primary/20 via-transparent to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+          {/* Subtle glow effect */}
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/10 via-transparent to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
         </div>
       </Link>
     </motion.div>
@@ -440,14 +413,14 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
   if (!articles || articles.length === 0) return null
 
   return (
-    <div className="space-y-8">
-      {/* Mobile Layout - Stacked Professional Cards */}
-      <div className="block md:hidden">
+    <div className="space-y-6">
+      {/* Mobile Layout - Optimized for Small Screens */}
+      <div className="block sm:hidden">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="space-y-6"
+          className="space-y-4 px-1"
         >
           {articles.map((article, index) => (
             <MobileCard key={article._id} article={article} locale={locale} index={index} />
@@ -455,13 +428,13 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
         </motion.div>
       </div>
 
-      {/* Tablet Layout - Horizontal Professional Cards */}
-      <div className="hidden md:block lg:hidden">
+      {/* Small Mobile to Tablet Layout */}
+      <div className="hidden sm:block lg:hidden">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-2 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
           {articles.map((article) => (
             <TabletCard key={article._id} article={article} locale={locale} />
@@ -469,7 +442,7 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
         </motion.div>
       </div>
 
-      {/* Desktop Layout - Professional Masonry Grid */}
+      {/* Desktop Layout */}
       <div className="hidden lg:block">
         <motion.div
           variants={containerVariants}
@@ -487,4 +460,3 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
 }
 
 export default SecondaryFeatureGrid
-

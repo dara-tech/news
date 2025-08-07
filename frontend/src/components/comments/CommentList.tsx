@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, MessageCircle, MoreHorizontal, Edit, Trash2, Flag, LogIn } from 'lucide-react';
+import { Heart, MessageCircle, MoreHorizontal, Edit, Trash2, Flag, LogIn, Reply } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,7 @@ interface CommentListProps {
   newsId: string;
   onCommentDeleted: (commentId: string) => void;
   onCommentLiked: (commentId: string, hasLiked: boolean) => void;
+  onCommentUpdated?: (comment: Comment) => void;
 }
 
 type OptimisticComment = Comment & { isOptimistic?: boolean };
@@ -30,6 +31,7 @@ export default function CommentList({
   newsId,
   onCommentDeleted,
   onCommentLiked,
+  onCommentUpdated,
 }: CommentListProps) {
   const { user } = useAuth();
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -37,35 +39,27 @@ export default function CommentList({
   const [likingComment, setLikingComment] = useState<string | null>(null);
   const [lastLikeTime, setLastLikeTime] = useState<number>(0);
 
-  // Debug logging
-  console.log('CommentList received comments:', comments);
-  console.log('CommentList comments length:', comments?.length || 0);
-
   const handleLike = async (comment: Comment) => {
     if (!user) return;
 
     // Prevent rapid like/unlike actions
     const now = Date.now();
-    if (now - lastLikeTime < 1000) { // 1 second debounce
-      console.log('Like action too rapid, ignoring');
+    if (now - lastLikeTime < 1000) {
       return;
     }
     setLastLikeTime(now);
 
-    // Convert user ID to string for comparison
     const userId = user._id?.toString();
     const hasLiked = comment.likes.some(likeId => likeId.toString() === userId);
     setLikingComment(comment._id);
 
-    // Optimistic update - update UI immediately
+    // Optimistic update
     onCommentLiked(comment._id, !hasLiked);
 
     try {
       await commentApi.toggleCommentLike(comment._id);
-      // WebSocket will handle the real update, so we don't call onCommentLiked again
     } catch (error) {
       console.error('Error toggling comment like:', error);
-      // Revert optimistic update on error
       onCommentLiked(comment._id, hasLiked);
     } finally {
       setLikingComment(null);
@@ -91,6 +85,11 @@ export default function CommentList({
     setReplyingTo(null);
   };
 
+  const handleCommentUpdated = (updatedComment: Comment) => {
+    onCommentUpdated?.(updatedComment);
+    setEditingComment(null);
+  };
+
   const canEditComment = (comment: Comment) => {
     return user && comment.user && (comment.user._id === user._id || user.role === 'admin');
   };
@@ -114,159 +113,154 @@ export default function CommentList({
   };
 
   const renderComment = (comment: OptimisticComment, isReply = false) => {
-    // Avoid 'any' by using OptimisticComment type
     const isOptimistic = comment.isOptimistic === true;
+    const hasLiked = user && comment.likes.some(likeId => likeId.toString() === user._id?.toString());
 
     return (
-      <div className={`space-y-4 ${isReply ? 'ml-8 border-l-2 border-gray-200 dark:border-gray-700 pl-6' : ''}`}>
-        <div className="flex space-x-4">
-          <Avatar className="h-10 w-10 flex-shrink-0">
+      <div className={`${isReply ? 'ml-3 sm:ml-6 border-l border-gray-200 dark:border-gray-700 pl-3 sm:pl-4' : ''}`}>
+        <div className="flex gap-3 sm:gap-4">
+          <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
             <AvatarImage
               src={comment.user?.profileImage || comment.user?.avatar}
               alt={comment.user?.username || 'User'}
             />
-            <AvatarFallback className="bg-gray-100 dark:bg-gray-800">
+            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs sm:text-sm font-medium">
               {getUserInitials(comment.user?.username || 'U')}
             </AvatarFallback>
           </Avatar>
 
-          <div className="flex-1 space-y-3">
-            <div className="flex items-center space-x-3">
-              <span className="font-medium text-sm text-gray-900 dark:text-white">
-                {comment.user?.username || 'Unknown'}
-              </span>
-              {isOptimistic && (
-                <Badge variant="secondary" className="text-xs">
-                  Posting...
-                </Badge>
-              )}
-              <span className="text-xs text-gray-500">
-                {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-              </span>
-            </div>
-
-            {editingComment === comment._id ? (
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <CommentForm
-                  newsId={newsId}
-                  initialContent={comment.content}
-                  onCommentCreated={() => {
-                    // Just close edit mode
-                    setEditingComment(null);
-                  }}
-                  onCancel={() => setEditingComment(null)}
-                />
+          <div className="flex-1 min-w-0">
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 sm:p-4">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                    {comment.user?.username || 'Unknown'}
+                  </span>
+                  {isOptimistic && (
+                    <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                      Posting...
+                    </Badge>
+                  )}
+                  <span className="text-xs text-gray-500 flex-shrink-0">
+                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                  </span>
+                </div>
+                
+                {(canEditComment(comment) || canDeleteComment(comment)) && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-60 hover:opacity-100">
+                        <MoreHorizontal className="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                      {canEditComment(comment) && (
+                        <DropdownMenuItem onClick={() => handleEdit(comment._id)} className="cursor-pointer">
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                      )}
+                      {canDeleteComment(comment) && (
+                        <DropdownMenuItem 
+                          onClick={() => handleDelete(comment._id)}
+                          className="text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      )}
+                      {!canEditComment(comment) && (
+                        <DropdownMenuItem className="cursor-pointer">
+                          <Flag className="w-4 h-4 mr-2" />
+                          Report
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
-            ) : (
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-                  {comment.content}
-                </p>
-              </div>
-            )}
 
-            <div className="flex items-center space-x-4">
-              {/* Like button - show for all authenticated users */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (!user) {
-                    // Redirect directly to login
-                    window.location.href = '/en/login';
-                    return;
-                  }
-                  handleLike(comment);
-                }}
-                disabled={likingComment === comment._id}
-                className={`flex items-center space-x-1 transition-all duration-200 ${
-                  user && (comment.likes || []).some(likeId => likeId.toString() === user._id?.toString())
-                    ? 'text-red-500 hover:text-red-600' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Heart className={`w-4 h-4 ${
-                  user && (comment.likes || []).some(likeId => likeId.toString() === user._id?.toString()) ? 'fill-current' : ''
-                }`} />
-                <span className="text-xs font-medium">
-                  {(comment.likes || []).length > 0 ? (comment.likes || []).length : ''}
-                </span>
-              </Button>
-
-              {/* Reply button - show for all authenticated users except comment owner */}
-              {!isCommentOwner(comment) && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    if (!user) {
-                      // Redirect directly to login
-                      window.location.href = '/en/login';
-                      return;
-                    }
-                    handleReply(comment._id);
-                  }}
-                  className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-all duration-200"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="text-xs font-medium">Reply</span>
-                </Button>
-              )}
-
-              {(canEditComment(comment) || canDeleteComment(comment)) && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      <MoreHorizontal className="w-4 h-4" />
+              {/* Content */}
+              {editingComment === comment._id ? (
+                <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <CommentForm
+                    newsId={newsId}
+                    editCommentId={comment._id}
+                    initialContent={comment.content}
+                    onCommentUpdated={handleCommentUpdated}
+                    onCommentCreated={() => setEditingComment(null)}
+                    onCancel={() => setEditingComment(null)}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                    {comment.content}
+                  </p>
+                  
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-4 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (!user) {
+                          window.location.href = '/en/login';
+                          return;
+                        }
+                        handleLike(comment);
+                      }}
+                      disabled={likingComment === comment._id}
+                      className={`h-8 px-2 text-xs font-medium transition-all duration-200 ${
+                        hasLiked
+                          ? 'text-red-500 hover:text-red-600 bg-red-50 dark:bg-red-900/20' 
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <Heart className={`w-3.5 h-3.5 mr-1.5 ${hasLiked ? 'fill-current' : ''}`} />
+                      {comment.likes?.length || 0}
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {canEditComment(comment) && (
-                      <DropdownMenuItem onClick={() => handleEdit(comment._id)}>
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                    )}
-                    {canDeleteComment(comment) && (
-                      <DropdownMenuItem 
-                        onClick={() => handleDelete(comment._id)}
-                        className="text-red-600"
+
+                    {!isCommentOwner(comment) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          if (!user) {
+                            window.location.href = '/en/login';
+                            return;
+                          }
+                          handleReply(comment._id);
+                        }}
+                        className="h-8 px-2 text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
+                        <Reply className="w-3.5 h-3.5 mr-1.5" />
+                        Reply
+                      </Button>
                     )}
-                    {!canEditComment(comment) && (
-                      <DropdownMenuItem>
-                        <Flag className="w-4 h-4 mr-2" />
-                        Report
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </div>
+                </div>
               )}
             </div>
 
             {/* Reply Form */}
             {replyingTo === comment._id && (
-              <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 sm:p-4">
                 <CommentForm
                   newsId={newsId}
                   parentCommentId={comment._id}
                   placeholder={`Replying to ${comment.user?.username || ''}...`}
-                  onCommentCreated={() => {
-                    // Just close reply mode
-                    setReplyingTo(null);
-                  }}
+                  onCommentCreated={() => setReplyingTo(null)}
                   onCancel={() => setReplyingTo(null)}
                 />
               </div>
             )}
 
             {/* Replies */}
-            {comment.replies && (comment.replies || []).length > 0 && (
-              <div className="mt-4 space-y-4">
-                {(comment.replies || []).map((reply) => (
+            {comment.replies && comment.replies.length > 0 && (
+              <div className="mt-3 space-y-3">
+                {comment.replies.map((reply) => (
                   <div key={reply._id}>
                     {renderComment(reply, true)}
                   </div>
@@ -280,22 +274,22 @@ export default function CommentList({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {comments && comments.length > 0 ? (
         comments.map((comment) => (
-          <div key={comment._id} className="border-b border-gray-100 dark:border-gray-800 pb-6 last:border-b-0">
+          <div key={comment._id} className="pb-4 last:pb-0">
             {renderComment(comment)}
           </div>
         ))
       ) : (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <MessageCircle className="w-16 h-16 mx-auto" />
+        <div className="text-center py-12 px-4">
+          <div className="text-gray-300 dark:text-gray-600 mb-4">
+            <MessageCircle className="w-12 h-12 mx-auto sm:w-16 sm:h-16" />
           </div>
-          <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <h4 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
             No comments yet
           </h4>
-          <p className="text-gray-500 mb-4 max-w-md mx-auto">
+          <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
             Be the first to share your thoughts on this article.
           </p>
           {!user && (
@@ -303,7 +297,7 @@ export default function CommentList({
               variant="outline" 
               size="sm"
               onClick={() => window.location.href = '/en/login'}
-              className="text-blue-700 border-blue-300 hover:bg-blue-100"
+              className="text-blue-600 border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             >
               <LogIn className="w-4 h-4 mr-2" />
               Login to Comment

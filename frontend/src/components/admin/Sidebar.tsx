@@ -16,6 +16,7 @@ import {
   Heart,
   MessageSquare,
   Palette,
+  Globe,
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 
@@ -143,6 +144,11 @@ const data = {
           title: 'Logo Management',
           url: '/admin/settings/logo',
           icon: Palette,
+        },
+        {
+          title: 'Social Media & Contact',
+          url: '/admin/settings/social-media',
+          icon: Globe,
         },
         {
           title: 'Security',

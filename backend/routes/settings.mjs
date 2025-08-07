@@ -17,13 +17,25 @@ import {
   updateLogoSettings,
   uploadLogo,
   deleteLogo,
-  getLogoPreview
+  getLogoPreview,
+  getSocialMediaSettings,
+  updateSocialMediaSettings,
+  getPublicSocialMediaSettings,
+  getFooterSettings,
+  updateFooterSettings,
+  testSocialMediaConnection,
+  getSocialMediaStats,
+  manualSocialMediaPost
 } from '../controllers/settingsController.mjs';
 
 const router = express.Router();
 
-// All routes require admin access
-router.use(protect, admin);
+// Public routes (no authentication required)
+router.get('/public/social-media', getPublicSocialMediaSettings);
+
+// Protected routes (require authentication)
+router.use(protect);
+router.use(admin);
 
 // General Settings Routes
 router.route('/general')
@@ -48,6 +60,20 @@ router.route('/logo')
 
 router.post('/logo/upload', upload.single('logo'), uploadLogo);
 router.get('/logo/preview', getLogoPreview);
+
+// Social Media Settings Routes
+router.route('/social-media')
+  .get(getSocialMediaSettings)
+  .put(updateSocialMediaSettings);
+
+router.post('/social-media/test', testSocialMediaConnection);
+router.get('/social-media/stats', getSocialMediaStats);
+router.post('/social-media/post', manualSocialMediaPost);
+
+// Footer Settings Routes
+router.route('/footer')
+  .get(getFooterSettings)
+  .put(updateFooterSettings);
 
 // Security Stats and Actions
 router.get('/security/stats', getSecurityStats);

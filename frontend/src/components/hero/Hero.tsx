@@ -2,8 +2,7 @@
 
 import type React from "react"
 import { useMemo, useCallback, useRef } from "react"
-import Link from "next/link"
-import { ArrowRight, Globe, TrendingUp, Eye, Sparkles } from "lucide-react"
+import { ArrowRight, TrendingUp, Eye } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import type { Article, Category } from "@/types"
@@ -12,16 +11,8 @@ import { Badge } from "@/components/ui/badge"
 import { BreakingNewsTicker } from "./BreakingNewsTicker"
 import MainFeature from "./MainFeature"
 import SecondaryFeatureGrid from "./SecondaryFeatureGrid"
-
-// Helper to get localized string or fallback
-type LocalizedString = string | Record<string, string | undefined>
-function getLocalizedString(str: LocalizedString, locale: "en" | "kh"): string {
-  if (typeof str === "string") return str
-  if (str && typeof str === "object") {
-    return str[locale] || str["en"] || Object.values(str)[0] || ""
-  }
-  return ""
-}
+import MoreStories from "./MoreStories"
+import TrendingCategories from "./TrendingCategories"
 
 interface HeroProps {
   breaking: Article[]
@@ -66,7 +57,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
   }, [])
 
   return (
-    <section className="relative min-h-screen " aria-label="Featured content">
+    <section className="relative min-h-screen" aria-label="Featured content">
       {/* Breaking News */}
       {breaking.length > 0 && (
         <div
@@ -83,49 +74,50 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
       )}
 
       {/* Advanced Responsive Grid Layout */}
-      <div className="container mx-auto px-4 pt-8 md:pt-12 relative z-10">
+      <div className="container mx-auto px-2 sm:px-4 pt-4 sm:pt-8 md:pt-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-wrap items-center justify-between gap-4 mb-8 p-6 rounded-2xl border border-border/20 shadow-xl bg-card/60 backdrop-blur-md"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-8 p-3 sm:p-6 rounded-xl sm:rounded-2xl border border-border/20 shadow-lg sm:shadow-xl bg-card/60 backdrop-blur-md"
         >
-          <div className="flex items-center flex-wrap gap-6">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center flex-wrap gap-3 sm:gap-6">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="relative">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50" />
-                <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75" />
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50" />
+                <div className="absolute inset-0 w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full animate-ping opacity-75" />
               </div>
-              <span className="font-medium">Live Coverage</span>
+              <span className="font-medium text-sm sm:text-base">Live Coverage</span>
             </div>
-            <div className="h-6 w-px bg-border" />
+            <div className="hidden sm:block h-6 w-px bg-border" />
             <div className="flex items-center gap-2 text-muted-foreground">
-              <span className="text-sm">Real-time updates</span>
+              <span className="text-xs sm:text-sm">Real-time updates</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Badge variant="secondary" className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+            <Badge variant="secondary" className="flex items-center gap-1 sm:gap-2 text-xs">
               <TrendingUp className="w-3 h-3" aria-hidden="true" />
-              <span>Trending Now</span>
+              <span className="hidden sm:inline">Trending Now</span>
+              <span className="sm:hidden">Trending</span>
             </Badge>
-            <Badge variant="outline" className="flex items-center gap-2">
+            <Badge variant="outline" className="flex items-center gap-1 sm:gap-2 text-xs">
               <Eye className="w-3 h-3" aria-hidden="true" />
-              <span>{formatReaders(READERS_COUNT)} Reading</span>
+              <span>{formatReaders(READERS_COUNT)} <span className="hidden sm:inline">Reading</span></span>
             </Badge>
           </div>
         </motion.div>
 
         {/* Main Advanced Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Left: Main & Secondary Features */}
-          <div className="lg:col-span-2 flex flex-col gap-8">
+          <div className="lg:col-span-2 flex flex-col gap-4 sm:gap-8">
             {/* Main Feature */}
             {mainFeature && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
-                className="relative rounded-3xl overflow-hidden shadow-2xl border bg-gradient-to-br from-blue-100/60 to-white/80"
+                className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border bg-gradient-to-br from-blue-100/60 to-white/80"
               >
                 <MainFeature article={mainFeature} locale={locale} />
               </motion.div>
@@ -138,7 +130,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
                 transition={{ duration: 0.7, delay: 0.3 }}
                 className="w-full"
               >
-                <div className="flex lg:grid lg:grid-cols-1 xl:grid-cols-1 gap-6  pb-2 scrollbar-thin scrollbar-thumb-blue-200">
+                <div className="flex lg:grid lg:grid-cols-1 xl:grid-cols-1 gap-3 sm:gap-6 overflow-x-auto sm:overflow-x-visible pb-2 scrollbar-thin scrollbar-thumb-blue-200">
                   <SecondaryFeatureGrid articles={secondaryFeatures} locale={locale} />
                 </div>
               </motion.div>
@@ -146,82 +138,11 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
           </div>
 
           {/* Right: Sidebar (sticky on desktop) */}
-          <aside className="lg:col-span-1 flex flex-col gap-7 sticky top-24 h-fit">
+          <aside className="lg:col-span-1 flex flex-col gap-4 sm:gap-7 lg:sticky lg:top-24 lg:h-fit">
             {/* More Stories - Minimalistic & Advanced */}
-            <div className="bg-card/50 rounded-2xl border border-border/20 shadow-lg backdrop-blur-sm p-5">
-              <h3 className="font-semibold text-base mb-3 text-foreground tracking-tight flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                More Stories
-              </h3>
-              <div className="space-y-3">
-                {secondaryFeatures.map((article, idx) => (
-                  <Link
-                    key={article._id || idx}
-                    href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug || article._id}`}
-                    className="block group rounded-lg transition-all duration-200 hover:bg-muted/30 px-2 py-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center overflow-hidden border border-border/30">
-                        <Globe className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm group-hover:text-primary transition-colors line-clamp-2">
-                          {getLocalizedString(article.title, locale)}
-                        </h4>
-                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                          {getLocalizedString(article.category?.name, locale)}
-                        </p>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <MoreStories articles={secondaryFeatures} locale={locale} />
             {/* Trending Categories - Minimalistic & Advanced */}
-            {trendingCategories.length > 0 && (
-              <div className="bg-card/50 rounded-2xl border border-border/20 shadow-lg backdrop-blur-sm p-5">
-                <h3 className="font-semibold text-base mb-3 flex items-center gap-2 text-foreground tracking-tight">
-                  <Globe className="w-4 h-4 text-primary" />
-                  Trending Categories
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {trendingCategories.map((category) => {
-                    const articleCount = category.articlesCount ?? 0
-                    const categoryName = getLocalizedString(category.name as LocalizedString, locale) || "Uncategorized"
-                    const categorySlug = typeof category.slug === "string" ? category.slug : category._id
-                    const categoryColor = category.color || "#3b82f6"
-                    return (
-                      <Link
-                        key={category._id}
-                        href={`/${locale === "kh" ? "km" : "en"}/category/${categorySlug}`}
-                        className="px-3 py-1.5 rounded-full border transition-colors flex items-center gap-1"
-                        style={{
-                          backgroundColor: `${categoryColor}15`,
-                          borderColor: `${categoryColor}30`,
-                          color: categoryColor,
-                        }}
-                        aria-label={`View ${categoryName} category with ${articleCount} articles`}
-                      >
-                        <span
-                          className="w-2 h-2 rounded-full mr-1"
-                          style={{ backgroundColor: categoryColor, display: "inline-block" }}
-                        />
-                        {categoryName}
-                        {articleCount > 0 && (
-                          <span
-                            className="ml-1 text-[10px] font-semibold"
-                            style={{ color: categoryColor }}
-                          >
-                            {articleCount}
-                          </span>
-                        )}
-                      </Link>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
+            <TrendingCategories categories={trendingCategories} locale={locale} />
           </aside>
         </div>
 
@@ -231,15 +152,15 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-center pt-8"
+            className="text-center pt-4 sm:pt-8"
           >
             <Button
               variant="outline"
-              size="lg"
-              className="group hover:scale-105 transform-gpu transition-all duration-300 bg-transparent"
+              size="default"
+              className="group hover:scale-105 transform-gpu transition-all duration-300 bg-transparent w-full sm:w-auto"
               onClick={() => router.push("/news")}
             >
-              <span>View All News</span>
+              <span className="text-sm sm:text-base">View All News</span>
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </motion.div>

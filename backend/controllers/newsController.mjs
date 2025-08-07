@@ -5,6 +5,7 @@ import Category from "../models/Category.mjs";
 import Notification from "../models/Notification.mjs";
 import User from "../models/User.mjs";
 import { v2 as cloudinary } from "cloudinary";
+import socialMediaService from "../services/socialMediaService.mjs";
 
 // @desc    Get all news articles for admin (including drafts)
 // @route   GET /api/admin/news
@@ -566,6 +567,21 @@ export const updateNewsStatus = asyncHandler(async (req, res) => {
       if (notifications.length > 0) {
         await Notification.insertMany(notifications);
         console.log(`Created ${notifications.length} notifications for news: ${news.title.en}`);
+      }
+
+      // Auto-post to social media when news is published
+      try {
+        const autoPostResult = await socialMediaService.autoPostContent(news, req.user);
+        console.log('Auto-posting result:', autoPostResult);
+        
+        if (autoPostResult.success) {
+          console.log(`Successfully posted to ${autoPostResult.successfulPosts}/${autoPostResult.totalPlatforms} platforms`);
+        } else {
+          console.log('Auto-posting failed or disabled:', autoPostResult.message);
+        }
+      } catch (error) {
+        console.error('Error in auto-posting:', error);
+        // Don't fail the request if auto-posting fails
       }
     } catch (error) {
       console.error('Error creating notifications:', error);

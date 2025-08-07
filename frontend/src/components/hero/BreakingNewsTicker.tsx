@@ -7,6 +7,7 @@ import { useCarousel } from "@/components/hero/components/use-carousel"
 import type { Article } from "@/types"
 import { cn } from "@/lib/utils"
 import { ChevronLeft, ChevronRight, Zap } from "lucide-react"
+import { FaHotjar } from "react-icons/fa";
 
 interface BreakingNewsTickerProps {
   articles: Article[]
@@ -115,7 +116,7 @@ export const BreakingNewsTicker = forwardRef<BreakingNewsTickerHandle, BreakingN
                   />
                   {/* Center icon */}
                   <div className="relative rounded-full h-8 w-8 bg-white border-2 border-red-600 flex items-center justify-center shadow-lg">
-                    <Zap className="text-red-600 w-4 h-4" />
+                    <FaHotjar className="text-red-600 w-4 h-4" />
                   </div>
                 </div>
                 <div className="flex flex-col text-center">
@@ -228,9 +229,32 @@ export const BreakingNewsTicker = forwardRef<BreakingNewsTickerHandle, BreakingN
                 />
 
                 {/* Center icon */}
-                <div className="relative rounded-full h-8 w-8 bg-white border-2 border-red-600 flex items-center justify-center shadow-lg">
-                  <Zap className="text-red-600 w-4 h-4" />
-                </div>
+                <motion.div 
+                  className="relative rounded-full h-8 w-8 bg-white border-2 border-red-600 flex items-center justify-center shadow-lg"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 10, -10, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      color: ["#dc2626", "#f97316", "#dc2626"],
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <FaHotjar />
+                  </motion.div>
+                </motion.div>
               </div>
 
               <div className="flex flex-col">

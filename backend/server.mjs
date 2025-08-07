@@ -260,6 +260,72 @@ app.use("/api/admin/roles", roleRoutes)
 app.use("/api/admin/activity", activityRoutes)
 app.use("/api/user/activity", userActivityRoutes)
 
+// Public settings routes (no authentication required)
+app.use("/api/settings", settingsRoutes)
+
+// Direct public social media settings endpoint
+app.get("/api/settings/public/social-media", async (req, res) => {
+  try {
+    const Settings = (await import('./models/Settings.mjs')).default;
+    const settings = await Settings.getCategorySettings('social-media');
+    
+    // If no social links are configured, provide some default ones
+    if (!settings.socialLinks || settings.socialLinks.length === 0) {
+      settings.socialLinks = [
+        {
+          platform: 'facebook',
+          url: '#',
+          isActive: false,
+          displayName: 'Facebook'
+        },
+        {
+          platform: 'twitter',
+          url: '#',
+          isActive: false,
+          displayName: 'Twitter'
+        },
+        {
+          platform: 'linkedin',
+          url: '#',
+          isActive: false,
+          displayName: 'LinkedIn'
+        },
+        {
+          platform: 'instagram',
+          url: '#',
+          isActive: false,
+          displayName: 'Instagram'
+        },
+        {
+          platform: 'youtube',
+          url: '#',
+          isActive: false,
+          displayName: 'YouTube'
+        },
+        {
+          platform: 'github',
+          url: '#',
+          isActive: false,
+          displayName: 'GitHub'
+        }
+      ];
+    }
+    
+    console.log('Retrieved public social media settings:', settings);
+    
+    res.json({
+      success: true,
+      settings
+    });
+  } catch (error) {
+    console.error('Error fetching public social media settings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch social media settings'
+    });
+  }
+});
+
 // Enable user login routes
 app.use("/api/admin/user-logins", userLoginRoutes)
 app.use("/api/admin/system", systemRoutes)
