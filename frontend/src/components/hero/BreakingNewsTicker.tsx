@@ -116,7 +116,7 @@ export const BreakingNewsTicker = forwardRef<BreakingNewsTickerHandle, BreakingN
                   />
                   {/* Center icon */}
                   <div className="relative rounded-full h-8 w-8 bg-white border-2 border-red-600 flex items-center justify-center shadow-lg">
-                    <FaHotjar className="text-red-600 w-4 h-4" />
+                    <Zap className="text-red-600 w-4 h-4" />
                   </div>
                 </div>
                 <div className="flex flex-col text-center">

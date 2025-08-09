@@ -17,6 +17,7 @@ import {
   MessageSquare,
   Palette,
   Globe,
+  Monitor,
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 
@@ -109,6 +110,7 @@ const data = {
           url: '/admin/activity',
           icon: Activity,
         },
+
       ],
     },
     {
@@ -162,6 +164,11 @@ const data = {
           title: 'Audit Log',
           url: '/admin/settings/audit',
         },
+        {
+          title: 'System Monitoring',
+          url: '/admin/settings/monitoring',
+          icon: Monitor,
+        }
       ],
     },
   ],

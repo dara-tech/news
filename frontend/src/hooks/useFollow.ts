@@ -11,7 +11,7 @@ interface UseFollowProps {
 interface UseFollowReturn {
   isFollowing: boolean;
   isLoading: boolean;
-  toggleFollowStatus: () => Promise<void>;
+  toggleFollowStatus: () => Promise<FollowResponse | void>;
   checkStatus: () => Promise<void>;
 }
 
@@ -34,7 +34,7 @@ export const useFollow = ({ userId, initialFollowing = false }: UseFollowProps):
     }
   }, [userId, user]);
 
-  const toggleFollowStatus = useCallback(async () => {
+  const toggleFollowStatus = useCallback(async (): Promise<FollowResponse | void> => {
     if (!user) {
       toast.error('Please log in to follow users');
       return;
@@ -48,17 +48,12 @@ export const useFollow = ({ userId, initialFollowing = false }: UseFollowProps):
     try {
       setIsLoading(true);
       const response: FollowResponse = await toggleFollow(userId);
-      
       setIsFollowing(response.following || false);
-      
-      if (response.following) {
-        toast.success('User followed successfully');
-      } else {
-        toast.success('User unfollowed successfully');
-      }
+      return response;
     } catch (error: any) {
       console.error('Error toggling follow status:', error);
-      toast.error(error.message || 'Failed to update follow status');
+      // Let the caller decide how to display errors
+      throw error;
     } finally {
       setIsLoading(false);
     }

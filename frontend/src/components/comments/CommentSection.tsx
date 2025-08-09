@@ -25,7 +25,12 @@ function wsCommentToComment(wsComment: WebSocketComment): Comment {
     content: wsComment.content,
     user: wsComment.user,
     news: wsComment.news,
-    parentComment: wsComment.parentComment,
+    parentComment: wsComment.parentComment
+      ? (typeof wsComment.parentComment === 'string'
+          ? wsComment.parentComment
+          : // @ts-expect-error: parentComment may be ObjectId-like
+            (wsComment.parentComment.toString ? wsComment.parentComment.toString() : String(wsComment.parentComment)))
+      : undefined,
     isEdited: wsComment.isEdited,
     editedAt: wsComment.editedAt,
     likes: wsComment.likes || [],
@@ -54,6 +59,91 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
 
   // Type for optimistic comments
   type OptimisticComment = Comment & { isOptimistic?: boolean };
+
+  // Helper: replace or insert a reply anywhere in the tree under its parent
+  const insertOrReplaceReplyInTree = useCallback((nodes: Comment[], newReply: Comment): Comment[] => {
+    return nodes.map(node => {
+      // If this node is the parent, update its replies
+      if (node._id?.toString() === newReply.parentComment?.toString()) {
+        const existingReplies = node.replies || [];
+        // Replace by id if present
+        const idIdx = existingReplies.findIndex(r => r._id === newReply._id);
+        if (idIdx !== -1) {
+          const updated = [...existingReplies];
+          updated[idIdx] = newReply;
+          return { ...node, replies: updated };
+        }
+        // Replace optimistic match by content/time
+        const optimisticIdx = existingReplies.findIndex(r =>
+          (r as unknown as { isOptimistic?: boolean }).isOptimistic === true &&
+          r.content === newReply.content &&
+          Math.abs(new Date(r.createdAt).getTime() - new Date(newReply.createdAt).getTime()) < 15000
+        );
+        if (optimisticIdx !== -1) {
+          const updated = [...existingReplies];
+          updated[optimisticIdx] = newReply;
+          return { ...node, replies: updated };
+        }
+        return { ...node, replies: [...existingReplies, newReply] };
+      }
+      // Otherwise, recurse into children if any
+      const childReplies = node.replies && node.replies.length > 0
+        ? insertOrReplaceReplyInTree(node.replies, newReply)
+        : node.replies;
+      // Only create a new object if children changed
+      if (childReplies !== node.replies) {
+        return { ...node, replies: childReplies };
+      }
+      return node;
+    });
+  }, []);
+
+  // Helper: replace a comment by id anywhere in the tree
+  const replaceCommentInTree = useCallback((nodes: Comment[], updated: Comment): Comment[] => {
+    return nodes.map(node => {
+      if (node._id === updated._id) {
+        return updated;
+      }
+      const childReplies = node.replies && node.replies.length > 0
+        ? replaceCommentInTree(node.replies, updated)
+        : node.replies;
+      if (childReplies !== node.replies) {
+        return { ...node, replies: childReplies };
+      }
+      return node;
+    });
+  }, []);
+
+  // Helper: delete a comment id anywhere in the tree
+  const deleteCommentInTree = useCallback((nodes: Comment[], idToRemove: string): Comment[] => {
+    return nodes
+      .map(node => {
+        const childReplies = node.replies && node.replies.length > 0
+          ? deleteCommentInTree(node.replies, idToRemove)
+          : node.replies;
+        if (childReplies !== node.replies) {
+          return { ...node, replies: childReplies };
+        }
+        return node;
+      })
+      .filter(node => node._id !== idToRemove);
+  }, []);
+
+  // Helper: update likes for a comment anywhere in the tree without replacing other fields
+  const updateLikesInTree = useCallback((nodes: Comment[], targetId: string, newLikes: string[]): Comment[] => {
+    return nodes.map(node => {
+      if (node._id === targetId) {
+        return { ...node, likes: newLikes };
+      }
+      if (node.replies && node.replies.length > 0) {
+        const updatedReplies = updateLikesInTree(node.replies, targetId, newLikes);
+        if (updatedReplies !== node.replies) {
+          return { ...node, replies: updatedReplies };
+        }
+      }
+      return node;
+    });
+  }, []);
 
   const loadComments = useCallback(async () => {
     try {
@@ -95,15 +185,7 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
     setComments((prev: Comment[]) => {
       // If this is a reply, add it to the parent comment's replies
       if (newComment.parentComment) {
-        return prev.map(comment => {
-          if (comment._id === newComment.parentComment) {
-            return {
-              ...comment,
-              replies: [...(comment.replies || []), newComment]
-            };
-          }
-          return comment;
-        });
+        return insertOrReplaceReplyInTree(prev, newComment);
       }
       // If this is a top-level comment, add it to the main array
       return [newComment, ...prev];
@@ -111,7 +193,8 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
     
     setStats((prev: CommentStats | null) => prev ? {
       ...prev,
-      totalComments: prev.totalComments + 1
+      totalComments: prev.totalComments + (newComment.parentComment ? 0 : 1),
+      totalReplies: (prev.totalReplies || 0) + (newComment.parentComment ? 1 : 0)
     } : null);
   };
 
@@ -139,33 +222,37 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
   };
 
   const handleCommentUpdated = (updatedComment: Comment) => {
-    setComments((prev: Comment[]) => prev.map(comment => 
-      comment._id === updatedComment._id ? updatedComment : comment
-    ));
+    setComments((prev: Comment[]) => replaceCommentInTree(prev, updatedComment));
   };
 
   const { user } = useAuth();
 
   const handleCommentLiked = (commentId: string, hasLiked: boolean) => {
-    setComments((prev: Comment[]) => prev.map(comment => {
-      if (comment._id === commentId) {
-        const currentLikes = comment.likes || [];
-        const userId = user?._id || 'current-user-id';
-
-        if (hasLiked) {
-          return {
-            ...comment,
-            likes: [...currentLikes, userId]
-          };
-        } else {
-          return {
-            ...comment,
-            likes: currentLikes.filter((id: string) => id !== userId)
-          };
+    // Optimistic likes update on targeted node only (top-level or reply)
+    setComments((prev: Comment[]) => {
+      // Find current likes to compute new array
+      // Helper to find node and get current likes
+      const findLikes = (nodes: Comment[]): string[] | null => {
+        for (const node of nodes) {
+          if (node._id === commentId) return node.likes || [];
+          if (node.replies && node.replies.length > 0) {
+            const result = findLikes(node.replies);
+            if (result) return result;
+          }
         }
+        return null;
+      };
+
+      const currentLikes = findLikes(prev) || [];
+      const currentUserId = user?._id;
+      if (!currentUserId) {
+        return prev;
       }
-      return comment;
-    }));
+      const newLikes = hasLiked
+        ? [...currentLikes, currentUserId]
+        : currentLikes.filter((id: string) => id !== currentUserId);
+      return updateLikesInTree(prev, commentId, newLikes);
+    });
   };
 
   // WebSocket real-time updates
@@ -173,36 +260,9 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
     onCommentCreated: (newComment) => {
       const comment = wsCommentToComment(newComment);
       setComments((prev: OptimisticComment[]) => {
-        // Check for existing comment by ID first
-        const existingById = prev.find(c => c._id === comment._id);
-        if (existingById) {
-          return prev.map(c => c._id === comment._id ? comment : c);
-        }
-
-        // Check for optimistic comment by content and time
-        const existingOptimistic = prev.find(c =>
-          c.isOptimistic &&
-          c.content === comment.content &&
-          Math.abs(new Date(c.createdAt).getTime() - new Date(comment.createdAt).getTime()) < 15000
-        );
-
-        if (existingOptimistic) {
-          return prev.map(c =>
-            c._id === existingOptimistic._id ? comment : c
-          );
-        }
-
-        // If this is a reply, add it to the parent comment's replies
+        // If this is a reply, add it to the parent comment's replies with de-dup
         if (comment.parentComment) {
-          return prev.map(c => {
-            if (c._id === comment.parentComment) {
-              return {
-                ...c,
-                replies: [...(c.replies || []), comment]
-              };
-            }
-            return c;
-          });
+          return insertOrReplaceReplyInTree(prev, comment);
         }
 
         // If this is a top-level comment, add it to the main array
@@ -211,32 +271,17 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
 
       setStats((prev: CommentStats | null) => prev ? {
         ...prev,
-        totalComments: prev.totalComments + 1
+        totalComments: prev.totalComments + (comment.parentComment ? 0 : 1),
+        totalReplies: (prev.totalReplies || 0) + (comment.parentComment ? 1 : 0)
       } : null);
     },
     onCommentUpdated: (updatedComment) => {
       const comment = wsCommentToComment(updatedComment);
-      setComments((prev: Comment[]) => prev.map(c =>
-        c._id === comment._id ? comment : c
-      ));
+      setComments((prev: Comment[]) => replaceCommentInTree(prev, comment));
     },
     onCommentDeleted: (commentId) => {
-      setComments((prev: Comment[]) => {
-        // First, try to remove from main comments array
-        const filteredMain = prev.filter(comment => comment._id !== commentId);
-        
-        // If the comment wasn't in main array, it might be a reply
-        if (filteredMain.length === prev.length) {
-          // Search for the reply in all parent comments' replies arrays
-          return prev.map(comment => ({
-            ...comment,
-            replies: (comment.replies || []).filter(reply => reply._id !== commentId)
-          }));
-        }
-        
-        return filteredMain;
-      });
-      
+      setComments((prev: Comment[]) => deleteCommentInTree(prev, commentId));
+       
       setStats((prev: CommentStats | null) => prev ? {
         ...prev,
         totalComments: Math.max(0, prev.totalComments - 1)
@@ -244,22 +289,8 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
     },
     onCommentLiked: (updatedComment) => {
       const comment = wsCommentToComment(updatedComment);
-      setComments((prev: Comment[]) => prev.map(c => {
-        if (c._id === comment._id) {
-          const currentLikes = c.likes || [];
-          const newLikes = comment.likes || [];
-
-          if (
-            Array.isArray(currentLikes) &&
-            Array.isArray(newLikes) &&
-            (currentLikes.length !== newLikes.length ||
-              !currentLikes.every(like => newLikes.includes(like)))
-          ) {
-            return comment;
-          }
-        }
-        return c;
-      }));
+      const newLikes = (comment.likes || []).map(id => id.toString());
+      setComments((prev: Comment[]) => updateLikesInTree(prev, comment._id, newLikes));
     },
     onStatsUpdated: (newStats) => {
       setStats(wsStatsToStats(newStats));
@@ -427,6 +458,7 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
           onCommentDeleted={handleCommentDeleted}
           onCommentLiked={handleCommentLiked}
           onCommentUpdated={handleCommentUpdated}
+          onCommentCreated={handleCommentCreated}
         />
       </div>
 

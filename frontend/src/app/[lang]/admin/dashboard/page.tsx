@@ -5,7 +5,6 @@ import api from '@/lib/api';
 import StatCard from '@/components/admin/StatCard';
 import NewsByCategoryChart from '@/components/admin/charts/NewsByCategoryChart';
 import DashboardOverview from '@/components/admin/DashboardOverview';
-import SystemMonitoring from '@/components/admin/SystemMonitoring';
 import AdvancedAnalyticsChart from '@/components/admin/charts/AdvancedAnalyticsChart';
 import UserLoginMap from '@/components/admin/UserLoginMap';
 import CommentManager from '@/components/admin/comments/CommentManager';
@@ -569,10 +568,7 @@ export default function DashboardPage() {
             <Globe className="h-4 w-4" />
             <span className="hidden sm:inline">Social</span>
           </TabsTrigger>
-          <TabsTrigger value="monitoring" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            <span className="hidden sm:inline">Monitoring</span>
-          </TabsTrigger>
+        
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
@@ -694,10 +690,7 @@ export default function DashboardPage() {
             }}
           />
         </TabsContent>
-        
-        <TabsContent value="monitoring" className="space-y-6">
-          <SystemMonitoring />
-        </TabsContent>
+     
       </Tabs>
     </div>
   );

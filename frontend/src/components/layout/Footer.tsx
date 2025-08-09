@@ -1,3 +1,5 @@
+'use client'
+
 import { FC, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
@@ -130,7 +132,12 @@ const Footer: FC = () => {
     fetchSettings();
   }, []);
 
-  const activeSocialLinks = socialMediaSettings.socialLinks.filter(link => link.isActive && link.url);
+  const activeSocialLinks = (socialMediaSettings.socialLinks || [])
+    .filter(link => link.isActive)
+    .map(link => ({
+      ...link,
+      url: link.url && link.url.trim() ? link.url : '#',
+    }));
 
   const mainLinks = [
     { name: 'Home', href: '/' },

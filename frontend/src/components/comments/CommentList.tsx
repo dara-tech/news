@@ -22,6 +22,7 @@ interface CommentListProps {
   onCommentDeleted: (commentId: string) => void;
   onCommentLiked: (commentId: string, hasLiked: boolean) => void;
   onCommentUpdated?: (comment: Comment) => void;
+  onCommentCreated?: (comment: Comment) => void; // Bubble new replies up
 }
 
 type OptimisticComment = Comment & { isOptimistic?: boolean };
@@ -32,6 +33,7 @@ export default function CommentList({
   onCommentDeleted,
   onCommentLiked,
   onCommentUpdated,
+  onCommentCreated,
 }: CommentListProps) {
   const { user } = useAuth();
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -112,7 +114,22 @@ export default function CommentList({
       .slice(0, 2);
   };
 
-  const renderComment = (comment: OptimisticComment, isReply = false) => {
+  // Collect all descendant replies as a flat list with their immediate parent's username
+  const collectRepliesWithParents = (replies: Comment[] | undefined, parentUserName: string): Array<{ node: Comment; parentUserName: string }> => {
+    if (!replies || replies.length === 0) return [];
+    const result: Array<{ node: Comment; parentUserName: string }> = [];
+    for (const r of replies) {
+      result.push({ node: r, parentUserName });
+      // Recurse to include deeper levels, but keep parentUserName as the immediate parent (r.user?.username) for their children
+      const childParent = r.user?.username || parentUserName;
+      if (r.replies && r.replies.length > 0) {
+        result.push(...collectRepliesWithParents(r.replies, childParent));
+      }
+    }
+    return result;
+  };
+
+  const renderComment = (comment: OptimisticComment, isReply = false, replyingToName?: string) => {
     const isOptimistic = comment.isOptimistic === true;
     const hasLiked = user && comment.likes.some(likeId => likeId.toString() === user._id?.toString());
 
@@ -195,6 +212,9 @@ export default function CommentList({
                 </div>
               ) : (
                 <div className="space-y-3">
+                  {isReply && replyingToName && (
+                    <div className="text-xs text-gray-500">Replying to <span className="font-medium">{replyingToName}</span></div>
+                  )}
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                     {comment.content}
                   </p>
@@ -256,13 +276,12 @@ export default function CommentList({
                 />
               </div>
             )}
-
-            {/* Replies */}
-            {comment.replies && comment.replies.length > 0 && (
+            {/* Replies (flat: only 2 levels in UI) */}
+            {!isReply && comment.replies && comment.replies.length > 0 && (
               <div className="mt-3 space-y-3">
-                {comment.replies.map((reply) => (
-                  <div key={reply._id}>
-                    {renderComment(reply, true)}
+                {collectRepliesWithParents(comment.replies, comment.user?.username || '').map(({ node, parentUserName }) => (
+                  <div key={node._id}>
+                    {renderComment(node as OptimisticComment, true, parentUserName)}
                   </div>
                 ))}
               </div>
