@@ -1,5 +1,7 @@
 import asyncHandler from "express-async-handler";
 import os from 'os';
+import Settings from '../models/Settings.mjs';
+import sentinelService from '../services/sentinelService.mjs';
 
 // @desc    Get system metrics
 // @route   GET /api/admin/system/metrics
@@ -116,4 +118,90 @@ export const getSystemMetrics = asyncHandler(async (req, res) => {
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
+});
+
+// @desc    Get Sentinel configuration/state
+// @route   GET /api/admin/system/sentinel
+// @access  Private/Admin
+export const getSentinelConfig = asyncHandler(async (req, res) => {
+  const cfg = await Settings.getCategorySettings('integrations');
+  res.json({
+    success: true,
+    config: {
+      enabled: !!cfg.sentinelEnabled,
+      autoPersist: !!cfg.sentinelAutoPersist,
+      frequencyMs: Number(cfg.sentinelFrequencyMs || 300000),
+      sources: cfg.sentinelSources || [],
+      lastRunAt: cfg.sentinelLastRunAt || null
+    },
+    runtime: {
+      running: !!sentinelService.intervalHandle,
+      nextRunAt: sentinelService.nextRunAt,
+      lastRunAt: sentinelService.lastRunAt,
+      lastCreated: sentinelService.lastCreated,
+      lastProcessed: sentinelService.lastProcessed,
+      cooldownUntil: sentinelService.cooldownUntilMs ? new Date(sentinelService.cooldownUntilMs) : null,
+      maxPerRun: Number(process.env.SENTINEL_MAX_PER_RUN || 3),
+      frequencyMs: sentinelService.frequencyMs,
+    }
+  });
+});
+
+// @desc    Update Sentinel configuration
+// @route   PUT /api/admin/system/sentinel
+// @access  Private/Admin
+export const updateSentinelConfig = asyncHandler(async (req, res) => {
+  const { enabled, autoPersist, frequencyMs, sources } = req.body;
+  const userId = req.user?._id || new (await import('mongoose')).default.Types.ObjectId('000000000000000000000000');
+  const updates = {};
+  if (enabled !== undefined) updates.sentinelEnabled = !!enabled;
+  if (autoPersist !== undefined) updates.sentinelAutoPersist = !!autoPersist;
+  if (frequencyMs !== undefined) updates.sentinelFrequencyMs = Number(frequencyMs);
+  if (Array.isArray(sources)) updates.sentinelSources = sources;
+  const saved = await Settings.updateCategorySettings('integrations', updates, userId);
+  // Restart sentinel if running
+  try {
+    sentinelService.stop();
+    if (updates.sentinelEnabled) {
+      process.env.SENTINEL_ENABLED = 'true';
+      if (updates.sentinelFrequencyMs) process.env.SENTINEL_FREQUENCY_MS = String(updates.sentinelFrequencyMs);
+      sentinelService.start();
+    }
+  } catch (e) {
+    // ignore
+  }
+  res.json({ success: true, settings: saved });
+});
+
+// @desc    Run Sentinel one-off (no persist)
+// @route   POST /api/admin/system/sentinel/run-once
+// @access  Private/Admin
+export const runSentinelOnce = asyncHandler(async (req, res) => {
+  try {
+    await sentinelService.runOnce();
+    const now = new Date();
+    await Settings.updateCategorySettings('integrations', { sentinelLastRunAt: now }, req.user?._id);
+    res.json({ success: true, message: 'Sentinel executed.' });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+// @desc    Get recent Sentinel logs (in-memory buffer)
+// @route   GET /api/admin/system/sentinel/logs
+// @access  Private/Admin
+export const getSentinelLogs = asyncHandler(async (req, res) => {
+  const logs = sentinelService.logBuffer || [];
+  res.json({ success: true, logs });
+});
+
+// @desc    Import a single URL via Sentinel (preview or persist)
+// @route   POST /api/admin/system/sentinel/import-url
+// @access  Private/Admin
+export const importSentinelUrl = asyncHandler(async (req, res) => {
+  const { url, persist } = req.body || {};
+  if (!url) return res.status(400).json({ success: false, message: 'url is required' });
+  const result = await sentinelService.importUrl(url, { persist: !!persist });
+  if (result.success) return res.json({ success: true, ...result });
+  return res.status(500).json({ success: false, message: result.message || 'Import failed' });
 });

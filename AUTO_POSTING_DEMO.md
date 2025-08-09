@@ -250,3 +250,23 @@ The automatic social media posting system provides:
 - **Production Ready**: Easy to configure with real API credentials
 
 The system is now ready to automatically share your content across all configured social media platforms whenever articles are published! 🚀 
+
+---
+
+## 🤖 Sentinel-PP-01 (AI News Analyst)
+
+- Monitors major RSS sources relevant to Cambodia/ASEAN
+- Uses Gemini to generate English-only JSON drafts (headline, description, content, SEO, tags)
+- Saves draft articles for editorial review
+
+### Enable
+
+Set env in backend:
+
+```
+SENTINEL_ENABLED=true
+SENTINEL_FREQUENCY_MS=300000
+GOOGLE_API_KEY=your_google_api_key
+```
+
+On server start, Sentinel runs on the configured interval.

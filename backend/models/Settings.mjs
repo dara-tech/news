@@ -145,6 +145,22 @@ settingsSchema.statics.initializeDefaults = async function() {
       webhookUrl: '',
       webhookSecret: '',
       webhookEnabled: false,
+      // Sentinel (AI News Analyst)
+      sentinelEnabled: false,
+      sentinelAutoPersist: false,
+      sentinelFrequencyMs: 300000,
+      sentinelSources: [
+        { name: 'Phnom Penh Post', url: 'https://www.phnompenhpost.com/rss', enabled: true },
+        { name: 'Khmer Times', url: 'https://www.khmertimeskh.com/feed/', enabled: true },
+        { name: 'VOA Khmer', url: 'https://www.voacambodia.com/api/ztqmreievt', enabled: true },
+        { name: 'Nikkei Asia', url: 'https://asia.nikkei.com/rss', enabled: true },
+        { name: 'Reuters', url: 'https://feeds.reuters.com/reuters/topNews', enabled: true },
+        { name: 'Bloomberg', url: 'https://www.bloomberg.com/feeds/podcasts/etf-report.xml', enabled: false },
+        { name: 'Associated Press', url: 'https://apnews.com/rss', enabled: true },
+        { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', enabled: true },
+        { name: 'World Bank', url: 'https://www.worldbank.org/en/news/all?format=rss', enabled: true }
+      ],
+      sentinelLastRunAt: null
     },
     logo: {
       logoDisplayMode: 'text',

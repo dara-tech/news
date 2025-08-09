@@ -70,6 +70,20 @@ const newsSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    // Sentinel/source attribution (optional)
+    source: {
+      name: { type: String },
+      url: { type: String },
+      publishedAt: { type: Date },
+      guid: { type: String },
+    },
+    // Ingestion metadata (optional)
+    ingestion: {
+      method: { type: String }, // e.g., 'sentinel', 'manual'
+      model: { type: String },  // e.g., 'gemini-2.0-flash'
+      cost: { type: Number },   // estimated token/$ if available
+      retries: { type: Number, default: 0 },
+    },
 
   },
   {
@@ -104,6 +118,9 @@ newsSchema.index({
   'content.kh': 'text',
   'meta.keywords': 'text'
 });
+
+// Unique sparse index to prevent duplicate ingestion by source guid
+newsSchema.index({ 'source.guid': 1 }, { unique: true, sparse: true });
 
 // Virtual for formatted date
 newsSchema.virtual('formattedDate').get(function() {

@@ -33,6 +33,7 @@ import adminFollowRoutes from "./routes/adminFollows.mjs"
 import http from 'http';
 import https from 'https';
 import CommentWebSocket from './websocket.mjs';
+import sentinelService from './services/sentinelService.mjs';
 
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -398,6 +399,11 @@ app.get('/api/websocket-test', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Start Sentinel if enabled
+setTimeout(() => {
+  sentinelService.start();
+}, 2000);
 
 // --- Auto-Reload (Keep-Alive) Ping ---
 // Fix: Always ping the deployed Render URL, not the current server's own URL.

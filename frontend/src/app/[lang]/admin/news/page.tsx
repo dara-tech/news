@@ -22,6 +22,8 @@ const NewsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalArticles, setTotalArticles] = useState(0);
   const articlesPerPage = 10;
 
   useEffect(() => {
@@ -33,11 +35,12 @@ const NewsPage = () => {
         
         setLoading(true);
         const { data } = await api.get('/news/admin', {
-          headers: {
-            Authorization: `Bearer ${user.token}`
-          }
+          params: { page: currentPage, limit: articlesPerPage },
+          headers: { Authorization: `Bearer ${user.token}` }
         });
         setArticles(data.articles || []);
+        setTotalPages(data.totalPages || 1);
+        setTotalArticles(data.totalArticles || (data.articles?.length || 0));
       } catch {
         setError('Failed to fetch news articles.');
         toast.error('Failed to fetch news articles.');
@@ -47,7 +50,7 @@ const NewsPage = () => {
     };
 
     fetchNews();
-  }, [user]);
+  }, [user, currentPage]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -81,7 +84,7 @@ const NewsPage = () => {
       const headers = ['Title', 'Status', 'Author', 'Created Date', 'Views', 'Category'];
       const csvContent = [
         headers.join(','),
-        ...filteredArticles.map(article => [
+        ...articles.map(article => [
           `"${article.title.en.replace(/"/g, '""')}"`,
           article.status,
           `"${article.author?.email || 'Unknown'}"`,
@@ -133,13 +136,22 @@ const NewsPage = () => {
     window.location.href = '/admin/news/create';
   };
 
-  // Filtering and Pagination logic
-  const filteredArticles = articles;
+  // Pagination indexes for display
+  const indexOfFirstArticle = (currentPage - 1) * articlesPerPage;
+  const indexOfLastArticle = indexOfFirstArticle + (articles?.length || 0);
 
-  const indexOfLastArticle = currentPage * articlesPerPage;
-  const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
-  const currentArticles = filteredArticles.slice(indexOfFirstArticle, indexOfLastArticle);
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+  // Ensure current page is valid when articles change
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -154,14 +166,10 @@ const NewsPage = () => {
       return <EmptyState title="No Articles Found" description="You haven't created any news articles yet. Get started by creating one." />;
     }
 
-    if (filteredArticles.length === 0) {
-      return <EmptyState title="No Matching Articles" description="Your search for '${searchTerm}' did not return any results." />;
-    }
-
     return (
       <>
         <NewsTable 
-          articles={currentArticles} 
+          articles={articles} 
           onDelete={handleDelete} 
           onDuplicate={handleDuplicate} 
           onStatusChange={handleStatusChange}
@@ -169,14 +177,16 @@ const NewsPage = () => {
           onExport={handleExport}
           onBulkDelete={handleBulkDelete}
         />
-        <NewsPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-          indexOfFirstArticle={indexOfFirstArticle}
-          indexOfLastArticle={indexOfLastArticle}
-          totalArticles={filteredArticles.length}
-        />
+        {totalPages > 1 && (
+          <NewsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={handlePageChange}
+            indexOfFirstArticle={indexOfFirstArticle}
+            indexOfLastArticle={indexOfLastArticle}
+            totalArticles={totalArticles}
+          />
+        )}
       </>
     );
   };
