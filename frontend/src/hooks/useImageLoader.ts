@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getFullImageUrl } from '@/lib/imageService';
 
 interface UseImageLoaderOptions {
@@ -17,6 +17,16 @@ export const useImageLoader = ({
   const [imageSrc, setImageSrc] = useState<string | null>(src || null);
   const [isLoading, setIsLoading] = useState<boolean>(!!src);
   const [hasError, setHasError] = useState<boolean>(false);
+  
+  // Use refs to store the latest callback functions to avoid dependency issues
+  const onErrorRef = useRef(onError);
+  const onLoadRef = useRef(onLoad);
+  
+  // Update refs when callbacks change
+  useEffect(() => {
+    onErrorRef.current = onError;
+    onLoadRef.current = onLoad;
+  }, [onError, onLoad]);
 
   useEffect(() => {
     if (!src) {
@@ -34,7 +44,7 @@ export const useImageLoader = ({
     img.onload = () => {
       setIsLoading(false);
       setHasError(false);
-      onLoad?.();
+      onLoadRef.current?.();
     };
     img.onerror = () => {
       setIsLoading(false);
@@ -46,31 +56,33 @@ export const useImageLoader = ({
         const fallbackImg = new Image();
         fallbackImg.onload = () => {
           setHasError(false);
-          onLoad?.();
+          onLoadRef.current?.();
         };
         fallbackImg.onerror = () => {
           setHasError(true);
-          onError?.();
+          onErrorRef.current?.();
         };
         fallbackImg.src = fallbackSrc;
       } else {
-        onError?.();
+        onErrorRef.current?.();
       }
     };
     img.src = src;
-  }, [src, fallbackSrc, onError, onLoad]);
+  }, [src, fallbackSrc]); // Removed onError and onLoad from dependencies
+
+  const reload = useCallback(() => {
+    if (src) {
+      setIsLoading(true);
+      setHasError(false);
+      setImageSrc(src);
+    }
+  }, [src]);
 
   return {
     imageSrc,
     isLoading,
     hasError,
-    reload: () => {
-      if (src) {
-        setIsLoading(true);
-        setHasError(false);
-        setImageSrc(src);
-      }
-    }
+    reload
   };
 };
 

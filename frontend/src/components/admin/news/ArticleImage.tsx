@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Image from 'next/image';
 import { ImageIcon, Loader2 } from 'lucide-react';
 import { useImageLoader, getArticleImageUrl } from '@/hooks/useImageLoader';
@@ -17,9 +17,14 @@ const ArticleImage: React.FC<ArticleImageProps> = ({
   showPlaceholder = true 
 }) => {
   const imageUrl = getArticleImageUrl(article);
+  
+  const handleError = useCallback(() => {
+    console.warn('Failed to load image:', imageUrl);
+  }, [imageUrl]);
+  
   const { isLoading, hasError } = useImageLoader({ 
     src: imageUrl,
-    onError: () => console.warn('Failed to load image:', imageUrl)
+    onError: handleError
   });
 
   const sizeClasses = {

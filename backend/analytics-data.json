@@ -1,16 +1,16 @@
 {
   "pageViews": {
-    "/news/breaking": 560,
-    "/news": 617,
-    "/news/featured": 563,
-    "/categories": 1276,
-    "/notifications/count": 3383,
-    "/dashboard/advanced-stats": 548,
-    "/maintenance-status": 344,
+    "/news/breaking": 563,
+    "/news": 620,
+    "/news/featured": 566,
+    "/categories": 1283,
+    "/notifications/count": 3386,
+    "/dashboard/advanced-stats": 549,
+    "/maintenance-status": 347,
     "/auth/login": 26,
-    "/auth/profile": 597,
-    "/notifications": 637,
-    "/dashboard/stats": 1109,
+    "/auth/profile": 600,
+    "/notifications": 639,
+    "/dashboard/stats": 1110,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
@@ -26,7 +26,7 @@
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 95,
+    "/news/admin": 99,
     "/health": 1,
     "/new": 1,
     "/admin/likes": 44,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 728,
+    "/admin/settings/logo": 733,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -109,11 +109,11 @@
     "/likes/68940700b4cf5ac48729df9d/status": 3,
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
-    "/admin/settings/footer": 84,
-    "/admin/settings/social-media": 237,
+    "/admin/settings/footer": 86,
+    "/admin/settings/social-media": 238,
     "/admin/settings/social-media/stats": 7,
     "/admin/settings/social-media/test": 14,
-    "/settings/public/social-media": 74,
+    "/settings/public/social-media": 76,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -229,7 +229,7 @@
     "/likes/689ac021eb93206627c2cbf4/status": 1,
     "/comments/689ac021eb93206627c2cbf4/stats": 1,
     "/news/689ac32beb93206627c2cd96": 2,
-    "/news/israel-s-post-war-gaza-plan-key-questions-remain-unanswered": 6,
+    "/news/israel-s-post-war-gaza-plan-key-questions-remain-unanswered": 8,
     "/likes/689ac32beb93206627c2cd96/status": 4,
     "/comments/689ac32beb93206627c2cd96": 5,
     "/comments/689ac32beb93206627c2cd96/stats": 4,
@@ -375,26 +375,26 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 538,
+      "pageViews": 583,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 484,
-        "Direct": 54
+        "Referral": 515,
+        "Direct": 68
       },
       "deviceTypes": {
-        "Desktop": 538
+        "Desktop": 583
       }
     }
   },
   "trafficSources": {
-    "Direct": 3130,
-    "Referral": 12661
+    "Direct": 3144,
+    "Referral": 12692
   },
   "deviceTypes": {
-    "Desktop": 15068,
+    "Desktop": 15113,
     "Mobile": 723
   }
 }
