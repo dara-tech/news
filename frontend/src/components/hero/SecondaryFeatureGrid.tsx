@@ -94,7 +94,7 @@ function MobileCard({ article, locale, index }: { article: Article; locale: "en"
       className="group relative"
     >
       <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 via-white/5 to-white/10 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-500 backdrop-blur-sm">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 via-white/5 to-white/10 border border-white/20 transition-all duration-500 backdrop-blur-sm">
           {/* Advanced background effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
@@ -122,7 +122,7 @@ function MobileCard({ article, locale, index }: { article: Article; locale: "en"
               {categoryName && (
                 <div className="absolute top-3 left-3 z-20">
                   <span
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm shadow-sm border border-white/30"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm border border-white/30"
                     style={{ color: categoryColor }}
                   >
                     <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: categoryColor }} />
@@ -136,7 +136,7 @@ function MobileCard({ article, locale, index }: { article: Article; locale: "en"
                 <div className="absolute top-3 right-3 z-20">
                   <div className="relative">
                     <div className="absolute inset-0 bg-red-500/20 backdrop-blur-sm rounded-full blur-sm animate-pulse" />
-                    <div className="relative p-1.5 bg-red-500/90 rounded-full backdrop-blur-sm shadow-lg border border-red-400/30">
+                    <div className="relative p-1.5 bg-red-500/90 rounded-full backdrop-blur-sm border border-red-400/30">
                       <TrendingUp className="w-3 h-3 text-white" />
                     </div>
                   </div>
@@ -197,7 +197,7 @@ function TabletCard({ article, locale }: { article: Article; locale: "en" | "kh"
       className="group"
     >
                       <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
-                  <div className="bg-card/50 border border-border/20 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 h-full backdrop-blur-sm">
+                  <div className="bg-card/50 border border-border/20 rounded-xl overflow-hidden transition-all duration-300 h-full backdrop-blur-sm">
           {/* Image Header */}
           <div className="relative h-48">
             <Image
@@ -279,7 +279,7 @@ function DesktopCard({
       className="group"
     >
       <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
-        <div className="bg-card/50 border border-border/20 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
+        <div className="bg-card/50 border border-border/20 rounded-xl overflow-hidden transition-all duration-300 backdrop-blur-sm">
           {/* Image */}
           <div className="relative h-32 overflow-hidden">
             <Image
@@ -342,7 +342,7 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
   if (articles.length === 1) {
     const article = articles[0];
     return (
-      <div className="group relative overflow-hidden rounded-xl bg-card border border-border/20 shadow-lg hover:shadow-xl transition-all duration-300">
+      <div className="group relative overflow-hidden rounded-xl bg-card border border-border/20 transition-all duration-300">
         <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
           <div className="flex flex-col h-full">
             {/* Image */}
@@ -363,7 +363,7 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
               {getCategoryInfo(article, locale).categoryName && (
                 <div className="absolute top-4 left-4">
                   <span
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm shadow-sm"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm"
                     style={{ color: getCategoryInfo(article, locale).categoryColor }}
                   >
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCategoryInfo(article, locale).categoryColor }} />

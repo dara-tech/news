@@ -74,7 +74,7 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
 
   return (
     <div
-      className="relative rounded-2xl lg:rounded-3xl overflow-hidden group shadow-2xl lg:shadow-3xl backdrop-blur-lg border border-border/20"
+      className="relative rounded-2xl lg:rounded-3xl overflow-hidden group backdrop-blur-lg border border-border/20"
     >
       <Link
         href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}
@@ -116,12 +116,10 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
               className="absolute top-3 left-3 sm:top-8 sm:left-8 z-20"
             >
               <span
-                className="inline-flex items-center gap-1.5 sm:gap-2 text-xs font-bold px-3 py-1.5 sm:px-5 sm:py-2 rounded-full shadow-lg sm:shadow-2xl tracking-wider uppercase text-white"
+                className="inline-flex items-center gap-1.5 sm:gap-2 text-xs font-bold px-3 py-1.5 sm:px-5 sm:py-2 rounded-full tracking-wider uppercase text-white"
                 style={{
                   background: `linear-gradient(90deg, ${categoryColor} 60%, #fff3 100%)`,
                   letterSpacing: "0.1em",
-                  boxShadow: `0 4px 16px ${categoryColor}40, 0 8px 32px ${categoryColor}40`,
-                  filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.18))",
                 }}
                 aria-label="Category"
               >
@@ -135,11 +133,11 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
           <div
             className="absolute top-3 right-3 sm:top-8 sm:right-8 z-20 flex flex-col gap-2"
           >
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-black/40 backdrop-blur-md shadow-lg">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-black/40 backdrop-blur-md">
               <Clock className="w-3 h-3 text-white/80" />
               <span className="text-xs text-white/80 font-medium">{readTime} min</span>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-black/40 backdrop-blur-md shadow-lg">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-black/40 backdrop-blur-md">
               <span className="text-xs text-white/80 font-medium">{publishDate}</span>
             </div>
           </div>
@@ -172,13 +170,13 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
               className="flex flex-col gap-3 pt-2 sm:pt-4"
             >
               <span
-                className="inline-flex items-center justify-center sm:justify-start gap-2 px-5 py-2.5 sm:px-10 sm:py-4 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl hover:shadow-primary/25 transition-all duration-300 text-sm sm:text-base"
+                className="inline-flex items-center justify-center sm:justify-start gap-2 px-5 py-2.5 sm:px-10 sm:py-4 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold rounded-xl sm:rounded-2xl transition-all duration-300 text-sm sm:text-base"
               >
                 <span className="tracking-wide">Read Full Story</span>
                 <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-45 transition-transform duration-300" />
               </span>
 
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-white/80 bg-black/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full backdrop-blur-md shadow">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-white/80 bg-black/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full backdrop-blur-md">
                 <User className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="text-xs sm:text-sm font-medium">{article.author?.username || "Editorial Team"}</span>
               </div>

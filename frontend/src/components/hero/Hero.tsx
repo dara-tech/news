@@ -90,7 +90,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-8 p-3 sm:p-6 rounded-xl sm:rounded-2xl border border-border/20 shadow-lg sm:shadow-xl bg-card/60 backdrop-blur-md"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-8 p-3 sm:p-6 rounded-xl sm:rounded-2xl border border-border/20 bg-card/60 backdrop-blur-md"
         >
           <div className="flex items-center flex-wrap gap-3 sm:gap-6">
             <div className="flex items-center gap-2 sm:gap-3">
