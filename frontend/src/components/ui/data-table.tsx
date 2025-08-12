@@ -55,6 +55,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   searchPlaceholder?: string
+  initialPageSize?: number
   onAdd?: () => void
   onExport?: () => void
   onBulkDelete?: (selectedRows: TData[]) => void
@@ -69,6 +70,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   searchPlaceholder = "Search...",
+  initialPageSize = 20,
   onAdd,
   onExport,
   onBulkDelete,
@@ -93,6 +95,11 @@ export function DataTable<TData, TValue>({
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
+    initialState: {
+      pagination: {
+        pageSize: initialPageSize,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -293,7 +300,7 @@ export function DataTable<TData, TValue>({
                 <SelectValue placeholder={table.getState().pagination.pageSize} />
               </SelectTrigger>
               <SelectContent side="top">
-                {[10, 20, 30, 40, 50].map((pageSize) => (
+                {[10, 20, 30, 40, 50, 100].map((pageSize) => (
                   <SelectItem key={pageSize} value={`${pageSize}`}>
                     {pageSize}
                   </SelectItem>

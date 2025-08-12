@@ -737,6 +737,7 @@ const UsersPage = () => {
             columns={columns}
             data={filteredUsers}
             searchPlaceholder="Search users by username or email..."
+            initialPageSize={50}
             onAdd={() => window.open('/admin/users/create', '_blank')}
             onExport={handleExportUsers}
             onBulkDelete={handleBulkDelete}
