@@ -94,7 +94,7 @@ function MobileCard({ article, locale, index }: { article: Article; locale: "en"
       className="group relative"
     >
       <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 via-white/5 to-white/10 border border-white/20 transition-all duration-500 backdrop-blur-sm">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 via-white/5 to-white/10 border border-primary/20 transition-all duration-500 backdrop-blur-sm">
           {/* Advanced background effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
@@ -197,7 +197,7 @@ function TabletCard({ article, locale }: { article: Article; locale: "en" | "kh"
       className="group"
     >
                       <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
-                  <div className="bg-card/50 border border-border/20 rounded-xl overflow-hidden transition-all duration-300 h-full backdrop-blur-sm">
+                  <div className="bg-card/50 border border-primary/20 rounded-xl overflow-hidden transition-all duration-300 h-full backdrop-blur-sm">
           {/* Image Header */}
           <div className="relative h-48">
             <Image
@@ -279,7 +279,7 @@ function DesktopCard({
       className="group"
     >
       <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
-        <div className="bg-card/50 border border-border/20 rounded-xl overflow-hidden transition-all duration-300 backdrop-blur-sm">
+        <div className="bg-card/50 border border-primary/20 rounded-xl overflow-hidden transition-all duration-300 backdrop-blur-sm">
           {/* Image */}
           <div className="relative h-32 overflow-hidden">
             <Image
@@ -342,7 +342,7 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
   if (articles.length === 1) {
     const article = articles[0];
     return (
-      <div className="group relative overflow-hidden rounded-xl bg-card border border-border/20 transition-all duration-300">
+      <div className="group relative overflow-hidden rounded-xl bg-card border border-primary/20 transition-all duration-300">
         <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
           <div className="flex flex-col h-full">
             {/* Image */}

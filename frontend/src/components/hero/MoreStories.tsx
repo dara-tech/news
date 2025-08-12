@@ -25,7 +25,7 @@ interface MoreStoriesProps {
 
 const MoreStories: React.FC<MoreStoriesProps> = ({ articles = [], locale = "en" }) => {
   return (
-    <div className="bg-card rounded-xl border border-border/20 backdrop-blur-sm p-6">
+    <div className="bg-card rounded-xl border border-primary/20 backdrop-blur-sm p-6">
       <h3 className="font-bold text-lg mb-4 text-foreground tracking-tight flex items-center gap-3 border-b border-border/20 pb-3">
         <SiApplenews className="w-5 h-5 text-primary" />
         <span>Latest Stories</span>

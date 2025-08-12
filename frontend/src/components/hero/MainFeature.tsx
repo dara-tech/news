@@ -74,7 +74,7 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
 
   return (
     <div
-      className="relative rounded-2xl lg:rounded-3xl overflow-hidden group backdrop-blur-lg border border-border/20"
+      className="relative rounded-2xl lg:rounded-3xl overflow-hidden group backdrop-blur-lg border border-primary/20"
     >
       <Link
         href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}
