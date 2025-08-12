@@ -1,16 +1,16 @@
 {
   "pageViews": {
-    "/news/breaking": 571,
-    "/news": 628,
-    "/news/featured": 574,
-    "/categories": 1297,
-    "/notifications/count": 3400,
-    "/dashboard/advanced-stats": 555,
-    "/maintenance-status": 353,
+    "/news/breaking": 579,
+    "/news": 636,
+    "/news/featured": 582,
+    "/categories": 1311,
+    "/notifications/count": 3413,
+    "/dashboard/advanced-stats": 558,
+    "/maintenance-status": 357,
     "/auth/login": 26,
     "/auth/profile": 604,
     "/notifications": 643,
-    "/dashboard/stats": 1114,
+    "/dashboard/stats": 1116,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
@@ -31,9 +31,9 @@
     "/new": 1,
     "/admin/likes": 44,
     "/admin/comments": 45,
-    "/admin/activity": 47,
-    "/admin/activity/security": 36,
-    "/admin/activity/stats": 36,
+    "/admin/activity": 48,
+    "/admin/activity/security": 37,
+    "/admin/activity/stats": 37,
     "/admin/activity/export": 2,
     "/admin/roles/permissions": 7,
     "/admin/roles": 33,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 748,
+    "/admin/settings/logo": 757,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -109,11 +109,11 @@
     "/likes/68940700b4cf5ac48729df9d/status": 3,
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
-    "/admin/settings/footer": 89,
-    "/admin/settings/social-media": 244,
+    "/admin/settings/footer": 92,
+    "/admin/settings/social-media": 247,
     "/admin/settings/social-media/stats": 7,
     "/admin/settings/social-media/test": 14,
-    "/settings/public/social-media": 79,
+    "/settings/public/social-media": 82,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -386,26 +386,26 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 713,
+      "pageViews": 794,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 609,
-        "Direct": 104
+        "Referral": 658,
+        "Direct": 136
       },
       "deviceTypes": {
-        "Desktop": 713
+        "Desktop": 794
       }
     }
   },
   "trafficSources": {
-    "Direct": 3180,
-    "Referral": 12786
+    "Direct": 3212,
+    "Referral": 12835
   },
   "deviceTypes": {
-    "Desktop": 15243,
+    "Desktop": 15324,
     "Mobile": 723
   }
 }

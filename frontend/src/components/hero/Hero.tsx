@@ -108,9 +108,9 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
         </motion.div>
 
         {/* Main Advanced Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
-          {/* Left: Main & Secondary Features */}
-          <div className="lg:col-span-2 flex flex-col gap-4 sm:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          {/* Left: Main Feature */}
+          <div className="lg:col-span-2 xl:col-span-2 flex flex-col gap-4 sm:gap-6 lg:gap-8">
             {/* Main Feature */}
             {mainFeature && (
               <motion.div
@@ -122,7 +122,11 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
                 <MainFeature article={mainFeature} locale={locale} />
               </motion.div>
             )}
-            {/* Secondary Features: horizontal scroll on mobile, grid on desktop */}
+          </div>
+
+          {/* Center: Secondary Features */}
+          <div className="hidden xl:flex xl:col-span-1 flex-col gap-4 sm:gap-6 lg:gap-8">
+            {/* Secondary Features */}
             {secondaryFeatures.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -130,17 +134,17 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
                 transition={{ duration: 0.7, delay: 0.3 }}
                 className="w-full"
               >
-                <div className="flex lg:grid lg:grid-cols-1 xl:grid-cols-1 gap-3 sm:gap-6 overflow-x-auto sm:overflow-x-visible pb-2 scrollbar-thin scrollbar-thumb-blue-200">
-                  <SecondaryFeatureGrid articles={secondaryFeatures} locale={locale} />
+                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-6">
+                  <SecondaryFeatureGrid articles={secondaryFeatures.slice(0, 3)} locale={locale} />
                 </div>
               </motion.div>
             )}
           </div>
 
           {/* Right: Sidebar (sticky on desktop) */}
-          <aside className="lg:col-span-1 flex flex-col gap-4 sm:gap-7 lg:sticky lg:top-24 lg:h-fit">
+          <aside className="lg:col-span-1 xl:col-span-1 flex flex-col gap-4 sm:gap-6 lg:gap-8 lg:sticky lg:top-24 lg:h-fit">
             {/* More Stories - Minimalistic & Advanced */}
-            <MoreStories articles={secondaryFeatures} locale={locale} />
+            <MoreStories articles={secondaryFeatures.slice(3, 6)} locale={locale} />
             {/* Trending Categories - Minimalistic & Advanced */}
             <TrendingCategories categories={trendingCategories} locale={locale} />
           </aside>
