@@ -338,6 +338,69 @@ function DesktopCard({
 const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, locale }) => {
   if (!articles || articles.length === 0) return null
 
+  // If only one article, show it in a professional card layout
+  if (articles.length === 1) {
+    const article = articles[0];
+    return (
+      <div className="group relative overflow-hidden rounded-xl bg-card border border-border/20 shadow-lg hover:shadow-xl transition-all duration-300">
+        <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
+          <div className="flex flex-col h-full">
+            {/* Image */}
+            <div className="relative h-48 overflow-hidden">
+              <Image
+                src={getArticleImageUrl(article) || "/placeholder.jpg"}
+                alt={article.title?.[locale] || "Article image"}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "/placeholder.jpg"
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              
+              {/* Category badge */}
+              {getCategoryInfo(article, locale).categoryName && (
+                <div className="absolute top-4 left-4">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm shadow-sm"
+                    style={{ color: getCategoryInfo(article, locale).categoryColor }}
+                  >
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCategoryInfo(article, locale).categoryColor }} />
+                    {getCategoryInfo(article, locale).categoryName}
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            {/* Content */}
+            <div className="p-6 flex-1 flex flex-col">
+              <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                {article.title?.[locale]}
+              </h3>
+              {article.description?.[locale] && (
+                <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-1">
+                  {article.description?.[locale]}
+                </p>
+              )}
+              
+              <div className="flex items-center justify-between mt-auto">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Calendar className="w-3 h-3" />
+                  <span>{formatDate(article.createdAt || article.publishedAt || new Date().toISOString(), locale)}</span>
+                </div>
+                <div className="flex items-center gap-1 text-primary font-semibold text-sm">
+                  <span>Read</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Mobile Layout - Optimized for Small Screens */}

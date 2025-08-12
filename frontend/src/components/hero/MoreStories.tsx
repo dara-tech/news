@@ -25,44 +25,44 @@ interface MoreStoriesProps {
 
 const MoreStories: React.FC<MoreStoriesProps> = ({ articles = [], locale = "en" }) => {
   return (
-    <div className="bg-card/50 rounded-xl sm:rounded-2xl border border-border/20 shadow-md sm:shadow-lg backdrop-blur-sm p-3 sm:p-5">
-      <h3 className="font-semibold text-base sm:text-lg mb-2 sm:mb-3 text-foreground tracking-tight flex items-center gap-2 border-b border-border/20 dark:border-gray-700 pb-2">
-      <SiApplenews className="w-4 h-4  text-red-500" />
-        More Stories
+    <div className="bg-card rounded-xl border border-border/20 shadow-lg backdrop-blur-sm p-6">
+      <h3 className="font-bold text-lg mb-4 text-foreground tracking-tight flex items-center gap-3 border-b border-border/20 pb-3">
+        <SiApplenews className="w-5 h-5 text-primary" />
+        <span>Latest Stories</span>
       </h3>
-      <div className="space-y-2 sm:space-y-3">
-        {articles.map((article, idx) => (
-          <Link
-            key={article._id || idx}
-            href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug || article._id}`}
-            className="block group rounded-lg transition-all duration-200 hover:bg-muted/30 px-1 sm:px-2 py-1.5 sm:py-2"
-          >
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden border border-border/30 flex-shrink-0">
-                <Image
-                  src={getArticleImageUrl(article) || "/placeholder.jpg"}
-                  alt={getLocalizedString(article.title, locale)}
-                  width={40}
-                  height={40}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = "/placeholder.jpg"
-                  }}
-                />
+              <div className="space-y-3">
+          {articles.map((article, idx) => (
+            <Link
+              key={article._id || idx}
+              href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug || article._id}`}
+              className="block group rounded-lg transition-all duration-200 hover:bg-muted/50 p-3 border border-transparent hover:border-border/30"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-lg overflow-hidden border border-border/30 flex-shrink-0 bg-muted">
+                  <Image
+                    src={getArticleImageUrl(article) || "/placeholder.jpg"}
+                    alt={getLocalizedString(article.title, locale)}
+                    width={48}
+                    height={48}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = "/placeholder.jpg"
+                    }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                    {getLocalizedString(article.title, locale)}
+                  </h4>
+                  <p className="text-xs text-muted-foreground line-clamp-1 mt-1">
+                    {getLocalizedString(article.category?.name, locale)}
+                  </p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
               </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-xs sm:text-sm group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                  {getLocalizedString(article.title, locale)}
-                </h4>
-                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5 hidden sm:block">
-                  {getLocalizedString(article.category?.name, locale)}
-                </p>
-              </div>
-              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-            </div>
-          </Link>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </div>
     </div>
   )
 }

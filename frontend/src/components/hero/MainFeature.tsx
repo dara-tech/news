@@ -74,14 +74,14 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
 
   return (
     <div
-      className="relative rounded-xl sm:rounded-3xl overflow-hidden group shadow-xl sm:shadow-2xl backdrop-blur-lg"
+      className="relative rounded-2xl lg:rounded-3xl overflow-hidden group shadow-2xl lg:shadow-3xl backdrop-blur-lg border border-border/20"
     >
       <Link
         href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}
         className="block w-full h-full focus:outline-none transition-all duration-300"
         tabIndex={0}
       >
-        <div className="relative h-[400px] sm:h-[500px] md:h-[500px] lg:h-[600px]">
+        <div className="relative h-[500px] sm:h-[600px] lg:h-[700px]">
           {/* Background image with animated overlay */}
           <div className="relative w-full h-full overflow-hidden">
             <Image
@@ -145,14 +145,14 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
           </div>
 
           {/* Main content */}
-          <div className="absolute bottom-0 left-0 w-full p-4 sm:p-8 md:p-12 z-20 space-y-3 sm:space-y-6">
+          <div className="absolute bottom-0 left-0 w-full p-6 sm:p-8 lg:p-12 z-20 space-y-4 sm:space-y-6">
             <h1
-              className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]"
+              className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]"
               style={{
                 textShadow: "0 4px 20px rgba(0,0,0,0.8)",
                 wordBreak: "break-word",
                 overflowWrap: "break-word",
-                letterSpacing: "-0.01em",
+                letterSpacing: "-0.02em",
               }}
               title={article.title?.[locale]}
             >
@@ -161,7 +161,7 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
 
             {article.description?.[locale] && (
               <p
-                className="text-sm sm:text-lg md:text-xl text-white/90 max-w-3xl leading-relaxed drop-shadow-lg line-clamp-2 sm:line-clamp-3 bg-black/30 rounded-lg sm:rounded-xl px-3 py-2 sm:px-6 sm:py-4 backdrop-blur-md"
+                className="text-base sm:text-lg lg:text-xl text-white/90 max-w-4xl leading-relaxed drop-shadow-lg line-clamp-2 sm:line-clamp-3 bg-black/40 rounded-xl px-4 py-3 sm:px-6 sm:py-4 backdrop-blur-md border border-white/10"
               >
                 {article.description?.[locale]}
               </p>

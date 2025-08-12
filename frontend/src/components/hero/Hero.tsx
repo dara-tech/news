@@ -107,47 +107,78 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
           </div>
         </motion.div>
 
-        {/* Main Advanced Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-          {/* Left: Main Feature */}
-          <div className="lg:col-span-2 xl:col-span-2 flex flex-col gap-4 sm:gap-6 lg:gap-8">
-            {/* Main Feature */}
-            {mainFeature && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border bg-gradient-to-br from-blue-100/60 to-white/80"
-              >
-                <MainFeature article={mainFeature} locale={locale} />
-              </motion.div>
-            )}
-          </div>
+        {/* Professional Hero Layout */}
+        <div className="space-y-8 lg:space-y-12">
+          {/* Main Feature - Hero Section */}
+          {mainFeature && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative"
+            >
+              <MainFeature article={mainFeature} locale={locale} />
+            </motion.div>
+          )}
 
-          {/* Center: Secondary Features */}
-          <div className="hidden xl:flex xl:col-span-1 flex-col gap-4 sm:gap-6 lg:gap-8">
-            {/* Secondary Features */}
-            {secondaryFeatures.length > 0 && (
+          {/* Secondary Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+            {/* Featured Articles Section */}
+            <div className="lg:col-span-8">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
-                className="w-full"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="space-y-6"
               >
-                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-6">
-                  <SecondaryFeatureGrid articles={secondaryFeatures.slice(0, 3)} locale={locale} />
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl lg:text-3xl font-bold text-foreground">
+                    Featured Stories
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.push("/news")}
+                    className="text-primary hover:text-primary/80"
+                  >
+                    View All
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
                 </div>
+                
+                {secondaryFeatures.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {secondaryFeatures.slice(0, 4).map((article, index) => (
+                      <motion.div
+                        key={article._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                      >
+                        <SecondaryFeatureGrid articles={[article]} locale={locale} />
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </motion.div>
-            )}
-          </div>
+            </div>
 
-          {/* Right: Sidebar (sticky on desktop) */}
-          <aside className="lg:col-span-1 xl:col-span-1 flex flex-col gap-4 sm:gap-6 lg:gap-8 lg:sticky lg:top-24 lg:h-fit">
-            {/* More Stories - Minimalistic & Advanced */}
-            <MoreStories articles={secondaryFeatures.slice(3, 6)} locale={locale} />
-            {/* Trending Categories - Minimalistic & Advanced */}
-            <TrendingCategories categories={trendingCategories} locale={locale} />
-          </aside>
+            {/* Sidebar */}
+            <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:h-fit space-y-6">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="space-y-6"
+              >
+                {/* More Stories */}
+                <MoreStories articles={secondaryFeatures.slice(4, 8)} locale={locale} />
+                
+                {/* Trending Categories */}
+                <TrendingCategories categories={trendingCategories} locale={locale} />
+              </motion.div>
+            </aside>
+          </div>
         </div>
 
         {/* All Categories Button (below grid, optional) */}

@@ -1,10 +1,10 @@
 {
   "pageViews": {
-    "/news/breaking": 579,
-    "/news": 636,
-    "/news/featured": 582,
-    "/categories": 1311,
-    "/notifications/count": 3413,
+    "/news/breaking": 587,
+    "/news": 644,
+    "/news/featured": 590,
+    "/categories": 1319,
+    "/notifications/count": 3421,
     "/dashboard/advanced-stats": 558,
     "/maintenance-status": 357,
     "/auth/login": 26,
@@ -386,26 +386,26 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 794,
+      "pageViews": 834,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 658,
-        "Direct": 136
+        "Referral": 666,
+        "Direct": 168
       },
       "deviceTypes": {
-        "Desktop": 794
+        "Desktop": 834
       }
     }
   },
   "trafficSources": {
-    "Direct": 3212,
-    "Referral": 12835
+    "Direct": 3244,
+    "Referral": 12843
   },
   "deviceTypes": {
-    "Desktop": 15324,
+    "Desktop": 15364,
     "Mobile": 723
   }
 }
