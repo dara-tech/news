@@ -61,7 +61,7 @@ interface User {
   createdAt: string;
   profileImage?: string;
   avatar?: string;
-  lastLogin?: string;
+  lastLogin?: string | null;
   status?: 'active' | 'inactive' | 'suspended';
   totalArticles?: number;
 }
@@ -128,22 +128,46 @@ const UsersPage = () => {
       setLoading(true);
       const { data } = await api.get('/users');
       
-      // Fetch real article counts for each user
+      // Fetch real data for each user more efficiently
       const usersWithRealData = await Promise.all(
         data.map(async (user: User) => {
           try {
-            // Fetch articles count for this user
-            const articlesResponse = await api.get(`/news?author=${user._id}&limit=1`);
+            // Fetch articles count for this user from News collection
+            const articlesResponse = await api.get('/news', {
+              params: { 
+                author: user._id,
+                limit: 1,
+                status: 'published'
+              }
+            });
             const totalArticles = articlesResponse.data.total || 0;
+            
+            // Get last login from user's lastLogin field (if available) or fetch from UserLogin
+            let lastLogin = user.lastLogin;
+            if (!lastLogin) {
+              try {
+                const lastLoginResponse = await api.get('/admin/user-logins/recent', {
+                  params: { 
+                    userId: user._id,
+                    limit: 1
+                  }
+                });
+                lastLogin = lastLoginResponse.data?.data?.[0]?.loginTime || null;
+              } catch (loginError) {
+                console.warn(`Could not fetch last login for user ${user._id}:`, loginError);
+                lastLogin = null;
+              }
+            }
             
             return {
               ...user,
               status: user.status || 'active',
-              lastLogin: user.lastLogin || null,
+              lastLogin: lastLogin,
               totalArticles: totalArticles
             };
           } catch (error) {
-            // If article count fetch fails, default to 0
+            console.error(`Error fetching data for user ${user._id}:`, error);
+            // If data fetch fails, use fallback values
             return {
               ...user,
               status: user.status || 'active',

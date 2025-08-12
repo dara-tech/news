@@ -1,15 +1,15 @@
 {
   "pageViews": {
     "/news/breaking": 642,
-    "/news": 730,
+    "/news": 780,
     "/news/featured": 645,
     "/categories": 1395,
-    "/notifications/count": 3520,
+    "/notifications/count": 3522,
     "/dashboard/advanced-stats": 589,
     "/maintenance-status": 373,
     "/auth/login": 26,
-    "/auth/profile": 615,
-    "/notifications": 653,
+    "/auth/profile": 617,
+    "/notifications": 655,
     "/dashboard/stats": 1143,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -38,7 +38,7 @@
     "/admin/roles/permissions": 7,
     "/admin/roles": 33,
     "/admin/roles/stats": 7,
-    "/users": 18,
+    "/users": 23,
     "/auth/profile/image": 4,
     "/news/is-cambodia-really-the-oldest-country": 134,
     "/likes/688f3745270d0fd8b27db112/status": 26,
@@ -253,7 +253,8 @@
     "/news/689ac279eb93206627c2cd82": 1,
     "/news/689ac154eb93206627c2cd4d": 1,
     "/news/689ac14ceb93206627c2cd47": 1,
-    "/admin/likes/689ac53eeb93206627c2ce9f": 1
+    "/admin/likes/689ac53eeb93206627c2ce9f": 1,
+    "/admin/user-logins/recent": 28
   },
   "userActions": {},
   "dailyStats": {
@@ -387,27 +388,27 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 1636,
+      "pageViews": 1725,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 1242,
+        "Referral": 1331,
         "Direct": 394
       },
       "deviceTypes": {
-        "Desktop": 1636
+        "Desktop": 1725
       }
     }
   },
   "trafficSources": {
     "Direct": 3470,
-    "Referral": 13419
+    "Referral": 13508
   },
   "deviceTypes": {
-    "Desktop": 16166,
+    "Desktop": 16255,
     "Mobile": 723
   }
 }
