@@ -7,10 +7,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DataTable, SortableHeader, ActionDropdown } from '@/components/ui/data-table';
 import { NewsArticle } from '@/types/news';
 import NewsStatusChanger from './NewsStatusChanger';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { useImageLoader, getArticleImage } from '@/hooks/useImageLoader';
+import ArticleImage from './ArticleImage';
 
 /**
  * Why is username still "Unknown" even when author is present?
@@ -85,6 +88,22 @@ const NewsTable = ({
       enableSorting: false,
       enableHiding: false,
       size: 30,
+    },
+    {
+      accessorKey: "thumbnail",
+      header: "Image",
+      cell: ({ row }) => {
+        const article = row.original;
+        return (
+          <ArticleImage 
+            article={article} 
+            size="md" 
+            className="mx-auto"
+          />
+        );
+      },
+      enableSorting: false,
+      size: 80,
     },
     {
       accessorKey: "title",
