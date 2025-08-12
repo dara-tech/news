@@ -30,8 +30,9 @@ const MoreStories: React.FC<MoreStoriesProps> = ({ articles = [], locale = "en" 
         <SiApplenews className="w-5 h-5 text-primary" />
         <span>Latest Stories</span>
       </h3>
-              <div className="space-y-3">
-          {articles.map((article, idx) => (
+      <div className="space-y-3">
+        {articles.length > 0 ? (
+          articles.map((article, idx) => (
             <Link
               key={article._id || idx}
               href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug || article._id}`}
@@ -61,8 +62,15 @@ const MoreStories: React.FC<MoreStoriesProps> = ({ articles = [], locale = "en" 
                 <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
               </div>
             </Link>
-          ))}
-        </div>
+          ))
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <SiApplenews className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No stories available</p>
+            <p className="text-xs mt-1">Check back later for updates</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

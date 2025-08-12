@@ -1,15 +1,15 @@
 {
   "pageViews": {
-    "/news/breaking": 587,
-    "/news": 644,
-    "/news/featured": 590,
-    "/categories": 1319,
-    "/notifications/count": 3421,
+    "/news/breaking": 595,
+    "/news": 653,
+    "/news/featured": 598,
+    "/categories": 1330,
+    "/notifications/count": 3426,
     "/dashboard/advanced-stats": 558,
-    "/maintenance-status": 357,
+    "/maintenance-status": 360,
     "/auth/login": 26,
-    "/auth/profile": 604,
-    "/notifications": 643,
+    "/auth/profile": 606,
+    "/notifications": 645,
     "/dashboard/stats": 1116,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 757,
+    "/admin/settings/logo": 758,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -109,11 +109,11 @@
     "/likes/68940700b4cf5ac48729df9d/status": 3,
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
-    "/admin/settings/footer": 92,
+    "/admin/settings/footer": 93,
     "/admin/settings/social-media": 247,
     "/admin/settings/social-media/stats": 7,
     "/admin/settings/social-media/test": 14,
-    "/settings/public/social-media": 82,
+    "/settings/public/social-media": 83,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -386,26 +386,27 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 834,
+      "pageViews": 885,
       "uniqueVisitors": [
-        "::1"
+        "::1",
+        "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 666,
-        "Direct": 168
+        "Referral": 683,
+        "Direct": 202
       },
       "deviceTypes": {
-        "Desktop": 834
+        "Desktop": 885
       }
     }
   },
   "trafficSources": {
-    "Direct": 3244,
-    "Referral": 12843
+    "Direct": 3278,
+    "Referral": 12860
   },
   "deviceTypes": {
-    "Desktop": 15364,
+    "Desktop": 15415,
     "Mobile": 723
   }
 }

@@ -33,14 +33,25 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
   const tickerRef = useRef<{ pause: () => void; play: () => void }>(null)
 
   // Memoize derived values
-  const { mainFeature, secondaryFeatures, trendingCategories, allCategories } = useMemo(() => {
+  const { mainFeature, secondaryFeatures, trendingCategories, allCategories, moreStories } = useMemo(() => {
     const main = featured[0] || breaking[0] || null
     const secondaries = featured.slice(1, 5)
+    
+    // Get more stories for sidebar - use breaking news as fallback
+    let moreStories = featured.slice(5, 9)
+    if (moreStories.length < 4) {
+      // If not enough featured articles, add breaking news
+      const needed = 4 - moreStories.length
+      const breakingForSidebar = breaking.slice(0, needed)
+      moreStories = [...moreStories, ...breakingForSidebar]
+    }
+    
     const trending = categories.slice(0, 6)
     const remainingCategories = categories.slice(6)
     return {
       mainFeature: main,
       secondaryFeatures: secondaries,
+      moreStories: moreStories,
       trendingCategories: trending,
       allCategories: remainingCategories,
     }
@@ -172,7 +183,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
                 className="space-y-6"
               >
                 {/* More Stories */}
-                <MoreStories articles={secondaryFeatures.slice(4, 8)} locale={locale} />
+                <MoreStories articles={moreStories} locale={locale} />
                 
                 {/* Trending Categories */}
                 <TrendingCategories categories={trendingCategories} locale={locale} />
