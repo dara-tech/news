@@ -27,3 +27,6 @@ pnpm-debug.log*
 # IDEs
 .idea/
 .vscode/
+
+# Uploads
+/backend/uploads/
