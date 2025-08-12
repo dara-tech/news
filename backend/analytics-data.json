@@ -1,16 +1,16 @@
 {
   "pageViews": {
-    "/news/breaking": 642,
-    "/news": 800,
-    "/news/featured": 645,
-    "/categories": 1395,
-    "/notifications/count": 3544,
-    "/dashboard/advanced-stats": 590,
-    "/maintenance-status": 373,
+    "/news/breaking": 665,
+    "/news": 823,
+    "/news/featured": 668,
+    "/categories": 1427,
+    "/notifications/count": 3565,
+    "/dashboard/advanced-stats": 591,
+    "/maintenance-status": 382,
     "/auth/login": 26,
-    "/auth/profile": 620,
-    "/notifications": 659,
-    "/dashboard/stats": 1145,
+    "/auth/profile": 628,
+    "/notifications": 667,
+    "/dashboard/stats": 1146,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
@@ -26,7 +26,7 @@
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 115,
+    "/news/admin": 118,
     "/health": 1,
     "/new": 1,
     "/admin/likes": 49,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 844,
+    "/admin/settings/logo": 855,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -109,11 +109,11 @@
     "/likes/68940700b4cf5ac48729df9d/status": 3,
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
-    "/admin/settings/footer": 98,
-    "/admin/settings/social-media": 301,
+    "/admin/settings/footer": 102,
+    "/admin/settings/social-media": 302,
     "/admin/settings/social-media/stats": 7,
     "/admin/settings/social-media/test": 14,
-    "/settings/public/social-media": 88,
+    "/settings/public/social-media": 92,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -246,10 +246,10 @@
     "/likes/689aea3c456acb0b2b92326a/status": 1,
     "/comments/689aea3c456acb0b2b92326a": 1,
     "/comments/689aea3c456acb0b2b92326a/stats": 1,
-    "/news/trump-s-claim-of-out-of-control-crime-in-washington-dc": 2,
-    "/likes/689aedb0456acb0b2b923288/status": 1,
-    "/comments/689aedb0456acb0b2b923288": 1,
-    "/comments/689aedb0456acb0b2b923288/stats": 1,
+    "/news/trump-s-claim-of-out-of-control-crime-in-washington-dc": 4,
+    "/likes/689aedb0456acb0b2b923288/status": 2,
+    "/comments/689aedb0456acb0b2b923288": 2,
+    "/comments/689aedb0456acb0b2b923288/stats": 2,
     "/news/689ac279eb93206627c2cd82": 1,
     "/news/689ac154eb93206627c2cd4d": 1,
     "/news/689ac14ceb93206627c2cd47": 1,
@@ -395,27 +395,27 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 1885,
+      "pageViews": 2062,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 1491,
-        "Direct": 394
+        "Referral": 1574,
+        "Direct": 488
       },
       "deviceTypes": {
-        "Desktop": 1885
+        "Desktop": 2062
       }
     }
   },
   "trafficSources": {
-    "Direct": 3470,
-    "Referral": 13668
+    "Direct": 3564,
+    "Referral": 13751
   },
   "deviceTypes": {
-    "Desktop": 16415,
+    "Desktop": 16592,
     "Mobile": 723
   }
 }

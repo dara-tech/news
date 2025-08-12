@@ -7,6 +7,8 @@ import Link from "next/link"
 import { ArrowUpRight, Clock, User } from "lucide-react"
 import type { Article } from "@/types"
 import { getArticleImageUrl } from "@/hooks/useImageLoader"
+import { Button } from "../ui/button"
+import { Badge } from "../ui/badge"
 
 interface MainFeatureProps {
   article: Article
@@ -102,26 +104,26 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
           {/* Category badge */}
           {categoryName && (
             <div className="absolute top-4 left-4 z-20">
-              <span
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-white/90 text-foreground rounded-md"
+              <Badge
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md"
                 style={{ color: categoryColor }}
                 aria-label="Category"
               >
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: categoryColor }} />
                 {categoryName}
-              </span>
+              </Badge>
             </div>
           )}
 
           {/* Article metadata */}
           <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/90 text-foreground rounded-md">
+            <Badge className="flex items-center gap-2 px-3 py-1.5  rounded-md">
               <Clock className="w-3 h-3" />
               <span className="text-xs font-medium">{readTime} min</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/90 text-foreground rounded-md">
+            </Badge>
+            <Badge className="flex items-center gap-2 px-3 py-1.5  rounded-md">
               <span className="text-xs font-medium">{publishDate}</span>
-            </div>
+            </Badge>
           </div>
 
           {/* Main content */}
@@ -141,14 +143,14 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
 
             {/* CTA and author info */}
             <div className="flex items-center justify-between pt-4">
-              <div className="flex items-center gap-2 text-white/80">
+              <div className="flex items-center gap-2 text-white/90">
                 <User className="w-4 h-4" />
                 <span className="text-sm font-medium">{article.author?.username || "Editorial Team"}</span>
               </div>
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-white text-foreground font-medium rounded-md transition-all duration-300 text-sm">
+              <Button className="inline-flex items-center gap-2 px-4 py-2  font-medium rounded-md transition-all duration-300 text-sm">
                 <span>Read Full Story</span>
                 <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
+              </Button>
             </div>
           </div>
 
