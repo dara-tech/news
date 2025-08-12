@@ -4,33 +4,33 @@
     "/news": 800,
     "/news/featured": 645,
     "/categories": 1395,
-    "/notifications/count": 3528,
-    "/dashboard/advanced-stats": 589,
+    "/notifications/count": 3538,
+    "/dashboard/advanced-stats": 590,
     "/maintenance-status": 373,
     "/auth/login": 26,
     "/auth/profile": 618,
     "/notifications": 657,
-    "/dashboard/stats": 1143,
+    "/dashboard/stats": 1145,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
     "/admin/security/stats": 11,
     "/admin/settings/general": 9,
-    "/dashboard/analytics": 96,
+    "/dashboard/analytics": 97,
     "/admin/system/metrics": 541,
     "/dashboard/export": 2,
-    "/admin/user-logins/map": 411,
+    "/admin/user-logins/map": 413,
     "/auth/google": 13,
     "/auth/google/callback": 6,
     "/admin/user-login": 2,
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 113,
+    "/news/admin": 114,
     "/health": 1,
     "/new": 1,
-    "/admin/likes": 46,
-    "/admin/comments": 45,
+    "/admin/likes": 49,
+    "/admin/comments": 48,
     "/admin/activity": 48,
     "/admin/activity/security": 37,
     "/admin/activity/stats": 37,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 837,
+    "/admin/settings/logo": 844,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -110,7 +110,7 @@
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
     "/admin/settings/footer": 98,
-    "/admin/settings/social-media": 298,
+    "/admin/settings/social-media": 301,
     "/admin/settings/social-media/stats": 7,
     "/admin/settings/social-media/test": 14,
     "/settings/public/social-media": 88,
@@ -395,27 +395,27 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 1841,
+      "pageViews": 1874,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 1447,
+        "Referral": 1480,
         "Direct": 394
       },
       "deviceTypes": {
-        "Desktop": 1841
+        "Desktop": 1874
       }
     }
   },
   "trafficSources": {
     "Direct": 3470,
-    "Referral": 13624
+    "Referral": 13657
   },
   "deviceTypes": {
-    "Desktop": 16371,
+    "Desktop": 16404,
     "Mobile": 723
   }
 }

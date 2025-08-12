@@ -23,27 +23,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -51,6 +36,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import RoleAssignmentDialog from '@/components/admin/RoleAssignmentDialog';
+import { DataTable, SortableHeader, ActionDropdown } from '@/components/ui/data-table';
+import { ColumnDef } from '@tanstack/react-table';
 
 // Enhanced User interface with additional fields
 interface User {
@@ -108,7 +95,6 @@ const UsersPage = () => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
@@ -120,7 +106,142 @@ const UsersPage = () => {
   const [newRole, setNewRole] = useState<string>('');
   const [isRoleAssignmentOpen, setIsRoleAssignmentOpen] = useState(false);
   const [selectedUserForRole, setSelectedUserForRole] = useState<User | null>(null);
-  const usersPerPage = 10;
+
+  // Define columns for DataTable
+  const columns: ColumnDef<User>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "avatar",
+      header: "",
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          <ProfileImage
+            src={user.profileImage || user.avatar}
+            alt={user.username}
+            size={32}
+            fallback={
+              <div
+                className="rounded-full bg-gray-200 flex items-center justify-center border border-gray-200"
+                style={{ width: 32, height: 32, minWidth: 32, minHeight: 32 }}
+              >
+                {user.username?.charAt(0)?.toUpperCase() || <UserIcon className="w-5 h-5 text-gray-400" />}
+              </div>
+            }
+          />
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "username",
+      header: ({ column }) => <SortableHeader column={column}>Username</SortableHeader>,
+      cell: ({ row }) => <div className="font-medium">{row.getValue("username")}</div>,
+    },
+    {
+      accessorKey: "email",
+      header: ({ column }) => <SortableHeader column={column}>Email</SortableHeader>,
+      cell: ({ row }) => <div className="hidden sm:table-cell">{row.getValue("email")}</div>,
+    },
+    {
+      accessorKey: "role",
+      header: ({ column }) => <SortableHeader column={column}>Role</SortableHeader>,
+      cell: ({ row }) => {
+        const role = row.getValue("role") as string;
+        return (
+          <Badge
+            variant={role === 'admin' ? 'default' : role === 'editor' ? 'outline' : 'secondary'}
+            className="text-xs"
+          >
+            {role.charAt(0).toUpperCase() + role.slice(1)}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => <SortableHeader column={column}>Status</SortableHeader>,
+      cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+        return (
+          <div className="hidden md:table-cell">
+            <Badge
+              variant={status === 'active' ? 'default' : status === 'suspended' ? 'destructive' : 'secondary'}
+              className="text-xs"
+            >
+              {status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown'}
+            </Badge>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => <SortableHeader column={column}>Joined</SortableHeader>,
+      cell: ({ row }) => {
+        const date = new Date(row.getValue("createdAt"));
+        return <div className="hidden lg:table-cell">{date.toLocaleDateString()}</div>;
+      },
+    },
+    {
+      accessorKey: "lastLogin",
+      header: ({ column }) => <SortableHeader column={column}>Last Login</SortableHeader>,
+      cell: ({ row }) => {
+        const lastLogin = row.getValue("lastLogin") as string | null;
+        return (
+          <div className="hidden xl:table-cell">
+            {lastLogin ? new Date(lastLogin).toLocaleDateString() : 'Never'}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "totalArticles",
+      header: ({ column }) => <SortableHeader column={column}>Articles</SortableHeader>,
+      cell: ({ row }) => {
+        const articles = row.getValue("totalArticles") as number;
+        return (
+          <div className="hidden 2xl:table-cell">
+            <span className="font-medium">{articles || 0}</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          <ActionDropdown
+            onEdit={() => window.open(`/admin/users/edit/${user._id}`, '_blank')}
+            onDelete={() => handleDelete(user._id)}
+          />
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+  ];
 
   // Function to refresh user data
   const refreshUsers = useCallback(async () => {
@@ -193,73 +314,6 @@ const UsersPage = () => {
     refreshUsers();
   }, [refreshUsers]);
 
-  // Filter and search functionality
-  const filterUsers = useCallback(() => {
-    let filtered = [...users];
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(user => 
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Role filter
-    if (roleFilter !== 'all') {
-      filtered = filtered.filter(user => user.role === roleFilter);
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(user => user.status === statusFilter);
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      let aValue, bValue;
-      
-      switch (sortBy) {
-        case 'username':
-          aValue = a.username.toLowerCase();
-          bValue = b.username.toLowerCase();
-          break;
-        case 'email':
-          aValue = a.email.toLowerCase();
-          bValue = b.email.toLowerCase();
-          break;
-        case 'role':
-          aValue = a.role;
-          bValue = b.role;
-          break;
-        case 'lastLogin':
-          aValue = new Date(a.lastLogin || 0).getTime();
-          bValue = new Date(b.lastLogin || 0).getTime();
-          break;
-        case 'totalArticles':
-          aValue = a.totalArticles || 0;
-          bValue = b.totalArticles || 0;
-          break;
-        default:
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
-      }
-
-      if (typeof aValue === 'string') {
-        return sortOrder === 'asc' ? aValue.localeCompare(bValue as string) : (bValue as string).localeCompare(aValue);
-      } else {
-        return sortOrder === 'asc' ? (aValue as number) - (bValue as number) : (bValue as number) - (aValue as number);
-      }
-    });
-
-    setFilteredUsers(filtered);
-    setCurrentPage(1); // Reset to first page when filtering
-  }, [users, searchTerm, roleFilter, statusFilter, sortBy, sortOrder]);
-
-  useEffect(() => {
-    filterUsers();
-  }, [filterUsers]);
-
   // Individual user actions
   const handleDelete = async (id: string) => {
     try {
@@ -274,10 +328,10 @@ const UsersPage = () => {
 
   // Bulk actions
   const handleSelectAll = () => {
-    if (selectedUsers.length === currentUsers.length) {
+    if (selectedUsers.length === filteredUsers.length) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(currentUsers.map(user => user._id));
+      setSelectedUsers(filteredUsers.map(user => user._id));
     }
   };
 
@@ -455,11 +509,7 @@ const UsersPage = () => {
     reader.readAsText(file);
   };
 
-  // Pagination logic with filtered users
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / usersPerPage));
+
 
   if (loading) {
     return (
@@ -682,154 +732,38 @@ const UsersPage = () => {
             </div>
           )}
 
-          {/* Users Table */}
-          <div className="overflow-x-auto">
-            <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">
-                  <Checkbox
-                    checked={currentUsers.length > 0 && selectedUsers.length === currentUsers.length}
-                    onCheckedChange={handleSelectAll}
-                  />
-                </TableHead>
-                <TableHead className="w-12"></TableHead>
-                <TableHead>Username</TableHead>
-                <TableHead className="hidden sm:table-cell">Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead className="hidden md:table-cell">Status</TableHead>
-                <TableHead className="hidden lg:table-cell">Joined</TableHead>
-                <TableHead className="hidden xl:table-cell">Last Login</TableHead>
-                <TableHead className="hidden 2xl:table-cell">Articles</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-          <TableBody>
-            {currentUsers.map((user) => (
-              <TableRow key={user._id} className={selectedUsers.includes(user._id) ? 'bg-blue-50' : ''}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedUsers.includes(user._id)}
-                    onCheckedChange={() => handleSelectUser(user._id)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <ProfileImage
-                    src={user.profileImage || user.avatar}
-                    alt={user.username}
-                    size={32}
-                    fallback={
-                      <div
-                        className="rounded-full bg-gray-200 flex items-center justify-center border border-gray-200"
-                        style={{ width: 32, height: 32, minWidth: 32, minHeight: 32 }}
-                      >
-                        {user.username?.charAt(0)?.toUpperCase() || <UserIcon className="w-5 h-5 text-gray-400" />}
-                      </div>
-                    }
-                  />
-                </TableCell>
-                <TableCell className="font-medium">{user.username}</TableCell>
-                <TableCell className="hidden sm:table-cell">{user.email}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={user.role === 'admin' ? 'default' : user.role === 'editor' ? 'outline' : 'secondary'}
-                    className="text-xs"
-                  >
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <Badge
-                    variant={user.status === 'active' ? 'default' : user.status === 'suspended' ? 'destructive' : 'secondary'}
-                    className="text-xs"
-                  >
-                    {user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Unknown'}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  {new Date(user.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell className="hidden xl:table-cell">
-                  {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
-                </TableCell>
-                <TableCell className="hidden 2xl:table-cell">
-                  <span className="font-medium">{user.totalArticles || 0}</span>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setSelectedUserForRole(user);
-                          setIsRoleAssignmentOpen(true);
-                        }}
-                      >
-                        <Shield className="h-4 w-4 mr-2" />
-                        Assign Role
-                      </DropdownMenuItem>
-                      <Link href={`/admin/users/edit/${user._id}`}>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                      </Link>
-                      <DropdownMenuItem
-                        className="text-red-500"
-                        onClick={() => handleDelete(user._id)}
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-            </Table>
-          </div>
+          {/* Users DataTable */}
+          <DataTable
+            columns={columns}
+            data={filteredUsers}
+            searchPlaceholder="Search users by username or email..."
+            onAdd={() => window.open('/admin/users/create', '_blank')}
+            onExport={handleExportUsers}
+            onBulkDelete={handleBulkDelete}
+            filterOptions={[
+              {
+                key: "role",
+                label: "Role",
+                options: [
+                  { label: "Admin", value: "admin" },
+                  { label: "Editor", value: "editor" },
+                  { label: "User", value: "user" },
+                ],
+              },
+              {
+                key: "status",
+                label: "Status",
+                options: [
+                  { label: "Active", value: "active" },
+                  { label: "Inactive", value: "inactive" },
+                  { label: "Suspended", value: "suspended" },
+                ],
+              },
+            ]}
+          />
           
-          {/* Pagination with additional info */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-2 py-4 gap-2">
-            <div className="text-sm text-muted-foreground">
-              Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
-              {users.length !== filteredUsers.length && ` (filtered from ${users.length} total)`}
-            </div>
-          </div>
         </CardContent>
       </Card>
-      
-      <div className="flex justify-center">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage(prev => Math.max(prev - 1, 1));
-                }}
-                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage(prev => Math.min(prev + 1, totalPages));
-                }}
-                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
       {/* Role Assignment Dialog */}
       <RoleAssignmentDialog
         isOpen={isRoleAssignmentOpen}
