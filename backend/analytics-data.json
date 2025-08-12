@@ -1,23 +1,23 @@
 {
   "pageViews": {
-    "/news/breaking": 635,
-    "/news": 693,
-    "/news/featured": 638,
-    "/categories": 1377,
-    "/notifications/count": 3486,
-    "/dashboard/advanced-stats": 565,
-    "/maintenance-status": 367,
+    "/news/breaking": 640,
+    "/news": 698,
+    "/news/featured": 643,
+    "/categories": 1391,
+    "/notifications/count": 3503,
+    "/dashboard/advanced-stats": 585,
+    "/maintenance-status": 373,
     "/auth/login": 26,
-    "/auth/profile": 609,
-    "/notifications": 648,
-    "/dashboard/stats": 1123,
+    "/auth/profile": 613,
+    "/notifications": 652,
+    "/dashboard/stats": 1141,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
     "/admin/security/stats": 11,
-    "/admin/settings/general": 8,
+    "/admin/settings/general": 9,
     "/dashboard/analytics": 95,
-    "/admin/system/metrics": 540,
+    "/admin/system/metrics": 541,
     "/dashboard/export": 2,
     "/admin/user-logins/map": 411,
     "/auth/google": 13,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 779,
+    "/admin/settings/logo": 828,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -109,11 +109,11 @@
     "/likes/68940700b4cf5ac48729df9d/status": 3,
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
-    "/admin/settings/footer": 95,
-    "/admin/settings/social-media": 259,
+    "/admin/settings/footer": 98,
+    "/admin/settings/social-media": 292,
     "/admin/settings/social-media/stats": 7,
     "/admin/settings/social-media/test": 14,
-    "/settings/public/social-media": 85,
+    "/settings/public/social-media": 88,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -123,11 +123,11 @@
     "/comments/6896d76d35003ae5b6370ba9/like": 2,
     "/admin/comments/6894625c70cb3d494df61813": 1,
     "/comments/6896de0335003ae5b6371192/like": 2,
-    "/admin/system/sentinel": 211,
+    "/admin/system/sentinel": 212,
     "/admin/system/matric": 3,
     "/admin/system": 1,
     "/admin/system/sentinel/run-once": 26,
-    "/admin/system/sentinel/logs": 1606,
+    "/admin/system/sentinel/logs": 1608,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -387,27 +387,27 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 1357,
+      "pageViews": 1548,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 991,
-        "Direct": 366
+        "Referral": 1162,
+        "Direct": 386
       },
       "deviceTypes": {
-        "Desktop": 1357
+        "Desktop": 1548
       }
     }
   },
   "trafficSources": {
-    "Direct": 3442,
-    "Referral": 13168
+    "Direct": 3462,
+    "Referral": 13339
   },
   "deviceTypes": {
-    "Desktop": 15887,
+    "Desktop": 16078,
     "Mobile": 723
   }
 }

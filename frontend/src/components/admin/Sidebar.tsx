@@ -15,9 +15,10 @@ import {
   Activity,
   Heart,
   MessageSquare,
-  Palette,
-  Globe,
   Monitor,
+  User,
+  Bell,
+  Search,
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 
@@ -45,23 +46,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
-// Navigation data structure
-// interface NavItem {
-//   title: string;
-//   url?: string;
-//   icon?: ElementType;
-//   isActive?: boolean;
-//   items?: {
-//     title: string;
-//     url: string;
-//   }[];
-// }
-
-// Navigation configuration
+// Navigation configuration with modern structure
 const data = {
   user: {
     name: 'Admin User',
@@ -70,20 +60,20 @@ const data = {
   },
   navMain: [
     {
-      title: 'Dashboard',
+      title: 'Overview',
       url: '/admin/dashboard',
       icon: LayoutDashboard,
     },
     {
-      title: 'Content Management',
+      title: 'Content',
       icon: Newspaper,
       items: [
         {
-          title: 'All Articles',
+          title: 'Articles',
           url: '/admin/news',
         },
         {
-          title: 'Create Article',
+          title: 'New Article',
           url: '/admin/news/create',
         },
         {
@@ -93,7 +83,7 @@ const data = {
       ],
     },
     {
-      title: 'User Management',
+      title: 'Users',
       icon: Users,
       items: [
         {
@@ -101,20 +91,19 @@ const data = {
           url: '/admin/users',
         },
         {
-          title: 'User Roles',
+          title: 'Roles',
           url: '/admin/users/roles',
           icon: Shield,
         },
         {
-          title: 'Activity Logs',
+          title: 'Activity',
           url: '/admin/activity',
           icon: Activity,
         },
-
       ],
     },
     {
-      title: 'Engagements',
+      title: 'Engagement',
       icon: Heart,
       items: [
         {
@@ -135,7 +124,7 @@ const data = {
       ],
     },
     {
-      title: 'Settings',
+      title: 'System',
       icon: Settings,
       items: [
         {
@@ -143,30 +132,21 @@ const data = {
           url: '/admin/settings/general',
         },
         {
-          title: 'Logo Management',
+          title: 'Branding',
           url: '/admin/settings/logo',
         },
         {
-          title: 'Social Media & Contact',
+          title: 'Social Links',
           url: '/admin/settings/social-media',
-
         },
         {
           title: 'Security',
           url: '/admin/settings/security',
         },
         {
-          title: 'Integrations',
-          url: '/admin/settings/integrations',
-        },
-        {
-          title: 'Audit Log',
-          url: '/admin/settings/audit',
-        },
-        {
-          title: 'System Monitoring',
+          title: 'Monitoring',
           url: '/admin/settings/monitoring',
-     
+          icon: Monitor,
         }
       ],
     },
@@ -193,18 +173,18 @@ export default function AdminSidebar() {
   };
 
   return (
-    <Sidebar variant="inset">
-      <SidebarHeader>
+    <Sidebar variant="inset" className="border-r border-border/40">
+      <SidebarHeader className="border-b border-border/40 px-4 py-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild className="hover:bg-accent/50 transition-colors">
               <Link href={getFullHref('/')}>
-                <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <div className="flex aspect-square size-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-sm">
                   <LayoutDashboard className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Admin Panel</span>
-                  <span className="truncate text-xs text-muted-foreground">NewsApp</span>
+                  <span className="truncate font-semibold text-foreground">Admin</span>
+                  <span className="truncate text-xs text-muted-foreground/80">NewsApp Dashboard</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -212,10 +192,12 @@ export default function AdminSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       
-      <SidebarContent>
+      <SidebarContent className="px-2 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">Navigation</SidebarGroupLabel>
-          <SidebarMenu>
+          <SidebarGroupLabel className="px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider mb-2">
+            Navigation
+          </SidebarGroupLabel>
+          <SidebarMenu className="space-y-1">
             {data.navMain.map((item) => {
               const isActive = item.url ? isPathActive(item.url) : false;
               
@@ -229,26 +211,33 @@ export default function AdminSidebar() {
                   >
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton tooltip={item.title} className="text-sm">
-                          {item.icon && <item.icon className="size-4" />}
-                          <span>{item.title}</span>
-                          <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        <SidebarMenuButton 
+                          tooltip={item.title} 
+                          className="text-sm font-medium hover:bg-accent/50 transition-all duration-200 rounded-lg mx-1"
+                        >
+                          {item.icon && <item.icon className="size-4 text-muted-foreground" />}
+                          <span className="text-foreground">{item.title}</span>
+                          <ChevronRight className="ml-auto size-4 text-muted-foreground/50 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
-                        <SidebarMenuSub>
+                        <SidebarMenuSub className="ml-3 mt-1 space-y-0.5">
                           {item.items?.map((subItem) => (
                             <SidebarMenuSubItem key={subItem.title}>
                               <SidebarMenuSubButton 
                                 asChild 
                                 isActive={isPathActive(subItem.url)}
+                                className="text-sm hover:bg-accent/40 transition-colors rounded-md py-2"
                               >
-                                <Link href={getFullHref(subItem.url)}>
+                                <Link href={getFullHref(subItem.url)} className="flex items-center gap-3">
                                   {(() => {
                                     const Icon = (subItem as { icon?: React.ComponentType<{ className?: string }> }).icon;
-                                    return Icon ? <Icon className="h-4 w-4" /> : null;
+                                    return Icon ? <Icon className="h-3.5 w-3.5 text-muted-foreground/60" /> : 
+                                    <div className="w-3.5 h-3.5 rounded-full bg-muted-foreground/20" />;
                                   })()}
-                                  <span>{subItem.title}</span>
+                                  <span className="text-muted-foreground group-data-[active=true]:text-foreground font-medium">
+                                    {subItem.title}
+                                  </span>
                                 </Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
@@ -266,12 +255,12 @@ export default function AdminSidebar() {
                     asChild 
                     tooltip={item.title}
                     isActive={isActive}
-                    className="text-sm"
+                    className="text-sm font-medium hover:bg-accent/50 transition-all duration-200 rounded-lg mx-1"
                   >
-                    <Link href={getFullHref(item.url!)}>
-                      {item.icon && <item.icon className="size-4" />}
-                      <span>{item.title}</span>
-                    </Link>
+                                          <Link href={getFullHref(item.url!)}>
+                        {item.icon && <item.icon className="size-4 text-muted-foreground" />}
+                        <span className="text-foreground">{item.title}</span>
+                      </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );
@@ -279,14 +268,17 @@ export default function AdminSidebar() {
           </SidebarMenu>
         </SidebarGroup>
         
-        <SidebarGroup className="mt-auto">
+        <SidebarGroup className="mt-8 pt-4 border-t border-border/40">
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className="text-sm">
+                <SidebarMenuButton 
+                  asChild 
+                  className="text-sm font-medium hover:bg-accent/50 transition-colors rounded-lg mx-1"
+                >
                   <Link href={getFullHref('/')}>
-                    <Home className="size-4" />
-                    <span>Back to Site</span>
+                    <Home className="size-4 text-muted-foreground" />
+                    <span className="text-foreground">Back to Site</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -295,50 +287,60 @@ export default function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
       
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-border/40 p-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="data-[state=open]:bg-accent hover:bg-accent/50 transition-colors rounded-lg"
                 >
-                  <Avatar className="h-8 w-8 rounded-md">
+                  <Avatar className="h-9 w-9 rounded-lg border border-border/40">
                     <AvatarImage 
                       src={user?.profileImage || user?.avatar || data.user.avatar} 
                       alt={user?.username || data.user.name} 
                     />
-                    <AvatarFallback className="rounded-md">
+                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
                       {(user?.username || data.user.name).charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">
+                    <span className="truncate font-semibold text-foreground">
                       {user?.username || data.user.name}
                     </span>
-                    <span className="truncate text-xs text-muted-foreground">
+                    <span className="truncate text-xs text-muted-foreground/80">
                       {user?.email || data.user.email}
                     </span>
                   </div>
-                  <MoreHorizontal className="ml-auto size-4" />
+                  <MoreHorizontal className="ml-auto size-4 text-muted-foreground/50" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-md"
+                className="w-56 rounded-xl border border-border/40 shadow-lg"
                 side="bottom"
                 align="end"
-                sideOffset={4}
+                sideOffset={8}
               >
-                <DropdownMenuItem asChild>
-                  <Link href={getFullHref('/profile')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Account Settings
+                <DropdownMenuItem asChild className="rounded-lg">
+                  <Link href={getFullHref('/profile')} className="flex items-center gap-3 px-3 py-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Profile</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
+                <DropdownMenuItem asChild className="rounded-lg">
+                  <Link href={getFullHref('/admin/settings')} className="flex items-center gap-3 px-3 py-2">
+                    <Settings className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="my-1" />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="rounded-lg text-destructive focus:bg-destructive/10 focus:text-destructive"
+                >
+                  <LogOut className="mr-3 h-4 w-4" />
+                  <span className="font-medium">Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -358,18 +360,23 @@ export function AdminSidebarProvider({ children }: { children: React.ReactNode }
       <div className="flex min-h-screen w-full bg-background">
         <AdminSidebar />
         <main className="flex-1 flex flex-col min-w-0">
-          {/* Mobile-optimized header */}
-          <div className="flex h-14 sm:h-16 shrink-0 items-center justify-between gap-2 border-b border-border/50 bg-background px-3 sm:px-4">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="-ml-1 h-8 w-8 sm:h-auto sm:w-auto" />
-              <div className="h-4 w-px bg-border hidden sm:block" />
-              <h1 className="text-base sm:text-lg font-medium truncate">Admin Dashboard</h1>
+          {/* Refined header with better spacing and typography */}
+          <div className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border/40 bg-background/95 backdrop-blur-sm px-4 lg:px-6">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="h-8 w-8 hover:bg-accent/50 transition-colors rounded-md" />
+              <div className="h-5 w-px bg-border/60 hidden sm:block" />
+              <div className="flex flex-col">
+                <h1 className="text-lg font-semibold text-foreground tracking-tight">Dashboard</h1>
+                <p className="text-xs text-muted-foreground/80 hidden sm:block">Manage your content and settings</p>
+              </div>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+            </div>
           </div>
-          {/* Mobile-optimized content area */}
-          <div className="flex-1 overflow-auto bg-background p-3 sm:p-4 lg:p-6">
-            <div className="mx-auto max-w-7xl w-full">
+          {/* Refined content area with better padding and max-width */}
+          <div className="flex-1 overflow-auto bg-muted/20 p-4 lg:p-6">
+            <div className="mx-auto max-w-7xl w-full space-y-6">
               {children}
             </div>
           </div>
