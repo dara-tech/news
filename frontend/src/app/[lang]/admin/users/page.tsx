@@ -132,15 +132,15 @@ const UsersPage = () => {
       const usersWithRealData = await Promise.all(
         data.map(async (user: User) => {
           try {
-            // Fetch articles count for this user from News collection
-            const articlesResponse = await api.get('/news', {
+            // Fetch articles count for this user using direct API call
+            const articlesResponse = await api.get(`/news/author/${user._id}`, {
               params: { 
-                author: user._id,
-                limit: 1,
-                status: 'published'
+                page: 1,
+                limit: 1
               }
             });
-            const totalArticles = articlesResponse.data.total || 0;
+            const totalArticles = articlesResponse.data?.pagination?.totalArticles || 0;
+            console.log(`User ${user.username}: ${totalArticles} articles`);
             
             // Get last login from user's lastLogin field (if available) or fetch from UserLogin
             let lastLogin = user.lastLogin;
@@ -166,7 +166,7 @@ const UsersPage = () => {
               totalArticles: totalArticles
             };
           } catch (error) {
-            console.error(`Error fetching data for user ${user._id}:`, error);
+            console.error(`Error fetching data for user ${user._id} (${user.username}):`, error);
             // If data fetch fails, use fallback values
             return {
               ...user,

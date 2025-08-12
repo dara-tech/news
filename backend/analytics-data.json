@@ -1,15 +1,15 @@
 {
   "pageViews": {
     "/news/breaking": 642,
-    "/news": 780,
+    "/news": 800,
     "/news/featured": 645,
     "/categories": 1395,
-    "/notifications/count": 3522,
+    "/notifications/count": 3528,
     "/dashboard/advanced-stats": 589,
     "/maintenance-status": 373,
     "/auth/login": 26,
-    "/auth/profile": 617,
-    "/notifications": 655,
+    "/auth/profile": 618,
+    "/notifications": 657,
     "/dashboard/stats": 1143,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -38,7 +38,7 @@
     "/admin/roles/permissions": 7,
     "/admin/roles": 33,
     "/admin/roles/stats": 7,
-    "/users": 23,
+    "/users": 28,
     "/auth/profile/image": 4,
     "/news/is-cambodia-really-the-oldest-country": 134,
     "/likes/688f3745270d0fd8b27db112/status": 26,
@@ -49,14 +49,14 @@
     "/follows/507f1f77bcf86cd799439011/followers/count": 2,
     "/follows/507f1f77bcf86cd799439011/following/count": 2,
     "/follows/507f1f77bcf86cd799439011/check": 2,
-    "/news/author/687362dbfcd8692cef0917df": 43,
+    "/news/author/687362dbfcd8692cef0917df": 46,
     "/follows/687362dbfcd8692cef0917df/followers/count": 57,
     "/follows/687362dbfcd8692cef0917df/following/count": 53,
     "/follows/687362dbfcd8692cef0917df/check": 17,
     "/follows/687362dbfcd8692cef0917df/toggle": 4,
     "/follows/687362dbfcd8692cef0917df/followers": 13,
     "/follows/687362dbfcd8692cef0917df/following": 13,
-    "/news/author/6883582d3572b0a8c26cca57": 16,
+    "/news/author/6883582d3572b0a8c26cca57": 19,
     "/follows/6883582d3572b0a8c26cca57/followers/count": 37,
     "/follows/6883582d3572b0a8c26cca57/following/count": 37,
     "/follows/6883582d3572b0a8c26cca57/check": 35,
@@ -78,7 +78,7 @@
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
     "/news/information-war-navigating-the-complex-landscape-of-disinformation": 8,
-    "/news/author/6886733416315db847ca5e74": 2,
+    "/news/author/6886733416315db847ca5e74": 5,
     "/follows/6886733416315db847ca5e74/check": 2,
     "/follows/6886733416315db847ca5e74/followers/count": 2,
     "/follows/6886733416315db847ca5e74/following/count": 2,
@@ -254,7 +254,14 @@
     "/news/689ac154eb93206627c2cd4d": 1,
     "/news/689ac14ceb93206627c2cd47": 1,
     "/admin/likes/689ac53eeb93206627c2ce9f": 1,
-    "/admin/user-logins/recent": 28
+    "/admin/user-logins/recent": 80,
+    "/news/author/688668cece5a7084eda68aa9": 3,
+    "/news/author/68889ee3de452b5fc5051a9b": 3,
+    "/news/author/68888cfd8bb4aa30374bb08a": 3,
+    "/news/author/688890b02c1b677dc769ad33": 3,
+    "/news/author/688e46a0b9e9e59928015fdf": 3,
+    "/news/author/688f30f71eee3e243453ed2c": 3,
+    "/news/author/689581b3ed4da10e3ffc90eb": 3
   },
   "userActions": {},
   "dailyStats": {
@@ -388,27 +395,27 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 1725,
+      "pageViews": 1841,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 1331,
+        "Referral": 1447,
         "Direct": 394
       },
       "deviceTypes": {
-        "Desktop": 1725
+        "Desktop": 1841
       }
     }
   },
   "trafficSources": {
     "Direct": 3470,
-    "Referral": 13508
+    "Referral": 13624
   },
   "deviceTypes": {
-    "Desktop": 16255,
+    "Desktop": 16371,
     "Mobile": 723
   }
 }
