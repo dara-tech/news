@@ -419,7 +419,7 @@ const UsersPage = () => {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
@@ -427,7 +427,7 @@ const UsersPage = () => {
             </CardTitle>
             <CardDescription>Manage all users in the system with advanced filtering and bulk operations.</CardDescription>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             <input
               type="file"
               accept=".csv"
@@ -439,34 +439,38 @@ const UsersPage = () => {
               <Button 
                 variant="outline" 
                 onClick={() => document.getElementById('user-import')?.click()}
+                className="w-full sm:w-auto"
               >
                 <Upload className="h-4 w-4 mr-2" />
-                Import CSV
+                <span className="hidden sm:inline">Import CSV</span>
+                <span className="sm:hidden">Import</span>
               </Button>
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={handleDownloadTemplate}
                 title="Download CSV template"
+                className="shrink-0"
               >
                 📋
               </Button>
             </div>
-            <Button variant="outline" onClick={handleExportUsers}>
+            <Button variant="outline" onClick={handleExportUsers} className="w-full sm:w-auto">
               <Download className="h-4 w-4 mr-2" />
-              Export
+              <span className="hidden sm:inline">Export</span>
+              <span className="sm:hidden">Export</span>
             </Button>
-            <Link href="/admin/users/create">
-              <Button>Create User</Button>
+            <Link href="/admin/users/create" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto">Create User</Button>
             </Link>
           </div>
         </CardHeader>
         <CardContent>
           {/* Advanced Search and Filters */}
-          <div className="flex flex-col lg:flex-row gap-4 mb-6 p-4 rounded-lg">
+          <div className="flex flex-col gap-4 mb-6 p-4 rounded-lg bg-muted/30">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search users by username or email..."
                   value={searchTerm}
@@ -475,9 +479,9 @@ const UsersPage = () => {
                 />
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
               <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -488,7 +492,7 @@ const UsersPage = () => {
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -499,7 +503,7 @@ const UsersPage = () => {
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-36">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -515,6 +519,7 @@ const UsersPage = () => {
                 variant="outline" 
                 size="sm"
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                className="w-full"
               >
                 {sortOrder === 'asc' ? '↑' : '↓'}
               </Button>
@@ -523,16 +528,17 @@ const UsersPage = () => {
 
           {/* Bulk Actions Bar */}
           {selectedUsers.length > 0 && (
-            <div className="flex items-center justify-between p-3 mb-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 mb-4 bg-blue-50 border border-blue-200 rounded-lg gap-3">
               <span className="text-sm font-medium text-blue-900">
                 {selectedUsers.length} user{selectedUsers.length !== 1 ? 's' : ''} selected
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Dialog open={showBulkActions} onOpenChange={setShowBulkActions}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
                       <UserCheck className="h-4 w-4 mr-2" />
-                      Bulk Actions
+                      <span className="hidden sm:inline">Bulk Actions</span>
+                      <span className="sm:hidden">Actions</span>
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
@@ -596,36 +602,39 @@ const UsersPage = () => {
                   variant="outline" 
                   size="sm"
                   onClick={() => setSelectedUsers([])}
+                  className="w-full sm:w-auto"
                 >
-                  Clear Selection
+                  <span className="hidden sm:inline">Clear Selection</span>
+                  <span className="sm:hidden">Clear</span>
                 </Button>
               </div>
             </div>
           )}
 
           {/* Users Table */}
-          <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Checkbox
-                                      checked={currentUsers.length > 0 && selectedUsers.length === currentUsers.length}
+          <div className="overflow-x-auto">
+            <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={currentUsers.length > 0 && selectedUsers.length === currentUsers.length}
                     onCheckedChange={handleSelectAll}
-                />
-              </TableHead>
-              <TableHead className="w-12"></TableHead>
-              <TableHead>Username</TableHead>
-              <TableHead className="hidden md:table-cell">Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead className="hidden lg:table-cell">Status</TableHead>
-              <TableHead className="hidden md:table-cell">Joined</TableHead>
-              <TableHead className="hidden lg:table-cell">Last Login</TableHead>
-              <TableHead className="hidden xl:table-cell">Articles</TableHead>
-              <TableHead>
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
+                  />
+                </TableHead>
+                <TableHead className="w-12"></TableHead>
+                <TableHead>Username</TableHead>
+                <TableHead className="hidden sm:table-cell">Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead className="hidden md:table-cell">Status</TableHead>
+                <TableHead className="hidden lg:table-cell">Joined</TableHead>
+                <TableHead className="hidden xl:table-cell">Last Login</TableHead>
+                <TableHead className="hidden 2xl:table-cell">Articles</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
           <TableBody>
             {currentUsers.map((user) => (
               <TableRow key={user._id} className={selectedUsers.includes(user._id) ? 'bg-blue-50' : ''}>
@@ -651,28 +660,30 @@ const UsersPage = () => {
                   />
                 </TableCell>
                 <TableCell className="font-medium">{user.username}</TableCell>
-                <TableCell className="hidden md:table-cell">{user.email}</TableCell>
+                <TableCell className="hidden sm:table-cell">{user.email}</TableCell>
                 <TableCell>
                   <Badge
                     variant={user.role === 'admin' ? 'default' : user.role === 'editor' ? 'outline' : 'secondary'}
+                    className="text-xs"
                   >
                     {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                   </Badge>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
+                <TableCell className="hidden md:table-cell">
                   <Badge
                     variant={user.status === 'active' ? 'default' : user.status === 'suspended' ? 'destructive' : 'secondary'}
+                    className="text-xs"
                   >
                     {user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Unknown'}
                   </Badge>
                 </TableCell>
-                <TableCell className="hidden md:table-cell">
+                <TableCell className="hidden lg:table-cell">
                   {new Date(user.createdAt).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
+                <TableCell className="hidden xl:table-cell">
                   {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
                 </TableCell>
-                <TableCell className="hidden xl:table-cell">
+                <TableCell className="hidden 2xl:table-cell">
                   {user.totalArticles || 0}
                 </TableCell>
                 <TableCell>
@@ -709,11 +720,12 @@ const UsersPage = () => {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
-        
+            </Table>
+          </div>
+          
           {/* Pagination with additional info */}
-          <div className="flex items-center justify-between px-2 py-4">
-            <div className="text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-2 py-4 gap-2">
+            <div className="text-sm text-muted-foreground">
               Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
               {users.length !== filteredUsers.length && ` (filtered from ${users.length} total)`}
             </div>
@@ -721,30 +733,32 @@ const UsersPage = () => {
         </CardContent>
       </Card>
       
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                setCurrentPage(prev => Math.max(prev - 1, 1));
-              }}
-              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-            />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                setCurrentPage(prev => Math.min(prev + 1, totalPages));
-              }}
-              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <div className="flex justify-center">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage(prev => Math.max(prev - 1, 1));
+                }}
+                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                }}
+                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
       {/* Role Assignment Dialog */}
       <RoleAssignmentDialog
         isOpen={isRoleAssignmentOpen}

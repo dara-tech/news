@@ -1,22 +1,22 @@
 {
   "pageViews": {
-    "/news/breaking": 640,
-    "/news": 698,
-    "/news/featured": 643,
-    "/categories": 1391,
-    "/notifications/count": 3503,
-    "/dashboard/advanced-stats": 585,
+    "/news/breaking": 642,
+    "/news": 700,
+    "/news/featured": 645,
+    "/categories": 1395,
+    "/notifications/count": 3513,
+    "/dashboard/advanced-stats": 589,
     "/maintenance-status": 373,
     "/auth/login": 26,
-    "/auth/profile": 613,
-    "/notifications": 652,
-    "/dashboard/stats": 1141,
+    "/auth/profile": 615,
+    "/notifications": 653,
+    "/dashboard/stats": 1143,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
     "/admin/security/stats": 11,
     "/admin/settings/general": 9,
-    "/dashboard/analytics": 95,
+    "/dashboard/analytics": 96,
     "/admin/system/metrics": 541,
     "/dashboard/export": 2,
     "/admin/user-logins/map": 411,
@@ -38,7 +38,7 @@
     "/admin/roles/permissions": 7,
     "/admin/roles": 33,
     "/admin/roles/stats": 7,
-    "/users": 12,
+    "/users": 15,
     "/auth/profile/image": 4,
     "/news/is-cambodia-really-the-oldest-country": 134,
     "/likes/688f3745270d0fd8b27db112/status": 26,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 828,
+    "/admin/settings/logo": 837,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -110,7 +110,7 @@
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
     "/admin/settings/footer": 98,
-    "/admin/settings/social-media": 292,
+    "/admin/settings/social-media": 298,
     "/admin/settings/social-media/stats": 7,
     "/admin/settings/social-media/test": 14,
     "/settings/public/social-media": 88,
@@ -387,27 +387,27 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 1548,
+      "pageViews": 1596,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 1162,
-        "Direct": 386
+        "Referral": 1202,
+        "Direct": 394
       },
       "deviceTypes": {
-        "Desktop": 1548
+        "Desktop": 1596
       }
     }
   },
   "trafficSources": {
-    "Direct": 3462,
-    "Referral": 13339
+    "Direct": 3470,
+    "Referral": 13379
   },
   "deviceTypes": {
-    "Desktop": 16078,
+    "Desktop": 16126,
     "Mobile": 723
   }
 }
