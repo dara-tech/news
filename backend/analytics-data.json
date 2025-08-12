@@ -1,10 +1,10 @@
 {
   "pageViews": {
     "/news/breaking": 642,
-    "/news": 700,
+    "/news": 730,
     "/news/featured": 645,
     "/categories": 1395,
-    "/notifications/count": 3516,
+    "/notifications/count": 3520,
     "/dashboard/advanced-stats": 589,
     "/maintenance-status": 373,
     "/auth/login": 26,
@@ -38,7 +38,7 @@
     "/admin/roles/permissions": 7,
     "/admin/roles": 33,
     "/admin/roles/stats": 7,
-    "/users": 15,
+    "/users": 18,
     "/auth/profile/image": 4,
     "/news/is-cambodia-really-the-oldest-country": 134,
     "/likes/688f3745270d0fd8b27db112/status": 26,
@@ -387,27 +387,27 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 1599,
+      "pageViews": 1636,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 1205,
+        "Referral": 1242,
         "Direct": 394
       },
       "deviceTypes": {
-        "Desktop": 1599
+        "Desktop": 1636
       }
     }
   },
   "trafficSources": {
     "Direct": 3470,
-    "Referral": 13382
+    "Referral": 13419
   },
   "deviceTypes": {
-    "Desktop": 16129,
+    "Desktop": 16166,
     "Mobile": 723
   }
 }

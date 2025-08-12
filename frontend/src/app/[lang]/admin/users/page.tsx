@@ -10,7 +10,8 @@ import {
   Upload,
   UserCheck,
   Users,
-  Shield
+  Shield,
+  RefreshCw
 } from 'lucide-react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -121,30 +122,52 @@ const UsersPage = () => {
   const [selectedUserForRole, setSelectedUserForRole] = useState<User | null>(null);
   const usersPerPage = 10;
 
-  // Enhanced user fetching with additional data
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const { data } = await api.get('/users');
-        // Add mock additional data for enhanced features
-        const enhancedUsers = data.map((user: User) => ({
-          ...user,
-          status: user.status || 'active',
-          lastLogin: user.lastLogin || new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-          totalArticles: user.totalArticles || Math.floor(Math.random() * 50)
-        }));
-        setUsers(enhancedUsers);
-        setFilteredUsers(enhancedUsers);
-      } catch {
-        setError('Failed to fetch users.');
-        toast.error('Failed to fetch users.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
+  // Function to refresh user data
+  const refreshUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get('/users');
+      
+      // Fetch real article counts for each user
+      const usersWithRealData = await Promise.all(
+        data.map(async (user: User) => {
+          try {
+            // Fetch articles count for this user
+            const articlesResponse = await api.get(`/news?author=${user._id}&limit=1`);
+            const totalArticles = articlesResponse.data.total || 0;
+            
+            return {
+              ...user,
+              status: user.status || 'active',
+              lastLogin: user.lastLogin || null,
+              totalArticles: totalArticles
+            };
+          } catch (error) {
+            // If article count fetch fails, default to 0
+            return {
+              ...user,
+              status: user.status || 'active',
+              lastLogin: user.lastLogin || null,
+              totalArticles: 0
+            };
+          }
+        })
+      );
+      
+      setUsers(usersWithRealData);
+      setFilteredUsers(usersWithRealData);
+    } catch (error) {
+      console.error('Error refreshing users:', error);
+      toast.error('Failed to refresh users.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Enhanced user fetching with real data
+  useEffect(() => {
+    refreshUsers();
+  }, [refreshUsers]);
 
   // Filter and search functionality
   const filterUsers = useCallback(() => {
@@ -474,6 +497,16 @@ const UsersPage = () => {
               <span className="hidden sm:inline">Export</span>
               <span className="sm:hidden">Export</span>
             </Button>
+            <Button 
+              variant="outline" 
+              onClick={refreshUsers}
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+              <span className="sm:hidden">Refresh</span>
+            </Button>
             <Link href="/admin/users/create" className="w-full sm:w-auto">
               <Button className="w-full sm:w-auto">Create User</Button>
             </Link>
@@ -698,7 +731,7 @@ const UsersPage = () => {
                   {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
                 </TableCell>
                 <TableCell className="hidden 2xl:table-cell">
-                  {user.totalArticles || 0}
+                  <span className="font-medium">{user.totalArticles || 0}</span>
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
