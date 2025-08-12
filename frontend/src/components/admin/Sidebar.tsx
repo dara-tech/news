@@ -145,12 +145,11 @@ const data = {
         {
           title: 'Logo Management',
           url: '/admin/settings/logo',
-          icon: Palette,
         },
         {
           title: 'Social Media & Contact',
           url: '/admin/settings/social-media',
-          icon: Globe,
+
         },
         {
           title: 'Security',
@@ -167,7 +166,7 @@ const data = {
         {
           title: 'System Monitoring',
           url: '/admin/settings/monitoring',
-          icon: Monitor,
+     
         }
       ],
     },

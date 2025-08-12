@@ -342,7 +342,7 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
   if (articles.length === 1) {
     const article = articles[0];
     return (
-      <div className="group relative overflow-hidden rounded-xl bg-card border border-primary/20 transition-all duration-300">
+      <div className="group relative overflow-hidden rounded-lg bg-background border border-border/50 transition-all duration-300">
         <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
           <div className="flex flex-col h-full">
             {/* Image */}
@@ -352,21 +352,21 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
                 alt={article.title?.[locale] || "Article image"}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = "/placeholder.jpg"
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-black/20" />
               
               {/* Category badge */}
               {getCategoryInfo(article, locale).categoryName && (
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-3 left-3 z-20">
                   <span
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/95 backdrop-blur-sm"
+                    className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium bg-white/90 text-foreground rounded"
                     style={{ color: getCategoryInfo(article, locale).categoryColor }}
                   >
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCategoryInfo(article, locale).categoryColor }} />
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getCategoryInfo(article, locale).categoryColor }} />
                     {getCategoryInfo(article, locale).categoryName}
                   </span>
                 </div>
@@ -374,24 +374,24 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
             </div>
             
             {/* Content */}
-            <div className="p-6 flex-1 flex flex-col">
-              <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+            <div className="p-4 flex-1 flex flex-col">
+              <h3 className="font-semibold text-base mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                 {article.title?.[locale]}
               </h3>
               {article.description?.[locale] && (
-                <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-1">
+                <p className="text-muted-foreground text-sm mb-3 flex-1 line-clamp-2">
                   {article.description?.[locale]}
                 </p>
               )}
               
               <div className="flex items-center justify-between mt-auto">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Calendar className="w-3 h-3" />
                   <span>{formatDate(article.createdAt || article.publishedAt || new Date().toISOString(), locale)}</span>
                 </div>
-                <div className="flex items-center gap-1 text-primary font-semibold text-sm">
+                <div className="flex items-center gap-1 text-primary font-medium text-xs">
                   <span>Read</span>
-                  <ArrowUpRight className="w-4 h-4" />
+                  <ArrowUpRight className="w-3 h-3" />
                 </div>
               </div>
             </div>

@@ -90,30 +90,24 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-8 p-3 sm:p-6 rounded-xl sm:rounded-2xl border border-primary/20 bg-card/60 backdrop-blur-md"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6 p-4 rounded-lg border border-border/50 bg-background"
         >
-          <div className="flex items-center flex-wrap gap-3 sm:gap-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="relative">
-                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50" />
-                <div className="absolute inset-0 w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full animate-ping opacity-75" />
-              </div>
-              <span className="font-medium text-sm sm:text-base">Live Coverage</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+              <span className="font-medium text-sm">Live Coverage</span>
             </div>
-            <div className="hidden sm:block h-6 w-px bg-border" />
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <span className="text-xs sm:text-sm">Real-time updates</span>
-            </div>
+            <div className="hidden sm:block h-4 w-px bg-border" />
+            <span className="text-xs text-muted-foreground">Real-time updates</span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-            <Badge variant="secondary" className="flex items-center gap-1 sm:gap-2 text-xs">
-              <TrendingUp className="w-3 h-3" aria-hidden="true" />
-              <span className="hidden sm:inline">Trending Now</span>
-              <span className="sm:hidden">Trending</span>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="text-xs">
+              <TrendingUp className="w-3 h-3 mr-1" />
+              Trending
             </Badge>
-            <Badge variant="outline" className="flex items-center gap-1 sm:gap-2 text-xs">
-              <Eye className="w-3 h-3" aria-hidden="true" />
-              <span>{formatReaders(READERS_COUNT)} <span className="hidden sm:inline">Reading</span></span>
+            <Badge variant="outline" className="text-xs">
+              <Eye className="w-3 h-3 mr-1" />
+              {formatReaders(READERS_COUNT)} Reading
             </Badge>
           </div>
         </motion.div>

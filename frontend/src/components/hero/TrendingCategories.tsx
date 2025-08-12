@@ -24,7 +24,7 @@ const TrendingCategories: React.FC<TrendingCategoriesProps> = ({ categories = []
   if (categories.length === 0) return null
 
   return (
-    <div className="bg-card/50 rounded-xl sm:rounded-2xl border border-border/20 shadow-md sm:shadow-lg backdrop-blur-sm p-3 sm:p-5">
+    <div className="bg-card/50 rounded-xl sm:rounded-2xl border border-primary/20 backdrop-blur-sm p-3 sm:p-5">
       <h3 className="font-semibold text-sm sm:text-base mb-2 sm:mb-3 flex items-center gap-2 text-foreground tracking-tight">
         <Globe className="w-4 h-4 text-primary" />
         <span className="hidden sm:inline">Trending Categories</span>

@@ -1,23 +1,23 @@
 {
   "pageViews": {
-    "/news/breaking": 620,
-    "/news": 678,
-    "/news/featured": 623,
-    "/categories": 1355,
-    "/notifications/count": 3447,
-    "/dashboard/advanced-stats": 558,
-    "/maintenance-status": 360,
+    "/news/breaking": 633,
+    "/news": 691,
+    "/news/featured": 636,
+    "/categories": 1373,
+    "/notifications/count": 3480,
+    "/dashboard/advanced-stats": 560,
+    "/maintenance-status": 367,
     "/auth/login": 26,
-    "/auth/profile": 606,
-    "/notifications": 645,
-    "/dashboard/stats": 1116,
+    "/auth/profile": 609,
+    "/notifications": 648,
+    "/dashboard/stats": 1118,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
     "/admin/security/stats": 11,
     "/admin/settings/general": 8,
     "/dashboard/analytics": 95,
-    "/admin/system/metrics": 514,
+    "/admin/system/metrics": 540,
     "/dashboard/export": 2,
     "/admin/user-logins/map": 411,
     "/auth/google": 13,
@@ -26,10 +26,10 @@
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 112,
+    "/news/admin": 113,
     "/health": 1,
     "/new": 1,
-    "/admin/likes": 44,
+    "/admin/likes": 46,
     "/admin/comments": 45,
     "/admin/activity": 48,
     "/admin/activity/security": 37,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 758,
+    "/admin/settings/logo": 766,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -109,11 +109,11 @@
     "/likes/68940700b4cf5ac48729df9d/status": 3,
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
-    "/admin/settings/footer": 93,
-    "/admin/settings/social-media": 247,
+    "/admin/settings/footer": 95,
+    "/admin/settings/social-media": 250,
     "/admin/settings/social-media/stats": 7,
     "/admin/settings/social-media/test": 14,
-    "/settings/public/social-media": 83,
+    "/settings/public/social-media": 85,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -123,11 +123,11 @@
     "/comments/6896d76d35003ae5b6370ba9/like": 2,
     "/admin/comments/6894625c70cb3d494df61813": 1,
     "/comments/6896de0335003ae5b6371192/like": 2,
-    "/admin/system/sentinel": 208,
+    "/admin/system/sentinel": 211,
     "/admin/system/matric": 3,
     "/admin/system": 1,
     "/admin/system/sentinel/run-once": 26,
-    "/admin/system/sentinel/logs": 1465,
+    "/admin/system/sentinel/logs": 1606,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -236,10 +236,10 @@
     "/likes/689ac32beb93206627c2cd96/toggle": 1,
     "/admin/follows/68910ed2652d8cab7571babd": 2,
     "/news/689ac0adeb93206627c2ccff": 2,
-    "/news/zelenskyy-warns-putin-plans-new-offensive-dismisses-ceasefire-talk": 8,
-    "/likes/689ac0adeb93206627c2ccff/status": 7,
-    "/comments/689ac0adeb93206627c2ccff": 8,
-    "/comments/689ac0adeb93206627c2ccff/stats": 7,
+    "/news/zelenskyy-warns-putin-plans-new-offensive-dismisses-ceasefire-talk": 12,
+    "/likes/689ac0adeb93206627c2ccff/status": 8,
+    "/comments/689ac0adeb93206627c2ccff": 9,
+    "/comments/689ac0adeb93206627c2ccff/stats": 8,
     "/likes/689ac0adeb93206627c2ccff/toggle": 1,
     "/admin/comments/bulk-reject": 1,
     "/news/ukraine-allies-kyiv-must-be-included-in-peace-talks": 2,
@@ -252,7 +252,8 @@
     "/comments/689aedb0456acb0b2b923288/stats": 1,
     "/news/689ac279eb93206627c2cd82": 1,
     "/news/689ac154eb93206627c2cd4d": 1,
-    "/news/689ac14ceb93206627c2cd47": 1
+    "/news/689ac14ceb93206627c2cd47": 1,
+    "/admin/likes/689ac53eeb93206627c2ce9f": 1
   },
   "userActions": {},
   "dailyStats": {
@@ -386,27 +387,27 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 1006,
+      "pageViews": 1309,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 704,
-        "Direct": 302
+        "Referral": 951,
+        "Direct": 358
       },
       "deviceTypes": {
-        "Desktop": 1006
+        "Desktop": 1309
       }
     }
   },
   "trafficSources": {
-    "Direct": 3378,
-    "Referral": 12881
+    "Direct": 3434,
+    "Referral": 13128
   },
   "deviceTypes": {
-    "Desktop": 15536,
+    "Desktop": 15839,
     "Mobile": 723
   }
 }
