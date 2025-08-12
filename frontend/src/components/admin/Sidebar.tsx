@@ -199,12 +199,12 @@ export default function AdminSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href={getFullHref('/')}>
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
                   <LayoutDashboard className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Admin Panel</span>
-                  <span className="truncate text-xs">NewsApp</span>
+                  <span className="truncate font-medium">Admin Panel</span>
+                  <span className="truncate text-xs text-muted-foreground">NewsApp</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -214,7 +214,7 @@ export default function AdminSidebar() {
       
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">Navigation</SidebarGroupLabel>
           <SidebarMenu>
             {data.navMain.map((item) => {
               const isActive = item.url ? isPathActive(item.url) : false;
@@ -229,10 +229,10 @@ export default function AdminSidebar() {
                   >
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton tooltip={item.title}>
-                          {item.icon && <item.icon />}
+                        <SidebarMenuButton tooltip={item.title} className="text-sm">
+                          {item.icon && <item.icon className="size-4" />}
                           <span>{item.title}</span>
-                          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
@@ -266,9 +266,10 @@ export default function AdminSidebar() {
                     asChild 
                     tooltip={item.title}
                     isActive={isActive}
+                    className="text-sm"
                   >
                     <Link href={getFullHref(item.url!)}>
-                      {item.icon && <item.icon />}
+                      {item.icon && <item.icon className="size-4" />}
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -282,7 +283,7 @@ export default function AdminSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm">
                   <Link href={getFullHref('/')}>
                     <Home className="size-4" />
                     <span>Back to Site</span>
@@ -303,20 +304,20 @@ export default function AdminSidebar() {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <Avatar className="h-8 w-8 rounded-lg">
+                  <Avatar className="h-8 w-8 rounded-md">
                     <AvatarImage 
                       src={user?.profileImage || user?.avatar || data.user.avatar} 
                       alt={user?.username || data.user.name} 
                     />
-                    <AvatarFallback className="rounded-lg">
+                    <AvatarFallback className="rounded-md">
                       {(user?.username || data.user.name).charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
+                    <span className="truncate font-medium">
                       {user?.username || data.user.name}
                     </span>
-                    <span className="truncate text-xs">
+                    <span className="truncate text-xs text-muted-foreground">
                       {user?.email || data.user.email}
                     </span>
                   </div>
@@ -324,7 +325,7 @@ export default function AdminSidebar() {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-md"
                 side="bottom"
                 align="end"
                 sideOffset={4}
@@ -358,16 +359,16 @@ export function AdminSidebarProvider({ children }: { children: React.ReactNode }
         <AdminSidebar />
         <main className="flex-1 flex flex-col min-w-0">
           {/* Mobile-optimized header */}
-          <div className="flex h-14 sm:h-16 shrink-0 items-center justify-between gap-2 border-b bg-background px-3 sm:px-4">
+          <div className="flex h-14 sm:h-16 shrink-0 items-center justify-between gap-2 border-b border-border/50 bg-background px-3 sm:px-4">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="-ml-1 h-8 w-8 sm:h-auto sm:w-auto" />
-              <div className="h-4 w-px bg-sidebar-border hidden sm:block" />
-              <h1 className="text-base sm:text-lg font-semibold truncate">Admin Dashboard</h1>
+              <div className="h-4 w-px bg-border hidden sm:block" />
+              <h1 className="text-base sm:text-lg font-medium truncate">Admin Dashboard</h1>
             </div>
             <ThemeToggle />
           </div>
           {/* Mobile-optimized content area */}
-          <div className="flex-1 overflow-auto bg-muted/10 p-3 sm:p-4 lg:p-6">
+          <div className="flex-1 overflow-auto bg-background p-3 sm:p-4 lg:p-6">
             <div className="mx-auto max-w-7xl w-full">
               {children}
             </div>
