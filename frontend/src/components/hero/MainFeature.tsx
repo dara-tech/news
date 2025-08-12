@@ -6,6 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowUpRight, Clock, User } from "lucide-react"
 import type { Article } from "@/types"
+import { getArticleImageUrl } from "@/hooks/useImageLoader"
 
 interface MainFeatureProps {
   article: Article
@@ -84,7 +85,7 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
           {/* Background image with animated overlay */}
           <div className="relative w-full h-full overflow-hidden">
             <Image
-              src={article.thumbnail || "/placeholder.jpg"}
+              src={getArticleImageUrl(article) || "/placeholder.jpg"}
               alt={article.title?.[locale] || "Feature article image"}
               fill
               priority

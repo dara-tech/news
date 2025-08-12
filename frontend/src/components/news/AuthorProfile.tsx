@@ -26,6 +26,7 @@ import FollowButton from '@/components/common/FollowButton';
 import FollowStats from '@/components/common/FollowStats';
 import { format } from 'date-fns';
 import Image from 'next/image';
+import { getArticleImageUrl } from '@/hooks/useImageLoader';
 
 interface AuthorProfileProps {
   author: {
@@ -404,7 +405,7 @@ export default function AuthorProfile({
                     <div className="flex gap-3 sm:gap-6">
                       <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
                         <Image
-                          src={article.thumbnail || '/placeholder.jpg'}
+                          src={getArticleImageUrl(article) || '/placeholder.jpg'}
                           alt={getLocalizedString(article.title)}
                           width={96}
                           height={96}

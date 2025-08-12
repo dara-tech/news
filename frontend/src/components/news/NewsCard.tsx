@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, Variants } from 'framer-motion';
 import { Article, Locale } from '@/types';
 import { FiArrowUpRight } from 'react-icons/fi';
+import { getArticleImageUrl } from '@/hooks/useImageLoader';
 
 interface NewsCardProps {
   article: Article;
@@ -56,10 +57,10 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
         prefetch={false}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
-        {article.thumbnail && (
+        {getArticleImageUrl(article) && (
           <Image
             fill
-            src={article.thumbnail}
+            src={getArticleImageUrl(article) || ''}
             alt={title || 'News article thumbnail'}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-in-out"

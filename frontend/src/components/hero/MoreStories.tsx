@@ -6,6 +6,7 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { SiApplenews } from "react-icons/si";
 import type { Article } from "@/types"
+import { getArticleImageUrl } from "@/hooks/useImageLoader"
 
 // Helper to get localized string or fallback
 type LocalizedString = string | Record<string, string | undefined>
@@ -39,7 +40,7 @@ const MoreStories: React.FC<MoreStoriesProps> = ({ articles = [], locale = "en" 
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden border border-border/30 flex-shrink-0">
                 <Image
-                  src={article.thumbnail || "/placeholder.jpg"}
+                  src={getArticleImageUrl(article) || "/placeholder.jpg"}
                   alt={getLocalizedString(article.title, locale)}
                   width={40}
                   height={40}

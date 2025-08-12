@@ -6,6 +6,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowUpRight, Calendar, TrendingUp } from "lucide-react"
 import type { Article } from "@/types"
+import { getArticleImageUrl } from "@/hooks/useImageLoader"
 
 interface SecondaryFeatureGridProps {
   articles: Article[]
@@ -104,7 +105,7 @@ function MobileCard({ article, locale, index }: { article: Article; locale: "en"
               <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/5 z-10" />
               
               <Image
-                src={article.thumbnail || "/placeholder.jpg"}
+                src={getArticleImageUrl(article) || "/placeholder.jpg"}
                 alt={article.title?.[locale] || "Article image"}
                 fill
                 sizes="(max-width: 640px) 100vw, 50vw"
@@ -200,7 +201,7 @@ function TabletCard({ article, locale }: { article: Article; locale: "en" | "kh"
           {/* Image Header */}
           <div className="relative h-48">
             <Image
-              src={article.thumbnail || "/placeholder.jpg"}
+              src={getArticleImageUrl(article) || "/placeholder.jpg"}
               alt={article.title?.[locale] || "Article image"}
               fill
               sizes="(max-width: 1024px) 50vw"
@@ -293,7 +294,7 @@ function DesktopCard({
             <div className="relative h-full">
               <div className="absolute inset-0">
                 <Image
-                  src={article.thumbnail || "/placeholder.jpg"}
+                  src={getArticleImageUrl(article) || "/placeholder.jpg"}
                   alt={article.title?.[locale] || "Article image"}
                   fill
                   sizes="100vw"
@@ -353,7 +354,7 @@ function DesktopCard({
               {/* Image */}
               <div className="relative h-48 overflow-hidden">
                 <Image
-                  src={article.thumbnail || "/placeholder.jpg"}
+                  src={getArticleImageUrl(article) || "/placeholder.jpg"}
                   alt={article.title?.[locale] || "Article image"}
                   fill
                   sizes="(max-width: 1200px) 33vw, 25vw"
