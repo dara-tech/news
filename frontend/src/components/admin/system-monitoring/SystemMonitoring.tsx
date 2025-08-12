@@ -11,14 +11,14 @@ import {
   FileText
 } from 'lucide-react';
 import api from '@/lib/api';
-import { SystemMetrics, SentinelConfig, SentinelRuntime, SystemLog } from './system-monitoring/types';
-import Header from './system-monitoring/Header';
-import Overview from './system-monitoring/Overview';
-import Performance from './system-monitoring/Performance';
-import Endpoints from './system-monitoring/Endpoints';
-import Events from './system-monitoring/Events';
-import Sentinel from './system-monitoring/Sentinel';
-import Logs from './system-monitoring/Logs';
+import { SystemMetrics, SentinelConfig, SentinelRuntime, SystemLog } from './types';
+import Header from './Header';
+import Overview from './Overview';
+import Performance from './Performance';
+import Endpoints from './Endpoints';
+import Events from './Events';
+import Sentinel from './Sentinel';
+import Logs from './Logs';
 
 export default function SystemMonitoring() {
   const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
@@ -41,8 +41,8 @@ export default function SystemMonitoring() {
     let interval: NodeJS.Timeout;
     let logsInterval: NodeJS.Timeout;
     if (autoRefresh) {
-      interval = setInterval(fetchMetrics, 30000);
-      logsInterval = setInterval(fetchLogs, 5000);
+      interval = setInterval(fetchMetrics, 30000); // Refresh every 30 seconds
+      logsInterval = setInterval(fetchLogs, 5000); // Logs every 5 seconds
     }
     
     return () => {
@@ -59,7 +59,7 @@ export default function SystemMonitoring() {
       if (data.success) {
         setMetrics(data.metrics);
       } else {
-        // Mock data
+        // Mock data if endpoint doesn't exist yet
         setMetrics({
           server: {
             uptime: '15 days, 4 hours',
@@ -93,6 +93,20 @@ export default function SystemMonitoring() {
               status: 'up',
               responseTime: Math.floor(Math.random() * 50) + 10,
               lastChecked: new Date().toISOString()
+            },
+            {
+              name: 'File Storage',
+              url: '/uploads',
+              status: 'up',
+              responseTime: Math.floor(Math.random() * 150) + 30,
+              lastChecked: new Date().toISOString()
+            },
+            {
+              name: 'Email Service',
+              url: 'smtp://mail.server.com',
+              status: Math.random() > 0.8 ? 'slow' : 'up',
+              responseTime: Math.floor(Math.random() * 500) + 100,
+              lastChecked: new Date().toISOString()
             }
           ],
           errors: [
@@ -101,6 +115,18 @@ export default function SystemMonitoring() {
               level: 'warning',
               message: 'High memory usage detected',
               count: 3
+            },
+            {
+              timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+              level: 'error',
+              message: 'Failed to connect to external API',
+              count: 1
+            },
+            {
+              timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+              level: 'info',
+              message: 'Database backup completed successfully',
+              count: 1
             }
           ]
         });
@@ -109,6 +135,7 @@ export default function SystemMonitoring() {
       setLastRefresh(new Date());
     } catch (error) {
       console.error('Failed to fetch system metrics:', error);
+      // Always show mock data so the page isn't blank
       setMetrics({
         server: {
           uptime: '—',
@@ -133,7 +160,7 @@ export default function SystemMonitoring() {
           {
             timestamp: new Date().toISOString(),
             level: 'warning',
-            message: 'Unable to fetch live metrics. Showing demo metrics.',
+            message: 'Unable to fetch live metrics (auth required). Showing demo metrics.',
             count: 1
           }
         ]
@@ -168,7 +195,7 @@ export default function SystemMonitoring() {
         setSentinelError(null);
       }
     } catch (e) {
-      setSentinelError('Unable to load Sentinel settings.');
+      setSentinelError('Unable to load Sentinel settings. Make sure you are logged in as an admin and the API is reachable.');
       setSentinel({ enabled: false, autoPersist: false, frequencyMs: 300000, sources: [], lastRunAt: null, running: false });
     }
   };
@@ -177,6 +204,7 @@ export default function SystemMonitoring() {
     try {
       const { data } = await api.get('/admin/system/sentinel/logs');
       if (data?.success && Array.isArray(data.logs)) {
+        // Show newest first
         setLogs(data.logs.slice().reverse());
       }
     } catch {
@@ -214,40 +242,59 @@ export default function SystemMonitoring() {
         onRefresh={handleRefresh}
       />
 
+      {/* Enhanced Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-lg sm:rounded-xl border border-slate-200/50 p-1.5 sm:p-2 shadow-sm mb-4 sm:mb-6">
           <TabsList className="flex w-full justify-around bg-transparent">
-            <TabsTrigger value="overview" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger 
+              value="overview" 
+              className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5"
+            >
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Server className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Overview</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="performance" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger 
+              value="performance" 
+              className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5"
+            >
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Performance</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="endpoints" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger 
+              value="endpoints" 
+              className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5"
+            >
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Wifi className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Endpoints</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="events" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger 
+              value="events" 
+              className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5"
+            >
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Events</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="sentinel" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger 
+              value="sentinel" 
+              className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5"
+            >
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Sentinel</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="logs" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger 
+              value="logs" 
+              className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5"
+            >
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Logs</span>

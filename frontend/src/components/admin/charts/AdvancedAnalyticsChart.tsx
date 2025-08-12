@@ -307,7 +307,7 @@ export default function AdvancedAnalyticsChart() {
                   label={({ name, value }) => `${safeDisplayValue(name)}: ${value}%`}
                 >
                   {data.deviceBreakdown.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`device-cell-${index}-${entry.name}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value) => `${value}%`} />
@@ -340,7 +340,7 @@ export default function AdvancedAnalyticsChart() {
                   label={({ name, value, visitors }) => `${safeDisplayValue(name)}: ${value}%`}
                 >
                   {data.trafficSources.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                    <Cell key={`traffic-cell-${index}-${entry.source}`} fill={COLORS[index]} />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -398,7 +398,7 @@ export default function AdvancedAnalyticsChart() {
           <div className="space-y-4">
             {data.contentPerformance.length > 0 ? (
               data.contentPerformance.map((category, index) => (
-                <div key={category.category} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+                <div key={`content-${index}-${safeDisplayValue(category.category)}`} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-4">
                     <div 
                       className="w-4 h-4 rounded" 

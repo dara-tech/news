@@ -178,12 +178,37 @@ export const updateSentinelConfig = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 export const runSentinelOnce = asyncHandler(async (req, res) => {
   try {
-    await sentinelService.runOnce();
+    console.log('[Sentinel] Starting run-once execution...');
+    
+    // Check if Gemini API key is available
+    if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'GEMINI_API_KEY not configured. Please add your Gemini API key to the environment variables.' 
+      });
+    }
+
+    const result = await sentinelService.runOnce();
     const now = new Date();
     await Settings.updateCategorySettings('integrations', { sentinelLastRunAt: now }, req.user?._id);
-    res.json({ success: true, message: 'Sentinel executed.' });
+    
+    console.log('[Sentinel] Run-once completed successfully:', result);
+    res.json({ 
+      success: true, 
+      message: 'Sentinel executed successfully.',
+      result: {
+        processed: result.processed,
+        created: result.created,
+        previews: result.previews?.length || 0
+      }
+    });
   } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
+    console.error('[Sentinel] Run-once error:', e);
+    res.status(500).json({ 
+      success: false, 
+      message: e.message || 'Failed to execute Sentinel',
+      error: process.env.NODE_ENV === 'development' ? e.stack : undefined
+    });
   }
 });
 

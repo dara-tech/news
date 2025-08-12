@@ -30,6 +30,8 @@ import userLoginRoutes from "./routes/userLogins.mjs"
 import systemRoutes from "./routes/system.mjs"
 import followRoutes from "./routes/follows.mjs"
 import adminFollowRoutes from "./routes/adminFollows.mjs"
+import aiRoutes from "./routes/ai.mjs"
+import sourcesRoutes from "./routes/sources.mjs"
 import http from 'http';
 import https from 'https';
 import CommentWebSocket from './websocket.mjs';
@@ -331,6 +333,12 @@ app.get("/api/settings/public/social-media", async (req, res) => {
 app.use("/api/admin/user-logins", userLoginRoutes)
 app.use("/api/admin/system", systemRoutes)
 app.use("/api/admin/follows", adminFollowRoutes)
+
+// AI routes
+app.use("/api/ai", aiRoutes)
+
+// Sources routes
+app.use("/api/ai/sources", sourcesRoutes)
 
 // WebSocket test endpoint
 app.get('/api/websocket-test', (req, res) => {
