@@ -291,14 +291,20 @@ const UsersPage = () => {
       ])
     ].map(row => row.join(',')).join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    // Add BOM for proper UTF-8 encoding
+    const BOM = '\uFEFF';
+    const csvData = BOM + csvContent;
+    
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-    toast.success('Users exported successfully.');
+    toast.success('Users exported successfully!');
   };
 
   const handleDownloadTemplate = () => {
@@ -306,17 +312,25 @@ const UsersPage = () => {
       ['username', 'email', 'role', 'password'],
       ['john_doe', 'john@example.com', 'user', 'password123'],
       ['jane_admin', 'jane@example.com', 'admin', 'securepass456'],
-      ['editor_mike', 'mike@example.com', 'editor', 'editpass789']
+      ['editor_mike', 'mike@example.com', 'editor', 'editpass789'],
+      ['sarah_writer', 'sarah@example.com', 'editor', 'writerpass2024'],
+      ['demo_user', 'demo@example.com', 'user', 'demopass123']
     ].map(row => row.join(',')).join('\n');
 
-    const blob = new Blob([templateContent], { type: 'text/csv' });
+    // Add BOM for proper UTF-8 encoding
+    const BOM = '\uFEFF';
+    const csvContent = BOM + templateContent;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'user-import-template.csv';
+    a.download = `user-import-template-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-    toast.success('Template downloaded successfully.');
+    toast.success('CSV template downloaded successfully!');
   };
 
   const handleImportUsers = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -381,7 +395,7 @@ const UsersPage = () => {
         }));
 
         setUsers(prev => [...prev, ...createdUsers]);
-        toast.success(`Successfully imported ${createdUsers.length} users`);
+        toast.success(`Successfully imported ${createdUsers.length} users!`);
         
         // Reset the file input
         event.target.value = '';
@@ -450,9 +464,9 @@ const UsersPage = () => {
                 size="sm"
                 onClick={handleDownloadTemplate}
                 title="Download CSV template"
-                className="shrink-0"
+                className="shrink-0 hover:bg-accent/50"
               >
-                📋
+                <Download className="h-4 w-4" />
               </Button>
             </div>
             <Button variant="outline" onClick={handleExportUsers} className="w-full sm:w-auto">
