@@ -8,7 +8,7 @@ export default async function newsSitemap(): Promise<MetadataRoute.Sitemap> {
   // Return a comprehensive news sitemap with static URLs
   // This ensures it always works regardless of API availability
   return [
-    // Main news pages
+    // Main news pages 
     {
       url: `${URL}/news`,
       lastModified,
