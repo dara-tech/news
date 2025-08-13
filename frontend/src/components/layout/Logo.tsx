@@ -29,7 +29,7 @@ const Logo = ({ lang }: LogoProps) => {
   useEffect(() => {
     const fetchLogoSettings = async () => {
       try {
-        const response = await api.get('/admin/settings/logo');
+        const response = await api.get('/settings/public/logo');
         
         if (response.data.success && response.data.settings) {
           setSettings(prev => ({ ...prev, ...response.data.settings }));

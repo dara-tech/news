@@ -105,15 +105,15 @@ const Footer: FC = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        // Fetch logo settings
-        const logoResponse = await api.get('/admin/settings/logo');
+        // Fetch logo settings (public endpoint)
+        const logoResponse = await api.get('/settings/public/logo');
         if (logoResponse.data.success && logoResponse.data.settings) {
           setLogoSettings(prev => ({ ...prev, ...logoResponse.data.settings }));
           setImageError(false);
         }
 
-        // Fetch footer/company settings
-        const footerResponse = await api.get('/admin/settings/footer');
+        // Fetch footer/company settings (public endpoint)
+        const footerResponse = await api.get('/settings/public/footer');
         if (footerResponse.data.success && footerResponse.data.settings) {
           setFooterSettings(prev => ({ ...prev, ...footerResponse.data.settings }));
         }

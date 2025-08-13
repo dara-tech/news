@@ -876,3 +876,67 @@ export const getPublicSocialMediaSettings = asyncHandler(async (req, res) => {
     throw new Error('Failed to fetch social media settings');
   }
 });
+
+// @desc    Get logo settings (public)
+// @route   GET /api/settings/public/logo
+// @access  Public
+export const getPublicLogoSettings = asyncHandler(async (req, res) => {
+  try {
+    const settings = await Settings.getCategorySettings('logo');
+    
+    // Provide default settings if none exist
+    if (!settings) {
+      settings = {
+        logoDisplayMode: 'text',
+        logoText: 'Razewire',
+        logoTextColor: '#000000',
+        logoBackgroundColor: '#ffffff',
+        logoFontSize: 24,
+      };
+    }
+    
+    console.log('Retrieved public logo settings:', settings);
+    
+    res.json({
+      success: true,
+      settings
+    });
+  } catch (error) {
+    console.error('Error fetching public logo settings:', error);
+    res.status(500);
+    throw new Error('Failed to fetch logo settings');
+  }
+});
+
+// @desc    Get footer settings (public)
+// @route   GET /api/settings/public/footer
+// @access  Public
+export const getPublicFooterSettings = asyncHandler(async (req, res) => {
+  try {
+    const settings = await Settings.getCategorySettings('footer');
+    
+    // Provide default settings if none exist
+    if (!settings) {
+      settings = {
+        logoText: 'Razewire',
+        companyName: 'Razewire',
+        contactEmail: 'contact@razewire.online',
+        copyrightText: `© ${new Date().getFullYear()} Razewire. All rights reserved.`,
+        showSocialLinks: true,
+        showNewsletterSignup: true,
+        showContactInfo: true,
+      };
+    }
+    
+    console.log('Retrieved public footer settings:', settings);
+    
+    res.json({
+      success: true,
+      settings
+    });
+  } catch (error) {
+    console.error('Error fetching public footer settings:', error);
+    res.status(500);
+    throw new Error('Failed to fetch footer settings');
+  }
+});

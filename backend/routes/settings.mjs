@@ -21,6 +21,8 @@ import {
   getSocialMediaSettings,
   updateSocialMediaSettings,
   getPublicSocialMediaSettings,
+  getPublicLogoSettings,
+  getPublicFooterSettings,
   getFooterSettings,
   updateFooterSettings,
   testSocialMediaConnection,
@@ -32,6 +34,8 @@ const router = express.Router();
 
 // Public routes (no authentication required)
 router.get('/public/social-media', getPublicSocialMediaSettings);
+router.get('/public/logo', getPublicLogoSettings);
+router.get('/public/footer', getPublicFooterSettings);
 
 // Protected routes (require authentication)
 router.use(protect);
