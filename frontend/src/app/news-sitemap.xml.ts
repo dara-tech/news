@@ -5,75 +5,36 @@ const URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.razewire.online";
 export default async function newsSitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date().toISOString();
   
-  try {
-    const { default: api } = await import('@/lib/api');
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // Reduced timeout
-    
-    try {
-      // Fetch recent news articles (last 48 hours for news sitemap)
-      const articlesResponse = await api.get('/news', { 
-        signal: controller.signal,
-        params: { 
-          limit: 100, // Reduced limit for faster response
-          sort: 'publishedAt',
-          status: 'published',
-          // Only articles from last 48 hours for news sitemap
-          publishedAfter: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
-        }
-      });
-      
-      clearTimeout(timeoutId);
-      
-      const articles = articlesResponse.data?.data?.news || [];
-      
-      if (articles.length > 0) {
-        return articles.map((article: {
-          slug: string;
-          publishedAt?: string;
-          updatedAt?: string;
-          title?: string;
-          category?: string;
-          language?: string;
-        }) => ({
-          url: `${URL}/news/${article.slug}`,
-          lastModified: article.updatedAt ? new Date(article.updatedAt).toISOString() : 
-                       article.publishedAt ? new Date(article.publishedAt).toISOString() : 
-                       lastModified,
-          changeFrequency: 'daily' as const,
-          priority: 0.9, // High priority for news articles
-        }));
-      } else {
-        // Fallback: Return recent news pages even if API fails
-        console.log('News Sitemap: No recent articles found, using fallback');
-        return getFallbackNewsSitemap();
-      }
-      
-    } catch (error) {
-      clearTimeout(timeoutId);
-      console.log('News Sitemap: API error, using fallback:', error instanceof Error ? error.message : 'Unknown error');
-      return getFallbackNewsSitemap();
-    }
-    
-  } catch (error) {
-    console.log('News Sitemap: Import error, using fallback:', error instanceof Error ? error.message : 'Unknown error');
-    return getFallbackNewsSitemap();
-  }
-}
-
-// Fallback function to ensure sitemap always returns content
-function getFallbackNewsSitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date().toISOString();
-  
-  // Return basic news structure even if API fails
+  // Return a comprehensive news sitemap with static URLs
+  // This ensures it always works regardless of API availability
   return [
+    // Main news pages
     {
       url: `${URL}/news`,
       lastModified,
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
+    {
+      url: `${URL}/news?dateRange=today`,
+      lastModified,
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    },
+    {
+      url: `${URL}/news?dateRange=week`,
+      lastModified,
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${URL}/news?dateRange=month`,
+      lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    
+    // Category pages
     {
       url: `${URL}/news?category=technology`,
       lastModified,
@@ -95,7 +56,7 @@ function getFallbackNewsSitemap(): MetadataRoute.Sitemap {
     {
       url: `${URL}/news?category=breaking-news`,
       lastModified,
-      changeFrequency: 'daily' as const,
+      changeFrequency: 'hourly' as const,
       priority: 0.9,
     },
     {
@@ -117,16 +78,72 @@ function getFallbackNewsSitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${URL}/news?dateRange=today`,
+      url: `${URL}/news?category=world`,
+      lastModified,
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${URL}/news?category=science`,
+      lastModified,
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    
+    // Language-specific news pages
+    {
+      url: `${URL}/en/news`,
       lastModified,
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
-      url: `${URL}/news?dateRange=week`,
+      url: `${URL}/km/news`,
+      lastModified,
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    },
+    
+    // Search and filter pages
+    {
+      url: `${URL}/news?sort=latest`,
       lastModified,
       changeFrequency: 'daily' as const,
       priority: 0.8,
+    },
+    {
+      url: `${URL}/news?sort=popular`,
+      lastModified,
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${URL}/news?sort=trending`,
+      lastModified,
+      changeFrequency: 'hourly' as const,
+      priority: 0.8,
+    },
+    
+    // Archive pages
+    {
+      url: `${URL}/archive`,
+      lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${URL}/archive?year=${new Date().getFullYear()}`,
+      lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    
+    // Newsletter and subscription pages
+    {
+      url: `${URL}/newsletter`,
+      lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
     },
   ];
 }
