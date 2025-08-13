@@ -134,7 +134,7 @@ export default function LogoManagement({ compact = false, onSettingsChange }: Lo
             fontWeight: 'bold',
           }}
         >
-          {settings.logoText || 'Newsly'}
+          {settings.logoText || 'Razewire'}
         </span>
       </div>
     );

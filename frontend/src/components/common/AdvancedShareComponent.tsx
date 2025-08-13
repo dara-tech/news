@@ -39,7 +39,7 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { useMediaQuery } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AdvancedShareComponentProps {
   url: string;
@@ -83,7 +83,7 @@ export default function AdvancedShareComponent({
   const [shareCount, setShareCount] = useState(0);
   const [shareAnalytics, setShareAnalytics] = useState<Record<string, number>>({});
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useIsMobile();
 
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);

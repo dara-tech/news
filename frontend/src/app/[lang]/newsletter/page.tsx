@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Newsletter - NewsApp',
+  title: 'Newsletter - Razewire',
   description: 'Subscribe to our newsletter and get the latest news delivered directly to your inbox.',
 };
 

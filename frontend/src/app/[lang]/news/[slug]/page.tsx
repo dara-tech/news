@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   // Generate author name
   const authorName = author?.name || author?.username || 
-                    (author?.email ? author.email.split('@')[0] : 'NewsApp Author');
+                    (author?.email ? author.email.split('@')[0] : 'Razewire Author');
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     publisher: {
       '@type': 'Organization',
-      name: 'NewsApp',
+              name: 'Razewire',
       logo: {
         '@type': 'ImageObject',
         url: `${BASE_URL}/logo.png`,
@@ -87,7 +87,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: localizedTitle,
       description: localizedDescription,
       url: canonicalUrl,
-      siteName: 'NewsApp',
+              siteName: 'Razewire',
       locale: isKhmer ? 'km_KH' : 'en_US',
       type: 'article',
       publishedTime: createdAt,
@@ -108,7 +108,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: localizedDescription,
       images: [imageUrl],
       creator: authorName,
-      site: '@newsapp',
+              site: '@razewire',
     },
     other: {
       'article:published_time': createdAt,

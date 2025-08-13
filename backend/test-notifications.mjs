@@ -95,8 +95,8 @@ const createTestNotifications = async () => {
           kh: 'ការជូនដំណឹងប្រព័ន្ធ'
         },
         message: {
-          en: 'Welcome to Newsly! Your account has been successfully created.',
-          kh: 'សូមស្វាគមន៍មកកាន់ Newsly! គណនីរបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ។'
+          en: 'Welcome to Razewire! Your account has been successfully created.',
+          kh: 'សូមស្វាគមន៍មកកាន់ Razewire! គណនីរបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ។'
         },
         data: {},
         isImportant: false,

@@ -124,7 +124,7 @@ const LoginPage = () => {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 dark:from-blue-900 dark:via-blue-800 dark:to-blue-700 p-8 flex-col justify-between">
         <div className="flex flex-col gap-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Newsly</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Razewire</h1>
             <p className="text-blue-50 dark:text-blue-100 text-lg">Login page</p>
           </div>
           
@@ -146,7 +146,7 @@ const LoginPage = () => {
         <div className="flex items-center justify-between p-6">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-green-500 rounded-full"></div>
-            <span className="text-gray-900 dark:text-white font-semibold">Newsly</span>
+            <span className="text-gray-900 dark:text-white font-semibold">Razewire</span>
           </div>
           <div className="flex items-center gap-2 text-gray-700 dark:text-white">
             <span>English</span>
@@ -309,7 +309,7 @@ const LoginPage = () => {
 
         {/* Footer */}
         <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-          © Newsly All rights reserved.
+          © Razewire All rights reserved.
         </div>
       </div>
     </main>

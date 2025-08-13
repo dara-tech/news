@@ -9,11 +9,12 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import connectCloudinary, { cloudinary } from '../utils/cloudinary.mjs';
 
 /**
- * Sentinel-PP-01: AI News Analyst
- * - Monitors RSS sources
- * - Detects significant events
- * - Generates English draft JSON via Gemini
- * - Converts to News document (with Khmer filled by translation hook if available later)
+ * Sentinel-PP-01: Enhanced AI News Analyst
+ * - Monitors RSS sources with improved reliability
+ * - Advanced content filtering and quality scoring
+ * - Enhanced AI generation with safety checks
+ * - Better error handling and performance optimization
+ * - Content deduplication and fact-checking integration
  */
 class SentinelService {
   constructor() {
@@ -21,36 +22,49 @@ class SentinelService {
       timeout: 20000,
       requestOptions: {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; SentinelPP01/1.0; +https://news-app.local) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'User-Agent': 'Mozilla/5.0 (compatible; SentinelPP01/2.0; +https://news-app.local) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'application/rss+xml, application/xml;q=0.9, */*;q=0.8'
         }
       }
     });
+    
+    // Enhanced source configuration with reliability scoring
     this.sources = [
-      // Local & Regional (Khmer/Cambodia/ASEAN)
-      { name: 'Khmer Times', url: 'https://www.khmertimeskh.com/feed/' },
-      { name: 'Phnom Penh Post', url: 'https://www.phnompenhpost.com/rss', enabled: false },
-      { name: 'VOA Khmer', url: 'https://www.voacambodia.com/rss/', enabled: false },
-      { name: 'Nikkei Asia', url: 'https://asia.nikkei.com/rss', enabled: true },
-      // International general
-      { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml', enabled: true },
-      { name: 'CNN World', url: 'http://rss.cnn.com/rss/edition_world.rss', enabled: true },
-      { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', enabled: true },
-      { name: 'The Guardian World', url: 'https://www.theguardian.com/world/rss', enabled: true },
-      { name: 'NYTimes World', url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', enabled: true },
-      { name: 'Reuters World', url: 'https://www.reuters.com/world/rss', enabled: true },
-      { name: 'AP Top News', url: 'https://apnews.com/hub/ap-top-news?utm_source=apnews.com&utm_medium=referral&utm_campaign=rss', enabled: true },
-      // Business/Tech
-      { name: 'Bloomberg (ETFs feed sample)', url: 'https://www.bloomberg.com/feeds/podcasts/etf-report.xml', enabled: false },
-      { name: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
-      { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', enabled: true },
-      { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', enabled: true },
-      // Multilateral/Dev
-      { name: 'World Bank', url: 'https://www.worldbank.org/en/news/all?format=rss', enabled: true },
+      // Local & Regional (Khmer/Cambodia/ASEAN) - High Priority
+      { name: 'Khmer Times', url: 'https://www.khmertimeskh.com/feed/', reliability: 0.9, priority: 'high' },
+      { name: 'Phnom Penh Post', url: 'https://www.phnompenhpost.com/rss', enabled: false, reliability: 0.9, priority: 'high' },
+      { name: 'VOA Khmer', url: 'https://www.voacambodia.com/rss/', enabled: false, reliability: 0.8, priority: 'high' },
+      { name: 'Nikkei Asia', url: 'https://asia.nikkei.com/rss.xml', enabled: true, reliability: 0.9, priority: 'high' },
+      
+      // International general - High Reliability
+      { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml', enabled: true, reliability: 0.95, priority: 'high' },
+      { name: 'Reuters World', url: 'https://www.reuters.com/world/rss', enabled: true, reliability: 0.95, priority: 'high' },
+      { name: 'Associated Press', url: 'https://apnews.com/hub/ap-top-news.rss', enabled: true, reliability: 0.95, priority: 'high' },
+      { name: 'CNN World', url: 'http://rss.cnn.com/rss/edition_world.rss', enabled: true, reliability: 0.85, priority: 'medium' },
+      { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', enabled: true, reliability: 0.85, priority: 'medium' },
+      
+      // Major International News
+      { name: 'The Economist', url: 'https://www.economist.com/international/rss.xml', enabled: true, reliability: 0.9, priority: 'high' },
+      { name: 'The New York Times', url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', enabled: true, reliability: 0.9, priority: 'high' },
+      { name: 'The Washington Post', url: 'https://feeds.washingtonpost.com/rss/world', enabled: true, reliability: 0.9, priority: 'high' },
+      { name: 'The Guardian', url: 'https://www.theguardian.com/world/rss', enabled: true, reliability: 0.9, priority: 'high' },
+      
+      // Business/Tech - Specialized
+      { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', enabled: true, reliability: 0.8, priority: 'medium' },
+      { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', enabled: true, reliability: 0.85, priority: 'medium' },
+      { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', enabled: true, reliability: 0.8, priority: 'medium' },
+      
+      // Multilateral/Development
+      { name: 'World Bank', url: 'https://www.worldbank.org/en/news/all?format=rss', enabled: true, reliability: 0.95, priority: 'medium' },
+      { name: 'Asian Development Bank', url: 'https://www.adb.org/news/rss', enabled: true, reliability: 0.95, priority: 'medium' },
+      { name: 'ASEAN Secretariat', url: 'https://asean.org/news-events/', enabled: false, reliability: 0.95, priority: 'medium' },
+
     ];
 
+    // Enhanced state management
     this.intervalHandle = null;
     this.lastSeenGuids = new Set();
+    this.contentHashCache = new Map(); // For better deduplication
     this.logBuffer = [];
     this.cooldownUntilMs = 0;
     this.frequencyMs = null;
@@ -58,6 +72,26 @@ class SentinelService {
     this.lastRunAt = null;
     this.lastCreated = 0;
     this.lastProcessed = 0;
+    this.performanceMetrics = {
+      totalProcessed: 0,
+      totalCreated: 0,
+      averageProcessingTime: 0,
+      errorRate: 0,
+      lastReset: new Date()
+    };
+    
+    // Content safety filters
+    this.safetyFilters = {
+      sensitiveKeywords: [
+        'suicide', 'self-harm', 'explicit', 'pornography', 'hate speech',
+        'terrorism', 'extremism', 'violence', 'gore', 'disturbing'
+      ],
+      biasIndicators: [
+        'fake news', 'conspiracy', 'unverified', 'rumor', 'allegedly',
+        'supposedly', 'claimed without evidence'
+      ]
+    };
+
     try { if (process.env.CLOUDINARY_CLOUD_NAME) connectCloudinary(); } catch {}
 
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
@@ -65,22 +99,273 @@ class SentinelService {
     this.model = this.genAI ? this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }) : null;
   }
 
-  pushLog(level, message) {
+  // Enhanced logging with performance tracking
+  pushLog(level, message, metadata = {}) {
     const entry = {
       timestamp: new Date().toISOString(),
       level,
       message,
+      metadata
     };
-    // Mirror to console
-    if (level === 'error') console.error(message);
-    else if (level === 'warning') console.warn(message);
-    else console.log(message);
-    // Store last 200 entries
+    
+    // Mirror to console with enhanced formatting
+    const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+    const formattedMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+    
+    if (level === 'error') console.error(formattedMessage);
+    else if (level === 'warning') console.warn(formattedMessage);
+    else console.log(formattedMessage);
+    
+    // Store last 500 entries (increased from 200)
     this.logBuffer.push(entry);
-    if (this.logBuffer.length > 200) {
-      this.logBuffer = this.logBuffer.slice(-200);
+    if (this.logBuffer.length > 500) {
+      this.logBuffer = this.logBuffer.slice(-500);
     }
     return entry;
+  }
+
+  // Content safety check
+  checkContentSafety(content) {
+    const text = `${content.title || ''} ${content.description || ''} ${content.content || ''}`.toLowerCase();
+    
+    // Check for sensitive content
+    const sensitiveMatches = this.safetyFilters.sensitiveKeywords.filter(keyword => 
+      text.includes(keyword.toLowerCase())
+    );
+    
+    // Check for bias indicators
+    const biasMatches = this.safetyFilters.biasIndicators.filter(indicator => 
+      text.includes(indicator.toLowerCase())
+    );
+    
+    return {
+      isSafe: sensitiveMatches.length === 0,
+      hasBias: biasMatches.length > 0,
+      sensitiveKeywords: sensitiveMatches,
+      biasIndicators: biasMatches,
+      safetyScore: Math.max(0, 100 - (sensitiveMatches.length * 20) - (biasMatches.length * 10))
+    };
+  }
+
+  // Enhanced content deduplication using content hashing
+  generateContentHash(content) {
+    const text = `${content.title || ''} ${content.description || ''}`.toLowerCase();
+    // Simple hash function for content similarity
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+      const char = text.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36);
+  }
+
+  // Content Analysis and Enhancement
+  async analyzeAndEnhanceContent(item) {
+    try {
+      if (!this.model || Date.now() < this.cooldownUntilMs) {
+        return null;
+      }
+
+      const analysisPrompt = `
+You are a content analyst for Sentinel-PP-01. Analyze the following news content and provide enhanced, meaningful insights.
+
+Source: ${item.sourceName}
+Title: ${item.title}
+Content: ${item.contentSnippet || item.content || ''}
+Published: ${item.isoDate || item.pubDate || ''}
+
+Please provide a JSON response with the following structure:
+{
+  "enhancedTitle": "Improved, more engaging title (max 75 chars)",
+  "enhancedDescription": "Enhanced description with key insights (max 160 chars)",
+  "enhancedContent": "Improved content with better structure, context, and insights (800-1200 words)",
+  "keyInsights": ["insight1", "insight2", "insight3"],
+  "contextualAnalysis": "Brief analysis of regional/global context",
+  "relevanceScore": 85,
+  "sentiment": "neutral|positive|negative",
+  "impactLevel": "low|medium|high",
+  "targetAudience": ["local", "regional", "international"],
+  "suggestedTags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "category": "Politics|Business|Technology|Health|Sports|Entertainment|Education|Environment|Science|Other"
+}
+
+Guidelines:
+- Make content more meaningful and engaging
+- Add relevant context for Southeast Asian readers
+- Ensure factual accuracy and clarity
+- Provide balanced perspective
+- Include actionable insights when relevant
+- Maintain journalistic standards
+- Consider cultural sensitivity
+
+Return ONLY the JSON object.`;
+
+      const result = await this.model.generateContent(analysisPrompt);
+      const text = (await result.response).text().trim();
+      const jsonString = this.extractJson(text);
+      const analysis = JSON.parse(jsonString);
+
+      // Validate analysis results
+      if (!analysis.enhancedTitle || !analysis.enhancedContent || !analysis.enhancedDescription) {
+        this.pushLog('warning', `[Sentinel-PP-01] Content analysis validation failed for: ${item.title}`);
+        return null;
+      }
+
+      this.pushLog('info', `[Sentinel-PP-01] Content analysis completed`, {
+        originalTitle: item.title.slice(0, 50) + '...',
+        enhancedTitle: analysis.enhancedTitle.slice(0, 50) + '...',
+        relevanceScore: analysis.relevanceScore,
+        sentiment: analysis.sentiment,
+        impactLevel: analysis.impactLevel
+      });
+
+      return {
+        ...item,
+        enhancedTitle: analysis.enhancedTitle,
+        enhancedDescription: analysis.enhancedDescription,
+        enhancedContent: analysis.enhancedContent,
+        keyInsights: analysis.keyInsights || [],
+        contextualAnalysis: analysis.contextualAnalysis || '',
+        relevanceScore: analysis.relevanceScore || 50,
+        sentiment: analysis.sentiment || 'neutral',
+        impactLevel: analysis.impactLevel || 'medium',
+        targetAudience: analysis.targetAudience || ['international'],
+        suggestedTags: analysis.suggestedTags || [],
+        suggestedCategory: analysis.category || 'Other'
+      };
+
+    } catch (error) {
+      const msg = error && error.message ? error.message : String(error);
+      this.pushLog('warning', `[Sentinel-PP-01] Content analysis failed: ${msg}`, { title: item.title });
+      
+      if (/429\s+Too\s+Many\s+Requests/i.test(msg)) {
+        const match = msg.match(/retryDelay\\?\"?:\\?\"?(\d+)s/);
+        const delaySec = match ? Number(match[1]) : 60;
+        const delayMs = Math.min(Math.max(delaySec, 15), 120) * 1000;
+        this.cooldownUntilMs = Date.now() + delayMs;
+        this.pushLog('info', `[Sentinel-PP-01] Analysis cooldown ${Math.round(delayMs/1000)}s`);
+      }
+      return null;
+    }
+  }
+
+  // Enhanced Khmer Translation
+  async translateToKhmer(enhancedContent) {
+    try {
+      if (!this.model || Date.now() < this.cooldownUntilMs) {
+        return null;
+      }
+
+      const translationPrompt = `
+You are a professional translator specializing in English to Khmer (Cambodian) translation for news content.
+
+Please translate the following enhanced news content to Khmer, maintaining the professional tone and cultural appropriateness.
+
+Title: ${enhancedContent.enhancedTitle}
+Description: ${enhancedContent.enhancedDescription}
+Content: ${enhancedContent.enhancedContent.slice(0, 3000)} // Limit for API constraints
+
+Guidelines for Khmer translation:
+- Use formal, professional Khmer language
+- Maintain journalistic tone and style
+- Ensure cultural sensitivity and appropriateness
+- Use proper Khmer grammar and sentence structure
+- Preserve the meaning and context accurately
+- Use appropriate Khmer terms for technical concepts
+- Consider local context and cultural nuances
+
+Return a JSON object with the following structure:
+{
+  "khmerTitle": "Translated title in Khmer",
+  "khmerDescription": "Translated description in Khmer",
+  "khmerContent": "Translated content in Khmer",
+  "translationQuality": "high|medium|low",
+  "culturalNotes": "Any cultural considerations or notes"
+}
+
+Return ONLY the JSON object.`;
+
+      const result = await this.model.generateContent(translationPrompt);
+      const text = (await result.response).text().trim();
+      const jsonString = this.extractJson(text);
+      const translation = JSON.parse(jsonString);
+
+      // Validate translation results
+      if (!translation.khmerTitle || !translation.khmerContent || !translation.khmerDescription) {
+        this.pushLog('warning', `[Sentinel-PP-01] Khmer translation validation failed for: ${enhancedContent.enhancedTitle}`);
+        return null;
+      }
+
+      this.pushLog('info', `[Sentinel-PP-01] Khmer translation completed`, {
+        originalTitle: enhancedContent.enhancedTitle.slice(0, 30) + '...',
+        khmerTitle: translation.khmerTitle.slice(0, 30) + '...',
+        translationQuality: translation.translationQuality,
+        culturalNotes: translation.culturalNotes ? 'Yes' : 'No'
+      });
+
+      return {
+        khmerTitle: translation.khmerTitle,
+        khmerDescription: translation.khmerDescription,
+        khmerContent: translation.khmerContent,
+        translationQuality: translation.translationQuality || 'medium',
+        culturalNotes: translation.culturalNotes || ''
+      };
+
+    } catch (error) {
+      const msg = error && error.message ? error.message : String(error);
+      this.pushLog('warning', `[Sentinel-PP-01] Khmer translation failed: ${msg}`, { title: enhancedContent.enhancedTitle });
+      
+      if (/429\s+Too\s+Many\s+Requests/i.test(msg)) {
+        const match = msg.match(/retryDelay\\?\"?:\\?\"?(\d+)s/);
+        const delaySec = match ? Number(match[1]) : 60;
+        const delayMs = Math.min(Math.max(delaySec, 15), 120) * 1000;
+        this.cooldownUntilMs = Date.now() + delayMs;
+        this.pushLog('info', `[Sentinel-PP-01] Translation cooldown ${Math.round(delayMs/1000)}s`);
+      }
+      return null;
+    }
+  }
+
+  // Check for duplicate content
+  async checkDuplicateContent(content) {
+    const contentHash = this.generateContentHash(content);
+    
+    // Check cache first
+    if (this.contentHashCache.has(contentHash)) {
+      this.pushLog('info', `[Sentinel-PP-01] Duplicate detected in cache: ${content.title?.slice(0, 50)}...`);
+      return { isDuplicate: true, reason: 'content_hash_match' };
+    }
+    
+    // Check database for similar titles (more flexible matching)
+    const normalizedTitle = content.title?.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+    if (normalizedTitle) {
+      // Use first 4 words for more flexible matching
+      const titleWords = normalizedTitle.split(' ').slice(0, 4).join(' ');
+      if (titleWords.length > 10) { // Only check if we have enough words
+        const existing = await News.findOne({
+          'title.en': { $regex: new RegExp(titleWords, 'i') }
+        });
+        
+        if (existing) {
+          this.pushLog('info', `[Sentinel-PP-01] Duplicate detected in database: ${content.title?.slice(0, 50)}...`);
+          return { isDuplicate: true, reason: 'similar_title', existingId: existing._id };
+        }
+      }
+    }
+    
+    // Add to cache
+    this.contentHashCache.set(contentHash, Date.now());
+    
+    // Clean old cache entries (older than 12 hours instead of 24)
+    const twelveHoursAgo = Date.now() - (12 * 60 * 60 * 1000);
+    for (const [hash, timestamp] of this.contentHashCache.entries()) {
+      if (timestamp < twelveHoursAgo) {
+        this.contentHashCache.delete(hash);
+      }
+    }
+    
+    return { isDuplicate: false };
   }
 
   async start() {
@@ -119,65 +404,145 @@ class SentinelService {
   }
 
   async runOnce({ persistOverride } = {}) {
+    const startTime = Date.now();
+    let hasError = false;
+    
     try {
       const cfg = await this.loadConfig();
       // ensure sources up to date for one-off runs
       this.sources = (cfg.sources || []).filter(s => s.enabled !== false);
       const persist = typeof persistOverride === 'boolean' ? persistOverride : !!cfg.autoPersist;
 
-      this.pushLog('info', '[Sentinel-PP-01] Scanning sources...');
+      this.pushLog('info', '[Sentinel-PP-01] Enhanced scanning cycle started...', { 
+        sourcesCount: this.sources.length,
+        persist,
+        timestamp: new Date().toISOString()
+      });
       
       // Check if we have any enabled sources
       if (!this.sources.length) {
         this.pushLog('warning', '[Sentinel-PP-01] No enabled sources found');
-        return { processed: 0, created: 0, previews: [], persist };
+        return { processed: 0, created: 0, previews: [], persist, performance: { processingTime: Date.now() - startTime } };
       }
 
       const items = await this.fetchAllSources();
-      this.pushLog('info', `[Sentinel-PP-01] Fetched ${items.length} items from sources`);
+      this.pushLog('info', `[Sentinel-PP-01] Fetched ${items.length} items from sources`, { 
+        sourcesProcessed: this.sources.length,
+        averageItemsPerSource: Math.round(items.length / Math.max(1, this.sources.length))
+      });
       
       const significant = await this.filterSignificant(items);
-      this.pushLog('info', `[Sentinel-PP-01] Found ${significant.length} significant items`);
+      this.pushLog('info', `[Sentinel-PP-01] Found ${significant.length} significant items`, { 
+        qualityThreshold: 30,
+        averageQualityScore: significant.length > 0 ? Math.round(significant.reduce((sum, item) => sum + (item.qualityScore || 0), 0) / significant.length) : 0
+      });
       
       const previews = [];
       let created = 0;
+      let skipped = 0;
+      let errors = 0;
+      
       // Cap per run
       const maxPerRun = Number(process.env.SENTINEL_MAX_PER_RUN || 3);
       const batch = significant.slice(0, Math.max(1, maxPerRun));
       
+      this.pushLog('info', `[Sentinel-PP-01] Processing batch of ${batch.length} items`, { 
+        maxPerRun,
+        totalSignificant: significant.length
+      });
+      
       for (const item of batch) {
         try {
+          const itemStartTime = Date.now();
+          
           const draftJson = await this.generateDraftJson(item);
           if (!draftJson) {
-            this.pushLog('warning', `[Sentinel-PP-01] Failed to generate draft for: ${item.title}`);
+            skipped++;
+            this.pushLog('warning', `[Sentinel-PP-01] Failed to generate draft for: ${item.title}`, { 
+              qualityScore: item.qualityScore,
+              source: item.sourceName
+            });
             continue;
           }
+          
           if (persist) {
             const saved = await this.persistDraft(draftJson, item);
-            if (saved) created += 1;
+            if (saved) {
+              created += 1;
+              this.pushLog('info', `[Sentinel-PP-01] Successfully created article: ${draftJson.title?.en}`, {
+                generationTime: Date.now() - itemStartTime,
+                qualityScore: item.qualityScore,
+                safetyScore: draftJson.generationMetadata?.safetyScore
+              });
+            }
           } else {
             previews.push({
               source: { name: item.sourceName, url: item.link, publishedAt: item.isoDate || item.pubDate || null },
               title: draftJson.title?.en,
               category: draftJson.category,
               tags: draftJson.tags,
-              description: draftJson.description?.en?.slice(0, 200) || ''
+              description: draftJson.description?.en?.slice(0, 200) || '',
+              qualityScore: item.qualityScore,
+              generationTime: Date.now() - itemStartTime
             });
           }
         } catch (e) {
-          this.pushLog('warning', `[Sentinel-PP-01] Error handling item: ${item.link} ${e.message}`);
+          errors++;
+          this.pushLog('error', `[Sentinel-PP-01] Error handling item: ${item.link}`, { 
+            error: e.message,
+            source: item.sourceName,
+            qualityScore: item.qualityScore
+          });
         }
       }
+      
+      const processingTime = Date.now() - startTime;
+      
+      // Update performance metrics
+      this.updatePerformanceMetrics(batch.length, created, processingTime, hasError);
       
       this.lastRunAt = new Date();
       this.lastProcessed = batch.length;
       this.lastCreated = created;
       if (this.frequencyMs) this.nextRunAt = new Date(Date.now() + this.frequencyMs);
       
-      this.pushLog('info', `[Sentinel-PP-01] Cycle done. Processed ${batch.length}/${significant.length} significant items. ${persist ? `Created: ${created}` : `Previews: ${previews.length}`}`);
-      return { processed: batch.length, created, previews, persist };
+      this.pushLog('info', `[Sentinel-PP-01] Enhanced cycle completed`, { 
+        processed: batch.length,
+        created,
+        skipped,
+        errors,
+        processingTime: Math.round(processingTime / 1000) + 's',
+        averageTimePerItem: Math.round(processingTime / Math.max(1, batch.length)) + 'ms',
+        persist,
+        previewsCount: previews.length
+      });
+      
+      return { 
+        processed: batch.length, 
+        created, 
+        previews, 
+        persist,
+        performance: {
+          processingTime,
+          averageTimePerItem: Math.round(processingTime / Math.max(1, batch.length)),
+          skipped,
+          errors,
+          qualityMetrics: {
+            averageQualityScore: significant.length > 0 ? Math.round(significant.reduce((sum, item) => sum + (item.qualityScore || 0), 0) / significant.length) : 0,
+            totalSignificant: significant.length
+          }
+        }
+      };
     } catch (error) {
-      this.pushLog('error', `[Sentinel-PP-01] RunOnce failed: ${error.message}`);
+      hasError = true;
+      const processingTime = Date.now() - startTime;
+      this.updatePerformanceMetrics(0, 0, processingTime, true);
+      
+      this.pushLog('error', `[Sentinel-PP-01] RunOnce failed`, { 
+        error: error.message,
+        processingTime: Math.round(processingTime / 1000) + 's',
+        stack: error.stack?.split('\n').slice(0, 3).join('\n')
+      });
       throw error;
     }
   }
@@ -212,28 +577,68 @@ class SentinelService {
 
   async fetchAllSources() {
     const allItems = [];
-    await Promise.all(this.sources.map(async (src) => {
+    const fetchPromises = this.sources.map(async (src) => {
+      if (src.enabled === false) {
+        this.pushLog('info', `[Sentinel-PP-01] Skipping disabled source: ${src.name}`);
+        return;
+      }
+
       try {
-        const feed = await this.rssParser.parseURL(src.url);
+        // Enhanced RSS parsing with retry logic
+        const feed = await this.fetchRSSWithRetry(src.url, src.name);
+        if (!feed || !feed.items) {
+          this.pushLog('warning', `[Sentinel-PP-01] No items found for ${src.name}`);
+          return;
+        }
+
         for (const it of feed.items || []) {
           const guid = it.guid || it.id || it.link || `${src.name}-${it.title}`;
           if (this.lastSeenGuids.has(guid)) continue;
-          allItems.push({ ...it, sourceName: src.name, guid });
+          allItems.push({ 
+            ...it, 
+            sourceName: src.name, 
+            guid,
+            sourceReliability: src.reliability,
+            sourcePriority: src.priority
+          });
         }
+
+        this.pushLog('info', `[Sentinel-PP-01] Successfully fetched ${feed.items.length} items from ${src.name}`);
       } catch (e) {
-        this.pushLog('warning', `[Sentinel-PP-01] RSS fetch failed for ${src.name}: ${e.message}`);
+        this.pushLog('warning', `[Sentinel-PP-01] RSS fetch failed for ${src.name}: ${e.message}`, {
+          url: src.url,
+          error: e.message
+        });
       }
-    }));
+    });
+
+    await Promise.all(fetchPromises);
     return allItems;
   }
 
+  async fetchRSSWithRetry(url, sourceName, maxRetries = 2) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const feed = await this.rssParser.parseURL(url);
+        return feed;
+      } catch (error) {
+        if (attempt === maxRetries) {
+          throw error;
+        }
+        
+        // Wait before retry (exponential backoff)
+        const delay = Math.pow(2, attempt) * 1000;
+        this.pushLog('info', `[Sentinel-PP-01] Retrying ${sourceName} in ${delay}ms (attempt ${attempt}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
   async filterSignificant(items) {
-    // Balanced filtering: include both local and international news
-    const localKeywords = [/cambodia/i, /phnom\s*penh/i, /asean/i, /mekong/i, /siem\s*reap/i];
-    const globalKeywords = [/global/i, /world/i, /international/i, /breaking/i, /crisis/i, /economy/i, /technology/i, /climate/i, /politics/i];
-    
-    // High-priority sources (always include if recent)
-    const highPrioritySources = ['Reuters', 'Associated Press', 'BBC World', 'CNN World', 'Al Jazeera', 'The Guardian World', 'NYTimes World'];
+    // Enhanced filtering with quality scoring and safety checks
+    const localKeywords = [/cambodia/i, /phnom\s*penh/i, /asean/i, /mekong/i, /siem\s*reap/i, /angkor/i, /battambang/i];
+    const globalKeywords = [/global/i, /world/i, /international/i, /breaking/i, /crisis/i, /economy/i, /technology/i, /climate/i, /politics/i, /health/i, /education/i];
+    const techKeywords = [/ai/i, /artificial intelligence/i, /blockchain/i, /crypto/i, /startup/i, /innovation/i, /digital/i, /cyber/i];
     
     const now = Date.now();
     const twoDaysMs = 1000 * 60 * 60 * 48;
@@ -248,39 +653,96 @@ class SentinelService {
       const text = `${it.title || ''} ${it.contentSnippet || it.content || ''}`;
       const hasLocalKeywords = localKeywords.some((re) => re.test(text));
       const hasGlobalKeywords = globalKeywords.some((re) => re.test(text));
+      const hasTechKeywords = techKeywords.some((re) => re.test(text));
       
-      const isHighPrioritySource = highPrioritySources.includes(it.sourceName);
+      // Get source reliability and priority
+      const source = this.sources.find(s => s.name === it.sourceName);
+      const sourceReliability = source?.reliability || 0.5;
+      const sourcePriority = source?.priority || 'low';
       
-      // Include if:
-      // 1. Has local keywords (Cambodia/ASEAN focus)
-      // 2. Has global keywords (international news)
-      // 3. Is from high-priority source
-      // 4. Is from tech sources (TechCrunch, Ars Technica, The Verge)
-      const isTechSource = ['TechCrunch', 'Ars Technica', 'The Verge'].includes(it.sourceName);
+      // Content safety check
+      const safetyCheck = this.checkContentSafety({
+        title: it.title,
+        description: it.contentSnippet,
+        content: it.content
+      });
       
-      if (hasLocalKeywords || hasGlobalKeywords || isHighPrioritySource || isTechSource) {
-        significant.push(it);
+      // Skip unsafe content
+      if (!safetyCheck.isSafe) {
+        this.pushLog('warning', `[Sentinel-PP-01] Skipping unsafe content: ${it.title}`, { safetyScore: safetyCheck.safetyScore });
+        continue;
+      }
+      
+      // Calculate content quality score
+      let qualityScore = 0;
+      
+      // Source reliability bonus
+      qualityScore += sourceReliability * 50;
+      
+      // Priority bonus
+      if (sourcePriority === 'high') qualityScore += 30;
+      else if (sourcePriority === 'medium') qualityScore += 15;
+      
+      // Content relevance bonus
+      if (hasLocalKeywords) qualityScore += 40;
+      if (hasGlobalKeywords) qualityScore += 25;
+      if (hasTechKeywords) qualityScore += 20;
+      
+      // Recency bonus (newer = higher score)
+      const hoursSincePublished = (now - pubDate) / (1000 * 60 * 60);
+      if (hoursSincePublished < 1) qualityScore += 20;
+      else if (hoursSincePublished < 6) qualityScore += 15;
+      else if (hoursSincePublished < 24) qualityScore += 10;
+      
+      // Content length bonus
+      const contentLength = (it.contentSnippet || it.content || '').length;
+      if (contentLength > 500) qualityScore += 10;
+      else if (contentLength > 200) qualityScore += 5;
+      
+      // Safety score bonus
+      qualityScore += safetyCheck.safetyScore * 0.3;
+      
+      // Include if quality score is above threshold
+      const minQualityScore = 30;
+      if (qualityScore >= minQualityScore) {
+        significant.push({
+          ...it,
+          qualityScore: Math.round(qualityScore),
+          safetyCheck,
+          sourceReliability,
+          sourcePriority
+        });
       }
     }
     
-    // Sort by priority: local news first, then high-priority sources, then others
+    // Enhanced sorting by quality score and priority
     significant.sort((a, b) => {
+      // First by quality score (descending)
+      if (b.qualityScore !== a.qualityScore) {
+        return b.qualityScore - a.qualityScore;
+      }
+      
+      // Then by local relevance
       const aText = `${a.title || ''} ${a.contentSnippet || a.content || ''}`;
       const bText = `${b.title || ''} ${b.contentSnippet || b.content || ''}`;
       
       const aHasLocal = localKeywords.some((re) => re.test(aText));
       const bHasLocal = localKeywords.some((re) => re.test(bText));
       
-      const aIsHighPriority = highPrioritySources.includes(a.sourceName);
-      const bIsHighPriority = highPrioritySources.includes(b.sourceName);
-      
       if (aHasLocal && !bHasLocal) return -1;
       if (!aHasLocal && bHasLocal) return 1;
-      if (aIsHighPriority && !bIsHighPriority) return -1;
-      if (!aIsHighPriority && bIsHighPriority) return 1;
       
-      return 0;
+      // Then by source priority
+      if (a.sourcePriority === 'high' && b.sourcePriority !== 'high') return -1;
+      if (a.sourcePriority !== 'high' && b.sourcePriority === 'high') return 1;
+      
+      // Finally by recency
+      const aPubDate = a.isoDate ? new Date(a.isoDate).getTime() : (a.pubDate ? new Date(a.pubDate).getTime() : now);
+      const bPubDate = b.isoDate ? new Date(b.isoDate).getTime() : (b.pubDate ? new Date(b.pubDate).getTime() : now);
+      return bPubDate - aPubDate;
     });
+    
+    this.pushLog('info', `[Sentinel-PP-01] Quality scoring complete. Average score: ${Math.round(significant.reduce((sum, item) => sum + item.qualityScore, 0) / Math.max(1, significant.length))}`);
     
     return significant;
   }
@@ -298,34 +760,116 @@ class SentinelService {
       this.pushLog('info', '[Sentinel-PP-01] Model initialized');
     }
 
-    const clock = 'Saturday, August 9, 2025, 12:43 PM Indochina Time';
-    const sys = `Role: You are an AI News Analyst, designated Sentinel-PP-01. Location: Phnom Penh, Cambodia. Internal clock: ${clock}. Audience: International readers with focus on Southeast Asia.`;
-    const src = `Source: ${item.sourceName}\nTitle: ${item.title}\nLink: ${item.link}\nPublished: ${item.isoDate || item.pubDate || ''}\nSummary: ${(item.contentSnippet || '').slice(0, 500)}`;
+    // Enhanced content safety check before generation
+    const safetyCheck = this.checkContentSafety({
+      title: item.title,
+      description: item.contentSnippet,
+      content: item.content
+    });
+
+    if (!safetyCheck.isSafe) {
+      this.pushLog('warning', `[Sentinel-PP-01] Skipping unsafe content for generation: ${item.title}`, { safetyScore: safetyCheck.safetyScore });
+      return null;
+    }
+
+    // Check for duplicate content
+    const duplicateCheck = await this.checkDuplicateContent({
+      title: item.title,
+      description: item.contentSnippet
+    });
+
+    if (duplicateCheck.isDuplicate) {
+      this.pushLog('info', `[Sentinel-PP-01] Skipping duplicate content: ${item.title}`, { reason: duplicateCheck.reason });
+      return null;
+    }
+
+    // Step 1: Content Analysis and Enhancement
+    const enhancedContent = await this.analyzeAndEnhanceContent(item);
+    if (!enhancedContent) {
+      this.pushLog('warning', `[Sentinel-PP-01] Content analysis failed for: ${item.title}`);
+      return null;
+    }
+
+    // Step 2: Khmer Translation (if enabled)
+    let khmerTranslations = null;
+    if (process.env.SENTINEL_TRANSLATE_KH === 'true') {
+      khmerTranslations = await this.translateToKhmer(enhancedContent);
+      if (khmerTranslations) {
+        this.pushLog('info', `[Sentinel-PP-01] Khmer translation completed for: ${item.title}`);
+      }
+    }
+
+    const clock = new Date().toLocaleString('en-US', { 
+      timeZone: 'Asia/Phnom_Penh',
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }) + ' Indochina Time';
+
+    const sys = `Role: You are Sentinel-PP-01, an advanced AI News Analyst based in Phnom Penh, Cambodia. 
+Current time: ${clock}
+Mission: Create high-quality, factual news content for international readers with focus on Southeast Asia.
+Ethics: Maintain journalistic integrity, avoid bias, prioritize accuracy, and respect cultural sensitivities.`;
+
+    const src = `Source: ${enhancedContent.sourceName} (Reliability: ${enhancedContent.sourceReliability || 0.8})
+Original Title: ${item.title}
+Enhanced Title: ${enhancedContent.enhancedTitle}
+Enhanced Description: ${enhancedContent.enhancedDescription}
+Enhanced Content: ${enhancedContent.enhancedContent}
+Link: ${item.link}
+Published: ${item.isoDate || item.pubDate || ''}
+Quality Score: ${enhancedContent.qualityScore || 'N/A'}
+Relevance Score: ${enhancedContent.relevanceScore || 'N/A'}
+Sentiment: ${enhancedContent.sentiment || 'neutral'}
+Impact Level: ${enhancedContent.impactLevel || 'medium'}
+Target Audience: ${enhancedContent.targetAudience?.join(', ') || 'international'}
+Key Insights: ${enhancedContent.keyInsights?.join('; ') || 'N/A'}
+Contextual Analysis: ${enhancedContent.contextualAnalysis || 'N/A'}`;
 
     const prompt = `
 You will output ONE valid JSON object only. No markdown. English language only.
+
 Schema:
 {
   "source": {"name": string, "url": string, "publishedAt": string},
-  "category": string, // e.g., Politics, Business, Technology, Health, Sports, Entertainment, Education, Other
-  "tags": string[],   // 3-7 lowercase tags
-  "title": {"en": string},
-  "description": {"en": string},
-  "content": {"en": string}, // 600-1200 words, structured paragraphs, who/what/when/where/why/how
+  "category": string, // Use the suggested category from analysis
+  "tags": string[],   // Use suggested tags from analysis + additional relevant tags
+  "title": {"en": string}, // Use the enhanced title from analysis
+  "description": {"en": string}, // Use the enhanced description from analysis
+  "content": {"en": string}, // Use the enhanced content from analysis, ensure 800-1200 words
   "thumbnailUrl": string | null,
-  "isFeatured": boolean,
-  "isBreaking": boolean,
-  "seo": {"metaDescription": {"en": string}, "keywords": string}
+  "isFeatured": boolean, // true for high-impact stories (based on impact level)
+  "isBreaking": boolean, // true for urgent/time-sensitive news
+  "seo": {"metaDescription": {"en": string}, "keywords": string},
+  "factCheck": {"status": "verified" | "pending" | "unverified", "notes": string},
+  "analytics": {
+    "relevanceScore": number,
+    "sentiment": "neutral|positive|negative",
+    "impactLevel": "low|medium|high",
+    "targetAudience": string[],
+    "keyInsights": string[],
+    "contextualAnalysis": string
+  }
 }
 
-Constraints:
-- Audience: International readers with interest in Southeast Asia, neutral professional tone, AP/Reuters style.
-- For Cambodia/ASEAN news: Emphasize local context and regional implications.
-- For international news: Provide global context with Southeast Asian perspective when relevant.
-- For tech news: Focus on practical applications and regional impact.
-- Prefer concise headline (<= 75 chars) and meta description (<= 160 chars).
-- Choose one category from the list only.
-- tags: 5-7, comma-separated keywords, no '#'.
+Content Guidelines:
+- Use the enhanced content provided from the analysis
+- Style: Professional, neutral tone similar to Reuters/AP
+- Structure: Clear introduction, body with key facts, conclusion with context
+- Accuracy: Stick to verifiable facts from the source
+- Context: Provide Southeast Asian perspective when relevant
+- Balance: Present multiple viewpoints when applicable
+- Ethics: Avoid sensationalism, maintain journalistic standards
+- Include key insights and contextual analysis in the content
+
+Safety Requirements:
+- No harmful, violent, or inappropriate content
+- No unverified claims or conspiracy theories
+- No biased or inflammatory language
+- Respect cultural sensitivities
 
 ${sys}
 ${src}
@@ -333,20 +877,84 @@ ${src}
 Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
 
     try {
-      // Basic cooldown if prior 429
+      // Enhanced cooldown management
       if (Date.now() < this.cooldownUntilMs) {
+        this.pushLog('info', `[Sentinel-PP-01] In cooldown, skipping generation for: ${item.title}`);
         return null;
       }
+
+      const startTime = Date.now();
       const result = await this.model.generateContent(prompt);
       const text = (await result.response).text().trim();
+      const generationTime = Date.now() - startTime;
+
       const jsonString = this.extractJson(text);
       const parsed = JSON.parse(jsonString);
-      // Minimal validation
-      if (!parsed?.title?.en || !parsed?.content?.en || !parsed?.description?.en) return null;
+
+      // Enhanced validation
+      if (!parsed?.title?.en || !parsed?.content?.en || !parsed?.description?.en) {
+        this.pushLog('warning', `[Sentinel-PP-01] Generated content missing required fields`, { title: !!parsed?.title?.en, content: !!parsed?.content?.en, description: !!parsed?.description?.en });
+        return null;
+      }
+
+      // Post-generation safety check
+      const generatedSafetyCheck = this.checkContentSafety({
+        title: parsed.title.en,
+        description: parsed.description.en,
+        content: parsed.content.en
+      });
+
+      if (!generatedSafetyCheck.isSafe) {
+        this.pushLog('warning', `[Sentinel-PP-01] Generated content failed safety check`, { safetyScore: generatedSafetyCheck.safetyScore });
+        return null;
+      }
+
+      // Add Khmer translations if available
+      if (khmerTranslations) {
+        parsed.title.kh = khmerTranslations.khmerTitle;
+        parsed.description.kh = khmerTranslations.khmerDescription;
+        parsed.content.kh = khmerTranslations.khmerContent;
+        parsed.translationMetadata = {
+          quality: khmerTranslations.translationQuality,
+          culturalNotes: khmerTranslations.culturalNotes,
+          translatedAt: new Date().toISOString()
+        };
+      }
+
+      // Add generation metadata
+      parsed.generationMetadata = {
+        model: 'gemini-1.5-flash',
+        generationTime: generationTime,
+        sourceQualityScore: enhancedContent.qualityScore,
+        safetyScore: generatedSafetyCheck.safetyScore,
+        analysisMetadata: {
+          relevanceScore: enhancedContent.relevanceScore,
+          sentiment: enhancedContent.sentiment,
+          impactLevel: enhancedContent.impactLevel,
+          targetAudience: enhancedContent.targetAudience,
+          keyInsights: enhancedContent.keyInsights,
+          contextualAnalysis: enhancedContent.contextualAnalysis
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      this.pushLog('info', `[Sentinel-PP-01] Successfully generated enhanced content`, { 
+        title: parsed.title.en.slice(0, 50) + '...',
+        generationTime: generationTime,
+        qualityScore: enhancedContent.qualityScore,
+        safetyScore: generatedSafetyCheck.safetyScore,
+        relevanceScore: enhancedContent.relevanceScore,
+        sentiment: enhancedContent.sentiment,
+        impactLevel: enhancedContent.impactLevel,
+        hasKhmerTranslation: !!khmerTranslations
+      });
+
       return parsed;
+
     } catch (e) {
       const msg = e && e.message ? e.message : String(e);
-      this.pushLog('warning', `[Sentinel-PP-01] Gemini generation failed: ${msg}`);
+      this.pushLog('warning', `[Sentinel-PP-01] Gemini generation failed: ${msg}`, { title: item.title });
+      
       if (/429\s+Too\s+Many\s+Requests/i.test(msg)) {
         const match = msg.match(/retryDelay\\?\"?:\\?\"?(\d+)s/);
         const delaySec = match ? Number(match[1]) : 60;
@@ -533,11 +1141,13 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       thumbnailUrl = await this.uploadRemoteImage(thumbnailUrl);
     }
 
-    // Optional Khmer translation (controlled by env SENTINEL_TRANSLATE_KH)
-    let khTitle = draft.title.en;
-    let khDesc = draft.description.en;
-    let khContent = draft.content.en;
-    if (process.env.SENTINEL_TRANSLATE_KH === 'true') {
+    // Use Khmer translations from enhanced analysis if available, otherwise fallback to basic translation
+    let khTitle = draft.title.kh || draft.title.en;
+    let khDesc = draft.description.kh || draft.description.en;
+    let khContent = draft.content.kh || draft.content.en;
+    
+    // Fallback to basic translation if enhanced translation not available
+    if (!draft.title.kh && process.env.SENTINEL_TRANSLATE_KH === 'true') {
       const [t1, t2, t3] = await Promise.all([
         this.translateEnToKh(draft.title.en),
         this.translateEnToKh(draft.description.en),
@@ -548,7 +1158,7 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       khContent = t3 || khContent;
     }
 
-    // Build News document
+    // Build News document with enhanced analytics
     const news = new News({
       title: { en: draft.title.en, kh: khTitle },
       description: { en: draft.description.en, kh: khDesc },
@@ -570,10 +1180,22 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       },
       ingestion: {
         method: 'sentinel',
-        model: this.model ? 'gemini-2.0-flash' : null,
+        model: this.model ? 'gemini-1.5-flash' : null,
         cost: undefined,
         retries: 0,
+        enhancedAnalysis: draft.generationMetadata?.analysisMetadata || null,
+        translationQuality: draft.translationMetadata?.quality || null,
       },
+      // Enhanced analytics metadata
+      analytics: draft.generationMetadata?.analysisMetadata ? {
+        relevanceScore: draft.generationMetadata.analysisMetadata.relevanceScore,
+        sentiment: draft.generationMetadata.analysisMetadata.sentiment,
+        impactLevel: draft.generationMetadata.analysisMetadata.impactLevel,
+        targetAudience: draft.generationMetadata.analysisMetadata.targetAudience,
+        keyInsights: draft.generationMetadata.analysisMetadata.keyInsights,
+        contextualAnalysis: draft.generationMetadata.analysisMetadata.contextualAnalysis,
+        generatedAt: draft.generationMetadata.timestamp
+      } : null,
     });
 
     if (draft.seo) {
@@ -742,6 +1364,152 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       this.pushLog('warning', `[Sentinel-PP-01] cheerio image scrape failed: ${e.message}`);
       return null;
     }
+  }
+
+  // Enhanced performance monitoring and analytics
+  getPerformanceMetrics() {
+    const now = new Date();
+    const uptime = now - this.performanceMetrics.lastReset;
+    
+    return {
+      ...this.performanceMetrics,
+      uptime: Math.round(uptime / 1000), // seconds
+      averageProcessingTime: this.performanceMetrics.averageProcessingTime,
+      errorRate: this.performanceMetrics.errorRate,
+      lastRun: this.lastRunAt,
+      nextRun: this.nextRunAt,
+      sourcesCount: this.sources.filter(s => s.enabled !== false).length,
+      cacheSize: this.contentHashCache.size,
+      logBufferSize: this.logBuffer.length
+    };
+  }
+
+  // Reset performance metrics
+  resetPerformanceMetrics() {
+    this.performanceMetrics = {
+      totalProcessed: 0,
+      totalCreated: 0,
+      averageProcessingTime: 0,
+      errorRate: 0,
+      lastReset: new Date()
+    };
+    this.pushLog('info', '[Sentinel-PP-01] Performance metrics reset');
+  }
+
+  // Clear cache and reset system for testing
+  resetSystem() {
+    this.lastSeenGuids.clear();
+    this.contentHashCache.clear();
+    this.cooldownUntilMs = 0;
+    this.resetPerformanceMetrics();
+    this.pushLog('info', '[Sentinel-PP-01] System reset - cache cleared and cooldown reset');
+  }
+
+  // Get cache statistics
+  getCacheStats() {
+    return {
+      lastSeenGuidsSize: this.lastSeenGuids.size,
+      contentHashCacheSize: this.contentHashCache.size,
+      cooldownUntilMs: this.cooldownUntilMs,
+      isInCooldown: Date.now() < this.cooldownUntilMs
+    };
+  }
+
+  // Update performance metrics
+  updatePerformanceMetrics(processed, created, processingTime, hasError = false) {
+    this.performanceMetrics.totalProcessed += processed;
+    this.performanceMetrics.totalCreated += created;
+    
+    // Update average processing time
+    const currentAvg = this.performanceMetrics.averageProcessingTime;
+    const totalRuns = Math.max(1, this.performanceMetrics.totalProcessed);
+    this.performanceMetrics.averageProcessingTime = 
+      (currentAvg * (totalRuns - 1) + processingTime) / totalRuns;
+    
+    // Update error rate
+    if (hasError) {
+      const totalErrors = this.performanceMetrics.errorRate * totalRuns + 1;
+      this.performanceMetrics.errorRate = totalErrors / totalRuns;
+    }
+  }
+
+  // Get system health status
+  getHealthStatus() {
+    const metrics = this.getPerformanceMetrics();
+    const isHealthy = metrics.errorRate < 0.1 && metrics.uptime > 0;
+    
+    return {
+      status: isHealthy ? 'healthy' : 'degraded',
+      metrics,
+      issues: isHealthy ? [] : [
+        ...(metrics.errorRate >= 0.1 ? ['High error rate'] : []),
+        ...(metrics.uptime === 0 ? ['No recent activity'] : [])
+      ],
+      recommendations: isHealthy ? [] : [
+        ...(metrics.errorRate >= 0.1 ? ['Check API quotas and network connectivity'] : []),
+        ...(metrics.uptime === 0 ? ['Verify service is running and configured'] : [])
+      ]
+    };
+  }
+
+  // Enhanced source management
+  async updateSourceConfig(sourceName, updates) {
+    const sourceIndex = this.sources.findIndex(s => s.name === sourceName);
+    if (sourceIndex === -1) {
+      throw new Error(`Source '${sourceName}' not found`);
+    }
+    
+    this.sources[sourceIndex] = { ...this.sources[sourceIndex], ...updates };
+    
+    // Update settings in database
+    const settings = await Settings.findOne();
+    if (settings) {
+      const sourceSettings = settings.integrations?.sentinelSources || [];
+      const settingIndex = sourceSettings.findIndex(s => s.name === sourceName);
+      
+      if (settingIndex !== -1) {
+        sourceSettings[settingIndex] = { ...sourceSettings[settingIndex], ...updates };
+        settings.integrations.sentinelSources = sourceSettings;
+        await settings.save();
+      }
+    }
+    
+    this.pushLog('info', `[Sentinel-PP-01] Updated source configuration: ${sourceName}`, updates);
+  }
+
+  // Get detailed source statistics
+  async getSourceStatistics() {
+    const stats = {};
+    
+    for (const source of this.sources) {
+      try {
+        const feed = await this.rssParser.parseURL(source.url);
+        stats[source.name] = {
+          enabled: source.enabled !== false,
+          reliability: source.reliability || 0.5,
+          priority: source.priority || 'low',
+          lastFetch: new Date().toISOString(),
+          itemCount: feed.items?.length || 0,
+          feedTitle: feed.title || 'Unknown',
+          feedDescription: feed.description || '',
+          isHealthy: true
+        };
+      } catch (error) {
+        stats[source.name] = {
+          enabled: source.enabled !== false,
+          reliability: source.reliability || 0.5,
+          priority: source.priority || 'low',
+          lastFetch: new Date().toISOString(),
+          itemCount: 0,
+          feedTitle: 'Error',
+          feedDescription: error.message,
+          isHealthy: false,
+          error: error.message
+        };
+      }
+    }
+    
+    return stats;
   }
 }
 

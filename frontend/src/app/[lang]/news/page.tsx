@@ -11,7 +11,7 @@ interface NewsPageProps {
 }
 
 export const metadata: Metadata = {
-  title: 'All News - NewsApp',
+  title: 'All News - Razewire',
   description: 'Browse all the latest news articles from various categories including technology, business, sports, and more.',
 };
 

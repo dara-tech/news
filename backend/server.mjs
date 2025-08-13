@@ -30,7 +30,7 @@ import userLoginRoutes from "./routes/userLogins.mjs"
 import systemRoutes from "./routes/system.mjs"
 import followRoutes from "./routes/follows.mjs"
 import adminFollowRoutes from "./routes/adminFollows.mjs"
-import aiRoutes from "./routes/ai.mjs"
+// AI routes removed - now frontend-only
 import sourcesRoutes from "./routes/sources.mjs"
 import http from 'http';
 import https from 'https';
@@ -106,6 +106,7 @@ const allowedOrigins = [
   // Exact string matches
   'http://localhost:3000',
   'http://localhost:3001',
+  'https://www.razewire.online',    // Your new production domain
   'https://news-eta-vert.vercel.app', // Replace with your production domain
   'https://news-vzdx.onrender.com', 
   'https://newslys.netlify.app',  // Your current API domain
@@ -116,27 +117,39 @@ const allowedOrigins = [
   /^https?:\/\/.*\.vercel\.app$/,   // All Vercel deployments
   /^https?:\/\/.*\.onrender\.com$/, // All Render deployments
   /^https?:\/\/.*\.dara\.tech$/,    // Your custom domain
+  /^https?:\/\/.*\.razewire\.online$/, // All Razewire subdomains
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('CORS: Allowing request with no origin');
+      return callback(null, true);
+    }
+    
+    console.log(`CORS: Checking origin: ${origin}`);
     
     const isAllowed = allowedOrigins.some(pattern => {
       if (typeof pattern === 'string') {
-        return pattern === origin;
+        const matches = pattern === origin;
+        if (matches) console.log(`CORS: Matched string pattern: ${pattern}`);
+        return matches;
       } else if (pattern instanceof RegExp) {
-        return pattern.test(origin);
+        const matches = pattern.test(origin);
+        if (matches) console.log(`CORS: Matched regex pattern: ${pattern}`);
+        return matches;
       }
       return false;
     });
 
     if (!isAllowed) {
-      const msg = `CORS: Origin ${origin} not allowed`;
+      const msg = `CORS: Origin ${origin} not allowed. Allowed origins: ${allowedOrigins.map(o => typeof o === 'string' ? o : o.toString()).join(', ')}`;
+      console.error(msg);
       return callback(new Error(msg), false);
     }
     
+    console.log(`CORS: Origin ${origin} allowed`);
     return callback(null, true);
   },
   credentials: true, // Required for cookies
@@ -335,7 +348,7 @@ app.use("/api/admin/system", systemRoutes)
 app.use("/api/admin/follows", adminFollowRoutes)
 
 // AI routes
-app.use("/api/ai", aiRoutes)
+// AI routes removed - now frontend-only
 
 // Sources routes
 app.use("/api/ai/sources", sourcesRoutes)

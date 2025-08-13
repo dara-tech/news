@@ -6,11 +6,11 @@ interface TermsPageProps {
 }
 
 export const metadata: Metadata = {
-  title: 'Terms of Service - NewsApp',
-  description: 'Read our terms of service to understand your rights and responsibilities when using NewsApp.',
+  title: 'Terms of Service - Razewire',
+  description: 'Read our terms of service to understand your rights and responsibilities when using Razewire.',
   openGraph: {
-    title: 'Terms of Service - NewsApp',
-    description: 'Read our terms of service to understand your rights and responsibilities when using NewsApp.',
+    title: 'Terms of Service - Razewire',
+    description: 'Read our terms of service to understand your rights and responsibilities when using Razewire.',
   },
 };
 
@@ -18,12 +18,12 @@ const translations = {
   en: {
     title: 'Terms of Service',
     lastUpdated: 'Last updated: January 2024',
-    intro: 'Welcome to NewsApp. These Terms of Service ("Terms") govern your use of our website and services. By accessing or using our service, you agree to be bound by these Terms.',
+    intro: 'Welcome to Razewire. These Terms of Service ("Terms") govern your use of our website and services. By accessing or using our service, you agree to be bound by these Terms.',
     sections: {
       acceptance: {
         title: 'Acceptance of Terms',
         content: [
-          'By accessing and using NewsApp, you accept and agree to be bound by the terms and provision of this agreement.',
+          'By accessing and using Razewire, you accept and agree to be bound by the terms and provision of this agreement.',
           'If you do not agree to abide by the above, please do not use this service.',
           'These terms apply to all visitors, users, and others who access or use the service.',
         ],
@@ -31,7 +31,7 @@ const translations = {
       services: {
         title: 'Description of Service',
         content: [
-          'NewsApp provides news content, articles, and related information services.',
+          'Razewire provides news content, articles, and related information services.',
           'We reserve the right to modify or discontinue the service at any time without notice.',
           'The service is provided "as is" without any warranties, expressed or implied.',
         ],
@@ -51,13 +51,13 @@ const translations = {
           'You may not use our service for any illegal or unauthorized purpose.',
           'You must not transmit any harmful, offensive, or inappropriate content.',
           'We reserve the right to remove content that violates our community guidelines.',
-          'All content published on NewsApp remains the property of NewsApp or its content providers.',
+          'All content published on Razewire remains the property of NewsApp or its content providers.',
         ],
       },
       intellectual: {
         title: 'Intellectual Property',
         content: [
-          'All content, trademarks, and intellectual property on NewsApp are owned by us or our licensors.',
+          'All content, trademarks, and intellectual property on Razewire are owned by us or our licensors.',
           'You may not reproduce, distribute, or create derivative works without permission.',
           'User-generated content remains your property, but you grant us a license to use it.',
         ],
@@ -65,7 +65,7 @@ const translations = {
       limitation: {
         title: 'Limitation of Liability',
         content: [
-          'NewsApp shall not be liable for any indirect, incidental, or consequential damages.',
+          'Razewire shall not be liable for any indirect, incidental, or consequential damages.',
           'Our total liability shall not exceed the amount paid by you for the service.',
           'Some jurisdictions do not allow the exclusion of certain warranties or limitations of liability.',
         ],
@@ -88,19 +88,19 @@ const translations = {
       },
       contact: {
         title: 'Contact Information',
-        content: 'If you have any questions about these Terms of Service, please contact us at legal@newsapp.com or through our contact page.',
+        content: 'If you have any questions about these Terms of Service, please contact us at legal@razewire.online or through our contact page.',
       },
     },
   },
   kh: {
     title: 'លក្ខខណ្ឌនៃសេវាកម្ម',
     lastUpdated: 'ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ: មករា ២០២៤',
-    intro: 'សូមស្វាគមន៍មកកាន់ NewsApp។ លក្ខខណ្ឌនៃសេវាកម្មទាំងនេះ ("លក្ខខណ្ឌ") គ្រប់គ្រងការប្រើប្រាស់គេហទំព័រ និងសេវាកម្មរបស់យើង។ ដោយការចូលដំណើរការ ឬប្រើប្រាស់សេវាកម្មរបស់យើង អ្នកយល់ព្រមត្រូវបានកំណត់ដោយលក្ខខណ្ឌទាំងនេះ។',
+    intro: 'សូមស្វាគមន៍មកកាន់ Razewire។ លក្ខខណ្ឌនៃសេវាកម្មទាំងនេះ ("លក្ខខណ្ឌ") គ្រប់គ្រងការប្រើប្រាស់គេហទំព័រ និងសេវាកម្មរបស់យើង។ ដោយការចូលដំណើរការ ឬប្រើប្រាស់សេវាកម្មរបស់យើង អ្នកយល់ព្រមត្រូវបានកំណត់ដោយលក្ខខណ្ឌទាំងនេះ។',
     sections: {
       acceptance: {
         title: 'ការទទួលយកលក្ខខណ្ឌ',
         content: [
-          'ដោយការចូលដំណើរការ និងប្រើប្រាស់ NewsApp អ្នកទទួលយក និងយល់ព្រមត្រូវបានកំណត់ដោយលក្ខខណ្ឌ និងបទប្បញ្ញត្តិនៃកិច្ចព្រមព្រៀងនេះ។',
+          'ដោយការចូលដំណើរការ និងប្រើប្រាស់ Razewire អ្នកទទួលយក និងយល់ព្រមត្រូវបានកំណត់ដោយលក្ខខណ្ឌ និងបទប្បញ្ញត្តិនៃកិច្ចព្រមព្រៀងនេះ។',
           'ប្រសិនបើអ្នកមិនយល់ព្រមអនុលោមតាមខាងលើ សូមកុំប្រើសេវាកម្មនេះ។',
           'លក្ខខណ្ឌទាំងនេះអនុវត្តចំពោះអ្នកទស្សនា អ្នកប្រើប្រាស់ និងអ្នកដទៃទៀតដែលចូលដំណើរការ ឬប្រើប្រាស់សេវាកម្ម។',
         ],
@@ -108,7 +108,7 @@ const translations = {
       services: {
         title: 'ការពិពណ៌នាអំពីសេវាកម្ម',
         content: [
-          'NewsApp ផ្តល់មាតិកាព័ត៌មាន អត្ថបទ និងសេវាកម្មព័ត៌មានពាក់ព័ន្ធ។',
+          'Razewire ផ្តល់មាតិកាព័ត៌មាន អត្ថបទ និងសេវាកម្មព័ត៌មានពាក់ព័ន្ធ។',
           'យើងរក្សាសិទ្ធិក្នុងការកែប្រែ ឬបញ្ឈប់សេវាកម្មនៅពេលណាក៏បានដោយគ្មានការជូនដំណឹង។',
           'សេវាកម្មត្រូវបានផ្តល់ "ដូចដែលវាជា" ដោយគ្មានការធានាណាមួយ ទាំងដែលបានបញ្ជាក់ ឬបន្យោល។',
         ],
@@ -128,13 +128,13 @@ const translations = {
           'អ្នកមិនអាចប្រើសេវាកម្មរបស់យើងសម្រាប់គោលបំណងខុសច្បាប់ ឬគ្មានការអនុញ្ញាតទេ។',
           'អ្នកមិនត្រូវផ្ទេរមាតិកាដែលបង្កគ្រោះថ្នាក់ គួរឱ្យស្អប់ខ្ពើម ឬមិនសមរម្យទេ។',
           'យើងរក្សាសិទ្ធិក្នុងការដកចេញមាតិកាដែលរំលោភគោលការណ៍សហគមន៍របស់យើង។',
-          'មាតិកាទាំងអស់ដែលបានបោះពុម្ពនៅលើ NewsApp នៅតែជាកម្មសិទ្ធិរបស់ NewsApp ឬអ្នកផ្តល់មាតិការបស់វា។',
+          'មាតិកាទាំងអស់ដែលបានបោះពុម្ពនៅលើ Razewire នៅតែជាកម្មសិទ្ធិរបស់ Razewire ឬអ្នកផ្តល់មាតិការបស់វា។',
         ],
       },
       intellectual: {
         title: 'កម្មសិទ្ធិបញ្ញា',
         content: [
-          'មាតិកា ម៉ាកយីហោ និងកម្មសិទ្ធិបញ្ញាទាំងអស់នៅលើ NewsApp ជាកម្មសិទ្ធិរបស់យើង ឬអ្នកផ្តល់អាជ្ញាប័ណ្ណរបស់យើង។',
+          'មាតិកា ម៉ាកយីហោ និងកម្មសិទ្ធិបញ្ញាទាំងអស់នៅលើ Razewire ជាកម្មសិទ្ធិរបស់យើង ឬអ្នកផ្តល់អាជ្ញាប័ណ្ណរបស់យើង។',
           'អ្នកមិនអាចបន្តផលិត ចែកចាយ ឬបង្កើតស្នាដៃដែលបានកែប្រែដោយគ្មានការអនុញ្ញាតទេ។',
           'មាតិកាដែលបង្កើតដោយអ្នកប្រើប្រាស់នៅតែជាកម្មសិទ្ធិរបស់អ្នក ប៉ុន្តែអ្នកផ្តល់អាជ្ញាប័ណ្ណដល់យើងក្នុងការប្រើប្រាស់វា។',
         ],
@@ -142,7 +142,7 @@ const translations = {
       limitation: {
         title: 'ការកំណត់ទំនួលខុសត្រូវ',
         content: [
-          'NewsApp នឹងមិនទទួលខុសត្រូវចំពោះការខូចខាតដោយប្រយោល ចៃដន្យ ឬជាលទ្ធផលណាមួយទេ។',
+          'Razewire នឹងមិនទទួលខុសត្រូវចំពោះការខូចខាតដោយប្រយោល ចៃដន្យ ឬជាលទ្ធផលណាមួយទេ។',
           'ទំនួលខុសត្រូវសរុបរបស់យើងនឹងមិនលើសពីចំនួនទឹកប្រាក់ដែលអ្នកបានបង់សម្រាប់សេវាកម្មទេ។',
           'យុត្តាធិការខ្លះមិនអនុញ្ញាតឱ្យមានការលើកលែងការធានាមួយចំនួន ឬការកំណត់ទំនួលខុសត្រូវទេ។',
         ],
@@ -165,7 +165,7 @@ const translations = {
       },
       contact: {
         title: 'ព័ត៌មានទំនាក់ទំនង',
-        content: 'ប្រសិនបើអ្នកមានសំណួរណាមួយអំពីលក្ខខណ្ឌនៃសេវាកម្មទាំងនេះ សូមទាក់ទងយើងតាមរយៈ legal@newsapp.com ឬតាមរយៈទំព័រទាក់ទងរបស់យើង។',
+        content: 'ប្រសិនបើអ្នកមានសំណួរណាមួយអំពីលក្ខខណ្ឌនៃសេវាកម្មទាំងនេះ សូមទាក់ទងយើងតាមរយៈ legal@razewire.online ឬតាមរយៈទំព័រទាក់ទងរបស់យើង។',
       },
     },
   },

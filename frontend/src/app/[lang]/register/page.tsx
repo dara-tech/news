@@ -153,7 +153,7 @@ const RegisterPage = () => {
         <div className="flex items-center justify-between p-6">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-green-500 rounded-full"></div>
-            <span className="text-gray-900 dark:text-white font-semibold">Newsly</span>
+            <span className="text-gray-900 dark:text-white font-semibold">Razewire</span>
           </div>
           <div className="flex items-center gap-2 text-gray-700 dark:text-white">
             <span>English</span>
@@ -363,7 +363,7 @@ const RegisterPage = () => {
 
         {/* Footer */}
         <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-          © Newsly All rights reserved.
+          © Rare All rights reserved.
         </div>
       </div>
     </main>

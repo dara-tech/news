@@ -11,23 +11,26 @@ const kantumruyPro = Kantumruy_Pro({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('http://localhost:3000'), // Replace with your actual domain
+  metadataBase: new URL('https://www.razewire.online'),
   title: {
-    default: 'NewsApp - Your Daily Source of News',
-    template: '%s | NewsApp',
+    default: 'Razewire - Your Daily Source of News',
+    template: '%s | Razewire',
   },
-  description: 'The latest news in technology, business, sports, and more. Stay informed with NewsApp.',
+  description: 'Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.',
+  verification: {
+    google: 'google28105ddce768934a',
+  },
   openGraph: {
-    title: 'NewsApp - Your Daily Source of News',
-    description: 'The latest news in technology, business, sports, and more.',
-    url: 'https://your-domain.com',
-    siteName: 'NewsApp',
+    title: 'Razewire - Your Daily Source of News',
+    description: 'Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.',
+    url: 'https://www.razewire.online',
+    siteName: 'Razewire',
     images: [
       {
         url: '/placeholder.jpg',
         width: 1200,
         height: 630,
-        alt: 'NewsApp Logo',
+        alt: 'Razewire Logo',
       },
     ],
     locale: 'en_US',
@@ -35,8 +38,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NewsApp - Your Daily Source of News',
-    description: 'The latest news in technology, business, sports, and more.',
+    title: 'Razewire - Your Daily Source of News',
+    description: 'Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.',
     images: ['/placeholder.jpg'],
   },
   robots: {

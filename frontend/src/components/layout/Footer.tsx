@@ -75,15 +75,15 @@ const Footer: FC = () => {
   const currentYear = new Date().getFullYear();
   const [logoSettings, setLogoSettings] = useState<LogoSettings>({
     logoDisplayMode: 'text',
-    logoText: 'NewsApp',
+    logoText: 'Razewire',
     logoTextColor: '#000000',
     logoBackgroundColor: '#ffffff',
     logoFontSize: 24,
   });
   const [footerSettings, setFooterSettings] = useState<FooterSettings>({
-    companyName: 'NewsApp',
+    companyName: 'Razewire',
     companyDescription: 'Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.',
-    contactEmail: 'contact@newsapp.com',
+    contactEmail: 'contact@razewire.online',
     newsletterEnabled: true,
   });
   const [socialMediaSettings, setSocialMediaSettings] = useState<SocialMediaSettings>({
@@ -283,7 +283,7 @@ const Footer: FC = () => {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border/50 text-center text-muted-foreground text-sm">
-          <p>&copy; {currentYear} {footerSettings.companyName || 'NewsApp'}. All rights reserved. Built with Next.js & Tailwind CSS.</p>
+          <p>&copy; {currentYear} {footerSettings.companyName || 'Razewire'}. All rights reserved. Built with Next.js & Tailwind CSS.</p>
         </div>
       </div>
     </footer>

@@ -6,10 +6,10 @@ interface ContactPageProps {
 }
 
 export const metadata: Metadata = {
-  title: 'Contact Us - NewsApp',
+  title: 'Contact Us - Razewire',
   description: 'Get in touch with our news team. Send us your story tips, feedback, or general inquiries.',
   openGraph: {
-    title: 'Contact Us - NewsApp',
+    title: 'Contact Us - Razewire',
     description: 'Get in touch with our news team. Send us your story tips, feedback, or general inquiries.',
   },
 };
@@ -39,7 +39,7 @@ const translations = {
     },
     addressValue: '123 News Street, Media City, MC 12345',
     phoneValue: '+1 (555) 123-4567',
-    emailValue: 'contact@newsapp.com',
+    emailValue: 'contact@razewire.online',
   },
   kh: {
     title: 'ទាក់ទងយើង',
@@ -65,7 +65,7 @@ const translations = {
     },
     addressValue: '១២៣ ផ្លូវព័ត៌មាន, ទីក្រុងមេឌៀ, MC 12345',
     phoneValue: '+1 (555) 123-4567',
-    emailValue: 'contact@newsapp.com',
+    emailValue: 'contact@razewire.online',
   },
 };
 

@@ -6,11 +6,11 @@ interface PrivacyPageProps {
 }
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy - NewsApp',
-  description: 'Learn how NewsApp collects, uses, and protects your personal information. Your privacy is important to us.',
+  title: 'Privacy Policy - Razewire',
+  description: 'Learn how Razewire collects, uses, and protects your personal information. Your privacy is important to us.',
   openGraph: {
-    title: 'Privacy Policy - NewsApp',
-    description: 'Learn how NewsApp collects, uses, and protects your personal information. Your privacy is important to us.',
+    title: 'Privacy Policy - Razewire',
+    description: 'Learn how Razewire collects, uses, and protects your personal information. Your privacy is important to us.',
   },
 };
 
@@ -18,7 +18,7 @@ const translations = {
   en: {
     title: 'Privacy Policy',
     lastUpdated: 'Last updated: January 2024',
-    intro: 'At NewsApp, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.',
+    intro: 'At Razewire, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.',
     sections: {
       collection: {
         title: 'Information We Collect',
@@ -65,14 +65,14 @@ const translations = {
       },
       contact: {
         title: 'Contact Us',
-        content: 'If you have any questions about this Privacy Policy, please contact us at privacy@newsapp.com or through our contact page.',
+        content: 'If you have any questions about this Privacy Policy, please contact us at privacy@razewire.online or through our contact page.',
       },
     },
   },
   kh: {
     title: 'គោលការណ៍ភាពឯកជន',
     lastUpdated: 'ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ: មករា ២០២៤',
-    intro: 'នៅ NewsApp យើងប្តេជ្ញាចិត្តក្នុងការការពារភាពឯកជនរបស់អ្នក និងធានាសុវត្ថិភាពនៃព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នក។ គោលការណ៍ភាពឯកជននេះពន្យល់អំពីរបៀបដែលយើងប្រមូល ប្រើប្រាស់ បង្ហាញ និងការពារព័ត៌មានរបស់អ្នកនៅពេលអ្នកចូលមើលគេហទំព័ររបស់យើង។',
+    intro: 'នៅ Razewire យើងប្តេជ្ញាចិត្តក្នុងការការពារភាពឯកជនរបស់អ្នក និងធានាសុវត្ថិភាពនៃព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នក។ គោលការណ៍ភាពឯកជននេះពន្យល់អំពីរបៀបដែលយើងប្រមូល ប្រើប្រាស់ បង្ហាញ និងការពារព័ត៌មានរបស់អ្នកនៅពេលអ្នកចូលមើលគេហទំព័ររបស់យើង។',
     sections: {
       collection: {
         title: 'ព័ត៌មានដែលយើងប្រមូល',
@@ -119,7 +119,7 @@ const translations = {
       },
       contact: {
         title: 'ទាក់ទងយើង',
-        content: 'ប្រសិនបើអ្នកមានសំណួរណាមួយអំពីគោលការណ៍ភាពឯកជននេះ សូមទាក់ទងយើងតាមរយៈ privacy@newsapp.com ឬតាមរយៈទំព័រទាក់ទងរបស់យើង។',
+        content: 'ប្រសិនបើអ្នកមានសំណួរណាមួយអំពីគោលការណ៍ភាពឯកជននេះ សូមទាក់ទងយើងតាមរយៈ privacy@razewire.online ឬតាមរយៈទំព័រទាក់ទងរបស់យើង។',
       },
     },
   },

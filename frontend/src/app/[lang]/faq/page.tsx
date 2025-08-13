@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Frequently Asked Questions - NewsApp',
-  description: 'Find answers to common questions about NewsApp, our services, and how to use our platform.',
+  title: 'Frequently Asked Questions - Razewire',
+  description: 'Find answers to common questions about Razewire, our services, and how to use our platform.',
 };
 
 const faqs = [
@@ -11,12 +11,12 @@ const faqs = [
     category: 'General',
     questions: [
       {
-        question: 'What is NewsApp?',
-        answer: 'NewsApp is a comprehensive news platform that delivers the latest news across various categories including technology, business, sports, politics, entertainment, and health. We provide timely, accurate, and relevant news to keep you informed.'
+        question: 'What is Razewire?',
+        answer: 'Razewire is a comprehensive news platform that delivers the latest news across various categories including technology, business, sports, politics, entertainment, and health. We provide timely, accurate, and relevant news to keep you informed.'
       },
       {
-        question: 'Is NewsApp free to use?',
-        answer: 'Yes, NewsApp is completely free to use. You can read articles, browse categories, and access most of our content without any subscription fees.'
+        question: 'Is Razewire free to use?',
+        answer: 'Yes, Razewire is completely free to use. You can read articles, browse categories, and access most of our content without any subscription fees.'
       },
       {
         question: 'How often is the content updated?',
@@ -87,8 +87,8 @@ const faqs = [
         answer: 'Please contact us through our Contact page with details about the error, including the page URL and what you were trying to do. We appreciate your help in improving our site.'
       },
       {
-        question: 'Is NewsApp mobile-friendly?',
-        answer: 'Yes! NewsApp is fully responsive and optimized for mobile devices. You can access all features and content seamlessly on your smartphone or tablet.'
+        question: 'Is Razewire mobile-friendly?',
+        answer: 'Yes! Razewire is fully responsive and optimized for mobile devices. You can access all features and content seamlessly on your smartphone or tablet.'
       }
     ]
   },
@@ -120,7 +120,7 @@ export default function FAQPage() {
             Frequently Asked Questions
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300">
-            Find answers to common questions about NewsApp
+            Find answers to common questions about Razewire
           </p>
         </div>
 
@@ -190,7 +190,7 @@ export default function FAQPage() {
                 Contact Support
               </Link>
               <a
-                href="mailto:support@newsapp.com"
+                href="mailto:support@razewire.online"
                 className="inline-block px-6 py-3 border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors duration-200"
               >
                 Email Us

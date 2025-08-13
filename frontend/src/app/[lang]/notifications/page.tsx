@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import NotificationsPageClient from '@/components/notifications/NotificationsPageClient';
 
 export const metadata: Metadata = {
-  title: 'Notifications | Newsly',
+  title: 'Notifications | Razewire',
   description: 'View and manage your notifications',
 };
 

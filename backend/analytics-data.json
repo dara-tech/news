@@ -1,35 +1,35 @@
 {
   "pageViews": {
-    "/news/breaking": 665,
-    "/news": 823,
-    "/news/featured": 668,
-    "/categories": 1427,
-    "/notifications/count": 3565,
-    "/dashboard/advanced-stats": 591,
-    "/maintenance-status": 382,
-    "/auth/login": 26,
-    "/auth/profile": 628,
-    "/notifications": 667,
-    "/dashboard/stats": 1146,
+    "/news/breaking": 728,
+    "/news": 887,
+    "/news/featured": 731,
+    "/categories": 1548,
+    "/notifications/count": 4213,
+    "/dashboard/advanced-stats": 677,
+    "/maintenance-status": 411,
+    "/auth/login": 31,
+    "/auth/profile": 744,
+    "/notifications": 777,
+    "/dashboard/stats": 1233,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
     "/admin/security/stats": 11,
     "/admin/settings/general": 9,
     "/dashboard/analytics": 97,
-    "/admin/system/metrics": 541,
+    "/admin/system/metrics": 638,
     "/dashboard/export": 2,
-    "/admin/user-logins/map": 413,
-    "/auth/google": 13,
-    "/auth/google/callback": 6,
+    "/admin/user-logins/map": 414,
+    "/auth/google": 14,
+    "/auth/google/callback": 7,
     "/admin/user-login": 2,
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 118,
+    "/news/admin": 130,
     "/health": 1,
     "/new": 1,
-    "/admin/likes": 49,
+    "/admin/likes": 51,
     "/admin/comments": 48,
     "/admin/activity": 48,
     "/admin/activity/security": 37,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 855,
+    "/admin/settings/logo": 1082,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -109,11 +109,11 @@
     "/likes/68940700b4cf5ac48729df9d/status": 3,
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
-    "/admin/settings/footer": 102,
-    "/admin/settings/social-media": 302,
+    "/admin/settings/footer": 129,
+    "/admin/settings/social-media": 444,
     "/admin/settings/social-media/stats": 7,
     "/admin/settings/social-media/test": 14,
-    "/settings/public/social-media": 92,
+    "/settings/public/social-media": 119,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -123,11 +123,11 @@
     "/comments/6896d76d35003ae5b6370ba9/like": 2,
     "/admin/comments/6894625c70cb3d494df61813": 1,
     "/comments/6896de0335003ae5b6371192/like": 2,
-    "/admin/system/sentinel": 212,
+    "/admin/system/sentinel": 249,
     "/admin/system/matric": 3,
     "/admin/system": 1,
-    "/admin/system/sentinel/run-once": 26,
-    "/admin/system/sentinel/logs": 1608,
+    "/admin/system/sentinel/run-once": 31,
+    "/admin/system/sentinel/logs": 1980,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -236,10 +236,10 @@
     "/likes/689ac32beb93206627c2cd96/toggle": 1,
     "/admin/follows/68910ed2652d8cab7571babd": 2,
     "/news/689ac0adeb93206627c2ccff": 2,
-    "/news/zelenskyy-warns-putin-plans-new-offensive-dismisses-ceasefire-talk": 12,
-    "/likes/689ac0adeb93206627c2ccff/status": 8,
-    "/comments/689ac0adeb93206627c2ccff": 9,
-    "/comments/689ac0adeb93206627c2ccff/stats": 8,
+    "/news/zelenskyy-warns-putin-plans-new-offensive-dismisses-ceasefire-talk": 72,
+    "/likes/689ac0adeb93206627c2ccff/status": 12,
+    "/comments/689ac0adeb93206627c2ccff": 15,
+    "/comments/689ac0adeb93206627c2ccff/stats": 14,
     "/likes/689ac0adeb93206627c2ccff/toggle": 1,
     "/admin/comments/bulk-reject": 1,
     "/news/ukraine-allies-kyiv-must-be-included-in-peace-talks": 2,
@@ -261,7 +261,24 @@
     "/news/author/688890b02c1b677dc769ad33": 3,
     "/news/author/688e46a0b9e9e59928015fdf": 3,
     "/news/author/688f30f71eee3e243453ed2c": 3,
-    "/news/author/689581b3ed4da10e3ffc90eb": 3
+    "/news/author/689581b3ed4da10e3ffc90eb": 3,
+    "/api/ai/assistant/research": 9,
+    "/ai/gemini/status": 14,
+    "/ai/assistant/research": 15,
+    "/ai/assistant/factcheck": 5,
+    "/news/thailand-accuses-cambodia-of-planting-landmines": 2,
+    "/likes/689b31f3c1a39194d105a980/status": 1,
+    "/comments/689b31f3c1a39194d105a980": 1,
+    "/comments/689b31f3c1a39194d105a980/stats": 1,
+    "/ai/assistant/seo": 1,
+    "/ai/assistant/suggestions": 1,
+    "/ai/gemini/generate": 12,
+    "/ai/gemini/models": 8,
+    "/ai/gemini/usage": 8,
+    "/news/guatemalan-judge-finds-six-guilty-in-2017-shelter-fire": 15,
+    "/likes/689c3dd12a53bb052e7e30c6/status": 1,
+    "/comments/689c3dd12a53bb052e7e30c6": 1,
+    "/comments/689c3dd12a53bb052e7e30c6/stats": 1
   },
   "userActions": {},
   "dailyStats": {
@@ -395,27 +412,42 @@
       }
     },
     "2025-08-12": {
-      "pageViews": 2062,
+      "pageViews": 3299,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 1574,
-        "Direct": 488
+        "Referral": 2657,
+        "Direct": 642
       },
       "deviceTypes": {
-        "Desktop": 2062
+        "Desktop": 3298,
+        "Mobile": 1
+      }
+    },
+    "2025-08-13": {
+      "pageViews": 1278,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 193,
+        "Referral": 1085
+      },
+      "deviceTypes": {
+        "Desktop": 1278
       }
     }
   },
   "trafficSources": {
-    "Direct": 3564,
-    "Referral": 13751
+    "Direct": 3911,
+    "Referral": 15919
   },
   "deviceTypes": {
-    "Desktop": 16592,
-    "Mobile": 723
+    "Desktop": 19106,
+    "Mobile": 724
   }
 }

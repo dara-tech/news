@@ -19,7 +19,7 @@ interface LogoSettings {
 const Logo = ({ lang }: LogoProps) => {
   const [settings, setSettings] = useState<LogoSettings>({
     logoDisplayMode: 'text',
-    logoText: 'Newsly',
+    logoText: 'Razewire',
     logoTextColor: '#000000',
     logoBackgroundColor: '#ffffff',
     logoFontSize: 24,
@@ -70,7 +70,7 @@ const Logo = ({ lang }: LogoProps) => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        {settings.logoText || 'Newsly'}
+        {settings.logoText || 'Razewire'}
       </motion.span>
     );
   };

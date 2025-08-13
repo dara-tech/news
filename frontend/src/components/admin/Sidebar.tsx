@@ -17,8 +17,7 @@ import {
   MessageSquare,
   Monitor,
   User,
-  Bell,
-  Search,
+  Brain,
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 
@@ -63,6 +62,17 @@ const data = {
       title: 'Overview',
       url: '/admin/dashboard',
       icon: LayoutDashboard,
+    },
+    {
+      title: 'AI',
+      icon: Brain,
+      items: [
+        {
+          title: 'AI Assistant',
+          url: '/admin/ai-assistant',
+          icon: Brain,
+        },
+      ],
     },
     {
       title: 'Content',
@@ -184,7 +194,7 @@ export default function AdminSidebar() {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold text-foreground">Admin</span>
-                  <span className="truncate text-xs text-muted-foreground/80">NewsApp Dashboard</span>
+                  <span className="truncate text-xs text-muted-foreground/80">Razewire Dashboard</span>
                 </div>
               </Link>
             </SidebarMenuButton>

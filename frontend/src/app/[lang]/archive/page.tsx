@@ -14,7 +14,7 @@ interface ArchivePageProps {
 }
 
 export const metadata: Metadata = {
-  title: 'News Archive - NewsApp',
+  title: 'News Archive - Razewire',
   description: 'Browse our complete archive of news articles organized by date and category.',
 };
 

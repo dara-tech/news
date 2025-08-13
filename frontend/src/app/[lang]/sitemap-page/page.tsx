@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sitemap - NewsApp',
-  description: 'Navigate through all pages and sections of NewsApp easily with our comprehensive sitemap.',
+  title: 'Sitemap - Razewire',
+  description: 'Navigate through all pages and sections of Razewire easily with our comprehensive sitemap.',
 };
 
 interface SitemapPageProps {
@@ -72,7 +72,7 @@ export default async function SitemapPage({ params }: SitemapPageProps) {
             Sitemap
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300">
-            Navigate through all pages and sections of NewsApp
+            Navigate through all pages and sections of Razewire
           </p>
         </div>
 
