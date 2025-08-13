@@ -1,10 +1,10 @@
 {
   "pageViews": {
     "/news/breaking": 728,
-    "/news": 887,
+    "/news": 888,
     "/news/featured": 731,
-    "/categories": 1548,
-    "/notifications/count": 4285,
+    "/categories": 1549,
+    "/notifications/count": 4291,
     "/dashboard/advanced-stats": 678,
     "/maintenance-status": 411,
     "/auth/login": 31,
@@ -17,7 +17,7 @@
     "/admin/security/stats": 11,
     "/admin/settings/general": 9,
     "/dashboard/analytics": 97,
-    "/admin/system/metrics": 709,
+    "/admin/system/metrics": 715,
     "/dashboard/export": 2,
     "/admin/user-logins/map": 414,
     "/auth/google": 14,
@@ -127,7 +127,7 @@
     "/admin/system/matric": 3,
     "/admin/system": 1,
     "/admin/system/sentinel/run-once": 31,
-    "/admin/system/sentinel/logs": 2164,
+    "/admin/system/sentinel/logs": 2174,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -428,26 +428,26 @@
       }
     },
     "2025-08-13": {
-      "pageViews": 1611,
+      "pageViews": 1635,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Direct": 193,
-        "Referral": 1418
+        "Direct": 195,
+        "Referral": 1440
       },
       "deviceTypes": {
-        "Desktop": 1611
+        "Desktop": 1635
       }
     }
   },
   "trafficSources": {
-    "Direct": 3911,
-    "Referral": 16252
+    "Direct": 3913,
+    "Referral": 16274
   },
   "deviceTypes": {
-    "Desktop": 19439,
+    "Desktop": 19463,
     "Mobile": 724
   }
 }
