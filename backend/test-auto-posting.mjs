@@ -28,7 +28,7 @@ async function testAutoPosting() {
     
     // Test 2: Check Platform Configurations
     console.log('\n📱 Test 2: Platform Configurations');
-    const platforms = ['facebook', 'twitter', 'instagram', 'threads'];
+    const platforms = ['facebook', 'twitter', 'instagram', 'telegram', 'threads'];
     
     for (const platform of platforms) {
       const enabled = settings[`${platform}Enabled`];

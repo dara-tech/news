@@ -861,6 +861,12 @@ export const getPublicSocialMediaSettings = asyncHandler(async (req, res) => {
           displayName: 'Instagram'
         },
         {
+          platform: 'telegram',
+          url: '#',
+          isActive: false,
+          displayName: 'Telegram'
+        },
+        {
           platform: 'youtube',
           url: '#',
           isActive: false,

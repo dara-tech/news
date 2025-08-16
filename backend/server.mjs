@@ -313,6 +313,12 @@ app.get("/api/settings/public/social-media", async (req, res) => {
           displayName: 'Instagram'
         },
         {
+          platform: 'telegram',
+          url: '#',
+          isActive: false,
+          displayName: 'Telegram'
+        },
+        {
           platform: 'youtube',
           url: '#',
           isActive: false,
