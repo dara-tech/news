@@ -34,27 +34,11 @@ export default function ChatSidebar({
 
   return (
     <div className="w-64 bg-background border-r flex flex-col">
-      {/* Header */}
+      {/* New Chat Button */}
       <div className="border-b px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="p-1.5 bg-muted rounded-md">
-              <Brain className="w-5 h-5 text-foreground" />
-            </div>
-            <h2 className="text-lg font-semibold">AI Assistant</h2>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleSidebar}
-            className="md:hidden h-8 w-8 p-0"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
         <Button 
           onClick={onNewConversation}
-          className="w-full mt-3 h-9"
+          className="w-full h-9"
           size="sm"
         >
           <Plus className="w-4 h-4 mr-2" />

@@ -18,6 +18,7 @@ import {
   Monitor,
   User,
   Brain,
+  Zap,
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 
@@ -69,7 +70,7 @@ const data = {
       items: [
         {
           title: 'AI Assistant',
-          url: '/admin/ai-assistant',
+          url: '/ai-assistant',
           icon: Brain,
         },
       ],
@@ -148,6 +149,11 @@ const data = {
         {
           title: 'Social Links',
           url: '/admin/settings/social-media',
+        },
+        {
+          title: 'Auto-Posting',
+          url: '/admin/auto-posting',
+          icon: Zap,
         },
         {
           title: 'Security',

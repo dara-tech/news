@@ -731,23 +731,34 @@ export const getSocialMediaStats = asyncHandler(async (req, res) => {
 // @route   POST /api/admin/settings/social-media/post
 // @access  Private/Admin
 export const manualSocialMediaPost = asyncHandler(async (req, res) => {
-  const { newsId, platforms } = req.body;
+  const { newsId, platforms, test, message } = req.body;
   
-  if (!newsId) {
-    res.status(400);
-    throw new Error('News ID is required');
-  }
-
   try {
-    // Get the news article
-    const News = (await import('../models/News.mjs')).default;
-    const news = await News.findById(newsId)
-      .populate('category', 'name')
-      .populate('author', 'username');
+    let news;
+    
+    if (test && message) {
+      // Create a test news object for testing
+      news = {
+        title: { en: 'Test Post' },
+        description: { en: message },
+        slug: 'test-post',
+        category: { name: { en: 'Test' } },
+        author: { username: 'Admin' }
+      };
+    } else if (newsId) {
+      // Get the actual news article
+      const News = (await import('../models/News.mjs')).default;
+      news = await News.findById(newsId)
+        .populate('category', 'name')
+        .populate('author', 'username');
 
-    if (!news) {
-      res.status(404);
-      throw new Error('News article not found');
+      if (!news) {
+        res.status(404);
+        throw new Error('News article not found');
+      }
+    } else {
+      res.status(400);
+      throw new Error('Either newsId or test message is required');
     }
 
     const socialMediaService = (await import('../services/socialMediaService.mjs')).default;
@@ -938,5 +949,481 @@ export const getPublicFooterSettings = asyncHandler(async (req, res) => {
     console.error('Error fetching public footer settings:', error);
     res.status(500);
     throw new Error('Failed to fetch footer settings');
+  }
+});
+
+// @desc    Check token health for a platform
+// @route   POST /api/admin/settings/social-media/check-token
+// @access  Private/Admin
+export const checkTokenHealth = asyncHandler(async (req, res) => {
+  const { platform } = req.body;
+  
+  try {
+    const settings = await Settings.getCategorySettings('social-media');
+    const axios = (await import('axios')).default;
+    
+    if (platform === 'facebook') {
+      if (!settings.facebookEnabled || !settings.facebookPageAccessToken) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'facebook',
+            error: 'Facebook not configured'
+          }
+        });
+      }
+
+      try {
+        // Test Facebook connection
+        if (settings.facebookEnabled && settings.facebookPageAccessToken) {
+          try {
+            const testResponse = await axios.get(`https://graph.facebook.com/v20.0/me`, {
+              params: {
+                access_token: settings.facebookPageAccessToken,
+                fields: 'id,name'
+              }
+            });
+            
+            const tokenInfoResponse = await axios.get(`https://graph.facebook.com/v20.0/debug_token`, {
+              params: {
+                input_token: settings.facebookPageAccessToken,
+                access_token: `${settings.facebookAppId}|${settings.facebookAppSecret}`
+              }
+            });
+
+            const tokenInfo = tokenInfoResponse.data.data;
+            const expiresAt = tokenInfo.expires_at ? new Date(tokenInfo.expires_at * 1000) : null;
+            const daysLeft = expiresAt ? Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24)) : null;
+
+            return res.json({
+              success: true,
+              tokenHealth: {
+                isValid: true,
+                platform: 'facebook',
+                expiresAt: expiresAt?.toISOString(),
+                daysLeft,
+                details: {
+                  name: testResponse.data.name,
+                  id: testResponse.data.id,
+                  type: 'Facebook Page'
+                }
+              }
+            });
+
+          } catch (error) {
+            return res.json({
+              success: true,
+              tokenHealth: {
+                isValid: false,
+                platform: 'facebook',
+                error: error.response?.data?.error?.message || 'Token validation failed'
+              }
+            });
+          }
+        }
+
+      } catch (error) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'facebook',
+            error: error.response?.data?.error?.message || 'Token validation failed'
+          }
+        });
+      }
+    }
+
+    if (platform === 'twitter') {
+      if (!settings.twitterEnabled || !settings.twitterAccessToken || !settings.twitterApiKey || !settings.twitterApiSecret) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'twitter',
+            error: 'Twitter not configured'
+          }
+        });
+      }
+
+      try {
+        const crypto = (await import('crypto')).default;
+        
+        // Generate OAuth 1.0a signature for /users/me endpoint
+        const timestamp = Math.floor(Date.now() / 1000);
+        const nonce = crypto.randomBytes(16).toString('hex');
+        
+        const oauthParams = {
+          oauth_consumer_key: settings.twitterApiKey,
+          oauth_nonce: nonce,
+          oauth_signature_method: 'HMAC-SHA1',
+          oauth_timestamp: timestamp,
+          oauth_token: settings.twitterAccessToken,
+          oauth_version: '1.0'
+        };
+
+        // Generate signature for GET request
+        const sortedParams = Object.keys(oauthParams).sort().map(key => `${key}=${encodeURIComponent(oauthParams[key])}`).join('&');
+        const signatureBaseString = `GET&${encodeURIComponent('https://api.twitter.com/2/users/me')}&${encodeURIComponent(sortedParams)}`;
+        const signingKey = `${encodeURIComponent(settings.twitterApiSecret)}&${encodeURIComponent(settings.twitterAccessTokenSecret)}`;
+        
+        const signature = crypto.createHmac('sha1', signingKey).update(signatureBaseString).digest('base64');
+        oauthParams.oauth_signature = signature;
+
+        const authHeader = 'OAuth ' + Object.keys(oauthParams)
+          .map(key => `${key}="${encodeURIComponent(oauthParams[key])}"`)
+          .join(', ');
+
+        // Test user context access
+        const userResponse = await axios.get('https://api.twitter.com/2/users/me', {
+          headers: {
+            'Authorization': authHeader
+          }
+        });
+
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: true,
+            platform: 'twitter',
+            details: {
+              name: userResponse.data.data.name,
+              id: userResponse.data.data.id,
+              username: userResponse.data.data.username,
+              type: 'Twitter User'
+            }
+          }
+        });
+
+      } catch (error) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'twitter',
+            error: error.response?.data?.detail || error.response?.data?.message || 'Token validation failed'
+          }
+        });
+      }
+    }
+
+    if (platform === 'linkedin') {
+      if (!settings.linkedinEnabled || !settings.linkedinAccessToken) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'linkedin',
+            error: 'LinkedIn not configured'
+          }
+        });
+      }
+
+      try {
+        // Test LinkedIn API access
+        const profileResponse = await axios.get('https://api.linkedin.com/v2/me', {
+          headers: {
+            'Authorization': `Bearer ${settings.linkedinAccessToken}`,
+            'X-Restli-Protocol-Version': '2.0.0'
+          }
+        });
+
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: true,
+            platform: 'linkedin',
+            details: {
+              name: `${profileResponse.data.localizedFirstName} ${profileResponse.data.localizedLastName}`,
+              id: profileResponse.data.id,
+              type: 'LinkedIn User'
+            }
+          }
+        });
+
+      } catch (error) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'linkedin',
+            error: error.response?.data?.message || 'Token validation failed'
+          }
+        });
+      }
+    }
+
+    if (platform === 'instagram') {
+      if (!settings.instagramEnabled || !settings.instagramAccessToken) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'instagram',
+            error: 'Instagram not configured'
+          }
+        });
+      }
+
+      try {
+        // Test Instagram API access
+        const profileResponse = await axios.get(`https://graph.instagram.com/v12.0/me`, {
+          params: {
+            access_token: settings.instagramAccessToken,
+            fields: 'id,username'
+          }
+        });
+
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: true,
+            platform: 'instagram',
+            details: {
+              username: profileResponse.data.username,
+              id: profileResponse.data.id,
+              type: 'Instagram User'
+            }
+          }
+        });
+
+      } catch (error) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'instagram',
+            error: error.response?.data?.error?.message || 'Token validation failed'
+          }
+        });
+      }
+    }
+
+    if (platform === 'telegram') {
+      if (!settings.telegramEnabled || !settings.telegramBotToken || !settings.telegramChannelId) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'telegram',
+            error: 'Telegram not configured'
+          }
+        });
+      }
+
+      try {
+        // Test Telegram Bot API access
+        const botResponse = await axios.get(`https://api.telegram.org/bot${settings.telegramBotToken}/getMe`);
+
+        if (botResponse.data.ok) {
+          const bot = botResponse.data.result;
+          
+          // Test channel access
+          const channelResponse = await axios.get(`https://api.telegram.org/bot${settings.telegramBotToken}/getChat`, {
+            params: {
+              chat_id: settings.telegramChannelId
+            }
+          });
+
+          if (channelResponse.data.ok) {
+            const chat = channelResponse.data.result;
+            return res.json({
+              success: true,
+              tokenHealth: {
+                isValid: true,
+                platform: 'telegram',
+                details: {
+                  botName: bot.first_name,
+                  botUsername: `@${bot.username}`,
+                  channelTitle: chat.title,
+                  channelUsername: chat.username ? `@${chat.username}` : 'N/A',
+                  memberCount: chat.member_count || 'N/A',
+                  type: 'Telegram Bot'
+                }
+              }
+            });
+          } else {
+            return res.json({
+              success: true,
+              tokenHealth: {
+                isValid: false,
+                platform: 'telegram',
+                error: 'Bot cannot access channel. Add bot as administrator.'
+              }
+            });
+          }
+        } else {
+          return res.json({
+            success: true,
+            tokenHealth: {
+              isValid: false,
+              platform: 'telegram',
+              error: 'Invalid bot token'
+            }
+          });
+        }
+
+      } catch (error) {
+        return res.json({
+          success: true,
+          tokenHealth: {
+            isValid: false,
+            platform: 'telegram',
+            error: error.response?.data?.description || 'Token validation failed'
+          }
+        });
+      }
+    }
+
+    // Default response for unsupported platforms
+    return res.json({
+      success: true,
+      tokenHealth: {
+        isValid: false,
+        platform,
+        error: 'Platform not supported'
+      }
+    });
+
+  } catch (error) {
+    console.error('Token health check error:', error);
+    res.status(500);
+    throw new Error('Failed to check token health');
+  }
+});
+
+// @desc    Refresh token for a platform
+// @route   POST /api/admin/settings/social-media/refresh-token
+// @access  Private/Admin
+export const refreshToken = asyncHandler(async (req, res) => {
+  const { platform } = req.body;
+  
+  try {
+    const settings = await Settings.getCategorySettings('social-media');
+    
+    if (platform === 'facebook') {
+      if (!settings.facebookEnabled || !settings.facebookPageAccessToken) {
+        res.status(400);
+        throw new Error('Facebook not configured');
+      }
+
+      try {
+        const axios = (await import('axios')).default;
+        
+        // First, check if the current token is still valid
+        let isTokenValid = false;
+        try {
+          await axios.get(`https://graph.facebook.com/v20.0/me`, {
+            params: {
+              access_token: settings.facebookPageAccessToken,
+              fields: 'id,name'
+            }
+          });
+          isTokenValid = true;
+        } catch (tokenError) {
+          // Token is invalid or expired
+          isTokenValid = false;
+        }
+
+        if (isTokenValid) {
+          // Token is still valid, try to refresh it
+          console.log('Facebook token is still valid, attempting refresh...');
+          
+          // Step 1: Get long-lived user token
+          const userTokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
+            params: {
+              grant_type: 'fb_exchange_token',
+              client_id: settings.facebookAppId,
+              client_secret: settings.facebookAppSecret,
+              fb_exchange_token: settings.facebookPageAccessToken
+            }
+          });
+          
+          const longLivedUserToken = userTokenResponse.data.access_token;
+          
+          // Step 2: Get page access token
+          const pageTokenResponse = await axios.get(`https://graph.facebook.com/v20.0/${settings.facebookPageId}`, {
+            params: {
+              fields: 'access_token',
+              access_token: longLivedUserToken
+            }
+          });
+          
+          const pageToken = pageTokenResponse.data.access_token;
+          
+          // Step 3: Get long-lived page token
+          const longLivedPageResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
+            params: {
+              grant_type: 'fb_exchange_token',
+              client_id: settings.facebookAppId,
+              client_secret: settings.facebookAppSecret,
+              fb_exchange_token: pageToken
+            }
+          });
+          
+          const newLongLivedToken = longLivedPageResponse.data.access_token;
+          
+          // Step 4: Update database
+          await Settings.updateCategorySettings('social-media', {
+            facebookPageAccessToken: newLongLivedToken
+          });
+          
+          return res.json({
+            success: true,
+            newToken: newLongLivedToken,
+            expiresIn: longLivedPageResponse.data.expires_in,
+            message: 'Token refreshed successfully'
+          });
+        } else {
+          // Token is expired, cannot refresh automatically
+          console.log('Facebook token is expired, cannot refresh automatically');
+          return res.json({
+            success: false,
+            error: 'Token is expired and cannot be refreshed automatically. Please get a new token from Facebook Developer Console.',
+            requiresManualRefresh: true,
+            instructions: [
+              '1. Go to Facebook Developer Console',
+              '2. Navigate to your app',
+              '3. Go to Tools > Graph API Explorer',
+              '4. Generate a new Page Access Token',
+              '5. Update the token in your settings'
+            ]
+          });
+        }
+        
+      } catch (error) {
+        console.error('Token refresh failed:', error.response?.data || error.message);
+        
+        // Check if it's a token expiration error
+        if (error.response?.data?.error?.code === 190) {
+          return res.json({
+            success: false,
+            error: 'Token is expired and cannot be refreshed automatically. Please get a new token from Facebook Developer Console.',
+            requiresManualRefresh: true,
+            instructions: [
+              '1. Go to Facebook Developer Console',
+              '2. Navigate to your app',
+              '3. Go to Tools > Graph API Explorer',
+              '4. Generate a new Page Access Token',
+              '5. Update the token in your settings'
+            ]
+          });
+        }
+        
+        return res.json({
+          success: false,
+          error: error.response?.data?.error?.message || 'Token refresh failed'
+        });
+      }
+    }
+
+    res.status(400);
+    throw new Error(`Platform ${platform} not supported for token refresh`);
+
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    res.status(500);
+    throw new Error('Failed to refresh token');
   }
 });

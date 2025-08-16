@@ -27,7 +27,9 @@ import {
   updateFooterSettings,
   testSocialMediaConnection,
   getSocialMediaStats,
-  manualSocialMediaPost
+  manualSocialMediaPost,
+  checkTokenHealth,
+  refreshToken
 } from '../controllers/settingsController.mjs';
 
 const router = express.Router();
@@ -73,6 +75,8 @@ router.route('/social-media')
 router.post('/social-media/test', testSocialMediaConnection);
 router.get('/social-media/stats', getSocialMediaStats);
 router.post('/social-media/post', manualSocialMediaPost);
+router.post('/social-media/check-token', checkTokenHealth);
+router.post('/social-media/refresh-token', refreshToken);
 
 // Footer Settings Routes
 router.route('/footer')

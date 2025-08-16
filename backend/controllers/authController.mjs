@@ -2,6 +2,11 @@ import asyncHandler from "express-async-handler";
 import User from "../models/User.mjs";
 import generateToken from "../utils/generateToken.mjs";
 import passport from "passport";
+import Comment from "../models/Comment.mjs";
+import Like from "../models/Like.mjs";
+import Follow from "../models/Follow.mjs";
+import ActivityLog from "../models/ActivityLog.mjs";
+import UserLogin from "../models/UserLogin.mjs";
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -388,6 +393,175 @@ const updateUserProfileImage = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Data Deletion Callback URL for OAuth providers
+// @route   POST /api/auth/data-deletion-callback
+// @access  Public (called by OAuth providers)
+const dataDeletionCallback = asyncHandler(async (req, res) => {
+  try {
+    const { 
+      signed_request, 
+      user_id, 
+      confirmation_code,
+      platform = 'unknown'
+    } = req.body;
+
+    console.log('🗑️ Data Deletion Callback received:', {
+      platform,
+      userId: user_id,
+      hasSignedRequest: !!signed_request,
+      hasConfirmationCode: !!confirmation_code
+    });
+
+    // Validate the request
+    if (!user_id) {
+      console.error('❌ Data deletion callback missing user_id');
+      return res.status(400).json({
+        url: `${process.env.FRONTEND_URL || 'https://news-eta-vert.vercel.app'}/data-deletion-status?status=error&message=missing_user_id`
+      });
+    }
+
+    // Find user by OAuth ID
+    let user = null;
+    if (platform === 'google') {
+      user = await User.findOne({ googleId: user_id });
+    } else if (platform === 'facebook') {
+      user = await User.findOne({ facebookId: user_id });
+    } else {
+      // Try to find by any OAuth ID
+      user = await User.findOne({
+        $or: [
+          { googleId: user_id },
+          { facebookId: user_id }
+        ]
+      });
+    }
+
+    if (!user) {
+      console.log('⚠️  User not found for deletion:', { user_id, platform });
+      return res.status(200).json({
+        url: `${process.env.FRONTEND_URL || 'https://news-eta-vert.vercel.app'}/data-deletion-status?status=success&message=user_not_found`
+      });
+    }
+
+    console.log('🗑️ Processing data deletion for user:', {
+      userId: user._id,
+      email: user.email,
+      platform
+    });
+
+    // Delete all user data
+    const deletionResults = await Promise.allSettled([
+      // Delete user account
+      User.findByIdAndDelete(user._id),
+      // Delete user comments
+      Comment.deleteMany({ userId: user._id }),
+      // Delete user likes
+      Like.deleteMany({ userId: user._id }),
+      // Delete user follows
+      Follow.deleteMany({ 
+        $or: [
+          { follower: user._id }, 
+          { following: user._id }
+        ] 
+      }),
+      // Delete user activity logs
+      ActivityLog.deleteMany({ userId: user._id }),
+      // Delete user login history
+      UserLogin.deleteMany({ userId: user._id })
+    ]);
+
+    // Check deletion results
+    const successfulDeletions = deletionResults.filter(result => result.status === 'fulfilled').length;
+    const failedDeletions = deletionResults.filter(result => result.status === 'rejected').length;
+
+    console.log('📊 Data deletion results:', {
+      successful: successfulDeletions,
+      failed: failedDeletions,
+      total: deletionResults.length
+    });
+
+    // Log the deletion activity
+    try {
+      const { logActivity } = await import('./activityController.mjs');
+      await logActivity({
+        userId: null, // User is deleted, so no userId
+        action: 'user.data_deletion_callback',
+        entity: 'user',
+        entityId: user._id.toString(),
+        description: `User data deleted via ${platform} callback`,
+        metadata: {
+          platform,
+          oauthUserId: user_id,
+          userEmail: user.email,
+          successfulDeletions,
+          failedDeletions,
+          confirmationCode: confirmation_code
+        },
+        severity: 'high',
+        req
+      });
+    } catch (error) {
+      console.error('Failed to log data deletion activity:', error);
+    }
+
+    // Return success URL
+    const successUrl = `${process.env.FRONTEND_URL || 'https://news-eta-vert.vercel.app'}/data-deletion-status?status=success&deleted=true&platform=${platform}`;
+    
+    console.log('✅ Data deletion completed successfully');
+    console.log('🔗 Redirecting to:', successUrl);
+
+    res.status(200).json({
+      url: successUrl
+    });
+
+  } catch (error) {
+    console.error('❌ Data deletion callback error:', error);
+    
+    const errorUrl = `${process.env.FRONTEND_URL || 'https://news-eta-vert.vercel.app'}/data-deletion-status?status=error&message=${encodeURIComponent(error.message)}`;
+    
+    res.status(500).json({
+      url: errorUrl
+    });
+  }
+});
+
+// @desc    Data Deletion Status Check
+// @route   GET /api/auth/data-deletion-status/:userId
+// @access  Public
+const checkDataDeletionStatus = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { platform } = req.query;
+
+  try {
+    let user = null;
+    
+    if (platform === 'google') {
+      user = await User.findOne({ googleId: userId });
+    } else if (platform === 'facebook') {
+      user = await User.findOne({ facebookId: userId });
+    } else {
+      user = await User.findOne({
+        $or: [
+          { googleId: userId },
+          { facebookId: userId }
+        ]
+      });
+    }
+
+    res.json({
+      exists: !!user,
+      deleted: !user,
+      platform: platform || 'unknown'
+    });
+
+  } catch (error) {
+    console.error('Error checking deletion status:', error);
+    res.status(500).json({
+      error: 'Failed to check deletion status'
+    });
+  }
+});
+
 export {
   registerUser,
   loginUser,
@@ -400,4 +574,6 @@ export {
   updateUserProfile,
   updateUserPassword,
   updateUserProfileImage,
+  dataDeletionCallback,
+  checkDataDeletionStatus,
 };

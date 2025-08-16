@@ -177,17 +177,50 @@ settingsSchema.statics.initializeDefaults = async function() {
     },
     'social-media': {
       socialLinks: [],
-      contactInfo: {
-        email: '',
-        phone: '',
-        address: '',
-        website: '',
-      },
-      socialSharingEnabled: true,
-      socialLoginEnabled: false,
-      socialAnalyticsEnabled: false,
       autoPostEnabled: false,
+      socialSharingEnabled: true,
+      socialAnalyticsEnabled: false,
+      contactInfo: { email: '', phone: '', address: '', website: '' },
       socialPreviewEnabled: true,
+      // Facebook Auto-Posting Configuration
+      facebookAppId: '',
+      facebookAppSecret: '',
+      facebookPageId: '',
+      facebookPageAccessToken: '',
+      facebookEnabled: false,
+      // Twitter/X Auto-Posting Configuration
+      twitterApiKey: '',
+      twitterApiSecret: '',
+      twitterBearerToken: '',
+      twitterClientId: '',
+      twitterClientSecret: '',
+      twitterAccessToken: '',
+      twitterAccessTokenSecret: '',
+      twitterEnabled: false,
+      // LinkedIn Auto-Posting Configuration
+      linkedinClientId: '',
+      linkedinClientSecret: '',
+      linkedinAccessToken: '',
+      linkedinRefreshToken: '',
+      linkedinOrganizationId: '',
+      linkedinEnabled: false,
+      // Instagram Auto-Posting Configuration
+      instagramAppId: '',
+      instagramAppSecret: '',
+      instagramBusinessAccountId: '',
+      instagramAccessToken: '',
+      instagramEnabled: false,
+      // Telegram Auto-Posting Configuration
+      telegramBotToken: '',
+      telegramChannelId: '',
+      telegramChannelUsername: '',
+      telegramEnabled: false,
+      // Threads Auto-Posting Configuration
+      threadsAppId: '',
+      threadsAppSecret: '',
+      threadsPageId: '',
+      threadsAccessToken: '',
+      threadsEnabled: false,
     },
     footer: {
       companyName: 'NewsApp',
@@ -207,7 +240,21 @@ settingsSchema.statics.initializeDefaults = async function() {
     'smtpPassword',
     'cloudinaryApiSecret', 
     'firebaseServerKey',
-    'webhookSecret'
+    'webhookSecret',
+    'facebookAppSecret',
+    'facebookPageAccessToken',
+    'twitterApiSecret',
+    'twitterBearerToken',
+    'twitterClientSecret',
+    'twitterAccessTokenSecret',
+    'linkedinClientSecret',
+    'linkedinAccessToken',
+    'linkedinRefreshToken',
+    'instagramAppSecret',
+    'instagramAccessToken',
+    'telegramBotToken',
+    'threadsAppSecret',
+    'threadsAccessToken'
   ];
 
   const descriptions = {

@@ -9,6 +9,8 @@ import {
   updateUserProfile,
   updateUserPassword,
   updateUserProfileImage,
+  dataDeletionCallback,
+  checkDataDeletionStatus,
 } from "../controllers/authController.mjs";
 import { protect } from "../middleware/auth.mjs";
 import { registrationMiddleware } from "../middleware/settings.mjs";
@@ -27,5 +29,9 @@ router
 router.post('/logout', logoutUser);
 router.put('/password', protect, updateUserPassword);
 router.put('/profile/image', protect, upload.single('profileImage'), updateUserProfileImage);
+
+// Data deletion callback routes
+router.post('/data-deletion-callback', dataDeletionCallback);
+router.get('/data-deletion-status/:userId', checkDataDeletionStatus);
 
 export default router;

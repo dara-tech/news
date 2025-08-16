@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true, // Allows multiple null values
     },
+    facebookId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows multiple null values
+    },
     profileImage: {
       type: String,
       default: null,

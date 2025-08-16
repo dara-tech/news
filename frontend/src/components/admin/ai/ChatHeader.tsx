@@ -22,30 +22,28 @@ export default function ChatHeader({
   onToggleSidebar
 }: ChatHeaderProps) {
   return (
-    <div className="bg-background border-b p-2">
+    <div className="bg-background border-b p-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggleSidebar}
+            className="md:hidden"
           >
             <Menu className="w-4 h-4" />
           </Button>
-          <div className="flex flex-col items-center justify-center ">
-            <h1 className="text-lg font-bold text-center">
-              {currentConversationTitle || 'AI Assistant'}
-            </h1>
-            <span className="text-sm text-muted-foreground text-center">
-              Ask anything, get intelligent answers
-            </span>
+          <div className="flex items-center space-x-2">
+            <h2 className="text-lg font-semibold">
+              {currentConversationTitle || 'New Conversation'}
+            </h2>
+            <Badge variant={isDemoMode ? "secondary" : "default"} className="flex items-center space-x-1">
+              <Sparkles className="w-3 h-3" />
+              <span>{isDemoMode ? "Demo" : "AI"}</span>
+            </Badge>
           </div>
         </div>
-        <div className="flex items-center space-x-3">
-          <Badge variant={isDemoMode ? "secondary" : "default"} className="flex items-center space-x-1">
-            <Sparkles className="w-3 h-3" />
-            <span>{isDemoMode ? "Demo Mode" : "AI Powered"}</span>
-          </Badge>
+        <div className="flex items-center space-x-2">
           <Button variant="ghost" size="sm">
             <Settings className="w-4 h-4" />
           </Button>

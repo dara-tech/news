@@ -228,7 +228,7 @@ export default function ModernAIAssistant() {
   const isDemoMode = !aiAvailable;
 
   return (
-    <div className="h-[calc(100vh-200px)] bg-background flex overflow-hidden rounded-lg border min-h-screen">
+    <div className="h-full bg-background flex overflow-hidden">
       {/* Sidebar */}
       <ChatSidebar
         conversations={conversations}

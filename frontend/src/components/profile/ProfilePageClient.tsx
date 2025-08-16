@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { isAxiosError } from 'axios';
 import api from '@/lib/api';
-import { User as UserIcon, Shield, Settings, Activity } from 'lucide-react';
+import { User as UserIcon, Shield, Settings, Activity, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { User } from '@/types';
@@ -31,7 +32,7 @@ type PasswordFormData = {
 export default function ProfilePageClient({ initialUser }: ProfilePageClientProps) {
   const { user: authUser, updateUser } = useAuth();
   const [user, setUser] = useState<User | null>(initialUser || authUser);
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'activity'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'activity' | 'privacy'>('profile');
   const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
   const [isImageUploading, setIsImageUploading] = useState(false);
@@ -127,6 +128,7 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
     { id: 'profile', label: 'Profile', Icon: UserIcon },
     { id: 'security', label: 'Security', Icon: Shield },
     { id: 'activity', label: 'Activity', Icon: Activity },
+    { id: 'privacy', label: 'Data & Privacy', Icon: Trash2 },
   ];
 
   return (
@@ -151,7 +153,7 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'profile' | 'security')}
+                  onClick={() => setActiveTab(tab.id as 'profile' | 'security' | 'activity' | 'privacy')}
                   className={`flex-1 flex items-center justify-center gap-2 py-4 px-3 text-sm font-medium transition-all duration-200 ${
                     activeTab === tab.id
                       ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600'
@@ -171,7 +173,7 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'profile' | 'security')}
+                  onClick={() => setActiveTab(tab.id as 'profile' | 'security' | 'activity' | 'privacy')}
                   className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600 dark:text-blue-400'
@@ -200,13 +202,45 @@ export default function ProfilePageClient({ initialUser }: ProfilePageClientProp
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     View your account activity and track your interactions
                   </p>
-                  <a
+                  <Link
                     href="/profile/activity"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <Activity className="h-4 w-4" />
                     View My Activity
-                  </a>
+                  </Link>
+                </div>
+              </div>
+            )}
+            {activeTab === 'privacy' && (
+              <div className="space-y-6">
+                <div className="text-center py-8">
+                  <Trash2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Data & Privacy</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Manage your data and privacy settings
+                  </p>
+                  <div className="space-y-4">
+                    <Link
+                      href="/profile/activity"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      <Activity className="h-4 w-4" />
+                      Export My Data
+                    </Link>
+                    <button
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                          // TODO: Implement account deletion
+                          toast.error('Account deletion not yet implemented');
+                        }
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete My Account
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
