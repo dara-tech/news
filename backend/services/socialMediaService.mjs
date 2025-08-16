@@ -183,9 +183,12 @@ class SocialMediaService {
       access_token: settings.facebookPageAccessToken
     };
 
-    // Only add link if we have a valid URL (not localhost)
+    // Always add link for production domain, exclude localhost for Facebook
     if (articleUrl && !articleUrl.includes('localhost') && !articleUrl.includes('127.0.0.1')) {
       postData.link = articleUrl;
+      console.log('🔗 Adding link to Facebook post:', articleUrl);
+    } else {
+      console.log('⚠️  Excluding localhost URL from Facebook post:', articleUrl);
     }
 
     try {
