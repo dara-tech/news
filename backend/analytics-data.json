@@ -1,16 +1,16 @@
 {
   "pageViews": {
     "/news/breaking": 742,
-    "/news": 905,
+    "/news": 906,
     "/news/featured": 745,
-    "/categories": 1601,
-    "/notifications/count": 4800,
-    "/dashboard/advanced-stats": 719,
+    "/categories": 1602,
+    "/notifications/count": 4803,
+    "/dashboard/advanced-stats": 722,
     "/maintenance-status": 425,
     "/auth/login": 33,
     "/auth/profile": 809,
     "/notifications": 842,
-    "/dashboard/stats": 1301,
+    "/dashboard/stats": 1304,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 1169,
+    "/admin/settings/logo": 1175,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -110,7 +110,7 @@
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
     "/admin/settings/footer": 129,
-    "/admin/settings/social-media": 564,
+    "/admin/settings/social-media": 570,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
     "/settings/public/social-media": 134,
@@ -492,26 +492,26 @@
       }
     },
     "2025-08-16": {
-      "pageViews": 507,
+      "pageViews": 530,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 503,
-        "Direct": 4
+        "Referral": 524,
+        "Direct": 6
       },
       "deviceTypes": {
-        "Desktop": 507
+        "Desktop": 530
       }
     }
   },
   "trafficSources": {
-    "Direct": 3996,
-    "Referral": 17766
+    "Direct": 3998,
+    "Referral": 17787
   },
   "deviceTypes": {
-    "Desktop": 21038,
+    "Desktop": 21061,
     "Mobile": 724
   }
 }

@@ -16,6 +16,7 @@ import {
   Zap
 } from 'lucide-react';
 import api from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 interface TokenHealthMonitorProps {
   settings: {
@@ -180,7 +181,10 @@ export default function TokenHealthMonitor({ settings, onRefresh }: TokenHealthM
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Badge variant={getStatusColor(tokenHealth.valid, tokenHealth.daysLeft)}>
+                <Badge className={cn(
+                  'text-xs',
+                  tokenHealth.valid ? 'bg-green-500' : 'bg-red-500'
+                )}>
                   {getStatusText(tokenHealth.valid, tokenHealth.daysLeft)}
                 </Badge>
                 {tokenHealth.valid && tokenHealth.daysLeft && (
@@ -235,7 +239,7 @@ export default function TokenHealthMonitor({ settings, onRefresh }: TokenHealthM
 
             {/* Warning for Expiring Soon */}
             {tokenHealth.valid && tokenHealth.daysLeft && tokenHealth.daysLeft <= 7 && (
-              <Alert variant="warning">
+              <Alert variant="default">
                 <Clock className="h-4 w-4" />
                 <AlertTitle>Token Expiring Soon</AlertTitle>
                 <AlertDescription>
