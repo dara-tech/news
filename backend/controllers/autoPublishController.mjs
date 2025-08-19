@@ -1,6 +1,7 @@
 import sentinelAutoPublishService from '../services/sentinelAutoPublishService.mjs';
-import { asyncHandler } from '../middleware/asyncHandler.mjs';
+import asyncHandler from 'express-async-handler';
 import Settings from '../models/Settings.mjs';
+import News from '../models/News.mjs';
 
 // @desc    Trigger auto-publish for Sentinel drafts
 // @route   POST /api/admin/auto-publish/sentinel
