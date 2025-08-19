@@ -99,27 +99,78 @@ export default function SentinelAutoPublishManager() {
   const fetchStats = async () => {
     try {
       const response = await api.get('/admin/auto-publish/stats');
-      setStats(response.data.data);
+      if (response.data.success && response.data.data) {
+        setStats(response.data.data);
+      } else {
+        // Set default stats if API returns unexpected format
+        setStats({
+          totalDrafts: 0,
+          totalPublished: 0,
+          todayPublished: 0,
+          telegramEnabled: false,
+          isRunning: false
+        });
+      }
     } catch (error) {
       console.error('Error fetching auto-publish stats:', error);
+      // Set default stats on error
+      setStats({
+        totalDrafts: 0,
+        totalPublished: 0,
+        todayPublished: 0,
+        telegramEnabled: false,
+        isRunning: false
+      });
     }
   };
 
   const fetchSettings = async () => {
     try {
       const response = await api.get('/admin/auto-publish/settings');
-      setSettings(response.data.data);
+      if (response.data.success && response.data.data) {
+        setSettings(response.data.data);
+      } else {
+        // Set default settings if API returns unexpected format
+        setSettings({
+          enabled: false,
+          autoPublishEnabled: false,
+          telegramNotifications: true,
+          minContentLength: 100,
+          maxDraftsPerRun: 10,
+          delayBetweenArticles: 2000,
+          requireManualApproval: false,
+          publishSchedule: 'manual'
+        });
+      }
     } catch (error) {
       console.error('Error fetching auto-publish settings:', error);
+      // Set default settings on error
+      setSettings({
+        enabled: false,
+        autoPublishEnabled: false,
+        telegramNotifications: true,
+        minContentLength: 100,
+        maxDraftsPerRun: 10,
+        delayBetweenArticles: 2000,
+        requireManualApproval: false,
+        publishSchedule: 'manual'
+      });
     }
   };
 
   const fetchLogs = async () => {
     try {
       const response = await api.get('/admin/auto-publish/logs');
-      setLogs(response.data.data);
+      if (response.data.success && response.data.data) {
+        setLogs(response.data.data);
+      } else {
+        // Set empty logs if API returns unexpected format
+        setLogs([]);
+      }
     } catch (error) {
       console.error('Error fetching auto-publish logs:', error);
+      // Set empty logs on error
+      setLogs([]);
     }
   };
 
@@ -287,18 +338,18 @@ export default function SentinelAutoPublishManager() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <AutoPublishStats stats={stats} />
+          {stats && <AutoPublishStats stats={stats} />}
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">
-          <AutoPublishSettings 
+          {settings && <AutoPublishSettings 
             settings={settings} 
             onUpdate={updateSettings}
-          />
+          />}
         </TabsContent>
 
         <TabsContent value="logs" className="space-y-4">
-          <AutoPublishLogs logs={logs} />
+          <AutoPublishLogs logs={logs || []} />
         </TabsContent>
 
         <TabsContent value="telegram" className="space-y-4">
