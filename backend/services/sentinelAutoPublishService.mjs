@@ -154,7 +154,9 @@ class SentinelAutoPublishService {
         throw new Error('Telegram not configured');
       }
 
-      const articleUrl = `${this.baseUrl}/news/${article.slug}`;
+      // Use production URL for Telegram buttons (Telegram doesn't accept localhost URLs)
+      const telegramBaseUrl = this.baseUrl.includes('localhost') ? 'https://razewire.com' : this.baseUrl;
+      const articleUrl = `${telegramBaseUrl}/news/${article.slug}`;
       const categoryName = article.category?.name?.en || 'General';
       
       // Create notification message
@@ -178,11 +180,11 @@ class SentinelAutoPublishService {
           [
             {
               text: '🏠 Visit Website',
-              url: this.baseUrl
+              url: telegramBaseUrl
             },
             {
               text: '📰 All News',
-              url: `${this.baseUrl}/news`
+              url: `${telegramBaseUrl}/news`
             }
           ],
           [
@@ -192,7 +194,7 @@ class SentinelAutoPublishService {
             },
             {
               text: '🌐 Website',
-              url: this.baseUrl
+              url: telegramBaseUrl
             }
           ]
         ]
