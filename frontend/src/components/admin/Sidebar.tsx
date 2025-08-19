@@ -145,6 +145,11 @@ const data = {
           icon: BarChart3,
         },
         {
+          title: 'Sentinel Auto-Publish',
+          url: '/admin/sentinel-auto-publish',
+          icon: Zap,
+        },
+        {
           title: 'General',
           url: '/admin/settings/general',
         },
