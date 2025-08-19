@@ -77,23 +77,48 @@ router.post('/:id/format-content', protect, admin, async (req, res) => {
     // Use advanced formatting if options are provided
     if (options) {
       const { formatContentAdvanced } = await import('../utils/advancedContentFormatter.mjs');
-      const result = await formatContentAdvanced(content, options);
       
-      if (result.success) {
-        return res.json({
-          success: true,
-          data: {
-            content: result.content,
-            analysis: result.analysis
-          }
-        });
+      // Handle both string and object content formats
+      let formattedContent;
+      if (typeof content === 'string') {
+        // Single string content
+        const result = await formatContentAdvanced(content, options);
+        if (result.success) {
+          formattedContent = {
+            en: result.content,
+            kh: result.content // For now, use same content for both languages
+          };
+        } else {
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to format content',
+            error: result.error
+          });
+        }
+      } else if (content.en || content.kh) {
+        // Object with en/kh properties
+        const formattedEn = content.en ? await formatContentAdvanced(content.en, options) : null;
+        const formattedKh = content.kh ? await formatContentAdvanced(content.kh, options) : null;
+        
+        formattedContent = {
+          en: formattedEn?.success ? formattedEn.content : content.en,
+          kh: formattedKh?.success ? formattedKh.content : content.kh
+        };
       } else {
-        return res.status(500).json({
+        return res.status(400).json({
           success: false,
-          message: 'Failed to format content',
-          error: result.error
+          message: 'Invalid content format'
         });
       }
+      
+      console.log('Formatted content structure:', JSON.stringify(formattedContent, null, 2));
+      
+      return res.json({
+        success: true,
+        data: {
+          content: formattedContent
+        }
+      });
     }
     
     // Fallback to basic formatting

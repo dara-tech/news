@@ -1,16 +1,16 @@
 {
   "pageViews": {
-    "/news/breaking": 760,
-    "/news": 924,
-    "/news/featured": 763,
-    "/categories": 1649,
-    "/notifications/count": 4864,
-    "/dashboard/advanced-stats": 752,
-    "/maintenance-status": 441,
+    "/news/breaking": 766,
+    "/news": 931,
+    "/news/featured": 769,
+    "/categories": 1665,
+    "/notifications/count": 4869,
+    "/dashboard/advanced-stats": 753,
+    "/maintenance-status": 445,
     "/auth/login": 34,
-    "/auth/profile": 849,
-    "/notifications": 881,
-    "/dashboard/stats": 1329,
+    "/auth/profile": 855,
+    "/notifications": 886,
+    "/dashboard/stats": 1330,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 12,
@@ -26,7 +26,7 @@
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 143,
+    "/news/admin": 144,
     "/health": 1,
     "/new": 1,
     "/admin/likes": 52,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 1236,
+    "/admin/settings/logo": 1239,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -110,10 +110,10 @@
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
     "/admin/settings/footer": 129,
-    "/admin/settings/social-media": 612,
+    "/admin/settings/social-media": 613,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
-    "/settings/public/social-media": 147,
+    "/settings/public/social-media": 149,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -279,8 +279,8 @@
     "/likes/689c3dd12a53bb052e7e30c6/status": 1,
     "/comments/689c3dd12a53bb052e7e30c6": 1,
     "/comments/689c3dd12a53bb052e7e30c6/stats": 1,
-    "/settings/public/logo": 34,
-    "/settings/public/footer": 28,
+    "/settings/public/logo": 36,
+    "/settings/public/footer": 30,
     "/users/688e46a0b9e9e59928015fdf": 1,
     "/auth/data-deletion-callback": 7,
     "/auth/data-deletion-status/123456789": 2,
@@ -301,7 +301,7 @@
     "/news/689f884285fb2054283ebe8e/status": 2,
     "/news/689fd50edf2c721107cd0789": 1,
     "/news/689f884285fb2054283ebe8e": 2,
-    "/news/68a43449773811d7b73884e8": 2,
+    "/news/68a43449773811d7b73884e8": 6,
     "/admin/seo/dashboard": 6,
     "/news/cambodia-leads-asia-pacific-in-greenfield-fdi-economic-boom": 2,
     "/likes/68a4340c773811d7b73884e0/status": 1,
@@ -316,7 +316,12 @@
     "/admin/auto-publish/settings": 31,
     "/admin/auto-publish/telegram-settings": 14,
     "/admin/auto-publish/test-telegram": 2,
-    "/admin/auto-publish/sentinel": 1
+    "/admin/auto-publish/sentinel": 1,
+    "/news/air-canada-strike-flight-attendants-defy-court-order": 2,
+    "/likes/68a36db20b2432338e701640/status": 1,
+    "/comments/68a36db20b2432338e701640": 1,
+    "/comments/68a36db20b2432338e701640/stats": 1,
+    "/news/68a43449773811d7b73884e8/format-content": 2
   },
   "userActions": {},
   "dailyStats": {
@@ -522,26 +527,26 @@
       }
     },
     "2025-08-19": {
-      "pageViews": 609,
+      "pageViews": 688,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Direct": 77,
-        "Referral": 532
+        "Direct": 105,
+        "Referral": 583
       },
       "deviceTypes": {
-        "Desktop": 609
+        "Desktop": 688
       }
     }
   },
   "trafficSources": {
-    "Direct": 4075,
-    "Referral": 18319
+    "Direct": 4103,
+    "Referral": 18370
   },
   "deviceTypes": {
-    "Desktop": 21670,
+    "Desktop": 21749,
     "Mobile": 724
   }
 }

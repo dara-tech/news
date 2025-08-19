@@ -32,8 +32,23 @@ export function useFormatContent() {
     try {
       // If we have an article ID, use the backend API for better formatting
       if (articleId) {
-        const response = await api.post(`/news/${articleId}/format-content`);
+        const response = await api.post(`/news/${articleId}/format-content`, {
+          content: content,
+          options: {
+            enableAIEnhancement: true,
+            enableReadabilityOptimization: true,
+            enableSEOOptimization: true,
+            enableVisualEnhancement: true,
+            addSectionHeadings: true,
+            enhanceQuotes: true,
+            optimizeLists: true
+          }
+        });
         if (response.data.success) {
+          // The backend returns content as { en: string, kh: string }
+          // We need to return it in the same format
+          console.log('Backend response:', response.data);
+          console.log('Content structure:', response.data.data.content);
           return {
             content: response.data.data.content
           };
