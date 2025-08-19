@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -36,6 +36,11 @@ interface AutoPublishSettingsProps {
 export default function AutoPublishSettings({ settings, onUpdate }: AutoPublishSettingsProps) {
   const [localSettings, setLocalSettings] = useState(settings);
   const [saving, setSaving] = useState(false);
+
+  // Update local settings when parent settings change (e.g., after API load)
+  useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
 
   const handleSettingChange = (key: string, value: any) => {
     setLocalSettings(prev => ({ ...prev, [key]: value }));

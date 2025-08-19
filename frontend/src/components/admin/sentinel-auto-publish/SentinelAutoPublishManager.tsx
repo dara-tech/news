@@ -87,13 +87,24 @@ export default function SentinelAutoPublishManager() {
   });
   
   const [logs, setLogs] = useState<AutoPublishLog[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with loading true
   const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
-    fetchStats();
-    fetchSettings();
-    fetchLogs();
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchStats(),
+          fetchSettings(),
+          fetchLogs()
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
   }, []);
 
   const fetchStats = async () => {
@@ -342,10 +353,16 @@ export default function SentinelAutoPublishManager() {
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">
-          {settings && <AutoPublishSettings 
+          {!loading && settings && <AutoPublishSettings 
             settings={settings} 
             onUpdate={updateSettings}
           />}
+          {loading && (
+            <div className="flex items-center justify-center p-8">
+              <RefreshCw className="h-6 w-6 animate-spin mr-2" />
+              Loading settings...
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="logs" className="space-y-4">
