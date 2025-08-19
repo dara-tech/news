@@ -89,8 +89,9 @@ export const getAutoPublishSettings = asyncHandler(async (req, res) => {
 export const updateAutoPublishSettings = asyncHandler(async (req, res) => {
   try {
     const settings = req.body;
+    const userId = req.user?.id; // Get user ID from authenticated request
     
-    await Settings.updateCategorySettings('auto-publish', settings);
+    await Settings.updateCategorySettings('auto-publish', settings, userId);
     
     res.json({
       success: true,

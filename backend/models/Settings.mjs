@@ -4,7 +4,7 @@ const settingsSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['general', 'security', 'integrations', 'logo', 'social-media', 'footer']
+    enum: ['general', 'security', 'integrations', 'logo', 'social-media', 'footer', 'auto-publish']
   },
   key: {
     type: String,
@@ -51,20 +51,26 @@ settingsSchema.statics.getCategorySettings = async function(category) {
 };
 
 // Static method to update settings for a category
-settingsSchema.statics.updateCategorySettings = async function(category, settings, userId) {
+settingsSchema.statics.updateCategorySettings = async function(category, settings, userId = null) {
   const updates = [];
   const now = new Date();
   
   for (const [key, value] of Object.entries(settings)) {
+    const updateData = {
+      value,
+      updatedAt: now
+    };
+    
+    // Only include updatedBy if userId is provided
+    if (userId) {
+      updateData.updatedBy = userId;
+    }
+    
     updates.push({
       updateOne: {
         filter: { category, key },
         update: {
-          $set: {
-            value,
-            updatedBy: userId,
-            updatedAt: now
-          }
+          $set: updateData
         },
         upsert: true
       }
