@@ -225,6 +225,19 @@ export const testTelegramConnection = asyncHandler(async (req, res) => {
       });
     }
     
+    // Temporarily update the service with the test credentials
+    const originalSettings = await Settings.getCategorySettings('social-media');
+    
+    // Update settings temporarily for testing
+    await Settings.updateCategorySettings('social-media', {
+      telegramBotToken: botToken,
+      telegramChannelId: channelId,
+      telegramEnabled: true
+    });
+    
+    // Reinitialize the service with new settings
+    await sentinelAutoPublishService.initializeTelegramSettings();
+    
     // Create a test article for the notification
     const testArticle = {
       title: { en: 'Test Article - Auto-Publish System' },
@@ -235,6 +248,9 @@ export const testTelegramConnection = asyncHandler(async (req, res) => {
     };
     
     const result = await sentinelAutoPublishService.sendTelegramNotification(testArticle);
+    
+    // Restore original settings
+    await Settings.updateCategorySettings('social-media', originalSettings);
     
     // Update last test time
     await Settings.updateCategorySettings('social-media', {
