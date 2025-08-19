@@ -16,6 +16,7 @@ import {
 } from "../controllers/newsController.mjs";
 import { protect, admin } from "../middleware/auth.mjs";
 import upload from "../middleware/upload.mjs";
+import { formatArticleContent } from "../utils/contentFormatter.mjs";
 
 const router = express.Router();
 
@@ -60,6 +61,20 @@ router.route('/:id')
 
 // Route for updating status
 router.route('/:id/status').patch(protect, admin, updateNewsStatus);
+
+// Format content for an article (server-side formatting helper)
+router.post('/:id/format-content', protect, admin, async (req, res) => {
+  try {
+    const content = req.body?.content;
+    const formatted = {
+      en: formatArticleContent(content?.en || ''),
+      kh: formatArticleContent(content?.kh || ''),
+    };
+    res.json({ success: true, data: { content: formatted } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to format content', error: error.message });
+  }
+});
 
 // Route for duplicating an article
 router.route('/:id/duplicate').post(protect, admin, duplicateNews);

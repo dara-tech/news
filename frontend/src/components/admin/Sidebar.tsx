@@ -7,6 +7,7 @@ import {
   Newspaper,
   Users,
   Settings,
+  BarChart3,
   LogOut,
   Home,
   ChevronRight,
@@ -138,6 +139,11 @@ const data = {
       title: 'System',
       icon: Settings,
       items: [
+        {
+          title: 'SEO',
+          url: '/admin/seo',
+          icon: BarChart3,
+        },
         {
           title: 'General',
           url: '/admin/settings/general',

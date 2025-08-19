@@ -1,23 +1,23 @@
 {
   "pageViews": {
-    "/news/breaking": 742,
-    "/news": 906,
-    "/news/featured": 745,
-    "/categories": 1602,
-    "/notifications/count": 4803,
-    "/dashboard/advanced-stats": 722,
-    "/maintenance-status": 425,
+    "/news/breaking": 744,
+    "/news": 908,
+    "/news/featured": 747,
+    "/categories": 1610,
+    "/notifications/count": 4824,
+    "/dashboard/advanced-stats": 725,
+    "/maintenance-status": 430,
     "/auth/login": 33,
-    "/auth/profile": 809,
-    "/notifications": 842,
-    "/dashboard/stats": 1304,
+    "/auth/profile": 812,
+    "/notifications": 845,
+    "/dashboard/stats": 1307,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 11,
     "/admin/security/stats": 11,
     "/admin/settings/general": 10,
     "/dashboard/analytics": 101,
-    "/admin/system/metrics": 716,
+    "/admin/system/metrics": 717,
     "/dashboard/export": 2,
     "/admin/user-logins/map": 415,
     "/auth/google": 14,
@@ -26,7 +26,7 @@
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 141,
+    "/news/admin": 142,
     "/health": 1,
     "/new": 1,
     "/admin/likes": 52,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 1175,
+    "/admin/settings/logo": 1183,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -110,10 +110,10 @@
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
     "/admin/settings/footer": 129,
-    "/admin/settings/social-media": 570,
+    "/admin/settings/social-media": 574,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
-    "/settings/public/social-media": 134,
+    "/settings/public/social-media": 136,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -123,11 +123,11 @@
     "/comments/6896d76d35003ae5b6370ba9/like": 2,
     "/admin/comments/6894625c70cb3d494df61813": 1,
     "/comments/6896de0335003ae5b6371192/like": 2,
-    "/admin/system/sentinel": 250,
+    "/admin/system/sentinel": 251,
     "/admin/system/matric": 3,
     "/admin/system": 1,
     "/admin/system/sentinel/run-once": 31,
-    "/admin/system/sentinel/logs": 2177,
+    "/admin/system/sentinel/logs": 2179,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -279,8 +279,8 @@
     "/likes/689c3dd12a53bb052e7e30c6/status": 1,
     "/comments/689c3dd12a53bb052e7e30c6": 1,
     "/comments/689c3dd12a53bb052e7e30c6/stats": 1,
-    "/settings/public/logo": 21,
-    "/settings/public/footer": 15,
+    "/settings/public/logo": 23,
+    "/settings/public/footer": 17,
     "/users/688e46a0b9e9e59928015fdf": 1,
     "/auth/data-deletion-callback": 7,
     "/auth/data-deletion-status/123456789": 2,
@@ -300,7 +300,17 @@
     "/admin/settings/social-media/refresh-token": 6,
     "/news/689f884285fb2054283ebe8e/status": 2,
     "/news/689fd50edf2c721107cd0789": 1,
-    "/news/689f884285fb2054283ebe8e": 2
+    "/news/689f884285fb2054283ebe8e": 2,
+    "/news/68a43449773811d7b73884e8": 1,
+    "/admin/seo/dashboard": 1,
+    "/news/cambodia-leads-asia-pacific-in-greenfield-fdi-economic-boom": 2,
+    "/likes/68a4340c773811d7b73884e0/status": 1,
+    "/comments/68a4340c773811d7b73884e0": 1,
+    "/comments/68a4340c773811d7b73884e0/stats": 1,
+    "/news/cambodia-urges-release-of-soldiers-detained-by-thailand": 2,
+    "/likes/6898049b577870e5f520a5e2/status": 1,
+    "/comments/6898049b577870e5f520a5e2": 1,
+    "/comments/6898049b577870e5f520a5e2/stats": 1
   },
   "userActions": {},
   "dailyStats": {
@@ -504,14 +514,28 @@
       "deviceTypes": {
         "Desktop": 530
       }
+    },
+    "2025-08-19": {
+      "pageViews": 87,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 12,
+        "Referral": 75
+      },
+      "deviceTypes": {
+        "Desktop": 87
+      }
     }
   },
   "trafficSources": {
-    "Direct": 3998,
-    "Referral": 17787
+    "Direct": 4010,
+    "Referral": 17862
   },
   "deviceTypes": {
-    "Desktop": 21061,
+    "Desktop": 21148,
     "Mobile": 724
   }
 }
