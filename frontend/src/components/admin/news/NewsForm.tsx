@@ -13,6 +13,7 @@ import { AlertCircle } from "lucide-react"
 
 import NewsFormHeader from "./form/NewsFormHeader"
 import NewsFormContentTab from "./form/NewsFormContentTab"
+import NewsFormContentFormattingTab from "./form/NewsFormContentFormattingTab"
 import NewsFormMediaTab from "./form/NewsFormMediaTab"
 import NewsFormSEOTab from "./form/NewsFormSEOTab"
 import { useGenerateSEO } from '@/hooks/useGenerateSEO'
@@ -275,6 +276,33 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     if (validationErrors[name]) {
       setValidationErrors(prev => ({ ...prev, [name]: "" }));
     }
+  };
+
+  const handleFormDataChange = (field: string, value: any) => {
+    setFormData(prev => {
+      if (!prev) return prev;
+      const newState = structuredClone(prev) as DeepMutable<NewsFormData>;
+      const keys = field.split('.');
+      let current: unknown = newState;
+      for (let i = 0; i < keys.length - 1; i++) {
+        if (
+          typeof current === "object" &&
+          current !== null &&
+          keys[i] in current
+        ) {
+          current = (current as Record<string, unknown>)[keys[i]];
+        }
+      }
+      if (
+        typeof current === "object" &&
+        current !== null &&
+        keys[keys.length - 1] in current
+      ) {
+        (current as Record<string, unknown>)[keys[keys.length - 1]] = value;
+      }
+      return newState;
+    });
+    setHasUnsavedChanges(true);
   };
 
   const handleSwitchChange = (checked: boolean, name: "isFeatured" | "isBreaking") => {
@@ -626,12 +654,13 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
                 isSubmitting={isSubmitting}
               />
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
-                  <TabsTrigger value="content" className="text-xs sm:text-sm py-2 sm:py-2.5">Content</TabsTrigger>
-                  <TabsTrigger value="media" className="text-xs sm:text-sm py-2 sm:py-2.5">Media</TabsTrigger>
-                  <TabsTrigger value="seo" className="text-xs sm:text-sm py-2 sm:py-2.5">SEO</TabsTrigger>
-                  <TabsTrigger value="details" className="text-xs sm:text-sm py-2 sm:py-2.5">Details</TabsTrigger>
-                </TabsList>
+                              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto">
+                <TabsTrigger value="content" className="text-xs sm:text-sm py-2 sm:py-2.5">Content</TabsTrigger>
+                <TabsTrigger value="formatting" className="text-xs sm:text-sm py-2 sm:py-2.5">Formatting</TabsTrigger>
+                <TabsTrigger value="media" className="text-xs sm:text-sm py-2 sm:py-2.5">Media</TabsTrigger>
+                <TabsTrigger value="seo" className="text-xs sm:text-sm py-2 sm:py-2.5">SEO</TabsTrigger>
+                <TabsTrigger value="details" className="text-xs sm:text-sm py-2 sm:py-2.5">Details</TabsTrigger>
+              </TabsList>
                 <TabsContent value="content">
                   <NewsFormContentTab
                     formData={formData}
@@ -639,6 +668,13 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
                     onInputChange={handleInputChange}
                     onGenerateContent={handleGenerateContent}
                     isGenerating={isGeneratingContent}
+                  />
+                </TabsContent>
+                <TabsContent value="formatting">
+                  <NewsFormContentFormattingTab
+                    formData={formData}
+                    onFormDataChange={handleFormDataChange}
+                    articleId={formData.id}
                   />
                 </TabsContent>
                 <TabsContent value="media">

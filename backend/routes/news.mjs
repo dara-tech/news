@@ -65,7 +65,38 @@ router.route('/:id/status').patch(protect, admin, updateNewsStatus);
 // Format content for an article (server-side formatting helper)
 router.post('/:id/format-content', protect, admin, async (req, res) => {
   try {
-    const content = req.body?.content;
+    const { content, options } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({
+        success: false,
+        message: 'Content is required'
+      });
+    }
+    
+    // Use advanced formatting if options are provided
+    if (options) {
+      const { formatContentAdvanced } = await import('../utils/advancedContentFormatter.mjs');
+      const result = await formatContentAdvanced(content, options);
+      
+      if (result.success) {
+        return res.json({
+          success: true,
+          data: {
+            content: result.content,
+            analysis: result.analysis
+          }
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to format content',
+          error: result.error
+        });
+      }
+    }
+    
+    // Fallback to basic formatting
     const formatted = {
       en: formatArticleContent(content?.en || ''),
       kh: formatArticleContent(content?.kh || ''),
@@ -73,6 +104,30 @@ router.post('/:id/format-content', protect, admin, async (req, res) => {
     res.json({ success: true, data: { content: formatted } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to format content', error: error.message });
+  }
+});
+
+// Analyze content quality
+router.post('/analyze-content', protect, admin, async (req, res) => {
+  try {
+    const { content } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({
+        success: false,
+        message: 'Content is required'
+      });
+    }
+    
+    const { analyzeContent } = await import('../utils/advancedContentFormatter.mjs');
+    const analysis = await analyzeContent(content);
+    
+    res.json({
+      success: true,
+      data: analysis
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to analyze content', error: error.message });
   }
 });
 
