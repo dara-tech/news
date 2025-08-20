@@ -1,15 +1,15 @@
 {
   "pageViews": {
-    "/news/breaking": 766,
-    "/news": 931,
-    "/news/featured": 769,
-    "/categories": 1672,
-    "/notifications/count": 4936,
+    "/news/breaking": 770,
+    "/news": 935,
+    "/news/featured": 773,
+    "/categories": 1678,
+    "/notifications/count": 4957,
     "/dashboard/advanced-stats": 753,
-    "/maintenance-status": 445,
+    "/maintenance-status": 446,
     "/auth/login": 34,
-    "/auth/profile": 861,
-    "/notifications": 894,
+    "/auth/profile": 863,
+    "/notifications": 895,
     "/dashboard/stats": 1330,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -17,7 +17,7 @@
     "/admin/security/stats": 12,
     "/admin/settings/general": 10,
     "/dashboard/analytics": 102,
-    "/admin/system/metrics": 720,
+    "/admin/system/metrics": 723,
     "/dashboard/export": 2,
     "/admin/user-logins/map": 415,
     "/auth/google": 14,
@@ -113,7 +113,7 @@
     "/admin/settings/social-media": 613,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
-    "/settings/public/social-media": 149,
+    "/settings/public/social-media": 150,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -123,11 +123,11 @@
     "/comments/6896d76d35003ae5b6370ba9/like": 2,
     "/admin/comments/6894625c70cb3d494df61813": 1,
     "/comments/6896de0335003ae5b6371192/like": 2,
-    "/admin/system/sentinel": 253,
+    "/admin/system/sentinel": 254,
     "/admin/system/matric": 3,
     "/admin/system": 1,
     "/admin/system/sentinel/run-once": 31,
-    "/admin/system/sentinel/logs": 2189,
+    "/admin/system/sentinel/logs": 2197,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -279,8 +279,8 @@
     "/likes/689c3dd12a53bb052e7e30c6/status": 1,
     "/comments/689c3dd12a53bb052e7e30c6": 1,
     "/comments/689c3dd12a53bb052e7e30c6/stats": 1,
-    "/settings/public/logo": 36,
-    "/settings/public/footer": 30,
+    "/settings/public/logo": 37,
+    "/settings/public/footer": 31,
     "/users/688e46a0b9e9e59928015fdf": 1,
     "/auth/data-deletion-callback": 7,
     "/auth/data-deletion-status/123456789": 2,
@@ -311,10 +311,10 @@
     "/likes/6898049b577870e5f520a5e2/status": 1,
     "/comments/6898049b577870e5f520a5e2": 1,
     "/comments/6898049b577870e5f520a5e2/stats": 1,
-    "/admin/auto-publish/stats": 34,
-    "/admin/auto-publish/logs": 33,
-    "/admin/auto-publish/settings": 33,
-    "/admin/auto-publish/telegram-settings": 15,
+    "/admin/auto-publish/stats": 35,
+    "/admin/auto-publish/logs": 34,
+    "/admin/auto-publish/settings": 34,
+    "/admin/auto-publish/telegram-settings": 16,
     "/admin/auto-publish/test-telegram": 2,
     "/admin/auto-publish/sentinel": 1,
     "/news/air-canada-strike-flight-attendants-defy-court-order": 2,
@@ -544,26 +544,26 @@
       }
     },
     "2025-08-20": {
-      "pageViews": 264,
+      "pageViews": 326,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 144,
-        "Direct": 120
+        "Referral": 190,
+        "Direct": 136
       },
       "deviceTypes": {
-        "Desktop": 264
+        "Desktop": 326
       }
     }
   },
   "trafficSources": {
-    "Direct": 4223,
-    "Referral": 18542
+    "Direct": 4239,
+    "Referral": 18588
   },
   "deviceTypes": {
-    "Desktop": 22041,
+    "Desktop": 22103,
     "Mobile": 724
   }
 }

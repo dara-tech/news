@@ -166,6 +166,11 @@ const data = {
           url: '/admin/settings/security',
         },
         {
+          title: 'Process Mining',
+          url: '/admin/processing-dashboard',
+          icon: Activity,
+        },
+        {
           title: 'Monitoring',
           url: '/admin/settings/monitoring',
           icon: Monitor,
