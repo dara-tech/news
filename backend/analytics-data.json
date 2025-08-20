@@ -4,13 +4,13 @@
     "/news": 935,
     "/news/featured": 773,
     "/categories": 1678,
-    "/notifications/count": 4957,
-    "/dashboard/advanced-stats": 753,
+    "/notifications/count": 4996,
+    "/dashboard/advanced-stats": 754,
     "/maintenance-status": 446,
     "/auth/login": 34,
-    "/auth/profile": 863,
-    "/notifications": 895,
-    "/dashboard/stats": 1330,
+    "/auth/profile": 873,
+    "/notifications": 906,
+    "/dashboard/stats": 1331,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
     "/admin/settings/security": 12,
@@ -26,7 +26,7 @@
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 145,
+    "/news/admin": 146,
     "/health": 1,
     "/new": 1,
     "/admin/likes": 52,
@@ -73,7 +73,7 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 1239,
+    "/admin/settings/logo": 1242,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -110,7 +110,7 @@
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
     "/admin/settings/footer": 129,
-    "/admin/settings/social-media": 613,
+    "/admin/settings/social-media": 614,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
     "/settings/public/social-media": 150,
@@ -544,26 +544,26 @@
       }
     },
     "2025-08-20": {
-      "pageViews": 326,
+      "pageViews": 393,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 190,
+        "Referral": 257,
         "Direct": 136
       },
       "deviceTypes": {
-        "Desktop": 326
+        "Desktop": 393
       }
     }
   },
   "trafficSources": {
     "Direct": 4239,
-    "Referral": 18588
+    "Referral": 18655
   },
   "deviceTypes": {
-    "Desktop": 22103,
+    "Desktop": 22170,
     "Mobile": 724
   }
 }
