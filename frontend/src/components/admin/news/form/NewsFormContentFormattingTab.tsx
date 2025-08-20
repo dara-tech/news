@@ -130,7 +130,11 @@ export default function NewsFormContentFormattingTab({
     setExpandedSections(newExpanded);
   };
 
-  const analyzeContent = async () => {
+  const analyzeContent = async (e?: React.MouseEvent) => {
+    // Prevent any potential form submission
+    e?.preventDefault();
+    e?.stopPropagation();
+    
     if (!formData.content?.en) {
       toast.error('No content to analyze');
       return;
@@ -182,7 +186,11 @@ export default function NewsFormContentFormattingTab({
     }
   };
 
-  const optimizeContent = async () => {
+  const optimizeContent = async (e?: React.MouseEvent) => {
+    // Prevent any potential form submission
+    e?.preventDefault();
+    e?.stopPropagation();
+    
     if (!formData.content?.en) {
       toast.error('No content to optimize');
       return;
@@ -205,7 +213,11 @@ export default function NewsFormContentFormattingTab({
     }
   };
 
-  const applyLocalFormatting = () => {
+  const applyLocalFormatting = (e?: React.MouseEvent) => {
+    // Prevent any potential form submission
+    e?.preventDefault();
+    e?.stopPropagation();
+    
     if (!formData.content?.en) {
       toast.error('No content to format');
       return;
@@ -257,12 +269,13 @@ export default function NewsFormContentFormattingTab({
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                onClick={analyzeContent}
-                disabled={isAnalyzing || !formData.content?.en}
-                variant="outline"
-                size="sm"
-              >
+                          <Button
+              type="button"
+              onClick={analyzeContent}
+              disabled={isAnalyzing || !formData.content?.en}
+              variant="outline"
+              size="sm"
+            >
                 {isAnalyzing ? (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -276,6 +289,7 @@ export default function NewsFormContentFormattingTab({
                 )}
               </Button>
               <Button
+                type="button"
                 onClick={optimizeContent}
                 disabled={isOptimizing || !formData.content?.en}
                 className="bg-blue-600 hover:bg-blue-700"
@@ -307,6 +321,7 @@ export default function NewsFormContentFormattingTab({
               Formatting Options
             </CardTitle>
             <Button
+              type="button"
               variant="ghost"
               size="sm"
               onClick={() => toggleSection('options')}
@@ -457,6 +472,7 @@ export default function NewsFormContentFormattingTab({
                 Content Analysis
               </CardTitle>
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => toggleSection('analysis')}
@@ -555,6 +571,7 @@ export default function NewsFormContentFormattingTab({
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
+              type="button"
               onClick={applyLocalFormatting}
               disabled={!formData.content?.en}
               variant="outline"
@@ -568,6 +585,7 @@ export default function NewsFormContentFormattingTab({
             </Button>
 
             <Button
+              type="button"
               onClick={optimizeContent}
               disabled={isOptimizing || !formData.content?.en}
               className="h-auto p-4 flex flex-col items-center gap-2 bg-blue-600 hover:bg-blue-700"
@@ -580,6 +598,7 @@ export default function NewsFormContentFormattingTab({
             </Button>
 
             <Button
+              type="button"
               onClick={analyzeContent}
               disabled={isAnalyzing || !formData.content?.en}
               variant="outline"
@@ -606,6 +625,7 @@ export default function NewsFormContentFormattingTab({
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Button
+                  type="button"
                   variant={previewMode === 'original' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setPreviewMode('original')}
@@ -613,6 +633,7 @@ export default function NewsFormContentFormattingTab({
                   Original
                 </Button>
                 <Button
+                  type="button"
                   variant={previewMode === 'formatted' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setPreviewMode('formatted')}
