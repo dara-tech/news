@@ -32,6 +32,7 @@ import followRoutes from "./routes/follows.mjs"
 import adminFollowRoutes from "./routes/adminFollows.mjs"
 import seoRoutes from "./routes/seo.mjs"
 import autoPublishRoutes from "./routes/autoPublish.mjs"
+import translateRoutes from "./routes/translate.mjs"
 // AI routes removed - now frontend-only
 import sourcesRoutes from "./routes/sources.mjs"
 import http from 'http';
@@ -356,6 +357,7 @@ app.use("/api/admin/system", systemRoutes)
 app.use("/api/admin/follows", adminFollowRoutes)
 app.use("/api/admin/seo", seoRoutes)
 app.use("/api/admin/auto-publish", autoPublishRoutes)
+app.use("/api/translate", translateRoutes)
 
 // AI routes
 // AI routes removed - now frontend-only

@@ -13,7 +13,6 @@ import { AlertCircle } from "lucide-react"
 
 import NewsFormHeader from "./form/NewsFormHeader"
 import NewsFormContentTab from "./form/NewsFormContentTab"
-import NewsFormContentFormattingTab from "./form/NewsFormContentFormattingTab"
 import NewsFormMediaTab from "./form/NewsFormMediaTab"
 import NewsFormSEOTab from "./form/NewsFormSEOTab"
 import { useGenerateSEO } from '@/hooks/useGenerateSEO'
@@ -654,9 +653,8 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
                 isSubmitting={isSubmitting}
               />
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto">
+                              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
                 <TabsTrigger value="content" className="text-xs sm:text-sm py-2 sm:py-2.5">Content</TabsTrigger>
-                <TabsTrigger value="formatting" className="text-xs sm:text-sm py-2 sm:py-2.5">Formatting</TabsTrigger>
                 <TabsTrigger value="media" className="text-xs sm:text-sm py-2 sm:py-2.5">Media</TabsTrigger>
                 <TabsTrigger value="seo" className="text-xs sm:text-sm py-2 sm:py-2.5">SEO</TabsTrigger>
                 <TabsTrigger value="details" className="text-xs sm:text-sm py-2 sm:py-2.5">Details</TabsTrigger>
@@ -666,17 +664,13 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
                     formData={formData}
                     validationErrors={validationErrors}
                     onInputChange={handleInputChange}
+                    onFormDataChange={handleFormDataChange}
                     onGenerateContent={handleGenerateContent}
                     isGenerating={isGeneratingContent}
-                  />
-                </TabsContent>
-                <TabsContent value="formatting">
-                  <NewsFormContentFormattingTab
-                    formData={formData}
-                    onFormDataChange={handleFormDataChange}
                     articleId={formData.id}
                   />
                 </TabsContent>
+
                 <TabsContent value="media">
                   <NewsFormMediaTab
                     thumbnailPreview={thumbnailPreview}

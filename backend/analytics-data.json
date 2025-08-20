@@ -3,13 +3,13 @@
     "/news/breaking": 766,
     "/news": 931,
     "/news/featured": 769,
-    "/categories": 1665,
-    "/notifications/count": 4869,
+    "/categories": 1671,
+    "/notifications/count": 4922,
     "/dashboard/advanced-stats": 753,
     "/maintenance-status": 445,
     "/auth/login": 34,
-    "/auth/profile": 855,
-    "/notifications": 886,
+    "/auth/profile": 860,
+    "/notifications": 893,
     "/dashboard/stats": 1330,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -26,7 +26,7 @@
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 144,
+    "/news/admin": 145,
     "/health": 1,
     "/new": 1,
     "/admin/likes": 52,
@@ -301,7 +301,7 @@
     "/news/689f884285fb2054283ebe8e/status": 2,
     "/news/689fd50edf2c721107cd0789": 1,
     "/news/689f884285fb2054283ebe8e": 2,
-    "/news/68a43449773811d7b73884e8": 6,
+    "/news/68a43449773811d7b73884e8": 7,
     "/admin/seo/dashboard": 6,
     "/news/cambodia-leads-asia-pacific-in-greenfield-fdi-economic-boom": 2,
     "/likes/68a4340c773811d7b73884e0/status": 1,
@@ -311,17 +311,19 @@
     "/likes/6898049b577870e5f520a5e2/status": 1,
     "/comments/6898049b577870e5f520a5e2": 1,
     "/comments/6898049b577870e5f520a5e2/stats": 1,
-    "/admin/auto-publish/stats": 32,
-    "/admin/auto-publish/logs": 31,
-    "/admin/auto-publish/settings": 31,
-    "/admin/auto-publish/telegram-settings": 14,
+    "/admin/auto-publish/stats": 33,
+    "/admin/auto-publish/logs": 32,
+    "/admin/auto-publish/settings": 32,
+    "/admin/auto-publish/telegram-settings": 15,
     "/admin/auto-publish/test-telegram": 2,
     "/admin/auto-publish/sentinel": 1,
     "/news/air-canada-strike-flight-attendants-defy-court-order": 2,
     "/likes/68a36db20b2432338e701640/status": 1,
     "/comments/68a36db20b2432338e701640": 1,
     "/comments/68a36db20b2432338e701640/stats": 1,
-    "/news/68a43449773811d7b73884e8/format-content": 2
+    "/news/68a43449773811d7b73884e8/format-content": 5,
+    "/news/68a4e39099fd4c8fc523359e": 5,
+    "/news/68a4e39099fd4c8fc523359e/format-content": 3
   },
   "userActions": {},
   "dailyStats": {
@@ -527,26 +529,39 @@
       }
     },
     "2025-08-19": {
-      "pageViews": 688,
+      "pageViews": 716,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
         "Direct": 105,
-        "Referral": 583
+        "Referral": 611
       },
       "deviceTypes": {
-        "Desktop": 688
+        "Desktop": 716
+      }
+    },
+    "2025-08-20": {
+      "pageViews": 60,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Referral": 60
+      },
+      "deviceTypes": {
+        "Desktop": 60
       }
     }
   },
   "trafficSources": {
     "Direct": 4103,
-    "Referral": 18370
+    "Referral": 18458
   },
   "deviceTypes": {
-    "Desktop": 21749,
+    "Desktop": 21837,
     "Mobile": 724
   }
 }
