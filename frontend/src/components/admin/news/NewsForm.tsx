@@ -664,10 +664,8 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
                     formData={formData}
                     validationErrors={validationErrors}
                     onInputChange={handleInputChange}
-                    onFormDataChange={handleFormDataChange}
                     onGenerateContent={handleGenerateContent}
                     isGenerating={isGeneratingContent}
-                    articleId={formData.id}
                   />
                 </TabsContent>
 

@@ -7,6 +7,7 @@ import User from '../models/User.mjs';
 import Settings from '../models/Settings.mjs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import connectCloudinary, { cloudinary } from '../utils/cloudinary.mjs';
+import { formatContentAdvanced } from '../utils/advancedContentFormatter.mjs';
 
 /**
  * Sentinel-PP-01: Enhanced AI News Analyst
@@ -909,8 +910,28 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
         return null;
       }
 
-      // Add Khmer translations if available
-      if (khmerTranslations) {
+      // Step 3: Auto-process content (format, translate, analyze)
+      const autoProcessedContent = await this.autoProcessContent(parsed.content.en, parsed.title.en);
+      
+      // Update content with auto-processed results
+      if (autoProcessedContent) {
+        parsed.content = {
+          en: autoProcessedContent.en,
+          kh: autoProcessedContent.kh || ''
+        };
+        
+        // Add auto-processing metadata
+        parsed.autoProcessingMetadata = {
+          formatted: true,
+          translated: !!autoProcessedContent.kh,
+          analyzed: !!autoProcessedContent.analysis,
+          analysis: autoProcessedContent.analysis,
+          processedAt: new Date().toISOString()
+        };
+      }
+
+      // Add Khmer translations if available (fallback to manual translation)
+      if (khmerTranslations && !autoProcessedContent?.kh) {
         parsed.title.kh = khmerTranslations.khmerTitle;
         parsed.description.kh = khmerTranslations.khmerDescription;
         parsed.content.kh = khmerTranslations.khmerContent;
@@ -1510,6 +1531,137 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
     }
     
     return stats;
+  }
+
+  // Auto-process content: format, translate, and analyze
+  async autoProcessContent(englishContent, title) {
+    try {
+      this.pushLog('info', '[Sentinel-PP-01] Starting auto-processing of content...', { title: title?.slice(0, 50) });
+      
+      // Step 1: Auto-format content
+      const formattedContent = await this.autoFormatContent(englishContent);
+      
+      // Step 2: Auto-translate to Khmer
+      const khmerContent = await this.autoTranslateToKhmer(formattedContent);
+      
+      // Step 3: Auto-analyze content quality
+      const analysis = await this.autoAnalyzeContent(formattedContent);
+      
+      this.pushLog('info', '[Sentinel-PP-01] Auto-processing completed successfully', { 
+        title: title?.slice(0, 50),
+        formatted: !!formattedContent,
+        translated: !!khmerContent,
+        analyzed: !!analysis
+      });
+      
+      return {
+        en: formattedContent,
+        kh: khmerContent,
+        analysis: analysis
+      };
+    } catch (error) {
+      this.pushLog('error', '[Sentinel-PP-01] Auto-processing error:', error);
+      // Return original content if processing fails
+      return {
+        en: englishContent,
+        kh: '',
+        analysis: null
+      };
+    }
+  }
+
+  // Auto-format content using advanced formatter
+  async autoFormatContent(content) {
+    try {
+      const formattingOptions = {
+        enableAIEnhancement: true,
+        enableReadabilityOptimization: true,
+        enableSEOOptimization: true,
+        enableVisualEnhancement: true,
+        addSectionHeadings: true,
+        enhanceQuotes: true,
+        optimizeLists: true
+      };
+
+      const result = await formatContentAdvanced(content, formattingOptions);
+      return result.success ? result.content : content;
+    } catch (error) {
+      this.pushLog('error', '[Sentinel-PP-01] Auto-format error:', error);
+      return content;
+    }
+  }
+
+  // Auto-translate content to Khmer
+  async autoTranslateToKhmer(englishContent) {
+    try {
+      if (!this.model) return '';
+
+      const prompt = `
+        Translate the following English news article to Khmer (Cambodian language). 
+        Maintain the original meaning, tone, and context. 
+        If the text contains HTML tags, preserve them in the translation.
+        Provide only the Khmer translation without any additional text or explanations.
+        
+        English text:
+        ${englishContent}
+      `;
+
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return response.text().trim();
+    } catch (error) {
+      this.pushLog('error', '[Sentinel-PP-01] Auto-translate error:', error);
+      return '';
+    }
+  }
+
+  // Auto-analyze content quality
+  async autoAnalyzeContent(content) {
+    try {
+      if (!this.model) return null;
+
+      const prompt = `
+        Analyze the following news article content and provide a JSON response with quality metrics:
+        
+        Content: ${content}
+        
+        Please analyze and return a JSON object with the following structure:
+        {
+          "readability": {
+            "score": number (0-100),
+            "level": "Excellent|Good|Fair|Poor",
+            "suggestions": ["suggestion1", "suggestion2"]
+          },
+          "seo": {
+            "score": number (0-100),
+            "keywords": ["keyword1", "keyword2"],
+            "suggestions": ["suggestion1", "suggestion2"]
+          },
+          "engagement": {
+            "score": number (0-100),
+            "factors": ["factor1", "factor2"],
+            "suggestions": ["suggestion1", "suggestion2"]
+          }
+        }
+        
+        Provide only the JSON response without any additional text.
+      `;
+
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const analysisText = response.text().trim();
+      
+      // Try to parse JSON response
+      try {
+        return JSON.parse(analysisText);
+      } catch (parseError) {
+        this.pushLog('error', '[Sentinel-PP-01] Failed to parse analysis JSON:', parseError);
+        return null;
+      }
+    } catch (error) {
+      this.pushLog('error', '[Sentinel-PP-01] Auto-analyze error:', error);
+      return null;
+    }
   }
 }
 

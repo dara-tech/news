@@ -6,6 +6,7 @@ import Notification from "../models/Notification.mjs";
 import User from "../models/User.mjs";
 import { v2 as cloudinary } from "cloudinary";
 import socialMediaService from "../services/socialMediaService.mjs";
+import sentinelService from "../services/sentinelService.mjs";
 
 // @desc    Get all news articles for admin (including drafts)
 // @route   GET /api/admin/news
@@ -147,6 +148,36 @@ export const createNews = asyncHandler(async (req, res) => {
         newImages.push(result.secure_url);
       }
       news.images = newImages;
+    }
+
+    // Auto-process content using Sentinel service
+    if (contentObj.en && contentObj.en.trim()) {
+      try {
+        console.log('Auto-processing content for article:', titleObj.en);
+        const autoProcessedContent = await sentinelService.autoProcessContent(contentObj.en, titleObj.en);
+        
+        if (autoProcessedContent) {
+          // Update content with auto-processed results
+          news.content = {
+            en: autoProcessedContent.en,
+            kh: autoProcessedContent.kh || contentObj.kh || ''
+          };
+          
+          // Add auto-processing metadata
+          news.autoProcessingMetadata = {
+            formatted: true,
+            translated: !!autoProcessedContent.kh,
+            analyzed: !!autoProcessedContent.analysis,
+            analysis: autoProcessedContent.analysis,
+            processedAt: new Date().toISOString()
+          };
+          
+          console.log('Content auto-processed successfully');
+        }
+      } catch (error) {
+        console.error('Auto-processing failed:', error);
+        // Continue with original content if auto-processing fails
+      }
     }
 
     const createdNews = await news.save();
@@ -445,6 +476,36 @@ export const updateNews = asyncHandler(async (req, res) => {
     }
 
     news.images = [...existingImagesArray, ...newImageUrls];
+
+    // Auto-process content using Sentinel service (if content was updated)
+    if (content && news.content.en && news.content.en.trim()) {
+      try {
+        console.log('Auto-processing updated content for article:', news.title.en);
+        const autoProcessedContent = await sentinelService.autoProcessContent(news.content.en, news.title.en);
+        
+        if (autoProcessedContent) {
+          // Update content with auto-processed results
+          news.content = {
+            en: autoProcessedContent.en,
+            kh: autoProcessedContent.kh || news.content.kh || ''
+          };
+          
+          // Add auto-processing metadata
+          news.autoProcessingMetadata = {
+            formatted: true,
+            translated: !!autoProcessedContent.kh,
+            analyzed: !!autoProcessedContent.analysis,
+            analysis: autoProcessedContent.analysis,
+            processedAt: new Date().toISOString()
+          };
+          
+          console.log('Updated content auto-processed successfully');
+        }
+      } catch (error) {
+        console.error('Auto-processing failed for update:', error);
+        // Continue with original content if auto-processing fails
+      }
+    }
 
     // Save and return the updated news article
     const savedNews = await news.save();
