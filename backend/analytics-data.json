@@ -4,12 +4,12 @@
     "/news": 935,
     "/news/featured": 773,
     "/categories": 1678,
-    "/notifications/count": 4996,
+    "/notifications/count": 4998,
     "/dashboard/advanced-stats": 754,
     "/maintenance-status": 446,
     "/auth/login": 34,
-    "/auth/profile": 873,
-    "/notifications": 906,
+    "/auth/profile": 877,
+    "/notifications": 911,
     "/dashboard/stats": 1331,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -544,26 +544,26 @@
       }
     },
     "2025-08-20": {
-      "pageViews": 393,
+      "pageViews": 404,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 257,
+        "Referral": 268,
         "Direct": 136
       },
       "deviceTypes": {
-        "Desktop": 393
+        "Desktop": 404
       }
     }
   },
   "trafficSources": {
     "Direct": 4239,
-    "Referral": 18655
+    "Referral": 18666
   },
   "deviceTypes": {
-    "Desktop": 22170,
+    "Desktop": 22181,
     "Mobile": 724
   }
 }

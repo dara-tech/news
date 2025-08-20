@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  RefreshCw, Settings, TrendingUp, PieChart, BarChart, Gauge
+  RefreshCw, Settings, TrendingUp, PieChart, BarChart, Gauge,
+  Database, FileText, Clock, Shield
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -145,28 +146,28 @@ export default function ProcessingDashboard() {
                 title="Total Processed"
                 value={metrics.totalProcessed.toLocaleString()}
                 change="+15% from last hour"
-                icon={RefreshCw}
+                icon={Database}
                 trend="up"
               />
               <ProcessMetricsCard
                 title="Articles Created"
                 value={metrics.totalCreated.toLocaleString()}
                 change="+12% from last hour"
-                icon={RefreshCw}
+                icon={FileText}
                 trend="up"
               />
               <ProcessMetricsCard
                 title="Avg Processing Time"
                 value={`${metrics.averageProcessingTime}s`}
                 change="-8% from last hour"
-                icon={RefreshCw}
+                icon={Clock}
                 trend="down"
               />
               <ProcessMetricsCard
                 title="System Uptime"
                 value={`${metrics.uptime}%`}
                 change="18 hours without issues"
-                icon={RefreshCw}
+                icon={Shield}
                 trend="neutral"
               />
             </div>
