@@ -1,67 +1,135 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   RefreshCw, Settings, TrendingUp, PieChart, BarChart, Gauge,
   Database, FileText, Clock, Shield, Activity, AlertTriangle, CheckCircle,
-  Radio, Bot, Cpu, Target, FileCheck, ArrowRight, Zap
+  Radio, Bot, Cpu, Target, FileCheck, ArrowRight, Zap, Smartphone, Monitor
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { 
-  ProcessingDashboardService, 
-  ProcessingMetrics, 
-  ProcessFlow, 
-  SystemHealth,
-  SentinelLog,
-  SentinelMetrics
-} from '@/lib/processingDashboardService';
+import { ProcessingDashboardService } from '@/lib/processingDashboardService';
+
+// Types
+interface ProcessingMetrics {
+  totalProcessed: number;
+  totalCreated: number;
+  averageProcessingTime: number;
+  uptime: number;
+  errorRate: number;
+  lastReset: string;
+  performance: {
+    throughput: number;
+    latency: number;
+    efficiency: number;
+  };
+}
+
+interface ProcessFlow {
+  id: string;
+  name: string;
+  status: 'active' | 'idle' | 'error' | 'processing';
+  stage: 'input' | 'processing' | 'output' | 'error';
+  progress: number;
+  data: {
+    input: number;
+    processed: number;
+    output: number;
+    errors: number;
+  };
+  performance: {
+    throughput: number;
+    latency: number;
+    efficiency: number;
+  };
+  lastActivity: string;
+}
+
+interface SystemHealth {
+  status: 'healthy' | 'warning' | 'critical';
+  uptime: number;
+  memoryUsage: number;
+  cpuUsage: number;
+  diskUsage: number;
+  activeConnections: number;
+  lastCheck: string;
+}
+
+interface SentinelLog {
+  timestamp: string;
+  level: 'info' | 'warning' | 'error';
+  message: string;
+  metadata?: any;
+}
+
+interface SentinelMetrics {
+  enabled: boolean;
+  running: boolean;
+  lastRunAt: string | null;
+  nextRunAt: string | null;
+  lastCreated: number;
+  lastProcessed: number;
+  cooldownUntil: string | null;
+  maxPerRun: number;
+  frequencyMs: number;
+  sourcesCount: number;
+  performanceMetrics: {
+    totalProcessed: number;
+    totalCreated: number;
+    averageProcessingTime: number;
+    errorRate: number;
+    lastReset: string;
+  };
+}
+
+interface ProcessMetricsCardProps {
+  title: string;
+  value: string | number;
+  change?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  trend?: 'up' | 'down' | 'neutral';
+}
+
+interface ProcessFlowCardProps {
+  flow: ProcessFlow;
+}
+
+interface SystemHealthCardProps {
+  health: SystemHealth;
+}
 
 // Process Metrics Card Component
-function ProcessMetricsCard({ 
-  title, 
-  value, 
-  change, 
-  icon: Icon, 
-  trend 
-}: { 
-  title: string; 
-  value: string; 
-  change: string; 
-  icon: any; 
-  trend: 'up' | 'down' | 'neutral' 
-}) {
+function ProcessMetricsCard({ title, value, change, icon: Icon, trend = 'up' }: ProcessMetricsCardProps) {
   const getTrendColor = () => {
-    switch (trend) {
-      case 'up': return 'text-green-600 dark:text-green-400';
-      case 'down': return 'text-red-600 dark:text-red-400';
-      default: return 'text-muted-foreground';
-    }
+    if (trend === 'up') return 'text-green-600 dark:text-green-400';
+    if (trend === 'down') return 'text-red-600 dark:text-red-400';
+    return 'text-muted-foreground';
   };
 
   const getTrendIcon = () => {
-    switch (trend) {
-      case 'up': return '↗';
-      case 'down': return '↘';
-      default: return '→';
-    }
+    if (trend === 'up') return '↗';
+    if (trend === 'down') return '↘';
+    return '→';
   };
 
   return (
-    <Card className="hover:border-slate-500 transition-all duration-300">
+    <Card className="hover:border-slate-500 transition-all duration-300 group">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-foreground">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <div className="p-2 rounded-lg bg-muted/50 group-hover:bg-muted transition-colors">
+          <Icon className="h-4 w-4 text-muted-foreground" />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-foreground">{value}</div>
         {change && (
-          <p className={`text-xs ${getTrendColor()}`}>
-            {getTrendIcon()} {change}
+          <p className={`text-xs ${getTrendColor()} flex items-center gap-1 mt-1`}>
+            <span>{getTrendIcon()}</span>
+            <span>{change}</span>
           </p>
         )}
       </CardContent>
@@ -70,7 +138,7 @@ function ProcessMetricsCard({
 }
 
 // Process Flow Card Component
-function ProcessFlowCard({ flow }: { flow: ProcessFlow }) {
+function ProcessFlowCard({ flow }: ProcessFlowCardProps) {
   const getStatusColor = () => {
     switch (flow.status) {
       case 'active': return 'text-green-600 dark:text-green-400';
@@ -92,7 +160,7 @@ function ProcessFlowCard({ flow }: { flow: ProcessFlow }) {
   const StatusIcon = getStatusIcon();
 
   return (
-    <Card>
+    <Card className="hover:shadow-md transition-all duration-300">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg text-foreground">{flow.name}</CardTitle>
@@ -123,15 +191,15 @@ function ProcessFlowCard({ flow }: { flow: ProcessFlow }) {
         </div>
         
         <div className="grid grid-cols-3 gap-2 text-xs">
-          <div className="text-center p-2 rounded">
+          <div className="text-center p-2 rounded bg-muted/30">
             <p className="text-muted-foreground">Throughput</p>
             <p className="text-cyan-600 dark:text-cyan-400 font-semibold">{flow.performance.throughput}/min</p>
           </div>
-          <div className="text-center p-2 rounded">
+          <div className="text-center p-2 rounded bg-muted/30">
             <p className="text-muted-foreground">Latency</p>
             <p className="text-yellow-600 dark:text-yellow-400 font-semibold">{flow.performance.latency}s</p>
           </div>
-          <div className="text-center p-2 rounded">
+          <div className="text-center p-2 rounded bg-muted/30">
             <p className="text-muted-foreground">Efficiency</p>
             <p className="text-green-600 dark:text-green-400 font-semibold">{flow.performance.efficiency}%</p>
           </div>
@@ -146,7 +214,7 @@ function ProcessFlowCard({ flow }: { flow: ProcessFlow }) {
 }
 
 // System Health Card Component
-function SystemHealthCard({ health }: { health: SystemHealth }) {
+function SystemHealthCard({ health }: SystemHealthCardProps) {
   const getStatusColor = () => {
     switch (health.status) {
       case 'healthy': return 'text-green-600 dark:text-green-400';
@@ -168,7 +236,7 @@ function SystemHealthCard({ health }: { health: SystemHealth }) {
   const StatusIcon = getStatusIcon();
 
   return (
-    <Card>
+    <Card className="hover:shadow-md transition-all duration-300">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg text-foreground">System Health</CardTitle>
@@ -222,10 +290,10 @@ function SystemHealthCard({ health }: { health: SystemHealth }) {
 function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
   const getLogLevelColor = (level: string) => {
     switch (level) {
-      case 'error': return 'text-red-600 dark:text-red-400 border-red-400/20';
-      case 'warning': return 'text-yellow-600 dark:text-yellow-400 border-yellow-400/20';
-      case 'info': return 'text-blue-600 dark:text-blue-400 border-blue-400/20';
-      default: return 'text-muted-foreground border-muted/20';
+      case 'error': return 'text-red-600 dark:text-red-400 border-red-400/20 bg-red-50 dark:bg-red-950/20';
+      case 'warning': return 'text-yellow-600 dark:text-yellow-400 border-yellow-400/20 bg-yellow-50 dark:bg-yellow-950/20';
+      case 'info': return 'text-blue-600 dark:text-blue-400 border-blue-400/20 bg-blue-50 dark:bg-blue-950/20';
+      default: return 'text-muted-foreground border-muted/20 bg-muted/20';
     }
   };
 
@@ -239,7 +307,7 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
   };
 
   return (
-    <Card>
+    <Card className="hover:shadow-md transition-all duration-300">
       <CardHeader>
         <CardTitle className="text-lg text-foreground">Sentinel Processing Logs</CardTitle>
         <CardDescription className="text-muted-foreground">
@@ -249,7 +317,12 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
       <CardContent>
         <div className="space-y-3 max-h-96 overflow-y-auto">
           {logs.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">No logs available</p>
+            <div className="text-center py-8">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/30 flex items-center justify-center">
+                <FileText className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground">No logs available</p>
+            </div>
           ) : (
             logs.map((log, index) => (
               <div key={index} className={`p-3 rounded-lg border ${getLogLevelColor(log.level)}`}>
@@ -270,7 +343,7 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
                         <summary className="text-xs text-muted-foreground cursor-pointer">
                           Metadata
                         </summary>
-                        <pre className="text-xs text-muted-foreground mt-1 p-2 rounded overflow-x-auto">
+                        <pre className="text-xs text-muted-foreground mt-1 p-2 rounded overflow-x-auto bg-muted/30">
                           {JSON.stringify(log.metadata, null, 2)}
                         </pre>
                       </details>
@@ -286,7 +359,7 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
   );
 }
 
-// Process Flow Diagram Component
+// Process Flow Diagram Component with Drag and Drop
 function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMetrics: any }) {
   const [processNodes, setProcessNodes] = useState([
     {
@@ -390,7 +463,6 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
     setDragOverNode(null);
   };
 
-
   const getStatusColor = (status: string, color: string) => {
     if (status === 'processing') return 'border-blue-500 bg-blue-50 dark:bg-blue-950/20';
     if (status === 'active') {
@@ -422,19 +494,22 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
   };
 
   return (
-    <Card>
+    <Card className="hover:shadow-md transition-all duration-300">
       <CardHeader>
-        <CardTitle className="text-lg text-foreground">Process Flow</CardTitle>
+        <CardTitle className="text-lg text-foreground flex items-center gap-2">
+          <Monitor className="h-5 w-5 text-blue-500" />
+          Process Flow
+        </CardTitle>
         <CardDescription className="text-muted-foreground">
           Drag nodes to rearrange the process flow
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="relative h-64">
+        <div className="relative min-h-[16rem] lg:min-h-[12rem]">
           {/* Process Flow */}
-          <div className="relative h-full flex items-center justify-between px-4">
-            {/* Flow Connections */}
-            <div className="absolute inset-0 flex items-center justify-between px-16">
+          <div className="relative h-full flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-0 px-2 lg:px-4">
+            {/* Flow Connections - Hidden on mobile, shown on desktop */}
+            <div className="hidden lg:block absolute inset-0 flex items-center justify-between px-16">
               {processNodes.slice(0, -1).map((node, index) => {
                 const nextNode = processNodes[index + 1];
                 const isActive = node.status === 'active' || node.status === 'processing';
@@ -463,10 +538,12 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
             </div>
 
             {/* Process Nodes */}
-            <div className="relative w-full flex items-center justify-between">
+            <div className="relative w-full grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-0 lg:flex lg:items-center lg:justify-between">
               {processNodes.map((node, index) => {
                 const IconComponent = node.icon;
                 const isActive = node.status === 'active' || node.status === 'processing';
+                const isDragging = draggedNode === node.id;
+                const isDragOver = dragOverNode === node.id;
                 
                 return (
                   <div key={node.id} className="flex flex-col items-center space-y-2">
@@ -477,12 +554,17 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
                       onDragOver={(e) => handleDragOver(e, node.id)}
                       onDragLeave={handleDragLeave}
                       onDrop={(e) => handleDrop(e, node.id)}
-                      className={`relative p-4 rounded-lg border transition-all duration-300 hover:scale-105 cursor-move ${
+                      className={`relative p-3 lg:p-4 rounded-lg border transition-all duration-300 hover:scale-105 cursor-move shadow-sm hover:shadow-md ${
                         getStatusColor(node.status, node.color)
-                      } ${draggedNode === node.id ? 'opacity-50 scale-95' : ''} ${
-                        dragOverNode === node.id ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
+                      } ${isDragging ? 'opacity-50 scale-95' : ''} ${
+                        isDragOver ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
                       }`}
                     >
+                      
+                      {/* Drag Handle */}
+                      <div className="absolute -top-1 -left-1 w-3 h-3 bg-muted-foreground/20 rounded-full flex items-center justify-center">
+                        <div className="w-1 h-1 bg-muted-foreground/60 rounded-full"></div>
+                      </div>
                       
                       {/* Status Indicator */}
                       <div className="absolute -top-1 -right-1">
@@ -495,18 +577,18 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
                       {/* Node Content */}
                       <div className="text-center">
                         <div className={`mb-2 ${getIconColor(node.status, node.color)}`}>
-                          <IconComponent className="h-6 w-6 mx-auto" />
+                          <IconComponent className="h-5 w-5 lg:h-6 lg:w-6 mx-auto" />
                         </div>
-                        <div className="text-sm font-medium text-foreground mb-1">{node.name}</div>
-                        <div className="text-lg font-bold text-foreground">
+                        <div className="text-xs lg:text-sm font-medium text-foreground mb-1">{node.name}</div>
+                        <div className="text-sm lg:text-lg font-bold text-foreground">
                           {node.data.toLocaleString()}
                         </div>
                         <div className="text-xs text-muted-foreground">items</div>
                       </div>
                     </div>
 
-                    {/* Node Label */}
-                    <div className="text-xs text-muted-foreground text-center max-w-20 leading-tight">
+                    {/* Node Label - Hidden on mobile to save space */}
+                    <div className="hidden lg:block text-xs text-muted-foreground text-center max-w-20 leading-tight">
                       {node.name}
                     </div>
                   </div>
@@ -514,25 +596,25 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
               })}
             </div>
 
-            {/* Metrics Panel */}
+            {/* Metrics Panel - Responsive positioning */}
             <div className="absolute top-2 right-2 space-y-2">
-              <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3 border shadow-sm">
+              <div className="bg-background/95 backdrop-blur-sm rounded-lg p-2 lg:p-3 border shadow-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <Zap className="h-3 w-3 text-blue-500" />
                   <div className="text-xs font-medium text-foreground">Throughput</div>
                 </div>
-                <div className="text-sm font-bold text-foreground">
+                <div className="text-xs lg:text-sm font-bold text-foreground">
                   {processNodes.reduce((sum, node) => sum + node.data, 0).toLocaleString()}
                 </div>
                 <div className="text-xs text-muted-foreground">items/min</div>
               </div>
               
-              <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3 border shadow-sm">
+              <div className="bg-background/95 backdrop-blur-sm rounded-lg p-2 lg:p-3 border shadow-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <Activity className="h-3 w-3 text-emerald-500" />
                   <div className="text-xs font-medium text-foreground">Active</div>
                 </div>
-                <div className="text-sm font-bold text-foreground">
+                <div className="text-xs lg:text-sm font-bold text-foreground">
                   {processNodes.filter(n => n.status === 'active' || n.status === 'processing').length}
                 </div>
                 <div className="text-xs text-muted-foreground">of {processNodes.length}</div>
@@ -540,12 +622,12 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
 
               {/* Sentinel Status */}
               {sentinelMetrics && (
-                <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3 border shadow-sm">
+                <div className="bg-background/95 backdrop-blur-sm rounded-lg p-2 lg:p-3 border shadow-sm">
                   <div className="flex items-center gap-2 mb-1">
                     <Bot className="h-3 w-3 text-blue-500" />
                     <div className="text-xs font-medium text-foreground">Status</div>
                   </div>
-                  <div className={`text-sm font-bold ${
+                  <div className={`text-xs lg:text-sm font-bold ${
                     sentinelMetrics.running ? 'text-blue-600 dark:text-blue-400' : 
                     sentinelMetrics.enabled ? 'text-emerald-600 dark:text-emerald-400' : 
                     'text-muted-foreground'
@@ -556,16 +638,16 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
               )}
             </div>
 
-            {/* Status Indicators */}
+            {/* Status Indicators - Responsive positioning */}
             <div className="absolute bottom-2 left-2 space-y-2">
-              <div className="flex items-center space-x-2 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 border shadow-sm">
+              <div className="flex items-center space-x-2 bg-background/95 backdrop-blur-sm rounded-lg px-2 lg:px-3 py-1 lg:py-2 border shadow-sm">
                 <div className={`w-2 h-2 rounded-full ${sentinelMetrics?.enabled ? 'bg-emerald-500' : 'bg-muted-foreground'}`}></div>
                 <span className="text-xs text-foreground">
                   {sentinelMetrics?.enabled ? 'System Ready' : 'System Disabled'}
                 </span>
               </div>
               
-              <div className="flex items-center space-x-2 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 border shadow-sm">
+              <div className="flex items-center space-x-2 bg-background/95 backdrop-blur-sm rounded-lg px-2 lg:px-3 py-1 lg:py-2 border shadow-sm">
                 <div className={`w-2 h-2 rounded-full ${sentinelMetrics?.running ? 'bg-blue-500' : 'bg-muted-foreground'}`}></div>
                 <span className="text-xs text-foreground">
                   {sentinelMetrics?.running ? 'Data Flowing' : 'Data Idle'}
@@ -681,23 +763,24 @@ export default function ProcessingDashboard() {
           <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-background"></div>
         </div>
 
-      <div className="relative z-10 container mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-                      <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Process Mining Dashboard
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Advanced AI-powered process analysis and optimization system
+        {/* Main Container */}
+        <div className="relative z-10 container mx-auto p-6 space-y-6">
+                {/* Header */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+              Process Mining Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm lg:text-base">
+              Advanced AI-powered process analysis and optimization system
+            </p>
+            {lastRefreshTime > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Last updated: {new Date(lastRefreshTime).toLocaleTimeString()}
               </p>
-              {lastRefreshTime > 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Last updated: {new Date(lastRefreshTime).toLocaleTimeString()}
-                </p>
-              )}
-            </div>
-          <div className="flex items-center gap-3">
+            )}
+          </div>
+          <div className="flex items-center gap-2 lg:gap-3">
                           <Button
                 onClick={handleManualRefresh}
                 disabled={loading}
@@ -719,7 +802,7 @@ export default function ProcessingDashboard() {
 
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 gap-1 lg:gap-2">
             <TabsTrigger value="overview">
               Overview
             </TabsTrigger>
@@ -740,7 +823,7 @@ export default function ProcessingDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               <ProcessMetricsCard
                 title="Total Processed"
                 value={metrics.totalProcessed.toLocaleString()}
@@ -777,7 +860,7 @@ export default function ProcessingDashboard() {
 
           {/* Process Flows Tab */}
           <TabsContent value="processes" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {processFlows.map((flow) => (
                 <ProcessFlowCard key={flow.id} flow={flow} />
               ))}
@@ -786,7 +869,7 @@ export default function ProcessingDashboard() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg text-foreground">Performance Trends</CardTitle>
@@ -825,7 +908,7 @@ export default function ProcessingDashboard() {
 
           {/* System Health Tab */}
           <TabsContent value="health" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               <SystemHealthCard health={systemHealth} />
               
               <Card>
