@@ -37,9 +37,9 @@ function ProcessMetricsCard({
 }) {
   const getTrendColor = () => {
     switch (trend) {
-      case 'up': return 'text-emerald-400';
-      case 'down': return 'text-red-400';
-      default: return 'text-slate-400';
+      case 'up': return 'text-green-600 dark:text-green-400';
+      case 'down': return 'text-red-600 dark:text-red-400';
+      default: return 'text-muted-foreground';
     }
   };
 
@@ -54,15 +54,16 @@ function ProcessMetricsCard({
   return (
     <Card className="hover:border-slate-500 transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-slate-300">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-cyan-400" />
+        <CardTitle className="text-sm font-medium text-foreground">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-slate-100">{value}</div>
-        <p className={`text-xs ${getTrendColor()} flex items-center gap-1 mt-1`}>
-          <span>{getTrendIcon()}</span>
-          {change}
-        </p>
+        <div className="text-2xl font-bold text-foreground">{value}</div>
+        {change && (
+          <p className={`text-xs ${getTrendColor()}`}>
+            {getTrendIcon()} {change}
+          </p>
+        )}
       </CardContent>
     </Card>
   );
@@ -72,42 +73,38 @@ function ProcessMetricsCard({
 function ProcessFlowCard({ flow }: { flow: ProcessFlow }) {
   const getStatusColor = () => {
     switch (flow.status) {
-      case 'active': return 'bg-emerald-500';
-      case 'processing': return 'bg-blue-500';
-      case 'error': return 'bg-red-500';
-      default: return 'bg-slate-500';
+      case 'active': return 'text-green-600 dark:text-green-400';
+      case 'processing': return 'text-blue-600 dark:text-blue-400';
+      case 'error': return 'text-red-600 dark:text-red-400';
+      default: return 'text-muted-foreground';
     }
   };
 
-  const getStageColor = () => {
-    switch (flow.stage) {
-      case 'input': return 'text-blue-400';
-      case 'processing': return 'text-yellow-400';
-      case 'output': return 'text-emerald-400';
-      case 'error': return 'text-red-400';
-      default: return 'text-slate-400';
+  const getStatusIcon = () => {
+    switch (flow.status) {
+      case 'active': return CheckCircle;
+      case 'processing': return Clock;
+      case 'error': return AlertTriangle;
+      default: return Shield;
     }
   };
+
+  const StatusIcon = getStatusIcon();
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg text-slate-100">{flow.name}</CardTitle>
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${getStatusColor()} animate-pulse`}></div>
-            <Badge variant="outline" className="border-slate-500 text-slate-300">
-              {flow.status}
-            </Badge>
-          </div>
+          <CardTitle className="text-lg text-foreground">{flow.name}</CardTitle>
+          <StatusIcon className={`h-5 w-5 ${getStatusColor()}`} />
         </div>
-        <CardDescription className="text-slate-400">
-          Stage: <span className={getStageColor()}>{flow.stage}</span>
+        <CardDescription className="text-muted-foreground">
+          Stage: <span className={getStatusColor()}>{flow.stage}</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <div className="flex justify-between text-sm text-slate-300 mb-2">
+          <div className="flex justify-between text-sm text-muted-foreground mb-1">
             <span>Progress</span>
             <span>{flow.progress}%</span>
           </div>
@@ -116,36 +113,32 @@ function ProcessFlowCard({ flow }: { flow: ProcessFlow }) {
         
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-slate-400">Input</p>
-            <p className="text-slate-100 font-semibold">{flow.data.input}</p>
+            <p className="text-muted-foreground">Input</p>
+            <p className="text-foreground font-semibold">{flow.data.input}</p>
           </div>
           <div>
-            <p className="text-slate-400">Processed</p>
-            <p className="text-slate-100 font-semibold">{flow.data.processed}</p>
-          </div>
-          <div>
-            <p className="text-slate-400">Output</p>
-            <p className="text-slate-100 font-semibold">{flow.data.output}</p>
-          </div>
-          <div>
-            <p className="text-slate-400">Errors</p>
-            <p className="text-red-400 font-semibold">{flow.data.errors}</p>
+            <p className="text-muted-foreground">Output</p>
+            <p className="text-foreground font-semibold">{flow.data.output}</p>
           </div>
         </div>
-
+        
         <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="text-center p-2 rounded">
-            <p className="text-slate-400">Throughput</p>
-            <p className="text-cyan-400 font-semibold">{flow.performance.throughput}/min</p>
+            <p className="text-muted-foreground">Throughput</p>
+            <p className="text-cyan-600 dark:text-cyan-400 font-semibold">{flow.performance.throughput}/min</p>
           </div>
-          <div className="text-center p-2  rounded">
-            <p className="text-slate-400">Latency</p>
-            <p className="text-yellow-400 font-semibold">{flow.performance.latency}s</p>
+          <div className="text-center p-2 rounded">
+            <p className="text-muted-foreground">Latency</p>
+            <p className="text-yellow-600 dark:text-yellow-400 font-semibold">{flow.performance.latency}s</p>
           </div>
-          <div className="text-center p-2 0 rounded">
-            <p className="text-slate-400">Efficiency</p>
-            <p className="text-emerald-400 font-semibold">{flow.performance.efficiency}%</p>
+          <div className="text-center p-2 rounded">
+            <p className="text-muted-foreground">Efficiency</p>
+            <p className="text-green-600 dark:text-green-400 font-semibold">{flow.performance.efficiency}%</p>
           </div>
+        </div>
+        
+        <div className="text-xs text-muted-foreground">
+          Last activity: {new Date(flow.lastActivity).toLocaleString()}
         </div>
       </CardContent>
     </Card>
@@ -156,10 +149,10 @@ function ProcessFlowCard({ flow }: { flow: ProcessFlow }) {
 function SystemHealthCard({ health }: { health: SystemHealth }) {
   const getStatusColor = () => {
     switch (health.status) {
-      case 'healthy': return 'text-emerald-400';
-      case 'warning': return 'text-yellow-400';
-      case 'critical': return 'text-red-400';
-      default: return 'text-slate-400';
+      case 'healthy': return 'text-green-600 dark:text-green-400';
+      case 'warning': return 'text-yellow-600 dark:text-yellow-400';
+      case 'critical': return 'text-red-600 dark:text-red-400';
+      default: return 'text-muted-foreground';
     }
   };
 
@@ -168,7 +161,7 @@ function SystemHealthCard({ health }: { health: SystemHealth }) {
       case 'healthy': return CheckCircle;
       case 'warning': return AlertTriangle;
       case 'critical': return AlertTriangle;
-      default: return Activity;
+      default: return Shield;
     }
   };
 
@@ -178,42 +171,42 @@ function SystemHealthCard({ health }: { health: SystemHealth }) {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg text-slate-100">System Health</CardTitle>
+          <CardTitle className="text-lg text-foreground">System Health</CardTitle>
           <StatusIcon className={`h-5 w-5 ${getStatusColor()}`} />
         </div>
-        <CardDescription className="text-slate-400">
+        <CardDescription className="text-muted-foreground">
           Overall Status: <span className={getStatusColor()}>{health.status}</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-slate-400 text-sm">Uptime</p>
-            <p className="text-slate-100 font-semibold">{health.uptime}%</p>
+            <p className="text-muted-foreground text-sm">Uptime</p>
+            <p className="text-foreground font-semibold">{health.uptime}%</p>
           </div>
           <div>
-            <p className="text-slate-400 text-sm">Active Connections</p>
-            <p className="text-slate-100 font-semibold">{health.activeConnections}</p>
+            <p className="text-muted-foreground text-sm">Active Connections</p>
+            <p className="text-foreground font-semibold">{health.activeConnections}</p>
           </div>
         </div>
         
         <div className="space-y-3">
           <div>
-            <div className="flex justify-between text-sm text-slate-300 mb-1">
+            <div className="flex justify-between text-sm text-muted-foreground mb-1">
               <span>Memory Usage</span>
               <span>{health.memoryUsage}%</span>
             </div>
             <Progress value={health.memoryUsage} className="h-2" />
           </div>
           <div>
-            <div className="flex justify-between text-sm text-slate-300 mb-1">
+            <div className="flex justify-between text-sm text-muted-foreground mb-1">
               <span>CPU Usage</span>
               <span>{health.cpuUsage}%</span>
             </div>
             <Progress value={health.cpuUsage} className="h-2" />
           </div>
           <div>
-            <div className="flex justify-between text-sm text-slate-300 mb-1">
+            <div className="flex justify-between text-sm text-muted-foreground mb-1">
               <span>Disk Usage</span>
               <span>{health.diskUsage}%</span>
             </div>
@@ -229,10 +222,10 @@ function SystemHealthCard({ health }: { health: SystemHealth }) {
 function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
   const getLogLevelColor = (level: string) => {
     switch (level) {
-      case 'error': return 'text-red-400 border-red-400/20';
-      case 'warning': return 'text-yellow-400 border-yellow-400/20';
-      case 'info': return 'text-blue-400 border-blue-400/20';
-      default: return 'text-slate-400 border-slate-400/20';
+      case 'error': return 'text-red-600 dark:text-red-400 border-red-400/20';
+      case 'warning': return 'text-yellow-600 dark:text-yellow-400 border-yellow-400/20';
+      case 'info': return 'text-blue-600 dark:text-blue-400 border-blue-400/20';
+      default: return 'text-muted-foreground border-muted/20';
     }
   };
 
@@ -248,15 +241,15 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg text-slate-100">Sentinel Processing Logs</CardTitle>
-        <CardDescription className="text-slate-400">
+        <CardTitle className="text-lg text-foreground">Sentinel Processing Logs</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Real-time processing activity from Sentinel AI
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-3 max-h-96 overflow-y-auto">
           {logs.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">No logs available</p>
+            <p className="text-muted-foreground text-center py-8">No logs available</p>
           ) : (
             logs.map((log, index) => (
               <div key={index} className={`p-3 rounded-lg border ${getLogLevelColor(log.level)}`}>
@@ -264,20 +257,20 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
                   <span className="text-sm">{getLogLevelIcon(log.level)}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-muted-foreground">
                         {new Date(log.timestamp).toLocaleString()}
                       </span>
-                      <Badge variant="outline" className="text-xs border-slate-500">
+                      <Badge variant="outline" className="text-xs">
                         {log.level}
                       </Badge>
                     </div>
-                    <p className="text-sm font-mono break-words">{log.message}</p>
+                    <p className="text-sm font-mono break-words text-foreground">{log.message}</p>
                     {log.metadata && (
                       <details className="mt-2">
-                        <summary className="text-xs text-slate-400 cursor-pointer">
+                        <summary className="text-xs text-muted-foreground cursor-pointer">
                           Metadata
                         </summary>
-                        <pre className="text-xs text-slate-300 mt-1 p-2 rounded overflow-x-auto">
+                        <pre className="text-xs text-muted-foreground mt-1 p-2 rounded overflow-x-auto">
                           {JSON.stringify(log.metadata, null, 2)}
                         </pre>
                       </details>
@@ -391,11 +384,11 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
   return (
     <Card className="overflow-hidden">
       <CardHeader>
-        <CardTitle className="text-lg text-slate-100 flex items-center gap-2">
+        <CardTitle className="text-lg text-foreground flex items-center gap-2">
           <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
           Process Flow Visualization
         </CardTitle>
-        <CardDescription className="text-slate-400">
+        <CardDescription className="text-muted-foreground">
           Real-time data flow through the system
         </CardDescription>
       </CardHeader>
@@ -523,11 +516,11 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
                             <div className="absolute inset-0 h-10 w-10 bg-current rounded-full animate-ping opacity-20"></div>
                           )}
                         </div>
-                        <div className="text-sm font-bold text-slate-200 mb-2">{node.name}</div>
+                        <div className="text-sm font-bold text-foreground mb-2">{node.name}</div>
                         <div className="text-lg font-bold text-cyan-400 mb-1">
                           {node.data.toLocaleString()}
                         </div>
-                        <div className="text-xs text-slate-400">items</div>
+                        <div className="text-xs text-muted-foreground">items</div>
                       </div>
 
                       {/* Processing Animation Rings */}
@@ -545,7 +538,7 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
                     </div>
 
                     {/* Node Label with Animation */}
-                    <div className="text-xs text-slate-400 text-center max-w-24 leading-tight font-medium">
+                    <div className="text-xs text-muted-foreground text-center max-w-24 leading-tight font-medium">
                       {node.name}
                     </div>
                   </div>
@@ -558,7 +551,7 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
               <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <Zap className="h-4 w-4 text-cyan-400 animate-pulse" />
-                  <div className="text-sm font-bold text-slate-300">Total Throughput</div>
+                  <div className="text-sm font-bold text-foreground">Total Throughput</div>
                 </div>
                 <div className="text-2xl font-bold text-cyan-400 mb-1">
                   {processNodes.reduce((sum, node) => sum + node.data, 0).toLocaleString()}
@@ -569,12 +562,12 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
               <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <Activity className="h-4 w-4 text-emerald-400 animate-pulse" />
-                  <div className="text-sm font-bold text-slate-300">Active Nodes</div>
+                  <div className="text-sm font-bold text-foreground">Active Nodes</div>
                 </div>
                 <div className="text-2xl font-bold text-emerald-400 mb-1">
                   {processNodes.filter(n => n.status === 'active' || n.status === 'processing').length}
                 </div>
-                <div className="text-xs text-slate-400 font-medium">of {processNodes.length}</div>
+                <div className="text-xs text-muted-foreground font-medium">of {processNodes.length}</div>
               </div>
 
               {/* Sentinel Status with Advanced Styling */}
@@ -582,15 +575,15 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
                 <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl">
                   <div className="flex items-center gap-2 mb-2">
                     <Bot className="h-4 w-4 text-blue-400 animate-pulse" />
-                    <div className="text-sm font-bold text-slate-300">Sentinel Status</div>
+                    <div className="text-sm font-bold text-foreground">Sentinel Status</div>
                   </div>
                   <div className={`text-lg font-bold mb-1 ${
-                    sentinelMetrics.running ? 'text-blue-400' : sentinelMetrics.enabled ? 'text-emerald-400' : 'text-slate-400'
+                    sentinelMetrics.running ? 'text-blue-400' : sentinelMetrics.enabled ? 'text-emerald-400' : 'text-muted-foreground'
                   }`}>
                     {sentinelMetrics.running ? 'Processing' : sentinelMetrics.enabled ? 'Ready' : 'Disabled'}
                   </div>
                   {sentinelMetrics.nextRunAt && (
-                    <div className="text-xs text-slate-400 font-medium">
+                    <div className="text-xs text-muted-foreground font-medium">
                       Next: {new Date(sentinelMetrics.nextRunAt).toLocaleTimeString()}
                     </div>
                   )}
@@ -602,14 +595,14 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
             <div className="absolute bottom-4 left-4 space-y-3">
               <div className="flex items-center space-x-3 backdrop-blur-md rounded-xl px-4 py-3 border border-slate-600/50 shadow-xl">
                 <div className={`w-3 h-3 rounded-full animate-pulse ${sentinelMetrics?.enabled ? 'bg-emerald-500' : 'bg-slate-500'}`}></div>
-                <span className="text-sm font-medium text-slate-300">
+                <span className="text-sm font-medium text-muted-foreground">
                   {sentinelMetrics?.enabled ? 'System Operational' : 'System Disabled'}
                 </span>
               </div>
               
               <div className="flex items-center space-x-3 backdrop-blur-md rounded-xl px-4 py-3 border border-slate-600/50 shadow-xl">
                 <div className={`w-3 h-3 rounded-full animate-pulse ${sentinelMetrics?.running ? 'bg-cyan-500' : 'bg-slate-500'}`}></div>
-                <span className="text-sm font-medium text-slate-300">
+                <span className="text-sm font-medium text-muted-foreground">
                   {sentinelMetrics?.running ? 'Data Flowing' : 'Data Idle'}
                 </span>
               </div>
@@ -722,14 +715,14 @@ export default function ProcessingDashboard() {
     }));
   };
 
-  return (
-    <div className="min-h-screen text-slate-100">
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 [radial-gradient(circle_at_20%_50%,rgba(59,130,246,0.05),transparent_50%)]"></div>
-        <div className="absolute inset-0 [radial-gradient(circle_at_80%_50%,rgba(6,182,212,0.05),transparent_50%)]"></div>
-        <div className="absolute top-0 left-0 w-full h-full [url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%233b82f6%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
-      </div>
+      return (
+      <div className="min-h-screen bg-background text-foreground">
+        {/* Animated Background */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 [radial-gradient(circle_at_20%_50%,rgba(59,130,246,0.03),transparent_50%)]"></div>
+          <div className="absolute inset-0 [radial-gradient(circle_at_80%_50%,rgba(6,182,212,0.03),transparent_50%)]"></div>
+          <div className="absolute top-0 left-0 w-full h-full [url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%233b82f6%22%20fill-opacity%3D%220.02%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+        </div>
 
       <div className="relative z-10 container mx-auto p-6 space-y-6">
         {/* Header */}
@@ -738,56 +731,54 @@ export default function ProcessingDashboard() {
             <h1 className="text-4xl font-bold [gradient-to-r_from-cyan-400_to-blue-500] bg-clip-text text-transparent">
               Process Mining Dashboard
             </h1>
-            <p className="text-slate-400 mt-2">
+            <p className="text-muted-foreground mt-2">
               Advanced AI-powered process analysis and optimization system
             </p>
             {lastRefreshTime > 0 && (
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   Last updated: {new Date(lastRefreshTime).toLocaleTimeString()}
                 </p>
               </div>
             )}
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              onClick={handleManualRefresh}
-              disabled={loading}
-              variant="outline"
-              size="sm"
-              className="border-slate-600 text-slate-300 hover:border-slate-500"
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-slate-600 text-slate-300 hover:border-slate-500"
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
+                          <Button
+                onClick={handleManualRefresh}
+                disabled={loading}
+                variant="outline"
+                size="sm"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button
+                variant="outline" 
+                size="sm"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
           </div>
         </div>
 
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 border border-slate-600">
-            <TabsTrigger value="overview" className="data-[state=active]:text-cyan-400">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview">
               Overview
             </TabsTrigger>
-            <TabsTrigger value="processes" className="data-[state=active]:text-cyan-400">
+            <TabsTrigger value="processes">
               Process Flows
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:text-cyan-400">
+            <TabsTrigger value="analytics">
               Analytics
             </TabsTrigger>
-            <TabsTrigger value="health" className="data-[state=active]:text-cyan-400">
+            <TabsTrigger value="health">
               System Health
             </TabsTrigger>
-            <TabsTrigger value="logs" className="data-[state=active]:text-cyan-400">
+            <TabsTrigger value="logs">
               Sentinel Logs
             </TabsTrigger>
           </TabsList>
@@ -844,14 +835,14 @@ export default function ProcessingDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-slate-100">Performance Trends</CardTitle>
-                  <CardDescription className="text-slate-400">
+                  <CardTitle className="text-lg text-foreground">Performance Trends</CardTitle>
+                  <CardDescription className="text-muted-foreground">
                     System performance over time
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-64 flex items-center justify-center">
-                    <div className="text-slate-400 text-center">
+                    <div className="text-muted-foreground text-center">
                       <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
                       <p>Performance charts coming soon...</p>
                     </div>
@@ -861,14 +852,14 @@ export default function ProcessingDashboard() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-slate-100">Resource Utilization</CardTitle>
-                  <CardDescription className="text-slate-400">
+                  <CardTitle className="text-lg text-foreground">Resource Utilization</CardTitle>
+                  <CardDescription className="text-muted-foreground">
                     System resource usage patterns
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-64 flex items-center justify-center">
-                    <div className="text-slate-400 text-center">
+                    <div className="text-muted-foreground text-center">
                       <PieChart className="h-12 w-12 mx-auto mb-2 opacity-50" />
                       <p>Resource charts coming soon...</p>
                     </div>
@@ -885,41 +876,41 @@ export default function ProcessingDashboard() {
               
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-slate-100">Sentinel Status</CardTitle>
-                  <CardDescription className="text-slate-400">
+                  <CardTitle className="text-lg text-foreground">Sentinel Status</CardTitle>
+                  <CardDescription className="text-muted-foreground">
                     AI processing system status
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-slate-400 text-sm">Status</p>
+                      <p className="text-muted-foreground text-sm">Status</p>
                       <Badge variant={sentinelMetrics.running ? "default" : "secondary"} className="mt-1">
                         {sentinelMetrics.running ? 'Running' : 'Stopped'}
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-slate-400 text-sm">Sources</p>
-                      <p className="text-slate-100 font-semibold">{sentinelMetrics.sourcesCount}</p>
+                      <p className="text-muted-foreground text-sm">Sources</p>
+                      <p className="text-foreground font-semibold">{sentinelMetrics.sourcesCount}</p>
                     </div>
                   </div>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Last Run</span>
-                      <span className="text-slate-300">
+                      <span className="text-muted-foreground">Last Run</span>
+                      <span className="text-muted-foreground">
                         {sentinelMetrics.lastRunAt ? new Date(sentinelMetrics.lastRunAt).toLocaleString() : 'Never'}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Next Run</span>
-                      <span className="text-slate-300">
+                      <span className="text-muted-foreground">Next Run</span>
+                      <span className="text-muted-foreground">
                         {sentinelMetrics.nextRunAt ? new Date(sentinelMetrics.nextRunAt).toLocaleString() : 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Max Per Run</span>
-                      <span className="text-slate-300">{sentinelMetrics.maxPerRun}</span>
+                      <span className="text-muted-foreground">Max Per Run</span>
+                      <span className="text-muted-foreground">{sentinelMetrics.maxPerRun}</span>
                     </div>
                   </div>
 
