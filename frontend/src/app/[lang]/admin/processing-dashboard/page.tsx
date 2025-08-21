@@ -302,7 +302,8 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
       icon: Radio,
       status: sentinelMetrics?.enabled ? 'active' : 'idle',
       data: sentinelMetrics?.sourcesCount || 0,
-      position: 'left'
+      position: 'left',
+      color: 'emerald'
     },
     {
       id: 'sentinel',
@@ -310,7 +311,8 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
       icon: Bot,
       status: sentinelMetrics?.running ? 'processing' : (sentinelMetrics?.enabled ? 'active' : 'idle'),
       data: sentinelMetrics?.lastProcessed || 0,
-      position: 'center'
+      position: 'center',
+      color: 'blue'
     },
     {
       id: 'processing',
@@ -318,7 +320,8 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
       icon: Cpu,
       status: sentinelMetrics?.lastCreated > 0 ? 'active' : 'idle',
       data: sentinelMetrics?.lastCreated || 0,
-      position: 'center'
+      position: 'center',
+      color: 'cyan'
     },
     {
       id: 'seo',
@@ -326,7 +329,8 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
       icon: Target,
       status: 'active',
       data: data.find(d => d.name === 'SEO Optimization Engine')?.value || 0,
-      position: 'center'
+      position: 'center',
+      color: 'purple'
     },
     {
       id: 'output',
@@ -334,58 +338,99 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
       icon: FileCheck,
       status: sentinelMetrics?.lastCreated > 0 ? 'active' : 'idle',
       data: sentinelMetrics?.lastCreated || 0,
-      position: 'right'
+      position: 'right',
+      color: 'green'
     }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'border-emerald-500';
-      case 'processing': return 'border-blue-500';
-      case 'error': return 'border-red-500';
-      case 'idle': return 'border-slate-500';
-      default: return 'border-slate-500';
+  const getStatusColor = (status: string, color: string) => {
+    if (status === 'processing') return 'border-blue-500 bg-blue-500/10';
+    if (status === 'active') {
+      switch (color) {
+        case 'emerald': return 'border-emerald-500 bg-emerald-500/10';
+        case 'blue': return 'border-blue-500 bg-blue-500/10';
+        case 'cyan': return 'border-cyan-500 bg-cyan-500/10';
+        case 'purple': return 'border-purple-500 bg-purple-500/10';
+        case 'green': return 'border-green-500 bg-green-500/10';
+        default: return 'border-emerald-500 bg-emerald-500/10';
+      }
     }
+    return 'border-slate-500 bg-slate-500/10';
   };
 
-  const getStatusDot = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-emerald-500';
-      case 'processing': return 'bg-blue-500';
-      case 'error': return 'bg-red-500';
-      case 'idle': return 'bg-slate-500';
-      default: return 'bg-slate-500';
+  const getStatusGlow = (status: string, color: string) => {
+    if (status === 'processing') return 'shadow-blue-500/30 shadow-lg';
+    if (status === 'active') {
+      switch (color) {
+        case 'emerald': return 'shadow-emerald-500/30 shadow-lg';
+        case 'blue': return 'shadow-blue-500/30 shadow-lg';
+        case 'cyan': return 'shadow-cyan-500/30 shadow-lg';
+        case 'purple': return 'shadow-purple-500/30 shadow-lg';
+        case 'green': return 'shadow-green-500/30 shadow-lg';
+        default: return 'shadow-emerald-500/30 shadow-lg';
+      }
     }
+    return 'shadow-slate-500/20 shadow-lg';
   };
 
-  const getStatusGlow = (status: string) => {
-    switch (status) {
-      case 'active': return 'shadow-emerald-500/20';
-      case 'processing': return 'shadow-blue-500/20';
-      case 'error': return 'shadow-red-500/20';
-      case 'idle': return 'shadow-slate-500/20';
-      default: return 'shadow-slate-500/20';
+  const getIconColor = (status: string, color: string) => {
+    if (status === 'processing') return 'text-blue-400';
+    if (status === 'active') {
+      switch (color) {
+        case 'emerald': return 'text-emerald-400';
+        case 'blue': return 'text-blue-400';
+        case 'cyan': return 'text-cyan-400';
+        case 'purple': return 'text-purple-400';
+        case 'green': return 'text-green-400';
+        default: return 'text-emerald-400';
+      }
     }
+    return 'text-slate-500';
   };
 
   return (
-    <Card className="border-slate-600 backdrop-blur-sm">
+    <Card className="border-slate-600 backdrop-blur-sm overflow-hidden">
       <CardHeader>
-        <CardTitle className="text-lg text-slate-100">Process Flow Visualization</CardTitle>
+        <CardTitle className="text-lg text-slate-100 flex items-center gap-2">
+          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+          Process Flow Visualization
+        </CardTitle>
         <CardDescription className="text-slate-400">
           Real-time data flow through the system
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="relative h-80 rounded-lg overflow-hidden">
-          {/* Background Grid */}
-          <div className="absolute inset-0 opacity-20">
-            <div className="w-full h-full [linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] [size:20px_20px]"></div>
+        <div className="relative h-96 rounded-lg overflow-hidden bg-gradient-to-br from-slate-900/50 to-slate-800/50">
+          {/* Animated Background */}
+          <div className="absolute inset-0">
+            {/* Grid Pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="w-full h-full bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[size:30px_30px] animate-pulse"></div>
+            </div>
+            
+            {/* Floating Particles */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-1 h-1 bg-cyan-400/30 rounded-full animate-ping"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 3}s`,
+                    animationDuration: `${2 + Math.random() * 2}s`
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Energy Field Effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-blue-500/5 to-purple-500/5 animate-pulse"></div>
           </div>
 
           {/* Process Flow */}
           <div className="relative h-full flex items-center justify-between px-8">
-            {/* Flow Connections */}
+            {/* Flow Connections with Advanced Animation */}
             <div className="absolute inset-0 flex items-center justify-between px-20">
               {processNodes.slice(0, -1).map((node, index) => {
                 const nextNode = processNodes[index + 1];
@@ -395,57 +440,112 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
                 
                 return (
                   <div key={`connection-${index}`} className="flex-1 relative">
-                    {/* Flow Line */}
-                    <div className={`h-0.5 mx-4 relative ${isFlowing ? '[gradient-to-r_from-cyan-400/60_to-blue-500/60]' : 'bg-slate-600/30'}`}>
+                    {/* Main Flow Line */}
+                    <div className={`h-1 mx-4 relative rounded-full transition-all duration-500 ${
+                      isFlowing 
+                        ? 'bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 shadow-lg shadow-cyan-500/25' 
+                        : 'bg-slate-600/30'
+                    }`}>
                       {/* Animated Flow Particles */}
                       {isFlowing && (
-                        <div className="absolute inset-0 overflow-hidden">
-                          <div className="h-full w-8 [gradient-to-r_from-transparent_via-cyan-400_to-transparent] animate-pulse opacity-80"></div>
-                        </div>
+                        <>
+                          <div className="absolute inset-0 overflow-hidden rounded-full">
+                            <div className="h-full w-12 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse opacity-80"></div>
+                          </div>
+                          <div className="absolute inset-0 overflow-hidden rounded-full">
+                            <div className="h-full w-8 bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-pulse opacity-60" style={{animationDelay: '0.5s'}}></div>
+                          </div>
+                          <div className="absolute inset-0 overflow-hidden rounded-full">
+                            <div className="h-full w-6 bg-gradient-to-r from-transparent via-purple-400 to-transparent animate-pulse opacity-40" style={{animationDelay: '1s'}}></div>
+                          </div>
+                        </>
                       )}
                     </div>
+                    
                     {/* Flow Direction Arrow */}
                     <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      <ArrowRight className={`h-4 w-4 ${isFlowing ? 'text-cyan-400 animate-pulse' : 'text-slate-500'}`} />
+                      <ArrowRight className={`h-5 w-5 transition-all duration-300 ${
+                        isFlowing 
+                          ? 'text-cyan-400 animate-pulse drop-shadow-lg' 
+                          : 'text-slate-500'
+                      }`} />
                     </div>
+
+                    {/* Data Packets */}
+                    {isFlowing && (
+                      <div className="absolute inset-0 overflow-hidden">
+                        {[...Array(3)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="absolute w-2 h-2 bg-cyan-400 rounded-full animate-ping"
+                            style={{
+                              left: `${20 + i * 20}%`,
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              animationDelay: `${i * 0.5}s`,
+                              animationDuration: '2s'
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
 
-            {/* Process Nodes */}
+            {/* Process Nodes with 3D Effects */}
             <div className="relative w-full flex items-center justify-between">
               {processNodes.map((node, index) => {
                 const IconComponent = node.icon;
+                const isActive = node.status === 'active' || node.status === 'processing';
+                
                 return (
-                  <div key={node.id} className="flex flex-col items-center space-y-3 z-10">
-                    {/* Node */}
-                    <div className={`relative p-6 rounded-xl border-2 ${getStatusColor(node.status)} backdrop-blur-sm transition-all duration-300 hover:scale-105 shadow-lg ${getStatusGlow(node.status)}`}>
-                      {/* Status Indicator */}
-                      <div className={`absolute -top-2 -right-2 w-4 h-4 rounded-full ${getStatusDot(node.status)} animate-pulse border-2 border-slate-800`}></div>
+                  <div key={node.id} className="flex flex-col items-center space-y-4 z-10">
+                    {/* Node with 3D Transform */}
+                    <div className={`relative p-6 rounded-2xl border-2 transition-all duration-500 hover:scale-110 hover:rotate-1 ${
+                      getStatusColor(node.status, node.color)
+                    } ${getStatusGlow(node.status, node.color)} transform perspective-1000`}>
                       
-                      {/* Node Content */}
-                      <div className="text-center">
-                        <IconComponent className={`h-8 w-8 mx-auto mb-3 ${node.status === 'processing' ? 'text-blue-400' : node.status === 'active' ? 'text-cyan-400' : 'text-slate-500'}`} />
-                        <div className="text-sm font-medium text-slate-200 mb-1">{node.name}</div>
-                        <div className="text-xs text-slate-400">
-                          {node.data.toLocaleString()} items
+                      {/* Status Indicator with Pulse Ring */}
+                      <div className="absolute -top-3 -right-3">
+                        <div className={`w-5 h-5 rounded-full ${node.status === 'processing' ? 'bg-blue-500' : isActive ? 'bg-emerald-500' : 'bg-slate-500'} animate-pulse border-2 border-slate-800`}></div>
+                        {isActive && (
+                          <div className={`absolute inset-0 w-5 h-5 rounded-full ${node.status === 'processing' ? 'bg-blue-500' : 'bg-emerald-500'} animate-ping opacity-30`}></div>
+                        )}
+                      </div>
+                      
+                      {/* Node Content with Hover Effects */}
+                      <div className="text-center transform transition-all duration-300 hover:scale-105">
+                        <div className={`relative mb-4 ${getIconColor(node.status, node.color)}`}>
+                          <IconComponent className="h-10 w-10 mx-auto drop-shadow-lg" />
+                          {isActive && (
+                            <div className="absolute inset-0 h-10 w-10 bg-current rounded-full animate-ping opacity-20"></div>
+                          )}
                         </div>
+                        <div className="text-sm font-bold text-slate-200 mb-2">{node.name}</div>
+                        <div className="text-lg font-bold text-cyan-400 mb-1">
+                          {node.data.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-slate-400">items</div>
                       </div>
 
-                      {/* Processing Animation */}
+                      {/* Processing Animation Rings */}
                       {node.status === 'processing' && (
-                        <div className="absolute inset-0 rounded-xl border-2 border-blue-400 animate-ping opacity-30"></div>
+                        <>
+                          <div className="absolute inset-0 rounded-2xl border-2 border-blue-400 animate-ping opacity-20"></div>
+                          <div className="absolute inset-0 rounded-2xl border-2 border-blue-400 animate-ping opacity-10" style={{animationDelay: '0.5s'}}></div>
+                        </>
                       )}
                       
                       {/* Active Glow Effect */}
-                      {node.status === 'active' && (
-                        <div className="absolute inset-0 rounded-xl shadow-emerald-500/20 shadow-lg"></div>
+                      {isActive && (
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-current to-transparent opacity-5 animate-pulse"></div>
                       )}
                     </div>
 
-                    {/* Node Label */}
-                    <div className="text-xs text-slate-400 text-center max-w-24 leading-tight">
+                    {/* Node Label with Animation */}
+                    <div className="text-xs text-slate-400 text-center max-w-24 leading-tight font-medium">
                       {node.name}
                     </div>
                   </div>
@@ -453,42 +553,44 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
               })}
             </div>
 
-            {/* Floating Metrics */}
-            <div className="absolute top-4 right-4 space-y-2">
-              <div className="backdrop-blur-sm rounded-lg p-3 border border-slate-600 shadow-lg">
-                <div className="flex items-center gap-2 mb-1">
-                  <Zap className="h-3 w-3 text-cyan-400" />
-                  <div className="text-xs text-slate-400">Total Throughput</div>
+            {/* Advanced Metrics Panel */}
+            <div className="absolute top-4 right-4 space-y-3">
+              <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl bg-slate-800/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="h-4 w-4 text-cyan-400 animate-pulse" />
+                  <div className="text-sm font-bold text-slate-300">Total Throughput</div>
                 </div>
-                <div className="text-lg font-bold text-cyan-400">
+                <div className="text-2xl font-bold text-cyan-400 mb-1">
                   {processNodes.reduce((sum, node) => sum + node.data, 0).toLocaleString()}
                 </div>
-                <div className="text-xs text-emerald-400">items/min</div>
+                <div className="text-xs text-emerald-400 font-medium">items/min</div>
               </div>
               
-              <div className="backdrop-blur-sm rounded-lg p-3 border border-slate-600 shadow-lg">
-                <div className="flex items-center gap-2 mb-1">
-                  <Activity className="h-3 w-3 text-emerald-400" />
-                  <div className="text-xs text-slate-400">Active Nodes</div>
+              <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl bg-slate-800/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <Activity className="h-4 w-4 text-emerald-400 animate-pulse" />
+                  <div className="text-sm font-bold text-slate-300">Active Nodes</div>
                 </div>
-                <div className="text-lg font-bold text-emerald-400">
+                <div className="text-2xl font-bold text-emerald-400 mb-1">
                   {processNodes.filter(n => n.status === 'active' || n.status === 'processing').length}
                 </div>
-                <div className="text-xs text-slate-400">of {processNodes.length}</div>
+                <div className="text-xs text-slate-400 font-medium">of {processNodes.length}</div>
               </div>
 
-              {/* Sentinel Status */}
+              {/* Sentinel Status with Advanced Styling */}
               {sentinelMetrics && (
-                <div className="backdrop-blur-sm rounded-lg p-3 border border-slate-600 shadow-lg">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Bot className="h-3 w-3 text-blue-400" />
-                    <div className="text-xs text-slate-400">Sentinel Status</div>
+                <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl bg-slate-800/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Bot className="h-4 w-4 text-blue-400 animate-pulse" />
+                    <div className="text-sm font-bold text-slate-300">Sentinel Status</div>
                   </div>
-                  <div className={`text-sm font-bold ${sentinelMetrics.running ? 'text-blue-400' : sentinelMetrics.enabled ? 'text-emerald-400' : 'text-slate-400'}`}>
+                  <div className={`text-lg font-bold mb-1 ${
+                    sentinelMetrics.running ? 'text-blue-400' : sentinelMetrics.enabled ? 'text-emerald-400' : 'text-slate-400'
+                  }`}>
                     {sentinelMetrics.running ? 'Processing' : sentinelMetrics.enabled ? 'Ready' : 'Disabled'}
                   </div>
                   {sentinelMetrics.nextRunAt && (
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs text-slate-400 font-medium">
                       Next: {new Date(sentinelMetrics.nextRunAt).toLocaleTimeString()}
                     </div>
                   )}
@@ -496,28 +598,29 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
               )}
             </div>
 
-            {/* Performance Indicators */}
-            <div className="absolute bottom-4 left-4 space-y-2">
-              <div className="flex items-center space-x-2 backdrop-blur-sm rounded-lg px-3 py-2 border border-slate-600 shadow-lg">
-                <div className={`w-2 h-2 rounded-full animate-pulse ${sentinelMetrics?.enabled ? 'bg-emerald-500' : 'bg-slate-500'}`}></div>
-                <span className="text-xs text-slate-300">
+            {/* Performance Indicators with Advanced Styling */}
+            <div className="absolute bottom-4 left-4 space-y-3">
+              <div className="flex items-center space-x-3 backdrop-blur-md rounded-xl px-4 py-3 border border-slate-600/50 shadow-xl bg-slate-800/30">
+                <div className={`w-3 h-3 rounded-full animate-pulse ${sentinelMetrics?.enabled ? 'bg-emerald-500' : 'bg-slate-500'}`}></div>
+                <span className="text-sm font-medium text-slate-300">
                   {sentinelMetrics?.enabled ? 'System Operational' : 'System Disabled'}
                 </span>
               </div>
               
-              <div className="flex items-center space-x-2 backdrop-blur-sm rounded-lg px-3 py-2 border border-slate-600 shadow-lg">
-                <div className={`w-2 h-2 rounded-full animate-pulse ${sentinelMetrics?.running ? 'bg-cyan-500' : 'bg-slate-500'}`}></div>
-                <span className="text-xs text-slate-300">
+              <div className="flex items-center space-x-3 backdrop-blur-md rounded-xl px-4 py-3 border border-slate-600/50 shadow-xl bg-slate-800/30">
+                <div className={`w-3 h-3 rounded-full animate-pulse ${sentinelMetrics?.running ? 'bg-cyan-500' : 'bg-slate-500'}`}></div>
+                <span className="text-sm font-medium text-slate-300">
                   {sentinelMetrics?.running ? 'Data Flowing' : 'Data Idle'}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Animated Background Elements */}
-          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-cyan-400 rounded-full animate-ping opacity-40"></div>
-          <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-blue-400 rounded-full animate-ping opacity-30 delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping opacity-35 delay-500"></div>
+          {/* Additional Animated Elements */}
+          <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-cyan-400 rounded-full animate-ping opacity-40"></div>
+          <div className="absolute top-3/4 right-1/4 w-2 h-2 bg-blue-400 rounded-full animate-ping opacity-30 delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping opacity-35 delay-500"></div>
+          <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-purple-400 rounded-full animate-ping opacity-25 delay-1500"></div>
         </div>
       </CardContent>
     </Card>
