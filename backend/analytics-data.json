@@ -4,12 +4,12 @@
     "/news": 936,
     "/news/featured": 774,
     "/categories": 1681,
-    "/notifications/count": 5036,
+    "/notifications/count": 5046,
     "/dashboard/advanced-stats": 757,
     "/maintenance-status": 447,
     "/auth/login": 34,
-    "/auth/profile": 881,
-    "/notifications": 914,
+    "/auth/profile": 883,
+    "/notifications": 915,
     "/dashboard/stats": 1334,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -17,7 +17,7 @@
     "/admin/security/stats": 12,
     "/admin/settings/general": 10,
     "/dashboard/analytics": 103,
-    "/admin/system/metrics": 723,
+    "/admin/system/metrics": 742,
     "/dashboard/export": 2,
     "/admin/user-logins/map": 415,
     "/auth/google": 14,
@@ -123,11 +123,11 @@
     "/comments/6896d76d35003ae5b6370ba9/like": 2,
     "/admin/comments/6894625c70cb3d494df61813": 1,
     "/comments/6896de0335003ae5b6371192/like": 2,
-    "/admin/system/sentinel": 254,
+    "/admin/system/sentinel": 289,
     "/admin/system/matric": 3,
     "/admin/system": 1,
     "/admin/system/sentinel/run-once": 31,
-    "/admin/system/sentinel/logs": 2197,
+    "/admin/system/sentinel/logs": 2220,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -311,10 +311,10 @@
     "/likes/6898049b577870e5f520a5e2/status": 1,
     "/comments/6898049b577870e5f520a5e2": 1,
     "/comments/6898049b577870e5f520a5e2/stats": 1,
-    "/admin/auto-publish/stats": 230,
-    "/admin/auto-publish/logs": 37,
-    "/admin/auto-publish/settings": 37,
-    "/admin/auto-publish/telegram-settings": 19,
+    "/admin/auto-publish/stats": 256,
+    "/admin/auto-publish/logs": 38,
+    "/admin/auto-publish/settings": 38,
+    "/admin/auto-publish/telegram-settings": 20,
     "/admin/auto-publish/test-telegram": 2,
     "/admin/auto-publish/sentinel": 1,
     "/news/air-canada-strike-flight-attendants-defy-court-order": 2,
@@ -325,8 +325,8 @@
     "/news/68a4e39099fd4c8fc523359e": 5,
     "/news/68a4e39099fd4c8fc523359e/format-content": 11,
     "/news/analyze-content": 120,
-    "/admin/news": 288,
-    "/admin/seo/stats": 191
+    "/admin/news": 358,
+    "/admin/seo/stats": 249
   },
   "userActions": {},
   "dailyStats": {
@@ -560,26 +560,26 @@
       }
     },
     "2025-08-21": {
-      "pageViews": 705,
+      "pageViews": 952,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
         "Direct": 4,
-        "Referral": 701
+        "Referral": 948
       },
       "deviceTypes": {
-        "Desktop": 705
+        "Desktop": 952
       }
     }
   },
   "trafficSources": {
     "Direct": 4243,
-    "Referral": 19420
+    "Referral": 19667
   },
   "deviceTypes": {
-    "Desktop": 22939,
+    "Desktop": 23186,
     "Mobile": 724
   }
 }

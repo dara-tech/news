@@ -294,6 +294,67 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
 
 // Process Flow Diagram Component
 function ProcessFlowDiagram({ data }: { data: any[] }) {
+  const processNodes = [
+    {
+      id: 'input',
+      name: 'RSS Sources',
+      icon: '📡',
+      status: 'active',
+      data: data.find(d => d.name === 'RSS Sources')?.value || 0,
+      position: 'left'
+    },
+    {
+      id: 'sentinel',
+      name: 'Sentinel AI',
+      icon: '🤖',
+      status: 'active',
+      data: data.find(d => d.name === 'Sentinel Auto-Publish')?.value || 0,
+      position: 'center'
+    },
+    {
+      id: 'processing',
+      name: 'Content Processing',
+      icon: '⚙️',
+      status: 'active',
+      data: data.find(d => d.name === 'Content Processing Pipeline')?.value || 0,
+      position: 'center'
+    },
+    {
+      id: 'seo',
+      name: 'SEO Optimization',
+      icon: '🎯',
+      status: 'active',
+      data: data.find(d => d.name === 'SEO Optimization Engine')?.value || 0,
+      position: 'center'
+    },
+    {
+      id: 'output',
+      name: 'Published Articles',
+      icon: '📰',
+      status: 'active',
+      data: data.find(d => d.name === 'Published Articles')?.value || 0,
+      position: 'right'
+    }
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'border-emerald-500 bg-emerald-500/10';
+      case 'processing': return 'border-blue-500 bg-blue-500/10';
+      case 'error': return 'border-red-500 bg-red-500/10';
+      default: return 'border-slate-500 bg-slate-500/10';
+    }
+  };
+
+  const getStatusDot = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-emerald-500';
+      case 'processing': return 'bg-blue-500';
+      case 'error': return 'bg-red-500';
+      default: return 'bg-slate-500';
+    }
+  };
+
   return (
     <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm">
       <CardHeader>
@@ -303,11 +364,97 @@ function ProcessFlowDiagram({ data }: { data: any[] }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-64 flex items-center justify-center">
-          <div className="text-slate-400 text-center">
-            <BarChart className="h-12 w-12 mx-auto mb-2 opacity-50" />
-            <p>Process flow visualization coming soon...</p>
+        <div className="relative h-80 overflow-hidden">
+          {/* Background Grid */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="w-full h-full bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
           </div>
+
+          {/* Process Flow */}
+          <div className="relative h-full flex items-center justify-between px-8">
+            {/* Flow Connections */}
+            <div className="absolute inset-0 flex items-center justify-between px-16">
+              {processNodes.slice(0, -1).map((node, index) => (
+                <div key={`connection-${index}`} className="flex-1 h-0.5 bg-gradient-to-r from-cyan-400/50 to-blue-500/50 relative">
+                  {/* Animated Flow Particles */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    <div className="h-full w-4 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse opacity-60"></div>
+                  </div>
+                  {/* Flow Direction Arrow */}
+                  <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-0 h-0 border-l-4 border-l-cyan-400 border-t-2 border-t-transparent border-b-2 border-b-transparent"></div>
+                </div>
+              ))}
+            </div>
+
+            {/* Process Nodes */}
+            <div className="relative w-full flex items-center justify-between">
+              {processNodes.map((node, index) => (
+                <div key={node.id} className="flex flex-col items-center space-y-3">
+                  {/* Node */}
+                  <div className={`relative p-4 rounded-xl border-2 ${getStatusColor(node.status)} backdrop-blur-sm transition-all duration-300 hover:scale-105`}>
+                    {/* Status Indicator */}
+                    <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusDot(node.status)} animate-pulse`}></div>
+                    
+                    {/* Node Content */}
+                    <div className="text-center">
+                      <div className="text-2xl mb-2">{node.icon}</div>
+                      <div className="text-sm font-medium text-slate-200">{node.name}</div>
+                      <div className="text-xs text-slate-400 mt-1">
+                        {node.data.toLocaleString()} items
+                      </div>
+                    </div>
+
+                    {/* Processing Animation */}
+                    {node.status === 'processing' && (
+                      <div className="absolute inset-0 rounded-xl border-2 border-blue-400 animate-ping opacity-20"></div>
+                    )}
+                  </div>
+
+                  {/* Node Label */}
+                  <div className="text-xs text-slate-400 text-center max-w-20">
+                    {node.name}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Floating Metrics */}
+            <div className="absolute top-4 right-4 space-y-2">
+              <div className="bg-slate-700/80 backdrop-blur-sm rounded-lg p-3 border border-slate-600">
+                <div className="text-xs text-slate-400">Total Throughput</div>
+                <div className="text-lg font-bold text-cyan-400">
+                  {processNodes.reduce((sum, node) => sum + node.data, 0).toLocaleString()}
+                </div>
+                <div className="text-xs text-emerald-400">items/min</div>
+              </div>
+              
+              <div className="bg-slate-700/80 backdrop-blur-sm rounded-lg p-3 border border-slate-600">
+                <div className="text-xs text-slate-400">Active Nodes</div>
+                <div className="text-lg font-bold text-emerald-400">
+                  {processNodes.filter(n => n.status === 'active').length}
+                </div>
+                <div className="text-xs text-slate-400">of {processNodes.length}</div>
+              </div>
+            </div>
+
+            {/* Performance Indicators */}
+            <div className="absolute bottom-4 left-4 space-y-2">
+              <div className="flex items-center space-x-2 bg-slate-700/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-slate-600">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-slate-300">System Operational</span>
+              </div>
+              
+              <div className="flex items-center space-x-2 bg-slate-700/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-slate-600">
+                <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-slate-300">Data Flowing</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Animated Background Elements */}
+          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-cyan-400 rounded-full animate-ping opacity-60"></div>
+          <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-blue-400 rounded-full animate-ping opacity-40 delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping opacity-50 delay-500"></div>
         </div>
       </CardContent>
     </Card>
@@ -669,11 +816,6 @@ export default function ProcessingDashboard() {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-
-          {/* Sentinel Logs Tab */}
-          <TabsContent value="logs" className="space-y-6">
-            <SentinelLogsCard logs={sentinelLogs} />
           </TabsContent>
 
           {/* Sentinel Logs Tab */}
