@@ -4,12 +4,12 @@
     "/news": 936,
     "/news/featured": 774,
     "/categories": 1681,
-    "/notifications/count": 5046,
+    "/notifications/count": 5122,
     "/dashboard/advanced-stats": 757,
     "/maintenance-status": 447,
     "/auth/login": 34,
-    "/auth/profile": 883,
-    "/notifications": 915,
+    "/auth/profile": 888,
+    "/notifications": 919,
     "/dashboard/stats": 1334,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -17,7 +17,7 @@
     "/admin/security/stats": 12,
     "/admin/settings/general": 10,
     "/dashboard/analytics": 103,
-    "/admin/system/metrics": 742,
+    "/admin/system/metrics": 887,
     "/dashboard/export": 2,
     "/admin/user-logins/map": 415,
     "/auth/google": 14,
@@ -123,11 +123,11 @@
     "/comments/6896d76d35003ae5b6370ba9/like": 2,
     "/admin/comments/6894625c70cb3d494df61813": 1,
     "/comments/6896de0335003ae5b6371192/like": 2,
-    "/admin/system/sentinel": 289,
+    "/admin/system/sentinel": 576,
     "/admin/system/matric": 3,
     "/admin/system": 1,
     "/admin/system/sentinel/run-once": 31,
-    "/admin/system/sentinel/logs": 2220,
+    "/admin/system/sentinel/logs": 2365,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -325,8 +325,8 @@
     "/news/68a4e39099fd4c8fc523359e": 5,
     "/news/68a4e39099fd4c8fc523359e/format-content": 11,
     "/news/analyze-content": 120,
-    "/admin/news": 358,
-    "/admin/seo/stats": 249
+    "/admin/news": 645,
+    "/admin/seo/stats": 536
   },
   "userActions": {},
   "dailyStats": {
@@ -560,26 +560,26 @@
       }
     },
     "2025-08-21": {
-      "pageViews": 952,
+      "pageViews": 2188,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
         "Direct": 4,
-        "Referral": 948
+        "Referral": 2184
       },
       "deviceTypes": {
-        "Desktop": 952
+        "Desktop": 2188
       }
     }
   },
   "trafficSources": {
     "Direct": 4243,
-    "Referral": 19667
+    "Referral": 20903
   },
   "deviceTypes": {
-    "Desktop": 23186,
+    "Desktop": 24422,
     "Mobile": 724
   }
 }
