@@ -288,7 +288,7 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
 
 // Process Flow Diagram Component
 function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMetrics: any }) {
-  const processNodes = [
+  const [processNodes, setProcessNodes] = useState([
     {
       id: 'input',
       name: 'RSS Sources',
@@ -334,7 +334,62 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
       position: 'right',
       color: 'green'
     }
-  ];
+  ]);
+
+  const [draggedNode, setDraggedNode] = useState<string | null>(null);
+  const [dragOverNode, setDragOverNode] = useState<string | null>(null);
+
+  // Update nodes when data changes
+  useEffect(() => {
+    setProcessNodes(prev => prev.map(node => ({
+      ...node,
+      status: node.id === 'input' ? (sentinelMetrics?.enabled ? 'active' : 'idle') :
+              node.id === 'sentinel' ? (sentinelMetrics?.running ? 'processing' : (sentinelMetrics?.enabled ? 'active' : 'idle')) :
+              node.id === 'processing' ? (sentinelMetrics?.lastCreated > 0 ? 'active' : 'idle') :
+              node.id === 'seo' ? 'active' :
+              node.id === 'output' ? (sentinelMetrics?.lastCreated > 0 ? 'active' : 'idle') : 'idle',
+      data: node.id === 'input' ? (sentinelMetrics?.sourcesCount || 0) :
+            node.id === 'sentinel' ? (sentinelMetrics?.lastProcessed || 0) :
+            node.id === 'processing' ? (sentinelMetrics?.lastCreated || 0) :
+            node.id === 'seo' ? (data.find(d => d.name === 'SEO Optimization Engine')?.value || 0) :
+            node.id === 'output' ? (sentinelMetrics?.lastCreated || 0) : 0
+    })));
+  }, [sentinelMetrics, data]);
+
+  const handleDragStart = (e: React.DragEvent, nodeId: string) => {
+    setDraggedNode(nodeId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', nodeId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, nodeId: string) => {
+    e.preventDefault();
+    if (draggedNode && draggedNode !== nodeId) {
+      setDragOverNode(nodeId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverNode(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetNodeId: string) => {
+    e.preventDefault();
+    if (draggedNode && draggedNode !== targetNodeId) {
+      const draggedIndex = processNodes.findIndex(node => node.id === draggedNode);
+      const targetIndex = processNodes.findIndex(node => node.id === targetNodeId);
+      
+      const newNodes = [...processNodes];
+      const [draggedNodeData] = newNodes.splice(draggedIndex, 1);
+      newNodes.splice(targetIndex, 0, draggedNodeData);
+      
+      setProcessNodes(newNodes);
+      toast.success(`Moved ${draggedNodeData.name} to new position`);
+    }
+    setDraggedNode(null);
+    setDragOverNode(null);
+  };
+
 
   const getStatusColor = (status: string, color: string) => {
     if (status === 'processing') return 'border-blue-500 bg-blue-50 dark:bg-blue-950/20';
@@ -371,7 +426,7 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
       <CardHeader>
         <CardTitle className="text-lg text-foreground">Process Flow</CardTitle>
         <CardDescription className="text-muted-foreground">
-          Real-time data flow through the system
+          Drag nodes to rearrange the process flow
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -416,9 +471,18 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
                 return (
                   <div key={node.id} className="flex flex-col items-center space-y-2">
                     {/* Node */}
-                    <div className={`relative p-4 rounded-lg border transition-all duration-300 hover:scale-105 ${
-                      getStatusColor(node.status, node.color)
-                    }`}>
+                    <div 
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, node.id)}
+                      onDragOver={(e) => handleDragOver(e, node.id)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, node.id)}
+                      className={`relative p-4 rounded-lg border transition-all duration-300 hover:scale-105 cursor-move ${
+                        getStatusColor(node.status, node.color)
+                      } ${draggedNode === node.id ? 'opacity-50 scale-95' : ''} ${
+                        dragOverNode === node.id ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
+                      }`}
+                    >
                       
                       {/* Status Indicator */}
                       <div className="absolute -top-1 -right-1">
