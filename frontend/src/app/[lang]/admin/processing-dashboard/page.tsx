@@ -52,7 +52,7 @@ function ProcessMetricsCard({
   };
 
   return (
-    <Card className="border-slate-600 backdrop-blur-sm hover:border-slate-500 transition-all duration-300">
+    <Card className="hover:border-slate-500 transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-slate-300">{title}</CardTitle>
         <Icon className="h-4 w-4 text-cyan-400" />
@@ -90,7 +90,7 @@ function ProcessFlowCard({ flow }: { flow: ProcessFlow }) {
   };
 
   return (
-    <Card >
+    <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg text-slate-100">{flow.name}</CardTitle>
@@ -175,7 +175,7 @@ function SystemHealthCard({ health }: { health: SystemHealth }) {
   const StatusIcon = getStatusIcon();
 
   return (
-    <Card className="border-slate-600 backdrop-blur-sm">
+    <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg text-slate-100">System Health</CardTitle>
@@ -246,7 +246,7 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
   };
 
   return (
-    <Card className="border-slate-600 backdrop-blur-sm">
+    <Card>
       <CardHeader>
         <CardTitle className="text-lg text-slate-100">Sentinel Processing Logs</CardTitle>
         <CardDescription className="text-slate-400">
@@ -344,18 +344,18 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
   ];
 
   const getStatusColor = (status: string, color: string) => {
-    if (status === 'processing') return 'border-blue-500 bg-blue-500/10';
+    if (status === 'processing') return 'border-blue-500';
     if (status === 'active') {
       switch (color) {
-        case 'emerald': return 'border-emerald-500 bg-emerald-500/10';
-        case 'blue': return 'border-blue-500 bg-blue-500/10';
-        case 'cyan': return 'border-cyan-500 bg-cyan-500/10';
-        case 'purple': return 'border-purple-500 bg-purple-500/10';
-        case 'green': return 'border-green-500 bg-green-500/10';
-        default: return 'border-emerald-500 bg-emerald-500/10';
+        case 'emerald': return 'border-emerald-500';
+        case 'blue': return 'border-blue-500';
+        case 'cyan': return 'border-cyan-500';
+        case 'purple': return 'border-purple-500';
+        case 'green': return 'border-green-500';
+        default: return 'border-emerald-500';
       }
     }
-    return 'border-slate-500 bg-slate-500/10';
+    return 'border-slate-500';
   };
 
   const getStatusGlow = (status: string, color: string) => {
@@ -389,7 +389,7 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
   };
 
   return (
-    <Card className="border-slate-600 backdrop-blur-sm overflow-hidden">
+    <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle className="text-lg text-slate-100 flex items-center gap-2">
           <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
@@ -400,7 +400,7 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="relative h-96 rounded-lg overflow-hidden bg-gradient-to-br from-slate-900/50 to-slate-800/50">
+        <div className="relative h-96 rounded-lg overflow-hidden">
           {/* Animated Background */}
           <div className="absolute inset-0">
             {/* Grid Pattern */}
@@ -555,7 +555,7 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
 
             {/* Advanced Metrics Panel */}
             <div className="absolute top-4 right-4 space-y-3">
-              <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl bg-slate-800/30">
+              <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <Zap className="h-4 w-4 text-cyan-400 animate-pulse" />
                   <div className="text-sm font-bold text-slate-300">Total Throughput</div>
@@ -566,7 +566,7 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
                 <div className="text-xs text-emerald-400 font-medium">items/min</div>
               </div>
               
-              <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl bg-slate-800/30">
+              <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <Activity className="h-4 w-4 text-emerald-400 animate-pulse" />
                   <div className="text-sm font-bold text-slate-300">Active Nodes</div>
@@ -579,7 +579,7 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
 
               {/* Sentinel Status with Advanced Styling */}
               {sentinelMetrics && (
-                <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl bg-slate-800/30">
+                <div className="backdrop-blur-md rounded-xl p-4 border border-slate-600/50 shadow-xl">
                   <div className="flex items-center gap-2 mb-2">
                     <Bot className="h-4 w-4 text-blue-400 animate-pulse" />
                     <div className="text-sm font-bold text-slate-300">Sentinel Status</div>
@@ -600,14 +600,14 @@ function ProcessFlowDiagram({ data, sentinelMetrics }: { data: any[], sentinelMe
 
             {/* Performance Indicators with Advanced Styling */}
             <div className="absolute bottom-4 left-4 space-y-3">
-              <div className="flex items-center space-x-3 backdrop-blur-md rounded-xl px-4 py-3 border border-slate-600/50 shadow-xl bg-slate-800/30">
+              <div className="flex items-center space-x-3 backdrop-blur-md rounded-xl px-4 py-3 border border-slate-600/50 shadow-xl">
                 <div className={`w-3 h-3 rounded-full animate-pulse ${sentinelMetrics?.enabled ? 'bg-emerald-500' : 'bg-slate-500'}`}></div>
                 <span className="text-sm font-medium text-slate-300">
                   {sentinelMetrics?.enabled ? 'System Operational' : 'System Disabled'}
                 </span>
               </div>
               
-              <div className="flex items-center space-x-3 backdrop-blur-md rounded-xl px-4 py-3 border border-slate-600/50 shadow-xl bg-slate-800/30">
+              <div className="flex items-center space-x-3 backdrop-blur-md rounded-xl px-4 py-3 border border-slate-600/50 shadow-xl">
                 <div className={`w-3 h-3 rounded-full animate-pulse ${sentinelMetrics?.running ? 'bg-cyan-500' : 'bg-slate-500'}`}></div>
                 <span className="text-sm font-medium text-slate-300">
                   {sentinelMetrics?.running ? 'Data Flowing' : 'Data Idle'}
@@ -842,7 +842,7 @@ export default function ProcessingDashboard() {
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-slate-600 backdrop-blur-sm">
+              <Card>
                 <CardHeader>
                   <CardTitle className="text-lg text-slate-100">Performance Trends</CardTitle>
                   <CardDescription className="text-slate-400">
@@ -859,7 +859,7 @@ export default function ProcessingDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="border-slate-600 backdrop-blur-sm">
+              <Card>
                 <CardHeader>
                   <CardTitle className="text-lg text-slate-100">Resource Utilization</CardTitle>
                   <CardDescription className="text-slate-400">
@@ -883,7 +883,7 @@ export default function ProcessingDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <SystemHealthCard health={systemHealth} />
               
-              <Card className="border-slate-600 backdrop-blur-sm">
+              <Card>
                 <CardHeader>
                   <CardTitle className="text-lg text-slate-100">Sentinel Status</CardTitle>
                   <CardDescription className="text-slate-400">
