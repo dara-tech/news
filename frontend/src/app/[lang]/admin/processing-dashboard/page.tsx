@@ -1,83 +1,470 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   RefreshCw, Settings, TrendingUp, PieChart, BarChart, Gauge,
-  Database, FileText, Clock, Shield
+  Database, FileText, Clock, Shield, Activity, AlertTriangle, CheckCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { 
+  ProcessingDashboardService, 
+  ProcessingMetrics, 
+  ProcessFlow, 
+  SystemHealth,
+  SentinelLog,
+  SentinelMetrics
+} from '@/lib/processingDashboardService';
 
-// Import components
-import ProcessMetricsCard from '@/components/admin/processing-dashboard/ProcessMetricsCard';
-import ProcessFlowDiagram from '@/components/admin/processing-dashboard/ProcessFlowDiagram';
-import ProcessFlowCard from '@/components/admin/processing-dashboard/ProcessFlowCard';
-import SystemHealthCard from '@/components/admin/processing-dashboard/SystemHealthCard';
+// Process Metrics Card Component
+function ProcessMetricsCard({ 
+  title, 
+  value, 
+  change, 
+  icon: Icon, 
+  trend 
+}: { 
+  title: string; 
+  value: string; 
+  change: string; 
+  icon: any; 
+  trend: 'up' | 'down' | 'neutral' 
+}) {
+  const getTrendColor = () => {
+    switch (trend) {
+      case 'up': return 'text-emerald-400';
+      case 'down': return 'text-red-400';
+      default: return 'text-slate-400';
+    }
+  };
 
-// Import service and types
-import { ProcessingDashboardService, ProcessingMetrics, ProcessFlow, SystemHealth } from '@/lib/processingDashboardService';
+  const getTrendIcon = () => {
+    switch (trend) {
+      case 'up': return '↗';
+      case 'down': return '↘';
+      default: return '→';
+    }
+  };
+
+  return (
+    <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm hover:bg-slate-700/50 transition-all duration-300">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-slate-300">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-cyan-400" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold text-slate-100">{value}</div>
+        <p className={`text-xs ${getTrendColor()} flex items-center gap-1 mt-1`}>
+          <span>{getTrendIcon()}</span>
+          {change}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Process Flow Card Component
+function ProcessFlowCard({ flow }: { flow: ProcessFlow }) {
+  const getStatusColor = () => {
+    switch (flow.status) {
+      case 'active': return 'bg-emerald-500';
+      case 'processing': return 'bg-blue-500';
+      case 'error': return 'bg-red-500';
+      default: return 'bg-slate-500';
+    }
+  };
+
+  const getStageColor = () => {
+    switch (flow.stage) {
+      case 'input': return 'text-blue-400';
+      case 'processing': return 'text-yellow-400';
+      case 'output': return 'text-emerald-400';
+      case 'error': return 'text-red-400';
+      default: return 'text-slate-400';
+    }
+  };
+
+  return (
+    <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg text-slate-100">{flow.name}</CardTitle>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${getStatusColor()} animate-pulse`}></div>
+            <Badge variant="outline" className="border-slate-500 text-slate-300">
+              {flow.status}
+            </Badge>
+          </div>
+        </div>
+        <CardDescription className="text-slate-400">
+          Stage: <span className={getStageColor()}>{flow.stage}</span>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <div className="flex justify-between text-sm text-slate-300 mb-2">
+            <span>Progress</span>
+            <span>{flow.progress}%</span>
+          </div>
+          <Progress value={flow.progress} className="h-2 bg-slate-700" />
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-slate-400">Input</p>
+            <p className="text-slate-100 font-semibold">{flow.data.input}</p>
+          </div>
+          <div>
+            <p className="text-slate-400">Processed</p>
+            <p className="text-slate-100 font-semibold">{flow.data.processed}</p>
+          </div>
+          <div>
+            <p className="text-slate-400">Output</p>
+            <p className="text-slate-100 font-semibold">{flow.data.output}</p>
+          </div>
+          <div>
+            <p className="text-slate-400">Errors</p>
+            <p className="text-red-400 font-semibold">{flow.data.errors}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="text-center p-2 bg-slate-700/50 rounded">
+            <p className="text-slate-400">Throughput</p>
+            <p className="text-cyan-400 font-semibold">{flow.performance.throughput}/min</p>
+          </div>
+          <div className="text-center p-2 bg-slate-700/50 rounded">
+            <p className="text-slate-400">Latency</p>
+            <p className="text-yellow-400 font-semibold">{flow.performance.latency}s</p>
+          </div>
+          <div className="text-center p-2 bg-slate-700/50 rounded">
+            <p className="text-slate-400">Efficiency</p>
+            <p className="text-emerald-400 font-semibold">{flow.performance.efficiency}%</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// System Health Card Component
+function SystemHealthCard({ health }: { health: SystemHealth }) {
+  const getStatusColor = () => {
+    switch (health.status) {
+      case 'healthy': return 'text-emerald-400';
+      case 'warning': return 'text-yellow-400';
+      case 'critical': return 'text-red-400';
+      default: return 'text-slate-400';
+    }
+  };
+
+  const getStatusIcon = () => {
+    switch (health.status) {
+      case 'healthy': return CheckCircle;
+      case 'warning': return AlertTriangle;
+      case 'critical': return AlertTriangle;
+      default: return Activity;
+    }
+  };
+
+  const StatusIcon = getStatusIcon();
+
+  return (
+    <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg text-slate-100">System Health</CardTitle>
+          <StatusIcon className={`h-5 w-5 ${getStatusColor()}`} />
+        </div>
+        <CardDescription className="text-slate-400">
+          Overall Status: <span className={getStatusColor()}>{health.status}</span>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-slate-400 text-sm">Uptime</p>
+            <p className="text-slate-100 font-semibold">{health.uptime}%</p>
+          </div>
+          <div>
+            <p className="text-slate-400 text-sm">Active Connections</p>
+            <p className="text-slate-100 font-semibold">{health.activeConnections}</p>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          <div>
+            <div className="flex justify-between text-sm text-slate-300 mb-1">
+              <span>Memory Usage</span>
+              <span>{health.memoryUsage}%</span>
+            </div>
+            <Progress value={health.memoryUsage} className="h-2 bg-slate-700" />
+          </div>
+          <div>
+            <div className="flex justify-between text-sm text-slate-300 mb-1">
+              <span>CPU Usage</span>
+              <span>{health.cpuUsage}%</span>
+            </div>
+            <Progress value={health.cpuUsage} className="h-2 bg-slate-700" />
+          </div>
+          <div>
+            <div className="flex justify-between text-sm text-slate-300 mb-1">
+              <span>Disk Usage</span>
+              <span>{health.diskUsage}%</span>
+            </div>
+            <Progress value={health.diskUsage} className="h-2 bg-slate-700" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Sentinel Logs Component
+function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
+  const getLogLevelColor = (level: string) => {
+    switch (level) {
+      case 'error': return 'text-red-400 bg-red-400/10 border-red-400/20';
+      case 'warning': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
+      case 'info': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
+      default: return 'text-slate-400 bg-slate-400/10 border-slate-400/20';
+    }
+  };
+
+  const getLogLevelIcon = (level: string) => {
+    switch (level) {
+      case 'error': return '🔴';
+      case 'warning': return '🟡';
+      case 'info': return '🔵';
+      default: return '⚪';
+    }
+  };
+
+  return (
+    <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm">
+      <CardHeader>
+        <CardTitle className="text-lg text-slate-100">Sentinel Processing Logs</CardTitle>
+        <CardDescription className="text-slate-400">
+          Real-time processing activity from Sentinel AI
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {logs.length === 0 ? (
+            <p className="text-slate-400 text-center py-8">No logs available</p>
+          ) : (
+            logs.map((log, index) => (
+              <div key={index} className={`p-3 rounded-lg border ${getLogLevelColor(log.level)}`}>
+                <div className="flex items-start gap-3">
+                  <span className="text-sm">{getLogLevelIcon(log.level)}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-slate-400">
+                        {new Date(log.timestamp).toLocaleString()}
+                      </span>
+                      <Badge variant="outline" className="text-xs border-slate-500">
+                        {log.level}
+                      </Badge>
+                    </div>
+                    <p className="text-sm font-mono break-words">{log.message}</p>
+                    {log.metadata && (
+                      <details className="mt-2">
+                        <summary className="text-xs text-slate-400 cursor-pointer">
+                          Metadata
+                        </summary>
+                        <pre className="text-xs text-slate-300 mt-1 p-2 bg-slate-700/50 rounded overflow-x-auto">
+                          {JSON.stringify(log.metadata, null, 2)}
+                        </pre>
+                      </details>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Process Flow Diagram Component
+function ProcessFlowDiagram({ data }: { data: any[] }) {
+  return (
+    <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm">
+      <CardHeader>
+        <CardTitle className="text-lg text-slate-100">Process Flow Visualization</CardTitle>
+        <CardDescription className="text-slate-400">
+          Real-time data flow through the system
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="h-64 flex items-center justify-center">
+          <div className="text-slate-400 text-center">
+            <BarChart className="h-12 w-12 mx-auto mb-2 opacity-50" />
+            <p>Process flow visualization coming soon...</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Sentinel Logs Component
+function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
+  const getLogLevelColor = (level: string) => {
+    switch (level) {
+      case 'error': return 'text-red-400 bg-red-400/10 border-red-400/20';
+      case 'warning': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
+      case 'info': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
+      default: return 'text-slate-400 bg-slate-400/10 border-slate-400/20';
+    }
+  };
+
+  const getLogLevelIcon = (level: string) => {
+    switch (level) {
+      case 'error': return '🔴';
+      case 'warning': return '🟡';
+      case 'info': return '🔵';
+      default: return '⚪';
+    }
+  };
+
+  return (
+    <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm">
+      <CardHeader>
+        <CardTitle className="text-lg text-slate-100">Sentinel Processing Logs</CardTitle>
+        <CardDescription className="text-slate-400">
+          Real-time processing activity from Sentinel AI
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {logs.length === 0 ? (
+            <p className="text-slate-400 text-center py-8">No logs available</p>
+          ) : (
+            logs.map((log, index) => (
+              <div key={index} className={`p-3 rounded-lg border ${getLogLevelColor(log.level)}`}>
+                <div className="flex items-start gap-3">
+                  <span className="text-sm">{getLogLevelIcon(log.level)}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-slate-400">
+                        {new Date(log.timestamp).toLocaleString()}
+                      </span>
+                      <Badge variant="outline" className="text-xs border-slate-500">
+                        {log.level}
+                      </Badge>
+                    </div>
+                    <p className="text-sm font-mono break-words">{log.message}</p>
+                    {log.metadata && (
+                      <details className="mt-2">
+                        <summary className="text-xs text-slate-400 cursor-pointer">
+                          Metadata
+                        </summary>
+                        <pre className="text-xs text-slate-300 mt-1 p-2 bg-slate-700/50 rounded overflow-x-auto">
+                          {JSON.stringify(log.metadata, null, 2)}
+                        </pre>
+                      </details>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function ProcessingDashboard() {
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [pulseAnimation, setPulseAnimation] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState<ProcessingMetrics>({
     totalProcessed: 0,
     totalCreated: 0,
     averageProcessingTime: 0,
-    errorRate: 0,
     uptime: 0,
-    lastReset: new Date().toISOString()
+    errorRate: 0,
+    lastReset: new Date().toISOString(),
+    performance: { throughput: 0, latency: 0, efficiency: 0 }
   });
   const [processFlows, setProcessFlows] = useState<ProcessFlow[]>([]);
   const [systemHealth, setSystemHealth] = useState<SystemHealth>({
     status: 'healthy',
-    components: []
+    uptime: 0,
+    memoryUsage: 0,
+    cpuUsage: 0,
+    diskUsage: 0,
+    activeConnections: 0,
+    lastCheck: new Date().toISOString()
+  });
+  const [sentinelLogs, setSentinelLogs] = useState<SentinelLog[]>([]);
+  const [sentinelMetrics, setSentinelMetrics] = useState<SentinelMetrics>({
+    enabled: false,
+    running: false,
+    lastRunAt: null,
+    nextRunAt: null,
+    lastCreated: 0,
+    lastProcessed: 0,
+    cooldownUntil: null,
+    maxPerRun: 3,
+    frequencyMs: 300000,
+    sourcesCount: 0,
+    performanceMetrics: {
+      totalProcessed: 0,
+      totalCreated: 0,
+      averageProcessingTime: 0,
+      errorRate: 0,
+      lastReset: new Date().toISOString()
+    }
   });
 
-  useEffect(() => {
-    loadDashboardData();
-    const interval = setInterval(loadDashboardData, 10000);
-    const pulseInterval = setInterval(() => setPulseAnimation(prev => !prev), 2000);
-    return () => {
-      clearInterval(interval);
-      clearInterval(pulseInterval);
-    };
-  }, []);
-
   const loadDashboardData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      
-      // Fetch real data from backend APIs
-      const [metricsData, flowsData, healthData] = await Promise.all([
+      const [metricsData, flowsData, healthData, logsData, sentinelData] = await Promise.all([
         ProcessingDashboardService.fetchMetrics(),
         ProcessingDashboardService.fetchProcessFlows(),
-        ProcessingDashboardService.fetchSystemHealth()
+        ProcessingDashboardService.fetchSystemHealth(),
+        ProcessingDashboardService.fetchSentinelLogs(),
+        ProcessingDashboardService.fetchSentinelMetrics()
       ]);
-      
+
       setMetrics(metricsData);
       setProcessFlows(flowsData);
       setSystemHealth(healthData);
+      setSentinelLogs(logsData);
+      setSentinelMetrics(sentinelData);
+
+      toast.success('Dashboard data refreshed successfully');
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      console.error('Error loading dashboard data:', error);
       toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
   };
 
-  const getProcessFlowData = () => {
-    const totalInput = processFlows.reduce((sum, flow) => sum + flow.data.input, 0);
-    const totalProcessed = processFlows.reduce((sum, flow) => sum + flow.data.processed, 0);
-    const totalOutput = processFlows.reduce((sum, flow) => sum + flow.data.output, 0);
+  useEffect(() => {
+    loadDashboardData();
     
-    return {
-      input: totalInput,
-      transform: totalProcessed,
-      output: totalOutput
-    };
+    // Auto-refresh every 10 seconds
+    const interval = setInterval(loadDashboardData, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getProcessFlowData = () => {
+    return processFlows.map(flow => ({
+      name: flow.name,
+      value: flow.data.processed,
+      status: flow.status
+    }));
   };
 
   return (
@@ -123,7 +510,7 @@ export default function ProcessingDashboard() {
 
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-800/50 border border-slate-600">
+          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-slate-600">
             <TabsTrigger value="overview" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
               Overview
             </TabsTrigger>
@@ -135,6 +522,9 @@ export default function ProcessingDashboard() {
             </TabsTrigger>
             <TabsTrigger value="health" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
               System Health
+            </TabsTrigger>
+            <TabsTrigger value="logs" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
+              Sentinel Logs
             </TabsTrigger>
           </TabsList>
 
@@ -178,18 +568,9 @@ export default function ProcessingDashboard() {
 
           {/* Process Flows Tab */}
           <TabsContent value="processes" className="space-y-6">
-            <div className="grid gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {processFlows.map((flow) => (
-                <ProcessFlowCard
-                  key={flow.id}
-                  id={flow.id}
-                  name={flow.name}
-                  status={flow.status}
-                  stage={flow.stage}
-                  progress={flow.progress}
-                  data={flow.data}
-                  performance={flow.performance}
-                />
+                <ProcessFlowCard key={flow.id} flow={flow} />
               ))}
             </div>
           </TabsContent>
@@ -197,39 +578,107 @@ export default function ProcessingDashboard() {
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Performance Trends */}
-              <div className="bg-slate-800/50 border border-slate-600 backdrop-blur-sm rounded-lg p-6">
-                <div className="flex items-center gap-2 text-cyan-400 mb-4">
-                  <TrendingUp className="h-5 w-5" />
-                  <h3 className="text-lg font-semibold">Performance Trends</h3>
-                </div>
-                <div className="h-64 flex items-center justify-center bg-slate-900/50 rounded-lg border border-slate-600">
-                  <div className="text-center">
-                    <BarChart className="h-12 w-12 text-slate-400 mx-auto mb-2" />
-                    <p className="text-sm text-slate-400">Performance charts will be displayed here</p>
+              <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg text-slate-100">Performance Trends</CardTitle>
+                  <CardDescription className="text-slate-400">
+                    System performance over time
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 flex items-center justify-center">
+                    <div className="text-slate-400 text-center">
+                      <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p>Performance charts coming soon...</p>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
-              {/* Processing Distribution */}
-              <div className="bg-slate-800/50 border border-slate-600 backdrop-blur-sm rounded-lg p-6">
-                <div className="flex items-center gap-2 text-cyan-400 mb-4">
-                  <PieChart className="h-5 w-5" />
-                  <h3 className="text-lg font-semibold">Processing Distribution</h3>
-                </div>
-                <div className="h-64 flex items-center justify-center bg-slate-900/50 rounded-lg border border-slate-600">
-                  <div className="text-center">
-                    <PieChart className="h-12 w-12 text-slate-400 mx-auto mb-2" />
-                    <p className="text-sm text-slate-400">Distribution charts will be displayed here</p>
+              <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg text-slate-100">Resource Utilization</CardTitle>
+                  <CardDescription className="text-slate-400">
+                    System resource usage patterns
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 flex items-center justify-center">
+                    <div className="text-slate-400 text-center">
+                      <PieChart className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p>Resource charts coming soon...</p>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
           {/* System Health Tab */}
           <TabsContent value="health" className="space-y-6">
-            <SystemHealthCard status={systemHealth.status} components={systemHealth.components} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SystemHealthCard health={systemHealth} />
+              
+              <Card className="bg-slate-800/50 border-slate-600 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg text-slate-100">Sentinel Status</CardTitle>
+                  <CardDescription className="text-slate-400">
+                    AI processing system status
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-slate-400 text-sm">Status</p>
+                      <Badge variant={sentinelMetrics.running ? "default" : "secondary"} className="mt-1">
+                        {sentinelMetrics.running ? 'Running' : 'Stopped'}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-slate-400 text-sm">Sources</p>
+                      <p className="text-slate-100 font-semibold">{sentinelMetrics.sourcesCount}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Last Run</span>
+                      <span className="text-slate-300">
+                        {sentinelMetrics.lastRunAt ? new Date(sentinelMetrics.lastRunAt).toLocaleString() : 'Never'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Next Run</span>
+                      <span className="text-slate-300">
+                        {sentinelMetrics.nextRunAt ? new Date(sentinelMetrics.nextRunAt).toLocaleString() : 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Max Per Run</span>
+                      <span className="text-slate-300">{sentinelMetrics.maxPerRun}</span>
+                    </div>
+                  </div>
+
+                  {sentinelMetrics.cooldownUntil && (
+                    <div className="p-3 bg-yellow-400/10 border border-yellow-400/20 rounded-lg">
+                      <p className="text-yellow-400 text-sm">
+                        ⏰ Cooldown until: {new Date(sentinelMetrics.cooldownUntil).toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Sentinel Logs Tab */}
+          <TabsContent value="logs" className="space-y-6">
+            <SentinelLogsCard logs={sentinelLogs} />
+          </TabsContent>
+
+          {/* Sentinel Logs Tab */}
+          <TabsContent value="logs" className="space-y-6">
+            <SentinelLogsCard logs={sentinelLogs} />
           </TabsContent>
         </Tabs>
       </div>
