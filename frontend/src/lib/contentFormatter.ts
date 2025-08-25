@@ -248,7 +248,7 @@ export function extractContentInfo(content: string): {
   const words = content.split(/\s+/);
   const summary = words.slice(0, 50).join(' ') + (words.length > 50 ? '...' : '');
   
-  const keyPoints = [];
+  const keyPoints: string[] = [];
   const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 20);
   
   // Extract sentences with key words

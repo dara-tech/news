@@ -73,17 +73,75 @@ class SentinelAutoPublishService {
             continue;
           }
 
+          // Format content before publishing
+          let formattedContent = article.content;
+          try {
+            const { formatContentAdvanced } = await import('../utils/advancedContentFormatter.mjs');
+            
+            // Format English content
+            if (article.content?.en && article.content.en.trim()) {
+              const enResult = await formatContentAdvanced(article.content.en, {
+                enableAIEnhancement: true,
+                enableReadabilityOptimization: true,
+                enableSEOOptimization: true,
+                enableVisualEnhancement: true,
+                addSectionHeadings: true,
+                enhanceQuotes: true,
+                optimizeLists: true,
+                enableContentAnalysis: false
+              });
+              
+              if (enResult.success) {
+                formattedContent.en = enResult.content;
+                console.log('   ✅ English content formatted');
+              }
+            }
+            
+            // Format Khmer content
+            if (article.content?.kh && article.content.kh.trim()) {
+              const khResult = await formatContentAdvanced(article.content.kh, {
+                enableAIEnhancement: true,
+                enableReadabilityOptimization: true,
+                enableSEOOptimization: true,
+                enableVisualEnhancement: true,
+                addSectionHeadings: true,
+                enhanceQuotes: true,
+                optimizeLists: true,
+                enableContentAnalysis: false
+              });
+              
+              if (khResult.success) {
+                formattedContent.kh = khResult.content;
+                console.log('   ✅ Khmer content formatted');
+              }
+            }
+          } catch (error) {
+            console.log(`   ⚠️  Content formatting failed: ${error.message}`);
+            // Continue with original content if formatting fails
+          }
+
           // Prepare article for publishing
           const updates = {
             status: 'published',
-            publishedAt: new Date()
+            publishedAt: new Date(),
+            content: formattedContent // Use formatted content
           };
 
           // Add thumbnail if missing
           if (!article.thumbnail) {
-            const thumbnailUrl = this.generateThumbnail(article.title?.en || 'Article');
-            updates.thumbnail = thumbnailUrl;
-            console.log('   ✅ Added thumbnail');
+            // Check if there's a generated image description
+            if (article.generatedImageMetadata?.description) {
+              // Use a placeholder image URL instead of the description text
+              const placeholderUrl = this.generateThumbnail(article.title?.en || 'Article');
+              updates.thumbnail = placeholderUrl;
+              // Keep the generated description in metadata for future use
+              updates.generatedImageMetadata = article.generatedImageMetadata;
+              console.log('   ✅ Using placeholder image with generated description');
+            } else {
+              const thumbnailUrl = this.generateThumbnail(article.title?.en || 'Article');
+              updates.thumbnail = thumbnailUrl;
+              console.log('   ✅ Added fallback thumbnail');
+            }
           }
 
           // Add tags if missing

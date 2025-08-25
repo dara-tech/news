@@ -1,36 +1,36 @@
 {
   "pageViews": {
-    "/news/breaking": 771,
-    "/news": 936,
-    "/news/featured": 774,
-    "/categories": 1681,
-    "/notifications/count": 5205,
-    "/dashboard/advanced-stats": 757,
-    "/maintenance-status": 447,
-    "/auth/login": 34,
-    "/auth/profile": 892,
-    "/notifications": 922,
-    "/dashboard/stats": 1334,
+    "/news/breaking": 837,
+    "/news": 1005,
+    "/news/featured": 840,
+    "/categories": 1823,
+    "/notifications/count": 5725,
+    "/dashboard/advanced-stats": 805,
+    "/maintenance-status": 475,
+    "/auth/login": 39,
+    "/auth/profile": 1023,
+    "/notifications": 1046,
+    "/dashboard/stats": 1376,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
-    "/admin/settings/security": 12,
-    "/admin/security/stats": 12,
-    "/admin/settings/general": 10,
-    "/dashboard/analytics": 103,
-    "/admin/system/metrics": 1144,
+    "/admin/settings/security": 15,
+    "/admin/security/stats": 15,
+    "/admin/settings/general": 11,
+    "/dashboard/analytics": 108,
+    "/admin/system/metrics": 1578,
     "/dashboard/export": 2,
-    "/admin/user-logins/map": 415,
+    "/admin/user-logins/map": 418,
     "/auth/google": 14,
     "/auth/google/callback": 7,
     "/admin/user-login": 2,
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 147,
+    "/news/admin": 161,
     "/health": 1,
     "/new": 1,
-    "/admin/likes": 53,
-    "/admin/comments": 51,
+    "/admin/likes": 56,
+    "/admin/comments": 53,
     "/admin/activity": 48,
     "/admin/activity/security": 37,
     "/admin/activity/stats": 37,
@@ -38,7 +38,7 @@
     "/admin/roles/permissions": 7,
     "/admin/roles": 33,
     "/admin/roles/stats": 7,
-    "/users": 34,
+    "/users": 38,
     "/auth/profile/image": 4,
     "/news/is-cambodia-really-the-oldest-country": 134,
     "/likes/688f3745270d0fd8b27db112/status": 26,
@@ -49,14 +49,14 @@
     "/follows/507f1f77bcf86cd799439011/followers/count": 2,
     "/follows/507f1f77bcf86cd799439011/following/count": 2,
     "/follows/507f1f77bcf86cd799439011/check": 2,
-    "/news/author/687362dbfcd8692cef0917df": 52,
+    "/news/author/687362dbfcd8692cef0917df": 56,
     "/follows/687362dbfcd8692cef0917df/followers/count": 57,
     "/follows/687362dbfcd8692cef0917df/following/count": 53,
     "/follows/687362dbfcd8692cef0917df/check": 17,
     "/follows/687362dbfcd8692cef0917df/toggle": 4,
     "/follows/687362dbfcd8692cef0917df/followers": 13,
     "/follows/687362dbfcd8692cef0917df/following": 13,
-    "/news/author/6883582d3572b0a8c26cca57": 25,
+    "/news/author/6883582d3572b0a8c26cca57": 29,
     "/follows/6883582d3572b0a8c26cca57/followers/count": 37,
     "/follows/6883582d3572b0a8c26cca57/following/count": 37,
     "/follows/6883582d3572b0a8c26cca57/check": 35,
@@ -73,12 +73,12 @@
     "/news/category/business": 3,
     "/news/category/entertainment": 1,
     "/categories/slug/business": 2,
-    "/admin/settings/logo": 1248,
+    "/admin/settings/logo": 1351,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
     "/news/information-war-navigating-the-complex-landscape-of-disinformation": 8,
-    "/news/author/6886733416315db847ca5e74": 11,
+    "/news/author/6886733416315db847ca5e74": 15,
     "/follows/6886733416315db847ca5e74/check": 2,
     "/follows/6886733416315db847ca5e74/followers/count": 2,
     "/follows/6886733416315db847ca5e74/following/count": 2,
@@ -110,10 +110,10 @@
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
     "/admin/settings/footer": 129,
-    "/admin/settings/social-media": 617,
+    "/admin/settings/social-media": 691,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
-    "/settings/public/social-media": 151,
+    "/settings/public/social-media": 176,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -123,11 +123,11 @@
     "/comments/6896d76d35003ae5b6370ba9/like": 2,
     "/admin/comments/6894625c70cb3d494df61813": 1,
     "/comments/6896de0335003ae5b6371192/like": 2,
-    "/admin/system/sentinel": 1074,
+    "/admin/system/sentinel": 1907,
     "/admin/system/matric": 3,
     "/admin/system": 1,
     "/admin/system/sentinel/run-once": 31,
-    "/admin/system/sentinel/logs": 2627,
+    "/admin/system/sentinel/logs": 2866,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -254,14 +254,14 @@
     "/news/689ac154eb93206627c2cd4d": 1,
     "/news/689ac14ceb93206627c2cd47": 1,
     "/admin/likes/689ac53eeb93206627c2ce9f": 1,
-    "/admin/user-logins/recent": 136,
-    "/news/author/688668cece5a7084eda68aa9": 9,
-    "/news/author/68889ee3de452b5fc5051a9b": 9,
-    "/news/author/68888cfd8bb4aa30374bb08a": 9,
-    "/news/author/688890b02c1b677dc769ad33": 9,
+    "/admin/user-logins/recent": 172,
+    "/news/author/688668cece5a7084eda68aa9": 13,
+    "/news/author/68889ee3de452b5fc5051a9b": 13,
+    "/news/author/68888cfd8bb4aa30374bb08a": 13,
+    "/news/author/688890b02c1b677dc769ad33": 13,
     "/news/author/688e46a0b9e9e59928015fdf": 4,
-    "/news/author/688f30f71eee3e243453ed2c": 9,
-    "/news/author/689581b3ed4da10e3ffc90eb": 9,
+    "/news/author/688f30f71eee3e243453ed2c": 13,
+    "/news/author/689581b3ed4da10e3ffc90eb": 13,
     "/api/ai/assistant/research": 9,
     "/ai/gemini/status": 14,
     "/ai/assistant/research": 15,
@@ -279,8 +279,8 @@
     "/likes/689c3dd12a53bb052e7e30c6/status": 1,
     "/comments/689c3dd12a53bb052e7e30c6": 1,
     "/comments/689c3dd12a53bb052e7e30c6/stats": 1,
-    "/settings/public/logo": 38,
-    "/settings/public/footer": 32,
+    "/settings/public/logo": 71,
+    "/settings/public/footer": 57,
     "/users/688e46a0b9e9e59928015fdf": 1,
     "/auth/data-deletion-callback": 7,
     "/auth/data-deletion-status/123456789": 2,
@@ -296,13 +296,13 @@
     "/news/689d9e18bf84c4b2944dc782/status": 3,
     "/news/689d9b41bf84c4b2944dc751/status": 3,
     "/news/689db307baff5b3b0a2995f5": 1,
-    "/admin/settings/social-media/check-token": 250,
+    "/admin/settings/social-media/check-token": 300,
     "/admin/settings/social-media/refresh-token": 6,
     "/news/689f884285fb2054283ebe8e/status": 2,
     "/news/689fd50edf2c721107cd0789": 1,
     "/news/689f884285fb2054283ebe8e": 2,
     "/news/68a43449773811d7b73884e8": 8,
-    "/admin/seo/dashboard": 7,
+    "/admin/seo/dashboard": 12,
     "/news/cambodia-leads-asia-pacific-in-greenfield-fdi-economic-boom": 2,
     "/likes/68a4340c773811d7b73884e0/status": 1,
     "/comments/68a4340c773811d7b73884e0": 1,
@@ -311,12 +311,12 @@
     "/likes/6898049b577870e5f520a5e2/status": 1,
     "/comments/6898049b577870e5f520a5e2": 1,
     "/comments/6898049b577870e5f520a5e2/stats": 1,
-    "/admin/auto-publish/stats": 258,
-    "/admin/auto-publish/logs": 40,
-    "/admin/auto-publish/settings": 40,
-    "/admin/auto-publish/telegram-settings": 20,
+    "/admin/auto-publish/stats": 276,
+    "/admin/auto-publish/logs": 58,
+    "/admin/auto-publish/settings": 57,
+    "/admin/auto-publish/telegram-settings": 21,
     "/admin/auto-publish/test-telegram": 2,
-    "/admin/auto-publish/sentinel": 1,
+    "/admin/auto-publish/sentinel": 3,
     "/news/air-canada-strike-flight-attendants-defy-court-order": 2,
     "/likes/68a36db20b2432338e701640/status": 1,
     "/comments/68a36db20b2432338e701640": 1,
@@ -325,8 +325,32 @@
     "/news/68a4e39099fd4c8fc523359e": 5,
     "/news/68a4e39099fd4c8fc523359e/format-content": 11,
     "/news/analyze-content": 120,
-    "/admin/news": 1137,
-    "/admin/seo/stats": 1028
+    "/admin/news": 1966,
+    "/admin/seo/stats": 1857,
+    "/sentinel/logs": 1960,
+    "/sentinel/metrics": 1960,
+    "/news/68a6e1f86ec4a6c427625072": 1,
+    "/news/walmart-recalls-radioactive-shrimp-indonesia-import-alert": 4,
+    "/likes/68a5be15e752b1418a97d09d/status": 1,
+    "/comments/68a5be15e752b1418a97d09d": 1,
+    "/comments/68a5be15e752b1418a97d09d/stats": 1,
+    "/news/queensland-corruption-1-3-witness-misconduct-few-cases-prosecuted": 2,
+    "/analytics/content-overview": 260,
+    "/newsletter/stats": 11,
+    "/newsletter/subscribers": 11,
+    "/admin/social-media/status": 2,
+    "/admin/social-media/stats": 2,
+    "/newsletter/test": 1,
+    "/users/68889ee3de452b5fc5051a9b": 2,
+    "/analytics/image-generation": 19,
+    "/news/68aae61f15d869b2a6c983d3": 6,
+    "/news/cambodia-thailand-to-hold-border-committee-meeting-in-pailin": 4,
+    "/likes/68aae6cc15d869b2a6c9846f/status": 3,
+    "/comments/68aae6cc15d869b2a6c9846f": 3,
+    "/comments/68aae6cc15d869b2a6c9846f/stats": 3,
+    "/news/68ab82eb27a36c51606b0493": 1,
+    "/news/68ac121ae2b843d314efa3cd": 1,
+    "/news/68ac1281e2b843d314efa3fa": 1
   },
   "userActions": {},
   "dailyStats": {
@@ -560,26 +584,82 @@
       }
     },
     "2025-08-21": {
-      "pageViews": 4285,
+      "pageViews": 6655,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Direct": 4,
-        "Referral": 4281
+        "Direct": 31,
+        "Referral": 6624
       },
       "deviceTypes": {
-        "Desktop": 4285
+        "Desktop": 6655
+      }
+    },
+    "2025-08-22": {
+      "pageViews": 5444,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 186,
+        "Referral": 5258
+      },
+      "deviceTypes": {
+        "Desktop": 5444
+      }
+    },
+    "2025-08-23": {
+      "pageViews": 1050,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 40,
+        "Referral": 1010
+      },
+      "deviceTypes": {
+        "Desktop": 1050
+      }
+    },
+    "2025-08-24": {
+      "pageViews": 139,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 16,
+        "Referral": 123
+      },
+      "deviceTypes": {
+        "Desktop": 139
+      }
+    },
+    "2025-08-25": {
+      "pageViews": 143,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 24,
+        "Referral": 119
+      },
+      "deviceTypes": {
+        "Desktop": 143
       }
     }
   },
   "trafficSources": {
-    "Direct": 4243,
-    "Referral": 23000
+    "Direct": 4536,
+    "Referral": 31853
   },
   "deviceTypes": {
-    "Desktop": 26519,
+    "Desktop": 35665,
     "Mobile": 724
   }
 }

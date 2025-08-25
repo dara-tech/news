@@ -1,30 +1,16 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Trash2, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export default function DataDeletionStatusPage() {
-  const searchParams = useSearchParams();
-  const [status, setStatus] = useState<'success' | 'error' | 'pending'>('pending');
-  const [message, setMessage] = useState('');
-  const [platform, setPlatform] = useState('');
-  const [deleted, setDeleted] = useState(false);
-
-  useEffect(() => {
-    const statusParam = searchParams.get('status');
-    const messageParam = searchParams.get('message');
-    const platformParam = searchParams.get('platform');
-    const deletedParam = searchParams.get('deleted');
-
-    setStatus(statusParam as 'success' | 'error' | 'pending' || 'pending');
-    setMessage(messageParam || '');
-    setPlatform(platformParam || '');
-    setDeleted(deletedParam === 'true');
-  }, [searchParams]);
+  const [status] = useState<'success' | 'error' | 'pending'>('pending');
+  const [message] = useState('');
+  const [platform] = useState('');
+  const [deleted] = useState(false);
 
   const getStatusIcon = () => {
     switch (status) {

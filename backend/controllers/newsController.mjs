@@ -106,7 +106,7 @@ export const createNews = asyncHandler(async (req, res) => {
 
     const news = new News({
       title: titleObj,
-      content: contentObj,
+      content: contentObj, // Use original content, let Sentinel handle formatting
       description: descriptionObj,
       slug,
       category,
@@ -150,7 +150,7 @@ export const createNews = asyncHandler(async (req, res) => {
       news.images = newImages;
     }
 
-    // Auto-process content using Sentinel service
+    // Auto-process content using Sentinel service (keep existing functionality)
     if (contentObj.en && contentObj.en.trim()) {
       try {
         console.log('Auto-processing content for article:', titleObj.en);
@@ -418,7 +418,10 @@ export const updateNews = asyncHandler(async (req, res) => {
   try {
     // Update multilingual fields
     if (title) news.title = JSON.parse(title);
-    if (content) news.content = JSON.parse(content);
+    if (content) {
+      const contentObj = JSON.parse(content);
+      news.content = contentObj; // Use original content, let Sentinel handle formatting
+    }
     if (description) news.description = JSON.parse(description);
     
     if (seo) {
@@ -583,6 +586,52 @@ export const updateNewsStatus = asyncHandler(async (req, res) => {
   
   if (status === 'published' && !news.publishedAt) {
     news.publishedAt = Date.now();
+    
+    // Format content when moving to published status
+    try {
+      const { formatContentAdvanced } = await import('../utils/advancedContentFormatter.mjs');
+      
+      // Format English content
+      if (news.content?.en && news.content.en.trim()) {
+        const enResult = await formatContentAdvanced(news.content.en, {
+          enableAIEnhancement: true,
+          enableReadabilityOptimization: true,
+          enableSEOOptimization: true,
+          enableVisualEnhancement: true,
+          addSectionHeadings: true,
+          enhanceQuotes: true,
+          optimizeLists: true,
+          enableContentAnalysis: false
+        });
+        
+        if (enResult.success) {
+          news.content.en = enResult.content;
+          console.log('Content formatted for English when publishing');
+        }
+      }
+      
+      // Format Khmer content
+      if (news.content?.kh && news.content.kh.trim()) {
+        const khResult = await formatContentAdvanced(news.content.kh, {
+          enableAIEnhancement: true,
+          enableReadabilityOptimization: true,
+          enableSEOOptimization: true,
+          enableVisualEnhancement: true,
+          addSectionHeadings: true,
+          enhanceQuotes: true,
+          optimizeLists: true,
+          enableContentAnalysis: false
+        });
+        
+        if (khResult.success) {
+          news.content.kh = khResult.content;
+          console.log('Content formatted for Khmer when publishing');
+        }
+      }
+    } catch (error) {
+      console.error('Content formatting failed during status update:', error);
+      // Continue with original content if formatting fails
+    }
   }
 
   const updatedNews = await news.save();

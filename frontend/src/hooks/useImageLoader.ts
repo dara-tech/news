@@ -90,7 +90,15 @@ export const useImageLoader = ({
 export const getArticleImage = (article: any): string | null => {
   // Priority: thumbnail > first image in images array > null
   if (article.thumbnail) {
-    return article.thumbnail;
+    // Check if thumbnail is a valid image URL (not a text description)
+    if (article.thumbnail.startsWith('http://') || article.thumbnail.startsWith('https://') || article.thumbnail.startsWith('/')) {
+      // Additional validation: check if it's not a long text description
+      if (article.thumbnail.length < 200 && !article.thumbnail.includes(' ')) {
+        return article.thumbnail;
+      }
+    }
+    // If thumbnail is not a valid URL or is a description, use placeholder
+    console.warn('Invalid thumbnail URL detected, using placeholder:', article.thumbnail?.substring(0, 100));
   }
   
   if (article.images && Array.isArray(article.images) && article.images.length > 0) {
@@ -102,7 +110,17 @@ export const getArticleImage = (article: any): string | null => {
 
 export const getArticleImageUrl = (article: any): string | null => {
   const imagePath = getArticleImage(article);
-  return imagePath ? getFullImageUrl(imagePath) : null;
+  if (imagePath) {
+    return getFullImageUrl(imagePath);
+  }
+  
+  // If no valid image found, return a placeholder
+  if (article.generatedImageMetadata?.description) {
+    // Use a placeholder image for articles with generated descriptions
+    return '/placeholder.jpg';
+  }
+  
+  return null;
 };
 
 // Utility function to validate image URL

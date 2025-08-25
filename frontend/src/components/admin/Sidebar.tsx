@@ -105,12 +105,10 @@ const data = {
         {
           title: 'Roles',
           url: '/admin/users/roles',
-          icon: Shield,
         },
         {
           title: 'Activity',
           url: '/admin/activity',
-          icon: Activity,
         },
       ],
     },
@@ -121,29 +119,21 @@ const data = {
         {
           title: 'Likes',
           url: '/admin/likes',
-          icon: Heart,
         },
         {
           title: 'Comments',
           url: '/admin/comments',
-          icon: MessageSquare,
         },
         {
           title: 'Follows',
           url: '/admin/follows',
-          icon: Users,
         },
       ],
     },
     {
-      title: 'System',
+      title: 'Settings',
       icon: Settings,
       items: [
-        {
-          title: 'SEO',
-          url: '/admin/seo',
-          icon: BarChart3,
-        },
         {
           title: 'General',
           url: '/admin/settings/general',
@@ -157,29 +147,41 @@ const data = {
           url: '/admin/settings/social-media',
         },
         {
-          title: 'Auto-Posting',
-          url: '/admin/auto-posting',
-          icon: Zap,
-        },
-        {
           title: 'Security',
           url: '/admin/settings/security',
         },
         {
-          title: 'Process Mining',
-          url: '/admin/processing-dashboard',
-          icon: Activity,
-        },
-        {
           title: 'Monitoring',
           url: '/admin/settings/monitoring',
-          icon: Monitor,
+        },
+      ],
+    },
+    {
+      title: 'Analytics',
+      icon: BarChart3,
+      items: [
+        {
+          title: 'SEO Dashboard',
+          url: '/admin/seo',
         },
         {
-          title: 'Sentinel Auto-Publish',
+          title: 'Process Mining',
+          url: '/admin/processing-dashboard',
+        },
+      ],
+    },
+    {
+      title: 'Automation',
+      icon: Zap,
+      items: [
+        {
+          title: 'Auto-Posting',
+          url: '/admin/auto-posting',
+        },
+        {
+          title: 'Sentinel AI',
           url: '/admin/sentinel-auto-publish',
-          icon: Zap,
-        }
+        },
       ],
     },
   ],
@@ -205,13 +207,13 @@ export default function AdminSidebar() {
   };
 
   return (
-    <Sidebar variant="inset" className="border-r border-border/40">
+    <Sidebar variant="inset" className="border-r border-border/40 bg-gray-50/50 dark:bg-gray-900/50">
       <SidebarHeader className="border-b border-border/40 px-4 py-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="hover:bg-accent/50 transition-colors">
+            <SidebarMenuButton size="lg" asChild className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors rounded-xl">
               <Link href={getFullHref('/')}>
-                <div className="flex aspect-square size-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-sm">
+                <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 text-white shadow-sm">
                   <LayoutDashboard className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -245,11 +247,11 @@ export default function AdminSidebar() {
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton 
                           tooltip={item.title} 
-                          className="text-sm font-medium hover:bg-accent/50 transition-all duration-200 rounded-lg mx-1"
+                          className="text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 rounded-xl mx-1"
                         >
-                          {item.icon && <item.icon className="size-4 text-muted-foreground" />}
+                          {item.icon && <item.icon className="size-4 text-gray-600 dark:text-gray-400" />}
                           <span className="text-foreground">{item.title}</span>
-                          <ChevronRight className="ml-auto size-4 text-muted-foreground/50 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          <ChevronRight className="ml-auto size-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
@@ -259,15 +261,11 @@ export default function AdminSidebar() {
                               <SidebarMenuSubButton 
                                 asChild 
                                 isActive={isPathActive(subItem.url)}
-                                className="text-sm hover:bg-accent/40 transition-colors rounded-md py-2"
+                                className="text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors rounded-lg py-2"
                               >
                                 <Link href={getFullHref(subItem.url)} className="flex items-center gap-3">
-                                  {(() => {
-                                    const Icon = (subItem as { icon?: React.ComponentType<{ className?: string }> }).icon;
-                                    return Icon ? <Icon className="h-3.5 w-3.5 text-muted-foreground/60" /> : 
-                                    <div className="w-3.5 h-3.5 rounded-full bg-muted-foreground/20" />;
-                                  })()}
-                                  <span className="text-muted-foreground group-data-[active=true]:text-foreground font-medium">
+                                  <div className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-500" />
+                                  <span className="text-gray-700 dark:text-gray-300 group-data-[active=true]:text-foreground font-medium">
                                     {subItem.title}
                                   </span>
                                 </Link>
@@ -287,12 +285,12 @@ export default function AdminSidebar() {
                     asChild 
                     tooltip={item.title}
                     isActive={isActive}
-                    className="text-sm font-medium hover:bg-accent/50 transition-all duration-200 rounded-lg mx-1"
+                    className="text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 rounded-xl mx-1"
                   >
-                                          <Link href={getFullHref(item.url!)}>
-                        {item.icon && <item.icon className="size-4 text-muted-foreground" />}
-                        <span className="text-foreground">{item.title}</span>
-                      </Link>
+                    <Link href={getFullHref(item.url!)}>
+                      {item.icon && <item.icon className="size-4 text-gray-600 dark:text-gray-400" />}
+                      <span className="text-foreground">{item.title}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );
@@ -306,10 +304,10 @@ export default function AdminSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   asChild 
-                  className="text-sm font-medium hover:bg-accent/50 transition-colors rounded-lg mx-1"
+                  className="text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors rounded-xl mx-1"
                 >
                   <Link href={getFullHref('/')}>
-                    <Home className="size-4 text-muted-foreground" />
+                    <Home className="size-4 text-gray-600 dark:text-gray-400" />
                     <span className="text-foreground">Back to Site</span>
                   </Link>
                 </SidebarMenuButton>
@@ -326,14 +324,14 @@ export default function AdminSidebar() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-accent hover:bg-accent/50 transition-colors rounded-lg"
+                  className="data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors rounded-xl"
                 >
-                  <Avatar className="h-9 w-9 rounded-lg border border-border/40">
+                  <Avatar className="h-9 w-9 rounded-xl border border-gray-200 dark:border-gray-700">
                     <AvatarImage 
                       src={user?.profileImage || user?.avatar || data.user.avatar} 
                       alt={user?.username || data.user.name} 
                     />
-                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
+                    <AvatarFallback className="rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 text-white font-semibold">
                       {(user?.username || data.user.name).charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -341,11 +339,11 @@ export default function AdminSidebar() {
                     <span className="truncate font-semibold text-foreground">
                       {user?.username || data.user.name}
                     </span>
-                    <span className="truncate text-xs text-muted-foreground/80">
+                    <span className="truncate text-xs text-gray-500 dark:text-gray-400">
                       {user?.email || data.user.email}
                     </span>
                   </div>
-                  <MoreHorizontal className="ml-auto size-4 text-muted-foreground/50" />
+                  <MoreHorizontal className="ml-auto size-4 text-gray-500 dark:text-gray-400" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent

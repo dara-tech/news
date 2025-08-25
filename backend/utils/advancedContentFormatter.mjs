@@ -196,15 +196,15 @@ function enhanceVisualElements(content) {
     '</h2>\n<hr class="section-break" />\n<p>'
   );
 
-  // Add emphasis to key numbers
+  // Add emphasis to key numbers (but don't break HTML tags)
   enhanced = enhanced.replace(
-    /(\d+(?:\.\d+)?%?)/g,
+    /(?<!<[^>]*)(\d+(?:\.\d+)?%?)(?![^<]*>)/g,
     '<span class="highlight-number">$1</span>'
   );
 
-  // Add emphasis to important terms
+  // Add emphasis to important terms (but don't break HTML tags)
   enhanced = enhanced.replace(
-    /\b(breaking|urgent|important|latest|update)\b/gi,
+    /(?<!<[^>]*)\b(breaking|urgent|important|latest|update)\b(?![^<]*>)/gi,
     '<span class="highlight-important">$1</span>'
   );
 
@@ -251,15 +251,15 @@ function addSectionHeadings(content) {
 function enhanceQuotes(content) {
   let enhanced = content;
 
-  // Convert simple quotes to blockquotes
+  // Convert simple quotes to blockquotes (only if not already in blockquote)
   enhanced = enhanced.replace(
     /<p>"([^"]+)"<\/p>/g,
     '<blockquote class="quote">$1</blockquote>'
   );
 
-  // Enhance existing blockquotes
+  // Enhance existing blockquotes (only if not already enhanced)
   enhanced = enhanced.replace(
-    /<blockquote>/g,
+    /<blockquote(?! class="enhanced-quote")>/g,
     '<blockquote class="enhanced-quote">'
   );
 
@@ -506,13 +506,105 @@ function formatArticleContent(content) {
     return '';
   }
 
+  // Split content into paragraphs
   const paragraphs = cleanContent.split(/\n\s*\n/).filter(p => p.trim());
   
   if (paragraphs.length === 0) {
     return `<p>${cleanContent}</p>`;
   }
 
-  return paragraphs.map(p => `<p>${p.trim()}</p>`).join('\n');
+  // Process paragraphs with better structure
+  const formattedParagraphs = paragraphs.map((paragraph, index) => {
+    const trimmedParagraph = paragraph.trim();
+    
+    if (!trimmedParagraph) return '';
+    
+    // Check if this looks like a heading
+    if (isHeading(trimmedParagraph, index)) {
+      return `<h2>${trimmedParagraph}</h2>`;
+    }
+    
+    // Check if this looks like a quote
+    if (isQuote(trimmedParagraph)) {
+      const quoteText = trimmedParagraph.replace(/^["'`]|["'`]$/g, '').trim();
+      return `<blockquote>${quoteText}</blockquote>`;
+    }
+    
+    // Check if this looks like a list
+    if (isList(trimmedParagraph)) {
+      return formatList(trimmedParagraph);
+    }
+    
+    // Regular paragraph
+    return `<p>${trimmedParagraph}</p>`;
+  }).filter(p => p.length > 0);
+
+  return formattedParagraphs.join('\n');
+}
+
+/**
+ * Check if a paragraph looks like a heading
+ */
+function isHeading(text, index) {
+  const trimmed = text.trim();
+  
+  // First paragraph is often a heading
+  if (index === 0 && trimmed.length < 100) return true;
+  
+  // Short text that ends with colon
+  if (trimmed.length < 80 && trimmed.endsWith(':')) return true;
+  
+  // Text that looks like a title (all caps, short)
+  if (trimmed.length < 60 && trimmed === trimmed.toUpperCase()) return true;
+  
+  // Text that starts with common heading words
+  const headingWords = ['breaking', 'update', 'latest', 'news', 'report', 'analysis', 'summary', 'background', 'conclusion'];
+  const lowerText = trimmed.toLowerCase();
+  return headingWords.some(word => lowerText.startsWith(word));
+}
+
+/**
+ * Check if a paragraph looks like a quote
+ */
+function isQuote(text) {
+  const trimmed = text.trim();
+  
+  // Starts with quote marks
+  if (trimmed.startsWith('"') || trimmed.startsWith('"') || trimmed.startsWith('"')) return true;
+  
+  // Contains attribution words
+  const attributionWords = ['said', 'stated', 'announced', 'confirmed', 'reported', 'according to'];
+  const lowerText = trimmed.toLowerCase();
+  return attributionWords.some(word => lowerText.includes(word));
+}
+
+/**
+ * Check if a paragraph looks like a list
+ */
+function isList(text) {
+  const lines = text.split('\n');
+  if (lines.length < 2) return false;
+  
+  // Check if most lines start with numbers, bullets, or dashes
+  const listPatterns = /^(\d+\.|\*|\-|\•)\s/;
+  const listLines = lines.filter(line => listPatterns.test(line.trim()));
+  
+  return listLines.length >= lines.length * 0.7; // 70% of lines look like list items
+}
+
+/**
+ * Format a list paragraph
+ */
+function formatList(text) {
+  const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+  
+  const listItems = lines.map(line => {
+    // Remove list markers and clean up
+    const cleaned = line.replace(/^(\d+\.|\*|\-|\•)\s*/, '').trim();
+    return `<li>${cleaned}</li>`;
+  });
+
+  return `<ul>${listItems.join('')}</ul>`;
 }
 
 export default {

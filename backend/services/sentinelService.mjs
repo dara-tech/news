@@ -8,6 +8,7 @@ import Settings from '../models/Settings.mjs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import connectCloudinary, { cloudinary } from '../utils/cloudinary.mjs';
 import { formatContentAdvanced } from '../utils/advancedContentFormatter.mjs';
+import imageGenerationService from './imageGenerationService.mjs';
 
 /**
  * Sentinel-PP-01: Enhanced AI News Analyst
@@ -928,6 +929,23 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
           analysis: autoProcessedContent.analysis,
           processedAt: new Date().toISOString()
         };
+        
+        // Use generated image if no thumbnail is available
+        if (!parsed.thumbnailUrl && autoProcessedContent.generatedImage) {
+          // Don't store the description as thumbnail URL - it's just text
+          // Instead, store it in metadata for future use
+          parsed.generatedImageMetadata = {
+            description: autoProcessedContent.generatedImage.description,
+            prompt: autoProcessedContent.generatedImage.prompt,
+            generated: true,
+            timestamp: autoProcessedContent.generatedImage.timestamp
+          };
+          
+          this.pushLog('info', '[Sentinel-PP-01] Generated image description stored in metadata', { 
+            title: parsed.title.en?.slice(0, 50),
+            imageDescription: autoProcessedContent.generatedImage.description?.slice(0, 100)
+          });
+        }
       }
 
       // Add Khmer translations if available (fallback to manual translation)
@@ -1547,17 +1565,22 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       // Step 3: Auto-analyze content quality
       const analysis = await this.autoAnalyzeContent(formattedContent);
       
+      // Step 4: Auto-generate image if needed
+      const generatedImage = await this.autoGenerateImage(title, formattedContent);
+      
       this.pushLog('info', '[Sentinel-PP-01] Auto-processing completed successfully', { 
         title: title?.slice(0, 50),
         formatted: !!formattedContent,
         translated: !!khmerContent,
-        analyzed: !!analysis
+        analyzed: !!analysis,
+        imageGenerated: !!generatedImage
       });
       
       return {
         en: formattedContent,
         kh: khmerContent,
-        analysis: analysis
+        analysis: analysis,
+        generatedImage: generatedImage
       };
     } catch (error) {
       this.pushLog('error', '[Sentinel-PP-01] Auto-processing error:', error);
@@ -1565,7 +1588,8 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       return {
         en: englishContent,
         kh: '',
-        analysis: null
+        analysis: null,
+        generatedImage: null
       };
     }
   }
@@ -1639,29 +1663,77 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
           },
           "engagement": {
             "score": number (0-100),
-            "factors": ["factor1", "factor2"],
-            "suggestions": ["suggestion1", "suggestion2"]
+            "factors": ["factor1", "factor2"]
           }
         }
         
-        Provide only the JSON response without any additional text.
+        Return only the JSON object without any additional text.
       `;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
-      const analysisText = response.text().trim();
+      const text = response.text().trim();
       
-      // Try to parse JSON response
-      try {
-        return JSON.parse(analysisText);
-      } catch (parseError) {
-        this.pushLog('error', '[Sentinel-PP-01] Failed to parse analysis JSON:', parseError);
-        return null;
+      // Try to extract JSON from the response
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
       }
+      
+      return null;
     } catch (error) {
       this.pushLog('error', '[Sentinel-PP-01] Auto-analyze error:', error);
       return null;
     }
+  }
+
+  // Auto-generate image using Google Gemini
+  async autoGenerateImage(title, content) {
+    try {
+      // Use the dedicated image generation service
+      const generatedImage = await imageGenerationService.generateImageForArticle(title, content);
+      
+      if (generatedImage) {
+        this.pushLog('info', '[Sentinel-PP-01] Generated image successfully', { 
+          title: title?.slice(0, 50),
+          description: generatedImage.description?.slice(0, 100),
+          service: generatedImage.service
+        });
+      }
+
+      return generatedImage;
+    } catch (error) {
+      this.pushLog('error', '[Sentinel-PP-01] Auto-generate image error:', error);
+      return null;
+    }
+  }
+
+  // Get logs for real-time tracking
+  getLogs() {
+    return this.logBuffer.map(log => ({
+      timestamp: log.timestamp,
+      level: log.level,
+      message: log.message,
+      metadata: log.metadata
+    }));
+  }
+
+  // Get metrics for real-time tracking
+  getMetrics() {
+    return {
+      enabled: this.intervalHandle !== null,
+      running: this.isRunning,
+      lastRunAt: this.lastRunAt,
+      nextRunAt: this.nextRunAt,
+      lastCreated: this.lastCreated,
+      lastProcessed: this.lastProcessed,
+      cooldownUntil: this.cooldownUntilMs > Date.now() ? new Date(this.cooldownUntilMs) : null,
+      maxPerRun: this.maxPerRun,
+      frequencyMs: this.frequencyMs,
+      sourcesCount: this.sources.filter(s => s.enabled !== false).length,
+      performanceMetrics: this.performanceMetrics,
+      logBufferSize: this.logBuffer.length
+    };
   }
 }
 

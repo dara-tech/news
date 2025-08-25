@@ -70,6 +70,15 @@ export const fetchImageInfo = async (
 export const isValidImageUrl = (url: string): boolean => {
   if (!url) return false;
   
+  // Check if it's a generated description (long text starting with articles)
+  if (typeof url === 'string' && url.length > 100) {
+    const isDescription = /^(A|An|The)\s/.test(url) && 
+                         /\b(shot|photograph|image|picture|scene|view|angle|wide|close|medium|high|low)\b/i.test(url);
+    if (isDescription) {
+      return false;
+    }
+  }
+  
   try {
     const urlObj = new URL(url);
     const validProtocols = ['http:', 'https:'];

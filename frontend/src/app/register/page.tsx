@@ -8,7 +8,6 @@ import { Eye, EyeOff, UserPlus, Loader2, Mail, User, Globe, ArrowLeft } from 'lu
 import Link from 'next/link';
 
 import { useAuth } from '@/context/AuthContext';
-import { useSearchParams } from 'next/navigation';
 
 // Schema Validation
 const registerSchema = z.object({
@@ -29,43 +28,6 @@ const RegisterPage = () => {
   const [serverError, setServerError] = useState<string | null>(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { register: registerUser, loginWithGoogle } = useAuth();
-  const searchParams = useSearchParams();
-
-  // Check for error parameters in URL
-  useEffect(() => {
-    const error = searchParams.get('error');
-    if (error) {
-      let errorMessage = 'An error occurred. Please try again.';
-      
-      switch (error) {
-        case 'google_oauth_not_configured':
-          errorMessage = 'Google OAuth is not configured. Please use email/password registration instead.';
-          break;
-        case 'google_oauth_strategy_unavailable':
-          errorMessage = 'Google OAuth is not available. Please use email/password registration instead.';
-          break;
-        case 'google_auth_failed':
-          errorMessage = 'Google authentication failed. Please try again.';
-          break;
-        case 'no_profile':
-          errorMessage = 'Could not retrieve Google profile. Please try again.';
-          break;
-        case 'no_user':
-          errorMessage = 'Could not create or retrieve user account. Please try again.';
-          break;
-        case 'registration_failed':
-          errorMessage = 'Registration failed. Please try again.';
-          break;
-        case 'no_email':
-          errorMessage = 'Google account email not found. Please use a different Google account or email/password registration.';
-          break;
-        default:
-          errorMessage = 'An error occurred. Please try again.';
-      }
-      
-      setServerError(errorMessage);
-    }
-  }, [searchParams]);
 
   const {
     register,

@@ -11,6 +11,16 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  // Proxy API calls to backend
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/:path*`,
+      },
+    ];
+  },
+
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [

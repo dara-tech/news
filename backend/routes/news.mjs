@@ -122,13 +122,25 @@ router.post('/:id/format-content', protect, admin, async (req, res) => {
     }
     
     // Fallback to basic formatting
+    const { formatArticleContent } = await import('../utils/contentFormatter.mjs');
     const formatted = {
       en: formatArticleContent(content?.en || ''),
-      kh: formatArticleContent(content?.kh || ''),
+      kh: formatArticleContent(content?.kh || '')
     };
-    res.json({ success: true, data: { content: formatted } });
+    
+    return res.json({
+      success: true,
+      data: {
+        content: formatted
+      }
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to format content', error: error.message });
+    console.error('Content formatting error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to format content',
+      error: error.message
+    });
   }
 });
 

@@ -1,8 +1,23 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Activity, Upload, Cpu, Download } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Activity, 
+  Upload, 
+  Cpu, 
+  Download, 
+  CheckCircle, 
+  AlertTriangle,
+  Clock,
+  TrendingUp,
+  Zap,
+  Target,
+  Image
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ImageGenerationMetrics } from '@/lib/processingDashboardService';
 
 interface ProcessFlowData {
   input: number;
@@ -11,11 +26,13 @@ interface ProcessFlowData {
 }
 
 interface ProcessFlowDiagramProps {
-  data: ProcessFlowData;
+  data: any[];
+  sentinelMetrics: any;
+  imageGenerationMetrics?: ImageGenerationMetrics;
   className?: string;
 }
 
-export default function ProcessFlowDiagram({ data, className }: ProcessFlowDiagramProps) {
+export default function ProcessFlowDiagram({ data, sentinelMetrics, imageGenerationMetrics, className }: ProcessFlowDiagramProps) {
   return (
     <Card className={cn(
       "hover:shadow-md transition-all duration-300",
@@ -40,8 +57,8 @@ export default function ProcessFlowDiagram({ data, className }: ProcessFlowDiagr
               </div>
               <div>
                 <h3 className="font-semibold text-blue-400">Input</h3>
-                <p className="text-sm text-slate-400">Raw Data</p>
-                <div className="text-3xl font-bold text-blue-400">{data.input}</div>
+                <p className="text-sm text-slate-400">RSS Sources</p>
+                <div className="text-3xl font-bold text-blue-400">{sentinelMetrics?.sourcesCount || 0}</div>
               </div>
             </div>
 
@@ -53,48 +70,70 @@ export default function ProcessFlowDiagram({ data, className }: ProcessFlowDiagr
 
             {/* Transform Stage */}
             <div className="text-center space-y-4">
-              <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto border-2 border-purple-400/30 animate-pulse">
+              <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto border-2 border-purple-400/30">
                 <Cpu className="h-10 w-10 text-purple-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-purple-400">Transform</h3>
-                <p className="text-sm text-slate-400">AI Processing</p>
-                <div className="text-3xl font-bold text-purple-400">{data.transform}</div>
+                <h3 className="font-semibold text-purple-400">Processing</h3>
+                <p className="text-sm text-slate-400">Sentinel AI</p>
+                <div className="text-3xl font-bold text-purple-400">{sentinelMetrics?.lastProcessed || 0}</div>
               </div>
             </div>
 
             <div className="hidden lg:flex items-center space-x-4">
               <div className="w-16 h-0.5 bg-gradient-to-r from-purple-400 to-emerald-400"></div>
               <div className="w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
-              <div className="w-16 h-0.5 bg-gradient-to-r from-emerald-400 to-cyan-400"></div>
+              <div className="w-16 h-0.5 bg-gradient-to-r from-emerald-400 to-orange-400"></div>
+            </div>
+
+            {/* Image Generation Stage */}
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto border-2 border-emerald-400/30">
+                <Image className="h-10 w-10 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-emerald-400">Image Gen</h3>
+                <p className="text-sm text-slate-400">AI Descriptions</p>
+                <div className="text-3xl font-bold text-emerald-400">{imageGenerationMetrics?.totalGenerated || 0}</div>
+              </div>
+            </div>
+
+            <div className="hidden lg:flex items-center space-x-4">
+              <div className="w-16 h-0.5 bg-gradient-to-r from-emerald-400 to-orange-400"></div>
+              <div className="w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
+              <div className="w-16 h-0.5 bg-gradient-to-r from-orange-400 to-red-400"></div>
             </div>
 
             {/* Output Stage */}
             <div className="text-center space-y-4">
-              <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto border-2 border-emerald-400/30 animate-pulse">
-                <Download className="h-10 w-10 text-emerald-400" />
+              <div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto border-2 border-orange-400/30">
+                <Download className="h-10 w-10 text-orange-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-emerald-400">Output</h3>
-                <p className="text-sm text-slate-400">Processed Data</p>
-                <div className="text-3xl font-bold text-emerald-400">{data.output}</div>
+                <h3 className="font-semibold text-orange-400">Output</h3>
+                <p className="text-sm text-slate-400">Published Articles</p>
+                <div className="text-3xl font-bold text-orange-400">{sentinelMetrics?.lastCreated || 0}</div>
               </div>
             </div>
           </div>
 
-          {/* Performance Indicators */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mt-6 lg:mt-8">
-            <div className="text-center p-4 lg:p-6 bg-blue-50/50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-400/20">
-              <div className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">Throughput</div>
-              <div className="text-xl lg:text-2xl font-bold text-blue-600 dark:text-blue-400">12 items/min</div>
+          {/* Status Indicators */}
+          <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-50 dark:bg-blue-950/20">
+              <div className={`w-2 h-2 rounded-full ${sentinelMetrics?.enabled ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+              <span className="text-sm">RSS Sources: {sentinelMetrics?.enabled ? 'Active' : 'Inactive'}</span>
             </div>
-            <div className="text-center p-4 lg:p-6 bg-purple-50/50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-400/20">
-              <div className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-2">Efficiency</div>
-              <div className="text-xl lg:text-2xl font-bold text-purple-600 dark:text-purple-400">92%</div>
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-purple-50 dark:bg-purple-950/20">
+              <div className={`w-2 h-2 rounded-full ${sentinelMetrics?.running ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+              <span className="text-sm">Sentinel: {sentinelMetrics?.running ? 'Running' : 'Stopped'}</span>
             </div>
-            <div className="text-center p-4 lg:p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-400/20">
-              <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mb-2">Success Rate</div>
-              <div className="text-xl lg:text-2xl font-bold text-emerald-600 dark:text-emerald-400">73%</div>
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/20">
+              <div className={`w-2 h-2 rounded-full ${imageGenerationMetrics?.serviceStatus === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+              <span className="text-sm">Image Gen: {imageGenerationMetrics?.serviceStatus === 'active' ? 'Active' : 'Idle'}</span>
+            </div>
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-orange-50 dark:bg-orange-950/20">
+              <div className={`w-2 h-2 rounded-full ${sentinelMetrics?.lastCreated > 0 ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+              <span className="text-sm">Publishing: {sentinelMetrics?.lastCreated > 0 ? 'Active' : 'Idle'}</span>
             </div>
           </div>
         </div>

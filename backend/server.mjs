@@ -33,6 +33,7 @@ import adminFollowRoutes from "./routes/adminFollows.mjs"
 import seoRoutes from "./routes/seo.mjs"
 import autoPublishRoutes from "./routes/autoPublish.mjs"
 import translateRoutes from "./routes/translate.mjs"
+import sentinelRoutes from "./routes/sentinel.mjs"
 // AI routes removed - now frontend-only
 import sourcesRoutes from "./routes/sources.mjs"
 import http from 'http';
@@ -273,7 +274,7 @@ app.use("/api/follows", followRoutes)
 app.use("/api/comments", commentRoutes)
 app.use("/api/admin/comments", adminCommentRoutes)
 app.use("/api/admin/likes", adminLikeRoutes)
-app.use("/api/admin/analytics", analyticsRoutes)
+
 app.use("/api/admin/settings", settingsRoutes)
 app.use("/api/admin/roles", roleRoutes)
 app.use("/api/admin/activity", activityRoutes)
@@ -358,6 +359,8 @@ app.use("/api/admin/follows", adminFollowRoutes)
 app.use("/api/admin/seo", seoRoutes)
 app.use("/api/admin/auto-publish", autoPublishRoutes)
 app.use("/api/translate", translateRoutes)
+app.use("/api/sentinel", sentinelRoutes)
+app.use("/api/analytics", analyticsRoutes)
 
 // AI routes
 // AI routes removed - now frontend-only
