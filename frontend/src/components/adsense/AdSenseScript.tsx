@@ -32,7 +32,7 @@ export default function AdSenseScript({ adSenseId }: AdSenseScriptProps) {
       <Script
         id="adsense-script"
         async
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_ID}`}
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8955989254579960"
         crossOrigin="anonymous"
         strategy="afterInteractive"
         onLoad={() => {
@@ -50,7 +50,7 @@ export default function AdSenseScript({ adSenseId }: AdSenseScriptProps) {
         dangerouslySetInnerHTML={{
           __html: `
             (adsbygoogle = window.adsbygoogle || []).push({
-              google_ad_client: "${ADSENSE_ID}",
+              google_ad_client: "ca-pub-8955989254579960",
               enable_page_level_ads: true
             });
           `

@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   // Handle ads.txt file for AdSense verification
   if (request.nextUrl.pathname === '/ads.txt') {
-    const adsContent = 'google.com, pub-8955892254579960, DIRECT, f08c47fec0942fa0';
+    const adsContent = 'google.com, pub-8955989254579960, DIRECT, f08c47fec0942fa0';
     
     return new NextResponse(adsContent, {
       status: 200,

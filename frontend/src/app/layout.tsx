@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     google: 'google28105ddce768934a',
   },
   other: {
-    'google-adsense-account': 'ca-pub-8955892254579960',
+    'google-adsense-account': 'ca-pub-8955989254579960',
   },
   openGraph: {
     title: 'Razewire - Your Daily Source of News',

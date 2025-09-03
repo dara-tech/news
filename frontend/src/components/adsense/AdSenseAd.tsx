@@ -23,7 +23,7 @@ export default function AdSenseAd({
   fullWidthResponsive = true
 }: AdSenseAdProps) {
   const adRef = useRef<HTMLModElement>(null);
-  const ADSENSE_ID = process.env.NEXT_PUBLIC_ADSENSE_ID || 'ca-pub-8955892254579960';
+  const ADSENSE_ID = process.env.NEXT_PUBLIC_ADSENSE_ID || 'ca-pub-8955989254579960';
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.adsbygoogle && adRef.current) {
