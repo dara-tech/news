@@ -1,28 +1,43 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-const locales = ['en', 'km'];
-const defaultLocale = 'en';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Check if the pathname already has a locale prefix
-  const pathnameHasLocale = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  );
-
-  if (pathnameHasLocale) {
-    return;
+  // Handle ads.txt file for AdSense verification
+  if (request.nextUrl.pathname === '/ads.txt') {
+    const adsContent = 'google.com, pub-8955892254579960, DIRECT, f08c47fec0942fa0';
+    
+    return new NextResponse(adsContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain',
+        'Cache-Control': 'public, max-age=86400',
+      },
+    });
   }
 
-  // If not, redirect to the default locale
-  request.nextUrl.pathname = `/${defaultLocale}${pathname}`;
-  return NextResponse.redirect(request.nextUrl);
+  // Handle robots.txt
+  if (request.nextUrl.pathname === '/robots.txt') {
+    const robotsContent = `User-agent: *
+Allow: /
+
+Sitemap: https://www.razewire.online/sitemap.xml`;
+    
+    return new NextResponse(robotsContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain',
+        'Cache-Control': 'public, max-age=86400',
+      },
+    });
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next, api, login, etc.)
-    '/((?!api|_next/static|_next/image|favicon.ico|login|robots.txt|sitemap.xml|news-sitemap.xml|google28105ddce768934a.html).*)',
+    '/ads.txt',
+    '/robots.txt',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
