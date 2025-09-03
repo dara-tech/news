@@ -13,7 +13,7 @@ interface AdSenseScriptProps {
 }
 
 export default function AdSenseScript({ adSenseId }: AdSenseScriptProps) {
-  const ADSENSE_ID = adSenseId || process.env.NEXT_PUBLIC_ADSENSE_ID || 'ca-pub-XXXXXXXXXXXXXXXXX';
+  const ADSENSE_ID = adSenseId || process.env.NEXT_PUBLIC_ADSENSE_ID || 'ca-pub-8955892254579960';
 
   useEffect(() => {
     // Initialize AdSense when component mounts

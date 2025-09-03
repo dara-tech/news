@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   verification: {
     google: 'google28105ddce768934a',
   },
+  other: {
+    'google-adsense-account': 'ca-pub-8955892254579960',
+  },
   openGraph: {
     title: 'Razewire - Your Daily Source of News',
     description: 'Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.',
