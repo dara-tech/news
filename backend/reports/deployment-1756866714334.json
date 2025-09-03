@@ -1,0 +1,37 @@
+{
+  "deployment": {
+    "timestamp": "2025-09-03T02:31:54.334Z",
+    "version": "1.0.0",
+    "environment": "development",
+    "platform": "darwin arm64",
+    "nodeVersion": "v20.19.1"
+  },
+  "features": {
+    "enterpriseAnalytics": true,
+    "performanceMonitoring": true,
+    "aiRecommendations": true,
+    "subscriptionSystem": true,
+    "advancedSecurity": true,
+    "realTimeUpdates": true
+  },
+  "endpoints": [
+    "/api/admin/analytics/dashboard",
+    "/api/admin/analytics/business-intelligence",
+    "/api/admin/analytics/performance",
+    "/api/admin/analytics/real-time",
+    "/api/recommendations/personalized"
+  ],
+  "security": {
+    "rateLimiting": true,
+    "cors": true,
+    "securityHeaders": true,
+    "inputValidation": true,
+    "auditLogging": true
+  },
+  "performance": {
+    "databaseIndexes": true,
+    "caching": true,
+    "monitoring": true,
+    "alerting": true
+  }
+}

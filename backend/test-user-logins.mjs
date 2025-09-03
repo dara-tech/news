@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import UserLogin from "./models/UserLogin.mjs";
 import User from "./models/User.mjs";
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
@@ -9,21 +10,21 @@ async function testUserLogins() {
   try {
     // Connect to database
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log("✅ Connected to database");
+    logger.info("✅ Connected to database");
 
     // Check existing user logins
     const existingLogins = await UserLogin.countDocuments();
-    console.log(`📊 Existing user logins: ${existingLogins}`);
+    logger.info(`📊 Existing user logins: ${existingLogins}`);
 
     if (existingLogins === 0) {
-      console.log("🔧 No user logins found. Creating test data...");
+      logger.info("🔧 No user logins found. Creating test data...");
       
       // Get some users to create logins for
       const users = await User.find().limit(5);
-      console.log(`👥 Found ${users.length} users`);
+      logger.info(`👥 Found ${users.length} users`);
 
       if (users.length === 0) {
-        console.log("❌ No users found. Please create users first.");
+        logger.info("❌ No users found. Please create users first.");
         return;
       }
 
@@ -97,7 +98,7 @@ async function testUserLogins() {
 
       // Insert test data
       const result = await UserLogin.insertMany(testLogins);
-      console.log(`✅ Created ${result.length} test login records`);
+      logger.info(`✅ Created ${result.length} test login records`);
     }
 
     // Test the map endpoint data
@@ -109,7 +110,7 @@ async function testUserLogins() {
     .sort({ loginTime: -1 })
     .lean();
 
-    console.log(`🗺️ Found ${mapData.length} logins with coordinates`);
+    logger.info(`🗺️ Found ${mapData.length} logins with coordinates`);
 
     // Group by location
     const locationGroups = {};
@@ -158,8 +159,8 @@ async function testUserLogins() {
       totalLogins: group.count
     }));
 
-    console.log("🗺️ Map data structure:");
-    console.log(JSON.stringify({
+    logger.info("🗺️ Map data structure:");
+    logger.info(JSON.stringify({
       success: true,
       data: finalData,
       total: mapData.length,
@@ -167,10 +168,10 @@ async function testUserLogins() {
     }, null, 2));
 
   } catch (error) {
-    console.error("❌ Error:", error);
+    logger.error("❌ Error:", error);
   } finally {
     await mongoose.disconnect();
-    console.log("🔌 Disconnected from database");
+    logger.info("🔌 Disconnected from database");
   }
 }
 

@@ -1,10 +1,11 @@
-console.log('🧪 Testing userLoginRoutes import...');
+import logger from '../utils/logger.mjs';
+logger.info('🧪 Testing userLoginRoutes import...');
 
 try {
   const userLoginRoutes = await import('./routes/userLogins.mjs');
-  console.log('✅ userLoginRoutes imported successfully');
-  console.log('Routes:', userLoginRoutes.default);
+  logger.info('✅ userLoginRoutes imported successfully');
+  logger.info('Routes:', userLoginRoutes.default);
 } catch (error) {
-  console.error('❌ Error importing userLoginRoutes:', error.message);
-  console.error('Stack:', error.stack);
+  logger.error('❌ Error importing userLoginRoutes:', error.message);
+  logger.error('Stack:', error.stack);
 } 

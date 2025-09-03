@@ -1,5 +1,6 @@
 import express from 'express';
 import { getAnalyticsData, trackPageView, resetAnalyticsData } from './middleware/analytics.mjs';
+import logger from '../utils/logger.mjs';
 
 const app = express();
 app.use(express.json());
@@ -56,7 +57,7 @@ app.get('/test-traffic', (req, res) => {
 
 const PORT = 5002;
 app.listen(PORT, () => {
-  console.log(`🧪 Test analytics server running on port ${PORT}`);
-  console.log(`📊 Check http://localhost:${PORT}/test-analytics for current data`);
-  console.log(`🚀 Check http://localhost:${PORT}/test-traffic to generate test data`);
+  logger.info(`🧪 Test analytics server running on port ${PORT}`);
+  logger.info(`📊 Check http://localhost:${PORT}/test-analytics for current data`);
+  logger.info(`🚀 Check http://localhost:${PORT}/test-traffic to generate test data`);
 }); 

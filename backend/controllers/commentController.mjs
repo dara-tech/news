@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Comment from '../models/Comment.mjs';
 import News from '../models/News.mjs';
 import { checkModerationRequired } from '../middleware/settings.mjs';
+import logger from '../utils/logger.mjs';
 
 // WebSocket instance will be injected
 let commentWebSocket = null;
@@ -137,7 +138,7 @@ const createComment = asyncHandler(async (req, res) => {
     try {
       commentWebSocket.broadcastCommentCreated(newsId, comment);
     } catch (error) {
-      console.error('Error broadcasting comment creation:', error);
+      logger.error('Error broadcasting comment creation:', error);
       // Don't fail the request if WebSocket broadcast fails
     }
   }
@@ -197,7 +198,7 @@ const updateComment = asyncHandler(async (req, res) => {
     try {
       commentWebSocket.broadcastCommentUpdated(comment.news.toString(), comment);
     } catch (error) {
-      console.error('Error broadcasting comment update:', error);
+      logger.error('Error broadcasting comment update:', error);
       // Don't fail the request if WebSocket broadcast fails
     }
   }
@@ -242,7 +243,7 @@ const deleteComment = asyncHandler(async (req, res) => {
     try {
       commentWebSocket.broadcastCommentDeleted(comment.news.toString(), commentId);
     } catch (error) {
-      console.error('Error broadcasting comment deletion:', error);
+      logger.error('Error broadcasting comment deletion:', error);
       // Don't fail the request if WebSocket broadcast fails
     }
   }
@@ -286,7 +287,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
     try {
       commentWebSocket.broadcastCommentLiked(comment.news.toString(), comment);
     } catch (error) {
-      console.error('Error broadcasting comment like:', error);
+      logger.error('Error broadcasting comment like:', error);
       // Don't fail the request if WebSocket broadcast fails
     }
   }
@@ -323,7 +324,7 @@ const getCommentStats = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error getting comment stats:', error);
+    logger.error('Error getting comment stats:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get comment statistics'

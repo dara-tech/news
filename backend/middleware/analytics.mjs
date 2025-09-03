@@ -1,6 +1,7 @@
 import { checkAnalyticsEnabled } from './settings.mjs';
 import fs from 'fs';
 import path from 'path';
+import logger from '../utils/logger.mjs';
 // Analytics data file path
 const ANALYTICS_FILE = path.join(process.cwd(), 'analytics-data.json');
 
@@ -18,7 +19,7 @@ const loadAnalyticsData = () => {
       return data;
     }
   } catch (error) {
-    console.error('Error loading analytics data:', error);
+    logger.error('Error loading analytics data:', error);
   }
   return {
     pageViews: {},
@@ -47,7 +48,7 @@ const saveAnalyticsData = (data) => {
     };
     fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(serializableData, null, 2));
   } catch (error) {
-    console.error('Error saving analytics data:', error);
+    logger.error('Error saving analytics data:', error);
   }
 };
 
@@ -183,10 +184,10 @@ export const trackPageView = async (req, res, next) => {
     saveAnalyticsData(analyticsData);
 
     // Log analytics event
-    console.log(`[Analytics] Page view: ${page} by ${userId} at ${timestamp.toISOString()} - Source: ${trafficSource}, Device: ${deviceType}`);
+    logger.info(`[Analytics] Page view: ${page} by ${userId} at ${timestamp.toISOString()} - Source: ${trafficSource}, Device: ${deviceType}`);
 
   } catch (error) {
-    console.error('Analytics tracking error:', error);
+    logger.error('Analytics tracking error:', error);
   }
 
   next();
@@ -219,10 +220,10 @@ export const trackUserAction = async (action, metadata = {}) => {
     saveAnalyticsData(analyticsData);
 
     // Log analytics event
-    console.log(`[Analytics] User action: ${action}`, metadata);
+    logger.info(`[Analytics] User action: ${action}`, metadata);
 
   } catch (error) {
-    console.error('Analytics tracking error:', error);
+    logger.error('Analytics tracking error:', error);
   }
 };
 

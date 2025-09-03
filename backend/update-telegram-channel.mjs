@@ -3,30 +3,29 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
 import axios from 'axios';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function updateTelegramChannel() {
-  console.log('📱 Updating Telegram Channel Configuration');
-  console.log('==========================================\n');
+  logger.info('📱 Updating Telegram Channel Configuration');
+  logger.info('==========================================\n');
 
   const channelId = '-1002934676178';
   const channelUsername = '@razewire';
 
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    logger.info('✅ Connected to MongoDB\n');
 
     const settings = await Settings.getCategorySettings('social-media');
     
     if (!settings.telegramBotToken) {
-      console.log('❌ Telegram bot token not configured');
-      console.log('💡 Please configure bot token first\n');
+      logger.info('❌ Telegram bot token not configured');
+      logger.info('💡 Please configure bot token first\n');
       return;
     }
 
-    console.log('🔍 Testing channel access...');
-    
     // Test channel access
     const channelResponse = await axios.get(`https://api.telegram.org/bot${settings.telegramBotToken}/getChat`, {
       params: {
@@ -36,27 +35,27 @@ async function updateTelegramChannel() {
 
     if (channelResponse.data.ok) {
       const chat = channelResponse.data.result;
-      console.log('✅ Channel access successful!');
-      console.log(`Channel ID: ${chat.id}`);
-      console.log(`Channel Title: ${chat.title}`);
-      console.log(`Channel Username: ${chat.username ? '@' + chat.username : 'N/A'}`);
-      console.log(`Channel Type: ${chat.type}`);
-      console.log(`Member Count: ${chat.member_count || 'N/A'}\n`);
+      logger.info('✅ Channel access successful!');
+      logger.info(`Channel ID: ${chat.id}`);
+      logger.info(`Channel Title: ${chat.title}`);
+      logger.info(`Channel Username: ${chat.username ? '@' + chat.username : 'N/A'}`);
+      logger.info(`Channel Type: ${chat.type}`);
+      logger.info(`Member Count: ${chat.member_count || 'N/A'}\n`);
 
       // Update the database
-      console.log('💾 Updating database...');
+      logger.info('💾 Updating database...');
       await Settings.updateCategorySettings('social-media', {
         telegramChannelId: channelId,
         telegramChannelUsername: channelUsername,
         telegramEnabled: true
       });
 
-      console.log('✅ Channel configuration updated successfully!');
-      console.log(`Channel ID: ${channelId}`);
-      console.log(`Channel Username: ${channelUsername}\n`);
+      logger.info('✅ Channel configuration updated successfully!');
+      logger.info(`Channel ID: ${channelId}`);
+      logger.info(`Channel Username: ${channelUsername}\n`);
 
       // Test sending a message
-      console.log('🧪 Testing message sending...');
+      logger.info('🧪 Testing message sending...');
       const testMessage = `🎉 Telegram Integration Test - ${new Date().toLocaleString()}\n\nThis is a test message to verify the Telegram integration with RazeWire.\n\n#RazeWire #Telegram #Test`;
 
       const messageData = {
@@ -74,12 +73,12 @@ async function updateTelegramChannel() {
 
       if (messageResponse.data.ok) {
         const message = messageResponse.data.result;
-        console.log('✅ Test message sent successfully!');
-        console.log(`Message ID: ${message.message_id}`);
-        console.log(`Date: ${new Date(message.date * 1000).toLocaleString()}`);
+        logger.info('✅ Test message sent successfully!');
+        logger.info(`Message ID: ${message.message_id}`);
+        logger.info(`Date: ${new Date(message.date * 1000).toLocaleString()}`);
         
         const messageUrl = `https://t.me/${chat.username}/${message.message_id}`;
-        console.log(`Message URL: ${messageUrl}\n`);
+        logger.info(`Message URL: ${messageUrl}\n`);
 
         // Clean up - delete the test message
         try {
@@ -87,53 +86,53 @@ async function updateTelegramChannel() {
             chat_id: channelId,
             message_id: message.message_id
           });
-          console.log('🧹 Test message cleaned up successfully\n');
+          logger.info('🧹 Test message cleaned up successfully\n');
         } catch (cleanupError) {
-          console.log('⚠️  Could not clean up test message (this is normal)\n');
+          logger.info('⚠️  Could not clean up test message (this is normal)\n');
         }
 
       } else {
-        console.log('❌ Test message failed:');
-        console.log(`Error: ${messageResponse.data.description}\n`);
+        logger.info('❌ Test message failed:');
+        logger.info(`Error: ${messageResponse.data.description}\n`);
       }
 
-      console.log('🎉 Telegram setup complete!');
-      console.log('✅ Bot token configured');
-      console.log('✅ Channel ID configured');
-      console.log('✅ Channel username configured');
-      console.log('✅ Bot has administrator permissions');
-      console.log('✅ Message sending tested');
-      console.log('✅ Ready for auto-posting!\n');
+      logger.info('🎉 Telegram setup complete!');
+      logger.info('✅ Bot token configured');
+      logger.info('✅ Channel ID configured');
+      logger.info('✅ Channel username configured');
+      logger.info('✅ Bot has administrator permissions');
+      logger.info('✅ Message sending tested');
+      logger.info('✅ Ready for auto-posting!\n');
 
-      console.log('📋 Next Steps:');
-      console.log('1. Test auto-posting with a sample article');
-      console.log('2. Monitor posting performance');
-      console.log('3. Configure posting schedule');
-      console.log('4. Track engagement in your channel');
-      console.log('5. Share your channel: https://t.me/razewire\n');
+      logger.info('📋 Next Steps:');
+      logger.info('1. Test auto-posting with a sample article');
+      logger.info('2. Monitor posting performance');
+      logger.info('3. Configure posting schedule');
+      logger.info('4. Track engagement in your channel');
+      logger.info('5. Share your channel: https://t.me/razewire\n');
 
-      console.log('🧪 Test Commands:');
-      console.log('node test-telegram-specific.mjs');
-      console.log('node test-auto-posting.mjs\n');
+      logger.info('🧪 Test Commands:');
+      logger.info('node test-telegram-specific.mjs');
+      logger.info('node test-auto-posting.mjs\n');
 
     } else {
-      console.log('❌ Channel access failed:');
-      console.log(`Error: ${channelResponse.data.description}\n`);
+      logger.info('❌ Channel access failed:');
+      logger.info(`Error: ${channelResponse.data.description}\n`);
     }
 
   } catch (error) {
-    console.log('❌ Error updating Telegram channel:');
-    console.log(`Error: ${error.response?.data?.description || error.message}\n`);
+    logger.info('❌ Error updating Telegram channel:');
+    logger.info(`Error: ${error.response?.data?.description || error.message}\n`);
     
     if (error.response?.status === 403) {
-      console.log('🔧 Permission Issue:');
-      console.log('• Bot may not be added to the channel');
-      console.log('• Add bot as administrator to the channel');
-      console.log('• Ensure bot has posting permissions\n');
+      logger.info('🔧 Permission Issue:');
+      logger.info('• Bot may not be added to the channel');
+      logger.info('• Add bot as administrator to the channel');
+      logger.info('• Ensure bot has posting permissions\n');
     } else if (error.response?.status === 400) {
-      console.log('🔧 Channel ID Issue:');
-      console.log('• Channel ID may be incorrect');
-      console.log('• Check channel ID format\n');
+      logger.info('🔧 Channel ID Issue:');
+      logger.info('• Channel ID may be incorrect');
+      logger.info('• Check channel ID format\n');
     }
   } finally {
     await mongoose.disconnect();

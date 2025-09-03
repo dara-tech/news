@@ -1,8 +1,9 @@
 import { resetAnalyticsData } from './middleware/analytics.mjs';
+import logger from '../utils/logger.mjs';
 
 // Simulate different traffic sources for testing
 const simulateTraffic = () => {
-  console.log('🧪 Simulating traffic sources for analytics testing...');
+  logger.info('🧪 Simulating traffic sources for analytics testing...');
   
   // Reset analytics data
   resetAnalyticsData();
@@ -66,8 +67,8 @@ const simulateTraffic = () => {
     trackPageView(mockReq, mockRes, mockNext);
   });
   
-  console.log('✅ Traffic simulation completed!');
-  console.log('📊 Check the analytics dashboard to see real traffic data.');
+  logger.info('✅ Traffic simulation completed!');
+  logger.info('📊 Check the analytics dashboard to see real traffic data.');
 };
 
 // Run the simulation

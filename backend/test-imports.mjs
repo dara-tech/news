@@ -1,28 +1,29 @@
-console.log('🧪 Testing module imports...');
+import logger from '../utils/logger.mjs';
+logger.info('🧪 Testing module imports...');
 
 try {
-  console.log('1. Testing UserLogin model...');
+  logger.info('1. Testing UserLogin model...');
   const UserLogin = await import('./models/UserLogin.mjs');
-  console.log('✅ UserLogin model imported');
+  logger.info('✅ UserLogin model imported');
 
-  console.log('2. Testing geoLocation utility...');
+  logger.info('2. Testing geoLocation utility...');
   const geoLocation = await import('./utils/geoLocation.mjs');
-  console.log('✅ geoLocation utility imported');
+  logger.info('✅ geoLocation utility imported');
 
-  console.log('3. Testing userLoginController...');
+  logger.info('3. Testing userLoginController...');
   const userLoginController = await import('./controllers/userLoginController.mjs');
-  console.log('✅ userLoginController imported');
+  logger.info('✅ userLoginController imported');
 
-  console.log('4. Testing userLogins routes...');
+  logger.info('4. Testing userLogins routes...');
   const userLoginsRoutes = await import('./routes/userLogins.mjs');
-  console.log('✅ userLogins routes imported');
+  logger.info('✅ userLogins routes imported');
 
-  console.log('5. Testing server...');
+  logger.info('5. Testing server...');
   const server = await import('./server.mjs');
-  console.log('✅ Server imported');
+  logger.info('✅ Server imported');
 
-  console.log('\n✅ All imports successful!');
+  logger.info('\n✅ All imports successful!');
 } catch (error) {
-  console.error('❌ Import error:', error.message);
-  console.error('Stack:', error.stack);
+  logger.error('❌ Import error:', error.message);
+  logger.error('Stack:', error.stack);
 } 

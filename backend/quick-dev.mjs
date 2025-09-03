@@ -2,11 +2,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 import connectDB from './config/db.mjs';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 async function quickDev() {
   try {
-    console.log('🚀 Quick Development Setup');
-    console.log('==========================');
+    logger.info('🚀 Quick Development Setup');
+    logger.info('==========================');
     
     await connectDB();
     
@@ -15,21 +16,21 @@ async function quickDev() {
       maintenanceMode: false 
     }, '000000000000000000000000');
     
-    console.log('✅ Maintenance mode disabled for development');
-    console.log('✅ You can now access the site normally');
-    console.log('\n💡 To enable maintenance mode:');
-    console.log('   - Go to Admin → Settings → General');
-    console.log('   - Toggle "Maintenance Mode" to ON');
-    console.log('   - Save settings');
+    logger.info('✅ Maintenance mode disabled for development');
+    logger.info('✅ You can now access the site normally');
+    logger.info('\n💡 To enable maintenance mode:');
+    logger.info('   - Go to Admin → Settings → General');
+    logger.info('   - Toggle "Maintenance Mode" to ON');
+    logger.info('   - Save settings');
     
-    console.log('\n🔧 Development Tips:');
-    console.log('   - Use "npm run dev" to start the server');
-    console.log('   - Login as admin to access admin panel');
-    console.log('   - Test maintenance mode from admin settings');
+    logger.info('\n🔧 Development Tips:');
+    logger.info('   - Use "npm run dev" to start the server');
+    logger.info('   - Login as admin to access admin panel');
+    logger.info('   - Test maintenance mode from admin settings');
     
     process.exit(0);
   } catch (error) {
-    console.error('Error:', error);
+    logger.error('Error:', error);
     process.exit(1);
   }
 }

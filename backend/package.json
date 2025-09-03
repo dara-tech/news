@@ -16,6 +16,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@google/genai": "^1.15.0",
     "@google/generative-ai": "^0.21.0",
     "axios": "^1.10.0",
     "bcryptjs": "^2.4.3",
@@ -28,9 +29,12 @@
     "express": "^4.18.2",
     "express-async-handler": "^1.2.0",
     "express-fileupload": "^1.5.2",
+    "express-rate-limit": "^8.0.1",
     "express-session": "^1.18.2",
     "express-validator": "^7.0.1",
+    "geoip-lite": "^1.4.10",
     "handlebars": "^4.7.8",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
@@ -41,6 +45,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "rss-parser": "^3.13.0",
+    "winston": "^3.17.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {

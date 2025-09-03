@@ -1,26 +1,87 @@
 /**
  * Image Generation Service
- * Handles automatic image generation for articles using various AI services
+ * Handles automatic image generation for articles using Google Gemini
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI, Modality } from '@google/genai';
+import logger from '../utils/logger.mjs';
 
 class ImageGenerationService {
   constructor() {
-    this.genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    this.model = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY or GOOGLE_API_KEY is not set in environment variables.");
+    }
+    this.ai = new GoogleGenAI({ apiKey });
   }
 
   /**
-   * Generate image description using Gemini
+   * Generate actual image using Gemini 2.0 Flash Image Generation
    */
-  async generateImageDescription(title, content) {
+  async generateActualImage(prompt) {
     try {
+      logger.info('Generating image with prompt:', prompt?.slice(0, 100) + '...');
+      
+      const response = await this.ai.models.generateContent({
+        model: "gemini-2.0-flash-preview-image-generation",
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }],
+          },
+        ],
+        config: {
+          responseModalities: [Modality.TEXT, Modality.IMAGE],
+        },
+      });
+
+      const parts = response?.candidates?.[0]?.content?.parts;
+      if (!parts) {
+        throw new Error("Invalid response format from the API");
+      }
+
+      let imageData = null;
+      let text = "";
+
+      for (const part of parts) {
+        if (part.text) {
+          text = part.text;
+        } else if (part.inlineData?.data) {
+          imageData = part.inlineData.data;
+        }
+      }
+
+      if (!imageData) {
+        throw new Error("No image data returned from the API");
+      }
+
+      // Convert base64 to Buffer for backend storage
+      const buffer = Buffer.from(imageData, 'base64');
+      
+      return {
+        imageBuffer: buffer,
+        text: text,
+        generated: true,
+        timestamp: new Date().toISOString(),
+        service: 'gemini-2.0-flash-image-generation'
+      };
+    } catch (error) {
+      logger.error('Error generating actual image:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Generate image description and actual image for article
+   */
+  async generateImageForArticle(title, content) {
+    try {
+      // Create a comprehensive prompt for image generation
       const prompt = `
-        Create a detailed, professional image description for a news article thumbnail.
+        Create a professional news article thumbnail image.
         
         Article Title: ${title}
-        Article Content: ${content?.substring(0, 500)}...
+        Article Content: ${content?.substring(0, 300)}...
         
         Requirements:
         - Professional news-style image
@@ -31,84 +92,31 @@ class ImageGenerationService {
         - No text overlays (just the image)
         - Aspect ratio suitable for web (16:9 or 4:3)
         - Engaging and click-worthy
+        - Professional color scheme
+        - Clear visual storytelling
         
-        Generate a detailed, specific image description that would create an engaging thumbnail for this news article.
-        Focus on visual elements, colors, composition, and mood that would make readers want to click and read the article.
-        
-        Return only the image description without any additional text or explanations.
+        Generate an image that would make readers want to click and read this news article.
+        Focus on visual elements, colors, composition, and mood that represent the article's content.
       `;
 
-      const result = await this.model.generateContent(prompt);
-      const response = await result.response;
-      const imageDescription = response.text().trim();
-
-      return {
-        description: imageDescription,
-        prompt: imageDescription,
-        generated: true,
-        timestamp: new Date().toISOString(),
-        service: 'gemini-description'
-      };
-    } catch (error) {
-      console.error('Error generating image description:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Generate actual image using external service (placeholder for future integration)
-   */
-  async generateActualImage(description) {
-    try {
-      // This is a placeholder for future integration with image generation APIs
-      // You can integrate with services like:
-      // - DALL-E API
-      // - Midjourney API
-      // - Stable Diffusion API
-      // - Leonardo AI API
+      // Generate the actual image
+      const imageResult = await this.generateActualImage(prompt);
       
-      console.log('Image generation placeholder - would generate image for:', description?.slice(0, 100));
-      
-      // For now, return a placeholder URL or the description
-      return {
-        imageUrl: null, // Would be the actual generated image URL
-        description: description,
-        generated: true,
-        timestamp: new Date().toISOString(),
-        service: 'placeholder'
-      };
-    } catch (error) {
-      console.error('Error generating actual image:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Generate image for article (main method)
-   */
-  async generateImageForArticle(title, content) {
-    try {
-      // Step 1: Generate image description
-      const imageDescription = await this.generateImageDescription(title, content);
-      
-      if (!imageDescription) {
-        console.log('Failed to generate image description');
+      if (!imageResult) {
+        logger.info('Failed to generate image for article:', title?.slice(0, 50));
         return null;
       }
 
-      // Step 2: Generate actual image (placeholder for now)
-      const actualImage = await this.generateActualImage(imageDescription.description);
-      
       return {
-        description: imageDescription.description,
-        prompt: imageDescription.prompt,
-        imageUrl: actualImage?.imageUrl,
+        imageBuffer: imageResult.imageBuffer,
+        description: imageResult.text || 'AI-generated news thumbnail',
+        prompt: prompt,
         generated: true,
         timestamp: new Date().toISOString(),
-        service: imageDescription.service
+        service: imageResult.service
       };
     } catch (error) {
-      console.error('Error in generateImageForArticle:', error);
+      logger.error('Error in generateImageForArticle:', error);
       return null;
     }
   }
@@ -127,7 +135,7 @@ class ImageGenerationService {
       
       return visualKeywords.slice(0, 10); // Return top 10 visual keywords
     } catch (error) {
-      console.error('Error extracting visual elements:', error);
+      logger.error('Error extracting visual elements:', error);
       return [];
     }
   }

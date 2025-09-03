@@ -1,5 +1,6 @@
 import express from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import logger from '../utils/logger.mjs';
 
 const router = express.Router();
 
@@ -196,7 +197,7 @@ router.post('/find', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Source finder error:', error);
+    logger.error('Source finder error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to find sources'
@@ -293,7 +294,7 @@ Format the response as structured analysis.`;
     });
 
   } catch (error) {
-    console.error('Source analysis error:', error);
+    logger.error('Source analysis error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to analyze source'
@@ -346,7 +347,7 @@ Provide a structured validation response.`;
     });
 
   } catch (error) {
-    console.error('Source validation error:', error);
+    logger.error('Source validation error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to validate source'
@@ -396,7 +397,7 @@ Provide structured recommendations.`;
     });
 
   } catch (error) {
-    console.error('Recommendations error:', error);
+    logger.error('Recommendations error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to get recommendations'
@@ -412,7 +413,7 @@ router.get('/all', async (req, res) => {
       sources: SOURCE_DATABASE
     });
   } catch (error) {
-    console.error('Get sources error:', error);
+    logger.error('Get sources error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get sources'
@@ -438,7 +439,7 @@ router.get('/:id', async (req, res) => {
       source
     });
   } catch (error) {
-    console.error('Get source error:', error);
+    logger.error('Get source error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get source'

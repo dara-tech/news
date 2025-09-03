@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from './models/User.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
@@ -10,16 +11,16 @@ const testLikeEndpoint = async () => {
   try {
     // Connect to database
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to database');
+    logger.info('Connected to database');
 
     // Get a test user
     const user = await User.findOne();
     if (!user) {
-      console.log('No users found');
+      logger.info('No users found');
       return;
     }
 
-    console.log('Test user:', user.username);
+    logger.info('Test user:', user.username);
 
     // Create a JWT token
     const token = jwt.sign(
@@ -28,13 +29,13 @@ const testLikeEndpoint = async () => {
       { expiresIn: '7d' }
     );
 
-    console.log('Generated token:', token.substring(0, 20) + '...');
+    logger.info('Generated token:', token.substring(0, 20) + '...');
 
     // Test the endpoint
     const API_URL = 'http://localhost:5001';
     const newsId = '6888ce4fa505394887a39417';
 
-    console.log('Testing endpoint:', `${API_URL}/api/likes/${newsId}/status`);
+    logger.info('Testing endpoint:', `${API_URL}/api/likes/${newsId}/status`);
 
     const response = await axios.get(`${API_URL}/api/likes/${newsId}/status`, {
       headers: {
@@ -43,11 +44,11 @@ const testLikeEndpoint = async () => {
       }
     });
 
-    console.log('Response status:', response.status);
-    console.log('Response data:', response.data);
+    logger.info('Response status:', response.status);
+    logger.info('Response data:', response.data);
 
   } catch (error) {
-    console.error('Error:', error.response ? {
+    logger.error('Error:', error.response ? {
       status: error.response.status,
       data: error.response.data,
       headers: error.response.headers

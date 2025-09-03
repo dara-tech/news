@@ -7,6 +7,8 @@ import User from "../models/User.mjs";
 import { v2 as cloudinary } from "cloudinary";
 import socialMediaService from "../services/socialMediaService.mjs";
 import sentinelService from "../services/sentinelService.mjs";
+import { cleanContentObject } from "../utils/contentCleaner.mjs";
+import logger from '../utils/logger.mjs';
 
 // @desc    Get all news articles for admin (including drafts)
 // @route   GET /api/admin/news
@@ -68,7 +70,7 @@ export const createNews = asyncHandler(async (req, res) => {
 
     // Parse JSON strings for multilingual fields
     const titleObj = JSON.parse(title);
-    const contentObj = JSON.parse(content);
+    const contentObj = cleanContentObject(JSON.parse(content)); // Clean content before processing
     const descriptionObj = JSON.parse(description);
     const seoObj = seo ? JSON.parse(seo) : {};
 
@@ -153,7 +155,7 @@ export const createNews = asyncHandler(async (req, res) => {
     // Auto-process content using Sentinel service (keep existing functionality)
     if (contentObj.en && contentObj.en.trim()) {
       try {
-        console.log('Auto-processing content for article:', titleObj.en);
+        logger.info('Auto-processing content for article:', titleObj.en);
         const autoProcessedContent = await sentinelService.autoProcessContent(contentObj.en, titleObj.en);
         
         if (autoProcessedContent) {
@@ -172,10 +174,10 @@ export const createNews = asyncHandler(async (req, res) => {
             processedAt: new Date().toISOString()
           };
           
-          console.log('Content auto-processed successfully');
+          logger.info('Content auto-processed successfully');
         }
       } catch (error) {
-        console.error('Auto-processing failed:', error);
+        logger.error('Auto-processing failed:', error);
         // Continue with original content if auto-processing fails
       }
     }
@@ -309,9 +311,9 @@ export const getNews = asyncHandler(async (req, res) => {
 
     const news = await newsQuery;
     
-    // Debug: Log first news item author
+    
     if (news.length > 0) {
-      console.log('DEBUG - First news author:', JSON.stringify(news[0].author, null, 2));
+      // News found
     }
     
     // --- Send Response ---
@@ -350,9 +352,6 @@ export const getNewsByIdentifier = asyncHandler(async (req, res) => {
         select: 'username email role profileImage'
       })
       .populate('category', 'name color slug');
-
-    // Debug: Log the author data
-    console.log('DEBUG getNewsByIdentifier - Author:', JSON.stringify(news?.author, null, 2));
 
     if (!news) {
       res.status(404);
@@ -419,8 +418,8 @@ export const updateNews = asyncHandler(async (req, res) => {
     // Update multilingual fields
     if (title) news.title = JSON.parse(title);
     if (content) {
-      const contentObj = JSON.parse(content);
-      news.content = contentObj; // Use original content, let Sentinel handle formatting
+      const contentObj = cleanContentObject(JSON.parse(content)); // Clean content before processing
+      news.content = contentObj; // Use cleaned content, let Sentinel handle formatting
     }
     if (description) news.description = JSON.parse(description);
     
@@ -483,7 +482,7 @@ export const updateNews = asyncHandler(async (req, res) => {
     // Auto-process content using Sentinel service (if content was updated)
     if (content && news.content.en && news.content.en.trim()) {
       try {
-        console.log('Auto-processing updated content for article:', news.title.en);
+        logger.info('Auto-processing updated content for article:', news.title.en);
         const autoProcessedContent = await sentinelService.autoProcessContent(news.content.en, news.title.en);
         
         if (autoProcessedContent) {
@@ -502,10 +501,10 @@ export const updateNews = asyncHandler(async (req, res) => {
             processedAt: new Date().toISOString()
           };
           
-          console.log('Updated content auto-processed successfully');
+          logger.info('Updated content auto-processed successfully');
         }
       } catch (error) {
-        console.error('Auto-processing failed for update:', error);
+        logger.error('Auto-processing failed for update:', error);
         // Continue with original content if auto-processing fails
       }
     }
@@ -606,7 +605,7 @@ export const updateNewsStatus = asyncHandler(async (req, res) => {
         
         if (enResult.success) {
           news.content.en = enResult.content;
-          console.log('Content formatted for English when publishing');
+          logger.info('Content formatted for English when publishing');
         }
       }
       
@@ -625,11 +624,11 @@ export const updateNewsStatus = asyncHandler(async (req, res) => {
         
         if (khResult.success) {
           news.content.kh = khResult.content;
-          console.log('Content formatted for Khmer when publishing');
+          logger.info('Content formatted for Khmer when publishing');
         }
       }
     } catch (error) {
-      console.error('Content formatting failed during status update:', error);
+      logger.error('Content formatting failed during status update:', error);
       // Continue with original content if formatting fails
     }
   }
@@ -676,25 +675,25 @@ export const updateNewsStatus = asyncHandler(async (req, res) => {
 
       if (notifications.length > 0) {
         await Notification.insertMany(notifications);
-        console.log(`Created ${notifications.length} notifications for news: ${news.title.en}`);
+        logger.info(`Created ${notifications.length} notifications for news: ${news.title.en}`);
       }
 
       // Auto-post to social media when news is published
       try {
         const autoPostResult = await socialMediaService.autoPostContent(news, req.user);
-        console.log('Auto-posting result:', autoPostResult);
+        logger.info('Auto-posting result:', autoPostResult);
         
         if (autoPostResult.success) {
-          console.log(`Successfully posted to ${autoPostResult.successfulPosts}/${autoPostResult.totalPlatforms} platforms`);
+          logger.info(`Successfully posted to ${autoPostResult.successfulPosts}/${autoPostResult.totalPlatforms} platforms`);
         } else {
-          console.log('Auto-posting failed or disabled:', autoPostResult.message);
+          logger.info('Auto-posting failed or disabled:', autoPostResult.message);
         }
       } catch (error) {
-        console.error('Error in auto-posting:', error);
+        logger.error('Error in auto-posting:', error);
         // Don't fail the request if auto-posting fails
       }
     } catch (error) {
-      console.error('Error creating notifications:', error);
+      logger.error('Error creating notifications:', error);
       // Don't fail the request if notification creation fails
     }
   }
@@ -878,7 +877,7 @@ export const getNewsByCategorySlug = asyncHandler(async (req, res) => {
 // @route   GET /api/news/author/:authorId
 // @access  Public
 export const getAuthorProfile = asyncHandler(async (req, res) => {
-  console.log('getAuthorProfile called with params:', req.params);
+  logger.info('getAuthorProfile called with params:', req.params);
   try {
     const { authorId } = req.params;
     const { page = 1, limit = 10 } = req.query;
@@ -891,7 +890,7 @@ export const getAuthorProfile = asyncHandler(async (req, res) => {
 
     // Get author information
     const author = await User.findById(authorId).select('username email avatar profileImage role createdAt');
-    console.log('🔍 Raw author from DB:', JSON.stringify(author, null, 2));
+    
     if (!author) {
       res.status(404);
       throw new Error('Author not found.');

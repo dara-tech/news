@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import telegramCallbackHandler from '../services/telegramCallbackHandler.mjs';
+import logger from '../utils/logger.mjs';
 
 // @desc    Handle Telegram webhook updates
 // @route   POST /api/telegram/webhook
@@ -8,7 +9,7 @@ export const handleTelegramWebhook = asyncHandler(async (req, res) => {
   try {
     const { update_id, callback_query, message } = req.body;
 
-    console.log('📱 Telegram webhook received:', {
+    logger.info('📱 Telegram webhook received:', {
       update_id,
       has_callback_query: !!callback_query,
       has_message: !!message
@@ -18,7 +19,7 @@ export const handleTelegramWebhook = asyncHandler(async (req, res) => {
     if (callback_query) {
       const result = await telegramCallbackHandler.handleCallbackQuery(callback_query);
       
-      console.log('📱 Callback query handled:', result);
+      logger.info('📱 Callback query handled:', result);
       
       res.json({
         success: true,
@@ -30,7 +31,7 @@ export const handleTelegramWebhook = asyncHandler(async (req, res) => {
 
     // Handle regular messages (optional)
     if (message) {
-      console.log('📱 Message received:', {
+      logger.info('📱 Message received:', {
         from: message.from?.username || message.from?.first_name,
         text: message.text?.substring(0, 50) + '...'
       });
@@ -50,7 +51,7 @@ export const handleTelegramWebhook = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error handling Telegram webhook:', error.message);
+    logger.error('❌ Error handling Telegram webhook:', error.message);
     
     res.status(500).json({
       success: false,
@@ -92,7 +93,7 @@ export const setTelegramWebhook = asyncHandler(async (req, res) => {
     );
 
     if (response.data.ok) {
-      console.log('✅ Telegram webhook set successfully:', webhookUrl);
+      logger.info('✅ Telegram webhook set successfully:', webhookUrl);
       
       res.json({
         success: true,
@@ -105,7 +106,7 @@ export const setTelegramWebhook = asyncHandler(async (req, res) => {
     }
 
   } catch (error) {
-    console.error('❌ Error setting Telegram webhook:', error.message);
+    logger.error('❌ Error setting Telegram webhook:', error.message);
     
     res.status(500).json({
       success: false,
@@ -145,7 +146,7 @@ export const getTelegramWebhookInfo = asyncHandler(async (req, res) => {
     }
 
   } catch (error) {
-    console.error('❌ Error getting Telegram webhook info:', error.message);
+    logger.error('❌ Error getting Telegram webhook info:', error.message);
     
     res.status(500).json({
       success: false,
@@ -176,7 +177,7 @@ export const deleteTelegramWebhook = asyncHandler(async (req, res) => {
     );
 
     if (response.data.ok) {
-      console.log('✅ Telegram webhook deleted successfully');
+      logger.info('✅ Telegram webhook deleted successfully');
       
       res.json({
         success: true,
@@ -188,7 +189,7 @@ export const deleteTelegramWebhook = asyncHandler(async (req, res) => {
     }
 
   } catch (error) {
-    console.error('❌ Error deleting Telegram webhook:', error.message);
+    logger.error('❌ Error deleting Telegram webhook:', error.message);
     
     res.status(500).json({
       success: false,

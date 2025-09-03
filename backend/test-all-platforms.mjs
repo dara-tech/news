@@ -3,21 +3,22 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
 import SocialMediaService from './services/socialMediaService.mjs';
+import logger from './utils/logger.mjs';
 
 dotenv.config();
 
 async function testAllPlatforms() {
-  console.log('🚀 Testing All Social Media Platforms');
-  console.log('=====================================\n');
+  logger.info('🚀 Testing All Social Media Platforms');
+  logger.info('=====================================\n');
 
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    logger.info('✅ Connected to MongoDB\n');
 
     const settings = await Settings.getCategorySettings('social-media');
     
-    console.log('📋 Platform Configuration Status:');
-    console.log('==================================\n');
+    logger.info('📋 Platform Configuration Status:');
+    logger.info('==================================\n');
 
     // Check each platform configuration
     const platforms = [
@@ -31,15 +32,15 @@ async function testAllPlatforms() {
     platforms.forEach(platform => {
       const status = platform.enabled && platform.token ? '✅ Ready' : 
                     platform.enabled ? '⚠️  Enabled but missing credentials' : '❌ Disabled';
-      console.log(`${platform.name}: ${status}`);
+      logger.info(`${platform.name}: ${status}`);
       if (platform.enabled && platform.token) {
-        console.log(`  - Token: ✅ Configured`);
-        console.log(`  - App/Client ID: ${platform.appId ? '✅ Set' : '❌ Missing'}`);
+        logger.info(`  - Token: ✅ Configured`);
+        logger.info(`  - App/Client ID: ${platform.appId ? '✅ Set' : '❌ Missing'}`);
       }
-      console.log('');
+      logger.info('');
     });
 
-    console.log('🧪 Testing Individual Platform Posting...\n');
+    logger.info('🧪 Testing Individual Platform Posting...\n');
 
     // Create test article
     const testArticle = {
@@ -51,10 +52,10 @@ async function testAllPlatforms() {
       imageUrl: 'https://via.placeholder.com/800x400/4ECDC4/FFFFFF?text=RazeWire+Test'
     };
 
-    console.log('📝 Test Article:');
-    console.log(`Title: ${testArticle.title.en}`);
-    console.log(`Description: ${testArticle.description.en}`);
-    console.log(`Slug: ${testArticle.slug}\n`);
+    logger.info('📝 Test Article:');
+    logger.info(`Title: ${testArticle.title.en}`);
+    logger.info(`Description: ${testArticle.description.en}`);
+    logger.info(`Slug: ${testArticle.slug}\n`);
 
     const socialMediaService = SocialMediaService;
     const results = [];
@@ -66,19 +67,19 @@ async function testAllPlatforms() {
         continue;
       }
 
-      console.log(`📱 Testing ${platform.name}...`);
+      logger.info(`📱 Testing ${platform.name}...`);
       
       try {
         const platformKey = platform.name.toLowerCase().replace('/x', '').replace('/', '');
         
         // Test content generation
         const content = socialMediaService.generatePostContent(testArticle, platformKey);
-        console.log(`  Content Length: ${content.length} chars`);
+        logger.info(`  Content Length: ${content.length} chars`);
         
         // Test rate limiting
         const rateLimitCheck = await socialMediaService.rateLimitManager.canPost(platformKey);
         if (!rateLimitCheck.canPost) {
-          console.log(`  Rate Limited: ${rateLimitCheck.reason}`);
+          logger.info(`  Rate Limited: ${rateLimitCheck.reason}`);
           results.push(`${platform.name}: ⏳ Rate limited (${rateLimitCheck.message})`);
           continue;
         }
@@ -91,70 +92,70 @@ async function testAllPlatforms() {
         );
 
         if (result.success) {
-          console.log(`  ✅ Posted successfully!`);
-          console.log(`  Post ID: ${result.postId || 'N/A'}`);
-          console.log(`  URL: ${result.url || 'N/A'}`);
+          logger.info(`  ✅ Posted successfully!`);
+          logger.info(`  Post ID: ${result.postId || 'N/A'}`);
+          logger.info(`  URL: ${result.url || 'N/A'}`);
           results.push(`${platform.name}: ✅ Posted successfully`);
         } else {
-          console.log(`  ❌ Posting failed: ${result.message}`);
+          logger.info(`  ❌ Posting failed: ${result.message}`);
           results.push(`${platform.name}: ❌ ${result.message}`);
         }
 
       } catch (error) {
-        console.log(`  ❌ Error: ${error.message}`);
+        logger.info(`  ❌ Error: ${error.message}`);
         results.push(`${platform.name}: ❌ ${error.message}`);
       }
       
-      console.log('');
+      logger.info('');
     }
 
-    console.log('📊 Test Results Summary:');
-    console.log('========================\n');
+    logger.info('📊 Test Results Summary:');
+    logger.info('========================\n');
     
     results.forEach(result => {
-      console.log(result);
+      logger.info(result);
     });
 
     const successCount = results.filter(r => r.includes('✅')).length;
     const totalCount = results.length;
     
-    console.log(`\n🎯 Overall Results: ${successCount}/${totalCount} platforms working`);
+    logger.info(`\n🎯 Overall Results: ${successCount}/${totalCount} platforms working`);
     
     if (successCount === totalCount) {
-      console.log('🎉 All configured platforms are working perfectly!');
+      logger.info('🎉 All configured platforms are working perfectly!');
     } else if (successCount > 0) {
-      console.log('✅ Some platforms are working well');
+      logger.info('✅ Some platforms are working well');
     } else {
-      console.log('⚠️  No platforms are currently working');
+      logger.info('⚠️  No platforms are currently working');
     }
 
-    console.log('\n📋 Platform Status:');
-    console.log('==================');
-    console.log('✅ Facebook: Working (API v20.0)');
-    console.log('✅ Twitter/X: Working (Rate limited)');
-    console.log('🔧 LinkedIn: Needs token refresh');
-    console.log('✅ Instagram: Ready for configuration');
-    console.log('✅ Telegram: Working (NEW!)');
-    console.log('❌ Threads: No public API available');
-    console.log('❌ GitHub: Not supported');
-    console.log('❌ YouTube: Not supported');
+    logger.info('\n📋 Platform Status:');
+    logger.info('==================');
+    logger.info('✅ Facebook: Working (API v20.0)');
+    logger.info('✅ Twitter/X: Working (Rate limited)');
+    logger.info('🔧 LinkedIn: Needs token refresh');
+    logger.info('✅ Instagram: Ready for configuration');
+    logger.info('✅ Telegram: Working (NEW!)');
+    logger.info('❌ Threads: No public API available');
+    logger.info('❌ GitHub: Not supported');
+    logger.info('❌ YouTube: Not supported');
 
-    console.log('\n💡 Recommendations:');
-    console.log('==================');
+    logger.info('\n💡 Recommendations:');
+    logger.info('==================');
     if (results.some(r => r.includes('LinkedIn') && r.includes('❌'))) {
-      console.log('🔧 LinkedIn: Get new access token with correct permissions');
+      logger.info('🔧 LinkedIn: Get new access token with correct permissions');
     }
     if (results.some(r => r.includes('Instagram') && r.includes('❌'))) {
-      console.log('📷 Instagram: Configure App ID and Access Token');
+      logger.info('📷 Instagram: Configure App ID and Access Token');
     }
     if (results.some(r => r.includes('Twitter') && r.includes('Rate limited'))) {
-      console.log('🐦 Twitter: Rate limiting is working correctly');
+      logger.info('🐦 Twitter: Rate limiting is working correctly');
     }
-    console.log('📱 Telegram: Ready for production use!');
-    console.log('📘 Facebook: Working with API v20.0');
+    logger.info('📱 Telegram: Ready for production use!');
+    logger.info('📘 Facebook: Working with API v20.0');
 
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
+    logger.error('❌ Test failed:', error.message);
   } finally {
     await mongoose.disconnect();
     process.exit(0);

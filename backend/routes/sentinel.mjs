@@ -1,5 +1,6 @@
 import express from 'express';
 import sentinelService from '../services/sentinelService.mjs';
+import logger from '../utils/logger.mjs';
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ router.get('/logs', async (req, res) => {
     const logs = sentinelService.getLogs();
     res.json({ success: true, logs });
   } catch (error) {
-    console.error('Error fetching Sentinel logs:', error);
+    logger.error('Error fetching Sentinel logs:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch logs' });
   }
 });
@@ -20,7 +21,7 @@ router.get('/metrics', async (req, res) => {
     const metrics = sentinelService.getMetrics();
     res.json({ success: true, metrics });
   } catch (error) {
-    console.error('Error fetching Sentinel metrics:', error);
+    logger.error('Error fetching Sentinel metrics:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch metrics' });
   }
 });

@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { Bell, UserCircle, Search, Menu, X, LogOut, Settings, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link'; // Assuming Next.js for dynamic titles
 
 // Hook for handling click outside of an element (for dropdown)
@@ -58,10 +59,10 @@ export default function DashboardHeader() {
 
         {/* Right Section: Actions & User Dropdown */}
         <div className="flex items-center space-x-4">
-          <button className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full dark:text-gray-300 dark:hover:bg-gray-700">
+          <Button className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full dark:text-gray-300 dark:hover:bg-gray-700">
             <Bell className="h-6 w-6" />
             <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800"></span>
-          </button>
+          </Button>
 
           {/* 4. Advanced User Dropdown Menu */}
           <div ref={dropdownRef} className="relative">

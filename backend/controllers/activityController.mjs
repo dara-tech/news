@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import ActivityLog from "../models/ActivityLog.mjs";
 import User from "../models/User.mjs";
+import logger from '../utils/logger.mjs';
 
 // @desc    Log activity (helper function)
 // @access  Internal
@@ -49,7 +50,7 @@ export const logActivity = async (data) => {
 
     await ActivityLog.create(logData);
   } catch (error) {
-    console.error('Failed to log activity:', error);
+    logger.error('Failed to log activity:', error);
   }
 };
 

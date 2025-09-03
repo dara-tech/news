@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 
-const connectCloudinary = () => {
+// Function to initialize Cloudinary configuration
+const initializeCloudinary = () => {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -8,6 +9,14 @@ const connectCloudinary = () => {
     secure: true
   });
 };
+
+const connectCloudinary = () => {
+  initializeCloudinary();
+  return cloudinary;
+};
+
+// Export the initialization function
+export { initializeCloudinary };
 
 // Upload an image to Cloudinary
 export const uploadImage = async (filePath, folder = 'news') => {

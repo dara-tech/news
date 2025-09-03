@@ -32,6 +32,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'lh6.googleusercontent.com' },
       { protocol: 'https', hostname: 'www.khmertimeskh.com' },
       { protocol: 'https', hostname: 'via.placeholder.com' },
+      { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: 'www.washingtonpost.com' },
     ],
   },
   async headers() {

@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import Category from "../models/Category.mjs";
+import logger from '../utils/logger.mjs';
 
 // @desc    Get all categories
 // @route   GET /api/categories
@@ -17,7 +18,7 @@ export const getCategories = asyncHandler(async (req, res) => {
 
     res.json({ success: true, data: categoriesWithCounts });
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    logger.error('Error fetching categories:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch categories' });
   }
 });

@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 
 import fetch from 'node-fetch';
+import logger from '../utils/logger.mjs';
 
 const BASE_URL = 'http://localhost:5001';
 
 // Test helper function
 const testEndpoint = async (method, endpoint, data = null, description) => {
   try {
-    console.log(`\n🧪 Testing: ${description}`);
-    console.log(`${method} ${endpoint}`);
+    logger.info(`\n🧪 Testing: ${description}`);
+    logger.info(`${method} ${endpoint}`);
     
     const options = {
       method,
@@ -24,31 +25,31 @@ const testEndpoint = async (method, endpoint, data = null, description) => {
     const response = await fetch(`${BASE_URL}${endpoint}`, options);
     const result = await response.json();
     
-    console.log(`Status: ${response.status}`);
-    console.log(`Response:`, JSON.stringify(result, null, 2));
+    logger.info(`Status: ${response.status}`);
+    logger.info(`Response:`, JSON.stringify(result, null, 2));
     
     return { status: response.status, data: result };
   } catch (error) {
-    console.error(`❌ Error testing ${endpoint}:`, error.message);
+    logger.error(`❌ Error testing ${endpoint}:`, error.message);
     return { error: error.message };
   }
 };
 
 // Main test function
 const runTests = async () => {
-  console.log('🚀 Starting Backend Role System Tests\n');
+  logger.info('🚀 Starting Backend Role System Tests\n');
   
   // Test 1: Check if server is running
   try {
     const response = await fetch(`${BASE_URL}/api/admin/roles`);
     if (response.status === 401) {
-      console.log('✅ Server is running (401 expected - auth required)');
+      logger.info('✅ Server is running (401 expected - auth required)');
     } else {
-      console.log(`✅ Server is running (Status: ${response.status})`);
+      logger.info(`✅ Server is running (Status: ${response.status})`);
     }
   } catch (error) {
-    console.error('❌ Server is not running or not accessible');
-    console.error('Please make sure the backend server is running on port 5001');
+    logger.error('❌ Server is not running or not accessible');
+    logger.error('Please make sure the backend server is running on port 5001');
     process.exit(1);
   }
   
@@ -73,14 +74,14 @@ const runTests = async () => {
   
   await testEndpoint('POST', '/api/admin/roles', testRole, 'Create Test Role');
   
-  console.log('\n📊 Test Summary:');
-  console.log('- Server connectivity: ✅ Working');
-  console.log('- Endpoints responding: ✅ Working');
-  console.log('- Authentication required: ✅ Working (401 responses expected)');
-  console.log('- Role system initialized: ✅ Working');
+  logger.info('\n📊 Test Summary:');
+  logger.info('- Server connectivity: ✅ Working');
+  logger.info('- Endpoints responding: ✅ Working');
+  logger.info('- Authentication required: ✅ Working (401 responses expected)');
+  logger.info('- Role system initialized: ✅ Working');
   
-  console.log('\n💡 Note: 401 responses are expected for protected endpoints without authentication');
-  console.log('The role system is working correctly - authentication is properly enforced!');
+  logger.info('\n💡 Note: 401 responses are expected for protected endpoints without authentication');
+  logger.info('The role system is working correctly - authentication is properly enforced!');
 };
 
 // Run the tests

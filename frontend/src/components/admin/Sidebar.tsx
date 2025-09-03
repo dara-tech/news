@@ -20,6 +20,8 @@ import {
   User,
   Brain,
   Zap,
+  Target,
+  Key,
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 
@@ -135,6 +137,11 @@ const data = {
       icon: Settings,
       items: [
         {
+          title: 'Frontend Controls',
+          url: '/admin/frontend-controls',
+          icon: Monitor,
+        },
+        {
           title: 'General',
           url: '/admin/settings/general',
         },
@@ -161,12 +168,26 @@ const data = {
       icon: BarChart3,
       items: [
         {
+          title: 'Enterprise Analytics',
+          url: '/admin/enterprise-analytics',
+          icon: Target,
+        },
+        {
           title: 'SEO Dashboard',
           url: '/admin/seo',
         },
         {
           title: 'Process Mining',
           url: '/admin/processing-dashboard',
+        },
+        {
+          title: 'Data Quality',
+          url: '/admin/data-quality',
+        },
+        {
+          title: 'API Keys',
+          url: '/admin/api-keys',
+          icon: Key,
         },
       ],
     },

@@ -339,7 +339,7 @@ const NotificationsPageClient: React.FC = () => {
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-3 flex-1">
-                        <input
+                        <Input
                           type="checkbox"
                           checked={selectedNotifications.includes(notification._id)}
                           onChange={(e) => {

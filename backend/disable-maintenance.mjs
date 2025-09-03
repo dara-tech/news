@@ -1,17 +1,18 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 const disableMaintenance = async () => {
   try {
-    console.log('Connecting to database...');
+    logger.info('Connecting to database...');
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to database');
+    logger.info('Connected to database');
 
     // Update maintenance mode to false
-    console.log('Updating maintenance mode to false...');
+    logger.info('Updating maintenance mode to false...');
     await Settings.updateOne(
       { category: 'general', key: 'maintenanceMode' },
       { 
@@ -21,18 +22,18 @@ const disableMaintenance = async () => {
       }
     );
 
-    console.log('✅ Maintenance mode disabled');
+    logger.info('✅ Maintenance mode disabled');
     
     // Verify the change
     const settings = await Settings.getCategorySettings('general');
-    console.log('Current maintenance mode:', settings.maintenanceMode);
+    logger.info('Current maintenance mode:', settings.maintenanceMode);
     
   } catch (error) {
-    console.error('Error:', error);
+    logger.error('Error:', error);
   } finally {
-    console.log('Disconnecting from database...');
+    logger.info('Disconnecting from database...');
     await mongoose.disconnect();
-    console.log('Disconnected');
+    logger.info('Disconnected');
   }
 };
 

@@ -1,24 +1,25 @@
 import mongoose from 'mongoose';
 import UserLogin from './models/UserLogin.mjs';
 import User from './models/User.mjs';
+import logger from '../utils/logger.mjs';
 
 // Connect to MongoDB
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/news-app');
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    logger.info(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
+    logger.error('Error connecting to MongoDB:', error);
     process.exit(1);
   }
 };
 
 const testUserLoginRoutes = async () => {
-  console.log('🧪 Testing user login routes...');
+  logger.info('🧪 Testing user login routes...');
   
   try {
     // Test 1: Check if UserLogin model works
-    console.log('1. Testing UserLogin model...');
+    logger.info('1. Testing UserLogin model...');
     const testLogin = new UserLogin({
       userId: new mongoose.Types.ObjectId(),
       username: 'testuser',
@@ -41,10 +42,10 @@ const testUserLoginRoutes = async () => {
     });
     
     await testLogin.save();
-    console.log('✅ UserLogin model works');
+    logger.info('✅ UserLogin model works');
     
     // Test 2: Check if we can query login data
-    console.log('2. Testing login data query...');
+    logger.info('2. Testing login data query...');
     const logins = await UserLogin.find({
       loginTime: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
       success: true,
@@ -52,10 +53,10 @@ const testUserLoginRoutes = async () => {
       'location.coordinates.longitude': { $ne: 0 }
     }).populate('userId', 'username email profileImage');
     
-    console.log(`✅ Found ${logins.length} login records`);
+    logger.info(`✅ Found ${logins.length} login records`);
     
     // Test 3: Test the map data processing logic
-    console.log('3. Testing map data processing...');
+    logger.info('3. Testing map data processing...');
     const locationGroups = {};
     logins.forEach(login => {
       const key = `${login.location.coordinates.latitude},${login.location.coordinates.longitude}`;
@@ -101,27 +102,27 @@ const testUserLoginRoutes = async () => {
       totalLogins: group.count
     }));
     
-    console.log(`✅ Processed ${mapData.length} location groups`);
-    console.log('Map data structure:', JSON.stringify(mapData[0], null, 2));
+    logger.info(`✅ Processed ${mapData.length} location groups`);
+    logger.info('Map data structure:', JSON.stringify(mapData[0], null, 2));
     
     // Clean up test data
     await UserLogin.deleteMany({ username: 'testuser' });
-    console.log('✅ Cleaned up test data');
+    logger.info('✅ Cleaned up test data');
     
-    console.log('\n✅ All user login route tests passed!');
+    logger.info('\n✅ All user login route tests passed!');
     
   } catch (error) {
-    console.error('❌ Error testing user login routes:', error);
+    logger.error('❌ Error testing user login routes:', error);
   }
 };
 
 // Run the test
 connectDB().then(() => {
   testUserLoginRoutes().then(() => {
-    console.log('🏁 Test completed');
+    logger.info('🏁 Test completed');
     process.exit(0);
   }).catch((error) => {
-    console.error('Test failed:', error);
+    logger.error('Test failed:', error);
     process.exit(1);
   });
 }); 

@@ -3,66 +3,66 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
 import readline from 'readline';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function telegramChannelSetup() {
-  console.log('📱 Telegram Channel Setup Guide');
-  console.log('===============================\n');
+  logger.info('📱 Telegram Channel Setup Guide');
+  logger.info('===============================\n');
 
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    logger.info('✅ Connected to MongoDB\n');
 
     const settings = await Settings.getCategorySettings('social-media');
     
     if (!settings.telegramBotToken) {
-      console.log('❌ Telegram bot token not configured');
-      console.log('💡 Please configure bot token first\n');
+      logger.info('❌ Telegram bot token not configured');
+      logger.info('💡 Please configure bot token first\n');
       return;
     }
 
-    console.log('📋 Current Status:');
-    console.log(`Bot Token: ${settings.telegramBotToken ? '✅ Set' : '❌ Not set'}`);
-    console.log(`Bot Username: @razewire_bot`);
-    console.log(`Channel ID: ${settings.telegramChannelId ? '✅ Set' : '❌ Not set'}`);
-    console.log(`Channel Username: ${settings.telegramChannelUsername || '❌ Not set'}\n`);
+    logger.info('📋 Current Status:');
+    logger.info(`Bot Token: ${settings.telegramBotToken ? '✅ Set' : '❌ Not set'}`);
+    logger.info(`Bot Username: @razewire_bot`);
+    logger.info(`Channel ID: ${settings.telegramChannelId ? '✅ Set' : '❌ Not set'}`);
+    logger.info(`Channel Username: ${settings.telegramChannelUsername || '❌ Not set'}\n`);
 
-    console.log('📋 Step-by-Step Channel Setup:');
-    console.log('==============================\n');
+    logger.info('📋 Step-by-Step Channel Setup:');
+    logger.info('==============================\n');
 
-    console.log('🔗 Step 1: Create Telegram Channel');
-    console.log('1. Open Telegram app');
-    console.log('2. Tap the menu (☰)');
-    console.log('3. Select "New Channel"');
-    console.log('4. Enter channel name: "RazeWire Daily News"');
-    console.log('5. Add description: "Latest news and updates from RazeWire"');
-    console.log('6. Set as Public');
-    console.log('7. Create username: @razewire_news (or your preferred name)');
-    console.log('8. Click "Create"\n');
+    logger.info('🔗 Step 1: Create Telegram Channel');
+    logger.info('1. Open Telegram app');
+    logger.info('2. Tap the menu (☰)');
+    logger.info('3. Select "New Channel"');
+    logger.info('4. Enter channel name: "RazeWire Daily News"');
+    logger.info('5. Add description: "Latest news and updates from RazeWire"');
+    logger.info('6. Set as Public');
+    logger.info('7. Create username: @razewire_news (or your preferred name)');
+    logger.info('8. Click "Create"\n');
 
-    console.log('🤖 Step 2: Add Bot as Administrator');
-    console.log('1. Go to your channel');
-    console.log('2. Tap the channel name at the top');
-    console.log('3. Tap "Administrators"');
-    console.log('4. Tap "Add Admin"');
-    console.log('5. Search for: @razewire_bot');
-    console.log('6. Grant these permissions:');
-    console.log('   ✅ Send Messages');
-    console.log('   ✅ Edit Messages');
-    console.log('   ✅ Delete Messages');
-    console.log('   ✅ Pin Messages\n');
+    logger.info('🤖 Step 2: Add Bot as Administrator');
+    logger.info('1. Go to your channel');
+    logger.info('2. Tap the channel name at the top');
+    logger.info('3. Tap "Administrators"');
+    logger.info('4. Tap "Add Admin"');
+    logger.info('5. Search for: @razewire_bot');
+    logger.info('6. Grant these permissions:');
+    logger.info('   ✅ Send Messages');
+    logger.info('   ✅ Edit Messages');
+    logger.info('   ✅ Delete Messages');
+    logger.info('   ✅ Pin Messages\n');
 
-    console.log('🔍 Step 3: Get Channel ID');
-    console.log('1. Send any message to your channel (e.g., "Test message")');
-    console.log('2. Forward that message to @userinfobot');
-    console.log('3. Copy the "Chat ID" from the response');
-    console.log('   (It will look like: -1001234567890)\n');
+    logger.info('1. Send any message to your channel (e.g., "Test message")');
+    logger.info('2. Forward that message to @userinfobot');
+    logger.info('3. Copy the "Chat ID" from the response');
+    logger.info('   (It will look like: -1001234567890)\n');
 
-    console.log('💡 Channel ID Format Examples:');
-    console.log('   • Public channels: -1001234567890');
-    console.log('   • Private channels: -1001234567890');
-    console.log('   • Groups: -1234567890\n');
+    logger.info('💡 Channel ID Format Examples:');
+    logger.info('   • Public channels: -1001234567890');
+    logger.info('   • Private channels: -1001234567890');
+    logger.info('   • Groups: -1234567890\n');
 
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
@@ -72,24 +72,24 @@ async function telegramChannelSetup() {
           if (channelId && channelId.trim() !== '') {
             rl.question('📝 Enter the Channel Username (e.g., @razewire_news): ', async (channelUsername) => {
               try {
-                console.log('\n💾 Updating database...');
+                logger.info('\n💾 Updating database...');
                 await Settings.updateCategorySettings('social-media', {
                   telegramChannelId: channelId.trim(),
                   telegramChannelUsername: channelUsername.trim() || ''
                 });
 
-                console.log('✅ Channel ID updated successfully!');
-                console.log(`Channel ID: ${channelId.trim()}`);
-                console.log(`Channel Username: ${channelUsername.trim() || 'N/A'}\n`);
+                logger.info('✅ Channel ID updated successfully!');
+                logger.info(`Channel ID: ${channelId.trim()}`);
+                logger.info(`Channel Username: ${channelUsername.trim() || 'N/A'}\n`);
 
-                console.log('🧪 Testing Telegram integration...');
+                logger.info('🧪 Testing Telegram integration...');
                 const { default: axios } = await import('axios');
                 
                 try {
                   // Test bot access
                   const botResponse = await axios.get(`https://api.telegram.org/bot${settings.telegramBotToken}/getMe`);
                   if (botResponse.data.ok) {
-                    console.log('✅ Bot is working correctly');
+                    logger.info('✅ Bot is working correctly');
                   }
 
                   // Test channel access
@@ -101,62 +101,62 @@ async function telegramChannelSetup() {
 
                   if (channelResponse.data.ok) {
                     const chat = channelResponse.data.result;
-                    console.log('✅ Channel is accessible');
-                    console.log(`Channel Title: ${chat.title}`);
-                    console.log(`Channel Type: ${chat.type}`);
-                    console.log(`Member Count: ${chat.member_count || 'N/A'}\n`);
+                    logger.info('✅ Channel is accessible');
+                    logger.info(`Channel Title: ${chat.title}`);
+                    logger.info(`Channel Type: ${chat.type}`);
+                    logger.info(`Member Count: ${chat.member_count || 'N/A'}\n`);
                     
-                    console.log('🎉 Telegram setup complete!');
-                    console.log('✅ Bot token configured');
-                    console.log('✅ Channel ID configured');
-                    console.log('✅ Ready for auto-posting!\n');
+                    logger.info('🎉 Telegram setup complete!');
+                    logger.info('✅ Bot token configured');
+                    logger.info('✅ Channel ID configured');
+                    logger.info('✅ Ready for auto-posting!\n');
 
-                    console.log('📋 Next Steps:');
-                    console.log('1. Test auto-posting with a sample article');
-                    console.log('2. Monitor posting performance');
-                    console.log('3. Configure posting schedule');
-                    console.log('4. Track engagement in your channel\n');
+                    logger.info('📋 Next Steps:');
+                    logger.info('1. Test auto-posting with a sample article');
+                    logger.info('2. Monitor posting performance');
+                    logger.info('3. Configure posting schedule');
+                    logger.info('4. Track engagement in your channel\n');
 
                   } else {
-                    console.log('❌ Channel access failed');
-                    console.log('💡 Make sure bot is added as administrator to the channel\n');
+                    logger.info('❌ Channel access failed');
+                    logger.info('💡 Make sure bot is added as administrator to the channel\n');
                   }
 
                 } catch (testError) {
-                  console.log('❌ Test failed:', testError.response?.data?.description || testError.message);
-                  console.log('💡 Check bot permissions in channel settings\n');
+                  logger.info('❌ Test failed:', testError.response?.data?.description || testError.message);
+                  logger.info('💡 Check bot permissions in channel settings\n');
                 }
 
               } catch (updateError) {
-                console.log('❌ Error updating database:', updateError.message);
+                logger.info('❌ Error updating database:', updateError.message);
               }
               rl.close();
             });
           } else {
-            console.log('❌ No channel ID provided');
-            console.log('💡 Please get the channel ID from @userinfobot and try again\n');
+            logger.info('❌ No channel ID provided');
+            logger.info('💡 Please get the channel ID from @userinfobot and try again\n');
             rl.close();
           }
         });
       } else {
-        console.log('\n📋 Manual Setup Instructions:');
-        console.log('============================');
-        console.log('1. Follow the steps above to create your channel');
-        console.log('2. Add @razewire_bot as administrator');
-        console.log('3. Get channel ID from @userinfobot');
-        console.log('4. Run this script again or configure manually in admin panel\n');
+        logger.info('\n📋 Manual Setup Instructions:');
+        logger.info('============================');
+        logger.info('1. Follow the steps above to create your channel');
+        logger.info('2. Add @razewire_bot as administrator');
+        logger.info('3. Get channel ID from @userinfobot');
+        logger.info('4. Run this script again or configure manually in admin panel\n');
         
-        console.log('💡 Alternative: Configure in Admin Panel');
-        console.log('1. Go to Admin → System → Auto-Posting → Telegram');
-        console.log('2. Enter Channel ID and Username');
-        console.log('3. Test the connection\n');
+        logger.info('💡 Alternative: Configure in Admin Panel');
+        logger.info('1. Go to Admin → System → Auto-Posting → Telegram');
+        logger.info('2. Enter Channel ID and Username');
+        logger.info('3. Test the connection\n');
         
         rl.close();
       }
     });
 
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    logger.error('❌ Error:', error.message);
   }
 }
 

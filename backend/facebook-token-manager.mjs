@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
 import axios from 'axios';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
@@ -59,7 +60,7 @@ class FacebookTokenManager {
   }
 
   async refreshToken() {
-    console.log('🔄 Refreshing Facebook token...');
+    logger.info('🔄 Refreshing Facebook token...');
     
     try {
       // Step 1: Get long-lived user token
@@ -73,7 +74,7 @@ class FacebookTokenManager {
       });
       
       const longLivedUserToken = userTokenResponse.data.access_token;
-      console.log('✅ Got long-lived user token');
+      logger.info('✅ Got long-lived user token');
       
       // Step 2: Get page access token using the correct endpoint
       const pageTokenResponse = await axios.get(`https://graph.facebook.com/v20.0/${this.settings.facebookPageId}`, {
@@ -84,7 +85,7 @@ class FacebookTokenManager {
       });
       
       const pageToken = pageTokenResponse.data.access_token;
-      console.log('✅ Got page access token');
+      logger.info('✅ Got page access token');
       
       // Step 3: Get long-lived page token
       const longLivedPageResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
@@ -97,7 +98,7 @@ class FacebookTokenManager {
       });
       
       const newLongLivedToken = longLivedPageResponse.data.access_token;
-      console.log('✅ Got long-lived page token');
+      logger.info('✅ Got long-lived page token');
       
       // Step 4: Update database
       await Settings.updateCategorySettings('social-media', {
@@ -107,7 +108,7 @@ class FacebookTokenManager {
       // Step 5: Update local settings
       this.settings = await Settings.getCategorySettings('social-media');
       
-      console.log('✅ Token updated in database');
+      logger.info('✅ Token updated in database');
       
       return {
         success: true,
@@ -116,7 +117,7 @@ class FacebookTokenManager {
       };
       
     } catch (error) {
-      console.error('❌ Failed to refresh token:', error.response?.data || error.message);
+      logger.error('❌ Failed to refresh token:', error.response?.data || error.message);
       return {
         success: false,
         error: error.response?.data || error.message
@@ -126,14 +127,14 @@ class FacebookTokenManager {
 
   async startMonitoring() {
     if (this.isRunning) {
-      console.log('⚠️  Token manager is already running');
+      logger.info('⚠️  Token manager is already running');
       return;
     }
 
-    console.log('🚀 Starting Facebook Token Manager...');
-    console.log('⏰ Will check token every 24 hours');
-    console.log('🔄 Will auto-refresh when ≤10 days left');
-    console.log('✅ Auto-posting will never expire!\n');
+    logger.info('🚀 Starting Facebook Token Manager...');
+    logger.info('⏰ Will check token every 24 hours');
+    logger.info('🔄 Will auto-refresh when ≤10 days left');
+    logger.info('✅ Auto-posting will never expire!\n');
 
     this.isRunning = true;
 
@@ -145,20 +146,20 @@ class FacebookTokenManager {
       await this.performCheck();
     }, 24 * 60 * 60 * 1000); // 24 hours
 
-    console.log('✅ Token manager is now running continuously!');
-    console.log('💡 Press Ctrl+C to stop\n');
+    logger.info('✅ Token manager is now running continuously!');
+    logger.info('💡 Press Ctrl+C to stop\n');
   }
 
   async performCheck() {
     try {
       await this.connect();
       
-      console.log(`\n🔍 [${new Date().toLocaleString()}] Checking Facebook token...`);
+      .toLocaleString()}] Checking Facebook token...`);
       
       const status = await this.checkTokenStatus();
       
       if (status.valid) {
-        console.log('✅ Token is valid');
+        logger.info('✅ Token is valid');
         
         // Get token info
         const tokenInfo = await this.getTokenInfo();
@@ -168,41 +169,41 @@ class FacebookTokenManager {
           const expiryDate = new Date(expiresAt * 1000);
           const daysLeft = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
           
-          console.log(`📅 Token expires in ${daysLeft} days (${expiryDate.toLocaleDateString()})`);
+          logger.info(`📅 Token expires in ${daysLeft} days (${expiryDate.toLocaleDateString()})`);
           
           if (daysLeft <= 10) {
-            console.log('🔄 Token expires soon, refreshing automatically...');
+            logger.info('🔄 Token expires soon, refreshing automatically...');
             const refreshResult = await this.refreshToken();
             
             if (refreshResult.success) {
-              console.log('✅ Token refreshed successfully!');
-              console.log(`🆕 New expiry: ${refreshResult.expiresIn} seconds`);
+              logger.info('✅ Token refreshed successfully!');
+              logger.info(`🆕 New expiry: ${refreshResult.expiresIn} seconds`);
             } else {
-              console.log('❌ Failed to refresh token automatically');
-              console.log('💡 You may need to refresh manually');
+              logger.info('❌ Failed to refresh token automatically');
+              logger.info('💡 You may need to refresh manually');
             }
           } else {
-            console.log('✅ Token is good for a while!');
+            logger.info('✅ Token is good for a while!');
           }
         }
         
       } else {
-        console.log('❌ Token is invalid or expired');
-        console.log(`Error: ${status.error}`);
+        logger.info('❌ Token is invalid or expired');
+        logger.info(`Error: ${status.error}`);
         
-        console.log('🔄 Attempting to refresh token...');
+        logger.info('🔄 Attempting to refresh token...');
         const refreshResult = await this.refreshToken();
         
         if (refreshResult.success) {
-          console.log('✅ Token refreshed successfully!');
+          logger.info('✅ Token refreshed successfully!');
         } else {
-          console.log('❌ Failed to refresh token');
-          console.log('💡 You need to generate a new token manually');
+          logger.info('❌ Failed to refresh token');
+          logger.info('💡 You need to generate a new token manually');
         }
       }
       
     } catch (error) {
-      console.error('❌ Error in token check:', error.message);
+      logger.error('❌ Error in token check:', error.message);
     } finally {
       await this.disconnect();
     }
@@ -214,13 +215,13 @@ class FacebookTokenManager {
       this.checkInterval = null;
     }
     this.isRunning = false;
-    console.log('🛑 Token manager stopped');
+    logger.info('🛑 Token manager stopped');
   }
 }
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\n🛑 Shutting down token manager...');
+  logger.info('\n🛑 Shutting down token manager...');
   if (global.tokenManager) {
     global.tokenManager.stopMonitoring();
   }
@@ -228,23 +229,23 @@ process.on('SIGINT', () => {
 });
 
 async function main() {
-  console.log('🔑 Facebook Token Manager - Never Expire Again!');
-  console.log('===============================================\n');
+  logger.info('🔑 Facebook Token Manager - Never Expire Again!');
+  logger.info('===============================================\n');
   
   global.tokenManager = new FacebookTokenManager();
   
   try {
     await global.tokenManager.connect();
     
-    console.log('📋 Current Configuration:');
-    console.log(`App ID: ${global.tokenManager.settings.facebookAppId}`);
-    console.log(`Page ID: ${global.tokenManager.settings.facebookPageId}`);
-    console.log(`Token Set: ${global.tokenManager.settings.facebookPageAccessToken ? 'Yes' : 'No'}`);
-    console.log(`Enabled: ${global.tokenManager.settings.facebookEnabled}\n`);
+    logger.info('📋 Current Configuration:');
+    logger.info(`App ID: ${global.tokenManager.settings.facebookAppId}`);
+    logger.info(`Page ID: ${global.tokenManager.settings.facebookPageId}`);
+    logger.info(`Token Set: ${global.tokenManager.settings.facebookPageAccessToken ? 'Yes' : 'No'}`);
+    logger.info(`Enabled: ${global.tokenManager.settings.facebookEnabled}\n`);
     
     if (!global.tokenManager.settings.facebookPageAccessToken) {
-      console.log('❌ No Facebook token found!');
-      console.log('💡 Please get a token first, then run this manager.');
+      logger.info('❌ No Facebook token found!');
+      logger.info('💡 Please get a token first, then run this manager.');
       return;
     }
     
@@ -255,7 +256,7 @@ async function main() {
     process.stdin.resume();
     
   } catch (error) {
-    console.error('❌ Error starting token manager:', error.message);
+    logger.error('❌ Error starting token manager:', error.message);
   }
 }
 

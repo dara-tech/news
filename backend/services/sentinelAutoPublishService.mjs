@@ -4,6 +4,7 @@ import Settings from '../models/Settings.mjs';
 import User from '../models/User.mjs';
 import Category from '../models/Category.mjs';
 import axios from 'axios';
+import logger from '../utils/logger.mjs';
 
 class SentinelAutoPublishService {
   constructor() {
@@ -24,7 +25,7 @@ class SentinelAutoPublishService {
         enabled: settings.telegramEnabled
       };
     } catch (error) {
-      console.error('Error loading Telegram settings:', error.message);
+      logger.error('Error loading Telegram settings:', error.message);
     }
   }
 
@@ -33,7 +34,7 @@ class SentinelAutoPublishService {
    */
   async autoPublishSentinelDrafts() {
     try {
-      console.log('🤖 Starting Sentinel Auto-Publish Process...');
+      logger.info('🤖 Starting Sentinel Auto-Publish Process...');
       
       // Initialize Telegram settings
       await this.initializeTelegramSettings();
@@ -48,10 +49,10 @@ class SentinelAutoPublishService {
       .sort({ createdAt: -1 })
       .limit(10); // Process 10 at a time to avoid overwhelming
 
-      console.log(`📝 Found ${draftArticles.length} Sentinel draft articles`);
+      logger.info(`📝 Found ${draftArticles.length} Sentinel draft articles`);
 
       if (draftArticles.length === 0) {
-        console.log('✅ No Sentinel drafts to process');
+        logger.info('✅ No Sentinel drafts to process');
         return;
       }
 
@@ -60,7 +61,7 @@ class SentinelAutoPublishService {
 
       for (const article of draftArticles) {
         try {
-          console.log(`\n📰 Processing: ${article.title?.en || 'No title'}`);
+          logger.info(`\n📰 Processing: ${article.title?.en || 'No title'}`);
           
           // Check if article has good content
           const hasGoodContent = article.content?.en && 
@@ -69,7 +70,7 @@ class SentinelAutoPublishService {
                                article.content.kh.length > 100;
 
           if (!hasGoodContent) {
-            console.log('   ⚠️  Skipping - insufficient content');
+            logger.info('   ⚠️  Skipping - insufficient content');
             continue;
           }
 
@@ -93,7 +94,7 @@ class SentinelAutoPublishService {
               
               if (enResult.success) {
                 formattedContent.en = enResult.content;
-                console.log('   ✅ English content formatted');
+                logger.info('   ✅ English content formatted');
               }
             }
             
@@ -112,11 +113,11 @@ class SentinelAutoPublishService {
               
               if (khResult.success) {
                 formattedContent.kh = khResult.content;
-                console.log('   ✅ Khmer content formatted');
+                logger.info('   ✅ Khmer content formatted');
               }
             }
           } catch (error) {
-            console.log(`   ⚠️  Content formatting failed: ${error.message}`);
+            logger.info(`   ⚠️  Content formatting failed: ${error.message}`);
             // Continue with original content if formatting fails
           }
 
@@ -136,11 +137,11 @@ class SentinelAutoPublishService {
               updates.thumbnail = placeholderUrl;
               // Keep the generated description in metadata for future use
               updates.generatedImageMetadata = article.generatedImageMetadata;
-              console.log('   ✅ Using placeholder image with generated description');
+              logger.info('   ✅ Using placeholder image with generated description');
             } else {
               const thumbnailUrl = this.generateThumbnail(article.title?.en || 'Article');
               updates.thumbnail = thumbnailUrl;
-              console.log('   ✅ Added fallback thumbnail');
+              logger.info('   ✅ Added fallback thumbnail');
             }
           }
 
@@ -148,29 +149,29 @@ class SentinelAutoPublishService {
           if (!article.tags || article.tags.length === 0) {
             const tags = this.extractTags(article.content?.en || '', article.title?.en || '');
             updates.tags = tags;
-            console.log(`   ✅ Added tags: ${tags.join(', ')}`);
+            logger.info(`   ✅ Added tags: ${tags.join(', ')}`);
           }
 
           // Add keywords if missing
           if (!article.keywords) {
             const keywords = this.extractKeywords(article.content?.en || '', article.title?.en || '');
             updates.keywords = keywords;
-            console.log(`   ✅ Added keywords: ${keywords}`);
+            logger.info(`   ✅ Added keywords: ${keywords}`);
           }
 
           // Update the article
           await News.findByIdAndUpdate(article._id, updates);
-          console.log('   ✅ Article published successfully!');
+          logger.info('   ✅ Article published successfully!');
           publishedCount++;
 
           // Send Telegram notification
           if (this.telegramSettings?.enabled && this.telegramSettings?.botToken && this.telegramSettings?.channelId) {
             try {
               await this.sendTelegramNotification(article);
-              console.log('   📱 Telegram notification sent');
+              logger.info('   📱 Telegram notification sent');
               notificationCount++;
             } catch (error) {
-              console.log(`   ⚠️  Telegram notification failed: ${error.message}`);
+              logger.info(`   ⚠️  Telegram notification failed: ${error.message}`);
             }
           }
 
@@ -178,23 +179,23 @@ class SentinelAutoPublishService {
           await this.delay(2000);
 
         } catch (error) {
-          console.error(`   ❌ Error processing article: ${error.message}`);
+          logger.error(`   ❌ Error processing article: ${error.message}`);
         }
       }
 
-      console.log('\n📊 AUTO-PUBLISH SUMMARY');
-      console.log('=' .repeat(40));
-      console.log(`✅ Published: ${publishedCount} articles`);
-      console.log(`📱 Notifications: ${notificationCount} sent`);
-      console.log(`📝 Remaining drafts: ${draftArticles.length - publishedCount}`);
+      logger.info('\n📊 AUTO-PUBLISH SUMMARY');
+      logger.info('=' .repeat(40));
+      logger.info(`✅ Published: ${publishedCount} articles`);
+      logger.info(`📱 Notifications: ${notificationCount} sent`);
+      logger.info(`📝 Remaining drafts: ${draftArticles.length - publishedCount}`);
 
       if (publishedCount > 0) {
-        console.log('\n🎉 Auto-publish process completed successfully!');
-        console.log('📱 Check your Telegram channel for notifications.');
+        logger.info('\n🎉 Auto-publish process completed successfully!');
+        logger.info('📱 Check your Telegram channel for notifications.');
       }
 
     } catch (error) {
-      console.error('❌ Error in auto-publish process:', error.message);
+      logger.error('❌ Error in auto-publish process:', error.message);
     }
   }
 
@@ -290,7 +291,7 @@ class SentinelAutoPublishService {
       };
 
     } catch (error) {
-      console.error('Telegram notification error:', error.message);
+      logger.error('Telegram notification error:', error.message);
       throw error;
     }
   }
@@ -392,7 +393,7 @@ class SentinelAutoPublishService {
         telegramEnabled: this.telegramSettings?.enabled || false
       };
     } catch (error) {
-      console.error('Error getting auto-publish stats:', error.message);
+      logger.error('Error getting auto-publish stats:', error.message);
       return null;
     }
   }

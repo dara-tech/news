@@ -56,10 +56,37 @@ export function formatArticleContent(content: string): FormattedContent {
  */
 function convertPlainTextToHTML(text: string): string {
   // Split into paragraphs
-  const paragraphs = text
+  let paragraphs = text
     .split(/\n\s*\n/) // Split on double line breaks
     .map(p => p.trim())
     .filter(p => p.length > 0);
+
+  // If we only have one long paragraph, try to split it intelligently
+  if (paragraphs.length === 1 && paragraphs[0].length > 500) {
+    const longText = paragraphs[0];
+    
+    // Try to split on sentence boundaries
+    const sentences = longText.split(/(?<=[.!?])\s+/);
+    const newParagraphs = [];
+    let currentParagraph = '';
+    
+    for (const sentence of sentences) {
+      // If adding this sentence would make the paragraph too long, start a new one
+      if (currentParagraph.length + sentence.length > 400 && currentParagraph.length > 0) {
+        newParagraphs.push(currentParagraph.trim());
+        currentParagraph = sentence;
+      } else {
+        currentParagraph += (currentParagraph ? ' ' : '') + sentence;
+      }
+    }
+    
+    // Add the last paragraph
+    if (currentParagraph.trim()) {
+      newParagraphs.push(currentParagraph.trim());
+    }
+    
+    paragraphs = newParagraphs;
+  }
 
   if (paragraphs.length === 0) {
     return '<p class="text-gray-500 italic">No content available.</p>';
@@ -116,17 +143,17 @@ function enhanceExistingHTML(html: string): string {
 function isHeading(text: string, index: number): boolean {
   const trimmed = text.trim();
   
-  // First paragraph is often a heading
-  if (index === 0 && trimmed.length < 100) return true;
+  // First paragraph is often a heading if it's short
+  if (index === 0 && trimmed.length < 150) return true;
   
   // Short text that ends with colon
-  if (trimmed.length < 80 && trimmed.endsWith(':')) return true;
+  if (trimmed.length < 100 && trimmed.endsWith(':')) return true;
   
   // Text that looks like a title (all caps, short)
-  if (trimmed.length < 60 && trimmed === trimmed.toUpperCase()) return true;
+  if (trimmed.length < 80 && trimmed === trimmed.toUpperCase()) return true;
   
   // Text that starts with common heading words
-  const headingWords = ['breaking', 'update', 'latest', 'news', 'report', 'analysis', 'summary'];
+  const headingWords = ['breaking', 'update', 'latest', 'news', 'report', 'analysis', 'summary', 'background', 'overview', 'introduction'];
   const lowerText = trimmed.toLowerCase();
   return headingWords.some(word => lowerText.startsWith(word));
 }
@@ -181,29 +208,65 @@ function formatList(text: string): string {
 function enhanceParagraphText(text: string): string {
   let enhanced = text;
 
-  // Highlight important terms
-  enhanced = enhanced.replace(
-    /\b(breaking|urgent|important|latest|update|confirmed|announced)\b/gi,
-    '<strong class="font-semibold text-gray-900 dark:text-white">$1</strong>'
-  );
+  // Clean any existing malformed HTML first
+  enhanced = enhanced.replace(/<[^>]*$/g, ''); // Remove incomplete HTML tags at the end
+  enhanced = enhanced.replace(/^[^<]*>/g, ''); // Remove incomplete HTML tags at the beginning
+  enhanced = enhanced.replace(/\*\*[^<]*dark:[^<]*>/g, ''); // Remove malformed markdown/HTML combinations
 
-  // Highlight numbers and statistics
-  enhanced = enhanced.replace(
-    /(\d+(?:\.\d+)?%?)/g,
-    '<span class="font-semibold text-blue-600 dark:text-blue-400">$1</span>'
-  );
+  // Skip enhancement if text already contains properly formed HTML tags
+  if (enhanced.includes('<') && enhanced.includes('>') && enhanced.match(/<[^>]+>/)) {
+    return enhanced;
+  }
 
-  // Highlight dates
-  enhanced = enhanced.replace(
-    /(\d{1,2}\/\d{1,2}\/\d{4}|\d{4}-\d{2}-\d{2})/g,
-    '<time class="font-medium text-gray-600 dark:text-gray-400">$1</time>'
-  );
-
-  // Highlight names (capitalized words that might be names)
-  enhanced = enhanced.replace(
-    /\b([A-Z][a-z]+ [A-Z][a-z]+)\b/g,
-    '<span class="font-medium text-gray-800 dark:text-gray-200">$1</span>'
-  );
+  // Use a more careful approach to avoid nested HTML issues
+  // First, identify all the patterns we want to highlight
+  const patterns = [];
+  
+  // Find important terms
+  const importantMatches = enhanced.match(/\b(breaking|urgent|important|latest|update|confirmed|announced)\b/gi);
+  if (importantMatches) {
+    importantMatches.forEach(match => {
+      patterns.push({
+        text: match,
+        replacement: `<strong class="font-semibold text-gray-900 dark:text-white">${match}</strong>`,
+        index: enhanced.indexOf(match)
+      });
+    });
+  }
+  
+  // Find numbers
+  const numberMatches = enhanced.match(/(\d+(?:\.\d+)?%?)/g);
+  if (numberMatches) {
+    numberMatches.forEach(match => {
+      patterns.push({
+        text: match,
+        replacement: `<span class="font-semibold text-blue-600 dark:text-blue-400">${match}</span>`,
+        index: enhanced.indexOf(match)
+      });
+    });
+  }
+  
+  // Find dates
+  const dateMatches = enhanced.match(/(\d{1,2}\/\d{1,2}\/\d{4}|\d{4}-\d{2}-\d{2})/g);
+  if (dateMatches) {
+    dateMatches.forEach(match => {
+      patterns.push({
+        text: match,
+        replacement: `<time class="font-medium text-gray-600 dark:text-gray-400">${match}</time>`,
+        index: enhanced.indexOf(match)
+      });
+    });
+  }
+  
+  // Sort patterns by index (reverse order to avoid index shifting)
+  patterns.sort((a, b) => b.index - a.index);
+  
+  // Apply replacements from end to beginning
+  patterns.forEach(pattern => {
+    enhanced = enhanced.substring(0, pattern.index) + 
+               pattern.replacement + 
+               enhanced.substring(pattern.index + pattern.text.length);
+  });
 
   return enhanced;
 }

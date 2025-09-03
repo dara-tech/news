@@ -1,6 +1,7 @@
 import axios from 'axios';
 import News from '../models/News.mjs';
 import Settings from '../models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 class TelegramCallbackHandler {
   constructor() {
@@ -20,7 +21,7 @@ class TelegramCallbackHandler {
         enabled: settings.telegramEnabled
       };
     } catch (error) {
-      console.error('Error loading Telegram settings:', error.message);
+      logger.error('Error loading Telegram settings:', error.message);
     }
   }
 
@@ -38,7 +39,7 @@ class TelegramCallbackHandler {
       const { id, data, from, message } = callbackQuery;
       const [action, articleId] = data.split('_');
 
-      console.log(`📱 Telegram callback: ${action} for article ${articleId} from user ${from.username || from.first_name}`);
+      logger.info(`📱 Telegram callback: ${action} for article ${articleId} from user ${from.username || from.first_name}`);
 
       let responseText = '';
       let showAlert = false;
@@ -77,13 +78,13 @@ class TelegramCallbackHandler {
       };
 
     } catch (error) {
-      console.error('Error handling Telegram callback:', error.message);
+      logger.error('Error handling Telegram callback:', error.message);
       
       // Try to answer with error message
       try {
         await this.answerCallbackQuery(callbackQuery.id, '❌ Error processing request', true);
       } catch (answerError) {
-        console.error('Error answering callback query:', answerError.message);
+        logger.error('Error answering callback query:', answerError.message);
       }
 
       return {
@@ -107,11 +108,11 @@ class TelegramCallbackHandler {
       // For now, we'll just acknowledge the action
       const userName = user.username || user.first_name;
       
-      console.log(`👍 User ${userName} liked article: ${article.title?.en}`);
+      logger.info(`👍 User ${userName} liked article: ${article.title?.en}`);
       
       return `👍 Thanks for liking "${article.title?.en}"!`;
     } catch (error) {
-      console.error('Error handling like action:', error.message);
+      logger.error('Error handling like action:', error.message);
       return '❌ Error processing like';
     }
   }
@@ -129,11 +130,11 @@ class TelegramCallbackHandler {
       const userName = user.username || user.first_name;
       const articleUrl = `${process.env.FRONTEND_URL || 'https://razewire.com'}/news/${article.slug}`;
       
-      console.log(`💬 User ${userName} wants to comment on article: ${article.title?.en}`);
+      logger.info(`💬 User ${userName} wants to comment on article: ${article.title?.en}`);
       
       return `💬 To comment on "${article.title?.en}", visit: ${articleUrl}`;
     } catch (error) {
-      console.error('Error handling comment action:', error.message);
+      logger.error('Error handling comment action:', error.message);
       return '❌ Error processing comment request';
     }
   }
@@ -151,11 +152,11 @@ class TelegramCallbackHandler {
       const userName = user.username || user.first_name;
       const articleUrl = `${process.env.FRONTEND_URL || 'https://razewire.com'}/news/${article.slug}`;
       
-      console.log(`📤 User ${userName} wants to share article: ${article.title?.en}`);
+      logger.info(`📤 User ${userName} wants to share article: ${article.title?.en}`);
       
       return `📤 Share "${article.title?.en}": ${articleUrl}`;
     } catch (error) {
-      console.error('Error handling share action:', error.message);
+      logger.error('Error handling share action:', error.message);
       return '❌ Error processing share request';
     }
   }
@@ -185,7 +186,7 @@ class TelegramCallbackHandler {
 
       return response.data;
     } catch (error) {
-      console.error('Error answering callback query:', error.message);
+      logger.error('Error answering callback query:', error.message);
       throw error;
     }
   }
@@ -258,7 +259,7 @@ class TelegramCallbackHandler {
 
       return response.data;
     } catch (error) {
-      console.error('Error updating message buttons:', error.message);
+      logger.error('Error updating message buttons:', error.message);
       throw error;
     }
   }

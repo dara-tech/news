@@ -539,7 +539,7 @@ const UsersPage = () => {
             <CardDescription>Manage all users in the system with advanced filtering and bulk operations.</CardDescription>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-            <input
+            <Input
               type="file"
               accept=".csv"
               onChange={handleImportUsers}

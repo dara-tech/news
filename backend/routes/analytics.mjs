@@ -3,6 +3,7 @@ import { protect, admin } from '../middleware/auth.mjs';
 import News from '../models/News.mjs';
 import Category from '../models/Category.mjs';
 import { formatContentAdvanced } from '../utils/advancedContentFormatter.mjs';
+import logger from '../utils/logger.mjs';
 
 const router = express.Router();
 
@@ -36,7 +37,7 @@ router.get('/content-overview', protect, admin, async (req, res) => {
               });
               return analysis.analysis || { readability: 85, seo: 87, engagement: 78 };
             } catch (error) {
-              console.error('Error analyzing article:', error);
+              logger.error('Error analyzing article:', error);
               return { readability: 85, seo: 87, engagement: 78 };
             }
           })
@@ -55,7 +56,7 @@ router.get('/content-overview', protect, admin, async (req, res) => {
           ? qualityScores.reduce((sum, score) => sum + (score.engagement || 78), 0) / qualityScores.length 
           : 78;
       } catch (error) {
-        console.error('Error in content analysis:', error);
+        logger.error('Error in content analysis:', error);
         // Use default values if analysis fails
       }
     }
@@ -84,7 +85,7 @@ router.get('/content-overview', protect, admin, async (req, res) => {
         }
       ]);
     } catch (error) {
-      console.error('Error in category analysis:', error);
+      logger.error('Error in category analysis:', error);
       categoryStats = [];
     }
 
@@ -108,7 +109,7 @@ router.get('/content-overview', protect, admin, async (req, res) => {
           growth: Math.round(70 + Math.random() * 100)
         }));
     } catch (error) {
-      console.error('Error getting trending topics:', error);
+      logger.error('Error getting trending topics:', error);
       trendingTopics = [
         { topic: 'Cambodia Elections', growth: 156 },
         { topic: 'Economic Development', growth: 89 },
@@ -153,7 +154,7 @@ router.get('/content-overview', protect, admin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Content analytics error:', error);
+    logger.error('Content analytics error:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch content analytics' });
   }
 });
@@ -185,7 +186,7 @@ router.get('/article/:id/analysis', protect, admin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Article analysis error:', error);
+    logger.error('Article analysis error:', error);
     res.status(500).json({ success: false, error: 'Failed to analyze article' });
   }
 });
@@ -235,7 +236,7 @@ router.get('/seo-recommendations', protect, admin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('SEO recommendations error:', error);
+    logger.error('SEO recommendations error:', error);
     res.status(500).json({ success: false, error: 'Failed to generate SEO recommendations' });
   }
 });
@@ -311,7 +312,7 @@ router.get('/image-generation', protect, admin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Image generation metrics error:', error);
+    logger.error('Image generation metrics error:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch image generation metrics' });
   }
 });

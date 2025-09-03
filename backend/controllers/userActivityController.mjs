@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import ActivityLog from "../models/ActivityLog.mjs";
+import logger from '../utils/logger.mjs';
 
 // @desc    Get user's own activity logs with pagination and filtering
 // @route   GET /api/user/activity
@@ -59,7 +60,7 @@ export const getUserActivityLogs = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching user activity logs:', error);
+    logger.error('Error fetching user activity logs:', error);
     res.status(500);
     throw new Error('Failed to fetch activity logs');
   }
@@ -205,7 +206,7 @@ export const getUserActivityStats = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching user activity stats:', error);
+    logger.error('Error fetching user activity stats:', error);
     res.status(500);
     throw new Error('Failed to fetch activity statistics');
   }
@@ -277,7 +278,7 @@ export const exportUserActivityLogs = asyncHandler(async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="my-activity-logs-${new Date().toISOString().split('T')[0]}.csv"`);
     res.send(csvContent);
   } catch (error) {
-    console.error('Error exporting user activity logs:', error);
+    logger.error('Error exporting user activity logs:', error);
     res.status(500);
     throw new Error('Failed to export activity logs');
   }

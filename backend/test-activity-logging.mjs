@@ -1,24 +1,25 @@
 import mongoose from 'mongoose';
 import { logActivity } from './controllers/activityController.mjs';
 import ActivityLog from './models/ActivityLog.mjs';
+import logger from '../utils/logger.mjs';
 
 // Connect to MongoDB
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/news-app');
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    logger.info(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
+    logger.error('Error connecting to MongoDB:', error);
     process.exit(1);
   }
 };
 
 const testActivityLogging = async () => {
-  console.log('🧪 Testing activity logging...');
+  logger.info('🧪 Testing activity logging...');
   
   try {
     // Test 1: Log a simple activity
-    console.log('📝 Test 1: Logging simple activity...');
+    logger.info('📝 Test 1: Logging simple activity...');
     await logActivity({
       userId: '507f1f77bcf86cd799439011', // Mock user ID
       action: 'user.login',
@@ -35,10 +36,10 @@ const testActivityLogging = async () => {
         }
       }
     });
-    console.log('✅ Test 1 passed');
+    logger.info('✅ Test 1 passed');
 
     // Test 2: Log a security event
-    console.log('🔒 Test 2: Logging security event...');
+    logger.info('🔒 Test 2: Logging security event...');
     await logActivity({
       userId: '507f1f77bcf86cd799439011',
       action: 'user.login_failed',
@@ -55,10 +56,10 @@ const testActivityLogging = async () => {
         }
       }
     });
-    console.log('✅ Test 2 passed');
+    logger.info('✅ Test 2 passed');
 
     // Test 3: Log admin action
-    console.log('👑 Test 3: Logging admin action...');
+    logger.info('👑 Test 3: Logging admin action...');
     await logActivity({
       userId: '507f1f77bcf86cd799439012',
       action: 'admin.force_logout',
@@ -75,38 +76,38 @@ const testActivityLogging = async () => {
         }
       }
     });
-    console.log('✅ Test 3 passed');
+    logger.info('✅ Test 3 passed');
 
     // Test 4: Check if logs were created
-    console.log('📊 Test 4: Checking created logs...');
+    logger.info('📊 Test 4: Checking created logs...');
     const logs = await ActivityLog.find().sort({ timestamp: -1 }).limit(5);
-    console.log(`Found ${logs.length} recent activity logs:`);
+    logger.info(`Found ${logs.length} recent activity logs:`);
     logs.forEach((log, index) => {
-      console.log(`${index + 1}. ${log.action} - ${log.description} (${log.severity})`);
+      logger.info(`${index + 1}. ${log.action} - ${log.description} (${log.severity})`);
     });
 
     // Test 5: Test the API endpoint
-    console.log('🌐 Test 5: Testing API endpoint...');
+    logger.info('🌐 Test 5: Testing API endpoint...');
     const stats = await ActivityLog.aggregate([
       { $group: { _id: '$action', count: { $sum: 1 } } },
       { $sort: { count: -1 } }
     ]);
-    console.log('Activity stats:', stats);
+    logger.info('Activity stats:', stats);
 
-    console.log('✅ All activity logging tests passed!');
+    logger.info('✅ All activity logging tests passed!');
 
   } catch (error) {
-    console.error('❌ Activity logging test failed:', error);
+    logger.error('❌ Activity logging test failed:', error);
   }
 };
 
 // Run the test
 connectDB().then(() => {
   testActivityLogging().then(() => {
-    console.log('🏁 Test completed');
+    logger.info('🏁 Test completed');
     process.exit(0);
   }).catch((error) => {
-    console.error('Test failed:', error);
+    logger.error('Test failed:', error);
     process.exit(1);
   });
 }); 

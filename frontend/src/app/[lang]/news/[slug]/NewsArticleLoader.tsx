@@ -10,6 +10,7 @@ import LikeButton from '@/components/common/LikeButton';
 import CommentSection from '@/components/comments/CommentSection';
 import AdvancedShareComponent from '@/components/common/AdvancedShareComponent';
 import AuthorMiniCard from '@/components/news/AuthorMiniCard';
+import { formatArticleContent, extractContentInfo } from '@/lib/contentFormatter';
 import { useState } from 'react';
 
 interface NewsArticleProps {
@@ -32,8 +33,12 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
 
   // Safely handle localized strings with fallbacks
   const localizedTitle = getLocalizedString(title, locale);
-  const localizedContent = getLocalizedString(content, locale);
+  const rawContent = getLocalizedString(content, locale);
   const publishDate = new Date(createdAt);
+  
+  // Format content for better readability
+  const formattedContent = formatArticleContent(rawContent);
+  const contentInfo = extractContentInfo(rawContent);
   
   // Handle author display with fallbacks
   const getAuthorName = () => {
@@ -141,7 +146,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
                 <AdvancedShareComponent
                   url={typeof window !== 'undefined' ? window.location.href : ''}
                   title={localizedTitle}
-                  description={localizedContent.substring(0, 160)}
+                  description={rawContent.substring(0, 160)}
                   image={thumbnail}
                   variant="minimal"
                   size="sm"
@@ -176,7 +181,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
                 'prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-semibold',
                 'prose-em:text-gray-600 dark:prose-em:text-gray-400'
               )}
-              dangerouslySetInnerHTML={{ __html: localizedContent }}
+              dangerouslySetInnerHTML={{ __html: formattedContent.html }}
             />
 
             {/* Minimalist Author Card Section */}

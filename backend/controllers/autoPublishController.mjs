@@ -2,13 +2,14 @@ import sentinelAutoPublishService from '../services/sentinelAutoPublishService.m
 import asyncHandler from 'express-async-handler';
 import Settings from '../models/Settings.mjs';
 import News from '../models/News.mjs';
+import logger from '../utils/logger.mjs';
 
 // @desc    Trigger auto-publish for Sentinel drafts
 // @route   POST /api/admin/auto-publish/sentinel
 // @access  Private/Admin
 export const autoPublishSentinelDrafts = asyncHandler(async (req, res) => {
   try {
-    console.log('🤖 Manual auto-publish triggered by admin');
+    logger.info('🤖 Manual auto-publish triggered by admin');
     
     await sentinelAutoPublishService.autoPublishSentinelDrafts();
     
@@ -20,7 +21,7 @@ export const autoPublishSentinelDrafts = asyncHandler(async (req, res) => {
       data: stats
     });
   } catch (error) {
-    console.error('Auto-publish error:', error);
+    logger.error('Auto-publish error:', error);
     res.status(500).json({
       success: false,
       message: 'Auto-publish process failed',
@@ -41,7 +42,7 @@ export const getAutoPublishStats = asyncHandler(async (req, res) => {
       data: stats
     });
   } catch (error) {
-    console.error('Error getting auto-publish stats:', error);
+    logger.error('Error getting auto-publish stats:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get auto-publish statistics',
@@ -74,7 +75,7 @@ export const getAutoPublishSettings = asyncHandler(async (req, res) => {
       data: { ...defaultSettings, ...settings }
     });
   } catch (error) {
-    console.error('Error getting auto-publish settings:', error);
+    logger.error('Error getting auto-publish settings:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get auto-publish settings',
@@ -99,7 +100,7 @@ export const updateAutoPublishSettings = asyncHandler(async (req, res) => {
       data: settings
     });
   } catch (error) {
-    console.error('Error updating auto-publish settings:', error);
+    logger.error('Error updating auto-publish settings:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update auto-publish settings',
@@ -142,7 +143,7 @@ export const getAutoPublishLogs = asyncHandler(async (req, res) => {
       data: mockLogs
     });
   } catch (error) {
-    console.error('Error getting auto-publish logs:', error);
+    logger.error('Error getting auto-publish logs:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get auto-publish logs',
@@ -172,7 +173,7 @@ export const getTelegramSettings = asyncHandler(async (req, res) => {
       data: telegramSettings
     });
   } catch (error) {
-    console.error('Error getting Telegram settings:', error);
+    logger.error('Error getting Telegram settings:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get Telegram settings',
@@ -203,7 +204,7 @@ export const updateTelegramSettings = asyncHandler(async (req, res) => {
       data: { enabled, botToken, channelId, channelUsername }
     });
   } catch (error) {
-    console.error('Error updating Telegram settings:', error);
+    logger.error('Error updating Telegram settings:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update Telegram settings',
@@ -264,7 +265,7 @@ export const testTelegramConnection = asyncHandler(async (req, res) => {
       data: result
     });
   } catch (error) {
-    console.error('Telegram test error:', error);
+    logger.error('Telegram test error:', error);
     res.status(500).json({
       success: false,
       message: 'Telegram test failed',
@@ -299,7 +300,7 @@ export const sendTelegramNotification = asyncHandler(async (req, res) => {
       data: result
     });
   } catch (error) {
-    console.error('Error sending Telegram notification:', error);
+    logger.error('Error sending Telegram notification:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to send Telegram notification',

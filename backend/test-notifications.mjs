@@ -5,25 +5,26 @@ import Notification from './models/Notification.mjs';
 import User from './models/User.mjs';
 import News from './models/News.mjs';
 import Category from './models/Category.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 const createTestNotifications = async () => {
   try {
     await connectDB();
-    console.log('Connected to database');
+    logger.info('Connected to database');
 
     // Get a user and news article for testing
     const user = await User.findOne();
     const news = await News.findOne().populate('category');
     
     if (!user || !news) {
-      console.log('No user or news found. Please create some data first.');
+      logger.info('No user or news found. Please create some data first.');
       return;
     }
 
-    console.log(`Creating notifications for user: ${user.username}`);
-    console.log(`Using news: ${news.title.en}`);
+    logger.info(`Creating notifications for user: ${user.username}`);
+    logger.info(`Using news: ${news.title.en}`);
 
     // Create different types of notifications
     const notifications = [
@@ -106,26 +107,26 @@ const createTestNotifications = async () => {
 
     // Clear existing notifications for this user
     await Notification.deleteMany({ recipient: user._id });
-    console.log('Cleared existing notifications');
+    logger.info('Cleared existing notifications');
 
     // Create new notifications
     const createdNotifications = await Notification.insertMany(notifications);
-    console.log(`Created ${createdNotifications.length} test notifications`);
+    logger.info(`Created ${createdNotifications.length} test notifications`);
 
     // Display the notifications
     const allNotifications = await Notification.find({ recipient: user._id })
       .populate('data.newsId', 'title slug')
       .populate('data.categoryId', 'name');
 
-    console.log('\nCreated notifications:');
+    logger.info('\nCreated notifications:');
     allNotifications.forEach((notification, index) => {
-      console.log(`${index + 1}. ${notification.title.en} - ${notification.type} - ${notification.isRead ? 'Read' : 'Unread'}`);
+      logger.info(`${index + 1}. ${notification.title.en} - ${notification.type} - ${notification.isRead ? 'Read' : 'Unread'}`);
     });
 
-    console.log('\nTest notifications created successfully!');
+    logger.info('\nTest notifications created successfully!');
     process.exit(0);
   } catch (error) {
-    console.error('Error creating test notifications:', error);
+    logger.error('Error creating test notifications:', error);
     process.exit(1);
   }
 };

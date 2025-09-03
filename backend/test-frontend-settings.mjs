@@ -2,48 +2,48 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function testFrontendSettings() {
-  console.log('🔍 Testing Frontend Settings API');
-  console.log('================================\n');
+  logger.info('================================\n');
 
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    logger.info('✅ Connected to MongoDB\n');
 
     const settings = await Settings.getCategorySettings('social-media');
     
-    console.log('📋 Telegram Settings from Database:');
-    console.log('====================================');
-    console.log(`telegramEnabled: ${settings.telegramEnabled}`);
-    console.log(`telegramBotToken: ${settings.telegramBotToken ? '✅ Set' : '❌ Not set'}`);
-    console.log(`telegramChannelId: ${settings.telegramChannelId}`);
-    console.log(`telegramChannelUsername: ${settings.telegramChannelUsername || 'N/A'}\n`);
+    logger.info('📋 Telegram Settings from Database:');
+    logger.info('====================================');
+    logger.info(`telegramEnabled: ${settings.telegramEnabled}`);
+    logger.info(`telegramBotToken: ${settings.telegramBotToken ? '✅ Set' : '❌ Not set'}`);
+    logger.info(`telegramChannelId: ${settings.telegramChannelId}`);
+    logger.info(`telegramChannelUsername: ${settings.telegramChannelUsername || 'N/A'}\n`);
 
-    console.log('📋 All Social Media Settings:');
-    console.log('=============================');
+    logger.info('📋 All Social Media Settings:');
+    logger.info('=============================');
     Object.keys(settings).forEach(key => {
       if (key.startsWith('telegram')) {
         const value = settings[key];
         if (typeof value === 'string' && value.length > 20) {
-          console.log(`${key}: ${value.substring(0, 20)}...`);
+          logger.info(`${key}: ${value.substring(0, 20)}...`);
         } else {
-          console.log(`${key}: ${value}`);
+          logger.info(`${key}: ${value}`);
         }
       }
     });
 
-    console.log('\n🎯 Frontend should receive:');
-    console.log('==========================');
-    console.log(`telegramEnabled: ${settings.telegramEnabled || false}`);
-    console.log(`telegramBotToken: ${settings.telegramBotToken ? '✅ Set' : '❌ Not set'}`);
-    console.log(`telegramChannelId: ${settings.telegramChannelId || ''}`);
-    console.log(`telegramChannelUsername: ${settings.telegramChannelUsername || ''}`);
+    logger.info('\n🎯 Frontend should receive:');
+    logger.info('==========================');
+    logger.info(`telegramEnabled: ${settings.telegramEnabled || false}`);
+    logger.info(`telegramBotToken: ${settings.telegramBotToken ? '✅ Set' : '❌ Not set'}`);
+    logger.info(`telegramChannelId: ${settings.telegramChannelId || ''}`);
+    logger.info(`telegramChannelUsername: ${settings.telegramChannelUsername || ''}`);
 
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
+    logger.error('❌ Test failed:', error.message);
   } finally {
     await mongoose.disconnect();
     process.exit(0);

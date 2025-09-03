@@ -1,4 +1,5 @@
 import Settings from '../models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 // Cache settings to avoid database queries on every request
 let settingsCache = {};
@@ -21,7 +22,7 @@ const getSettings = async (category = 'general') => {
     cacheTimestamp = now;
     return settings;
   } catch (error) {
-    console.error(`Failed to fetch ${category} settings:`, error);
+    logger.error(`Failed to fetch ${category} settings:`, error);
     return {};
   }
 };
@@ -34,7 +35,7 @@ const getSettingsFresh = async (category = 'general') => {
     cacheTimestamp = Date.now();
     return settings;
   } catch (error) {
-    console.error(`Failed to fetch ${category} settings:`, error);
+    logger.error(`Failed to fetch ${category} settings:`, error);
     return {};
   }
 };
@@ -96,7 +97,7 @@ export const maintenanceModeMiddleware = async (req, res, next) => {
     
     next();
   } catch (error) {
-    console.error('Error checking maintenance mode:', error);
+    logger.error('Error checking maintenance mode:', error);
     next(); // Continue on error
   }
 };
@@ -115,7 +116,7 @@ export const registrationMiddleware = async (req, res, next) => {
     
     next();
   } catch (error) {
-    console.error('Error checking registration status:', error);
+    logger.error('Error checking registration status:', error);
     next(); // Continue on error
   }
 };
@@ -134,7 +135,7 @@ export const commentsMiddleware = async (req, res, next) => {
     
     next();
   } catch (error) {
-    console.error('Error checking comments status:', error);
+    logger.error('Error checking comments status:', error);
     next(); // Continue on error
   }
 };

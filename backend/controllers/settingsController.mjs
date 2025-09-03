@@ -4,6 +4,7 @@ import Settings from "../models/Settings.mjs";
 import ActivityLog from "../models/ActivityLog.mjs";
 import { clearSettingsCache } from "../middleware/settings.mjs";
 import { logActivity } from "./activityController.mjs";
+import logger from '../utils/logger.mjs';
 
 // Activity logging helper
 const logSettingsActivity = async (section, changes, req) => {
@@ -24,7 +25,7 @@ const logSettingsActivity = async (section, changes, req) => {
       req
     });
   } catch (error) {
-    console.error('Failed to log settings activity:', error);
+    logger.error('Failed to log settings activity:', error);
   }
 };
 
@@ -33,12 +34,12 @@ const initializeSettingsIfNeeded = async () => {
   try {
     const settingsCount = await Settings.countDocuments();
     if (settingsCount === 0) {
-      console.log('Initializing default settings...');
+      logger.info('Initializing default settings...');
       await Settings.initializeDefaults();
-      console.log('Default settings initialized successfully');
+      logger.info('Default settings initialized successfully');
     }
   } catch (error) {
-    console.error('Failed to initialize settings:', error);
+    logger.error('Failed to initialize settings:', error);
   }
 };
 
@@ -323,7 +324,7 @@ export const testEmailConfiguration = asyncHandler(async (req, res) => {
     // 2. Use a proper email library like nodemailer
     // 3. Return success/failure based on email sending result
     
-    console.log('Testing email configuration for:', emailSettings.smtpHost);
+    logger.info('Testing email configuration for:', emailSettings.smtpHost);
     
     // Log the test attempt
     await logSettingsActivity('integrations', {
@@ -360,7 +361,7 @@ export const testWebhookConfiguration = asyncHandler(async (req, res) => {
     // 2. Use a proper HTTP client to send the webhook
     // 3. Return success/failure based on webhook response
     
-    console.log('Testing webhook configuration for:', webhookSettings.webhookUrl);
+    logger.info('Testing webhook configuration for:', webhookSettings.webhookUrl);
     
     // Log the test attempt
     await logSettingsActivity('integrations', {
@@ -408,7 +409,7 @@ export const getSettingsAuditLog = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Settings audit log error:', error);
+    logger.error('Settings audit log error:', error);
     res.status(500);
     throw new Error('Failed to fetch settings audit log');
   }
@@ -420,7 +421,7 @@ export const getSettingsAuditLog = asyncHandler(async (req, res) => {
 export const getLogoSettings = asyncHandler(async (req, res) => {
   const settings = await Settings.getCategorySettings('logo');
   
-  console.log('Retrieved logo settings:', settings);
+  logger.info('Retrieved logo settings:', settings);
   
   res.json({
     success: true,
@@ -525,7 +526,7 @@ export const uploadLogo = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Logo upload error:', error);
+    logger.error('Logo upload error:', error);
     res.status(500);
     throw new Error('Failed to upload logo');
   }
@@ -539,11 +540,11 @@ export const deleteLogo = asyncHandler(async (req, res) => {
     // Get current logo settings
     const currentSettings = await Settings.getCategorySettings('logo') || {};
     
-    console.log('Current logo settings for deletion:', currentSettings);
+    logger.info('Current logo settings for deletion:', currentSettings);
     
     // Check if there's a logo to delete (either by URL or public ID)
     if (!currentSettings.logoUrl && !currentSettings.logoPublicId) {
-      console.log('No logo found to delete');
+      logger.info('No logo found to delete');
       res.status(404);
       throw new Error('No logo to delete');
     }
@@ -554,13 +555,13 @@ export const deleteLogo = asyncHandler(async (req, res) => {
       const path = await import('path');
       const filePath = path.join(process.cwd(), 'uploads', currentSettings.logoPublicId);
       
-      console.log('Attempting to delete file:', filePath);
+      logger.info('Attempting to delete file:', filePath);
       
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
-        console.log('File deleted successfully');
+        logger.info('File deleted successfully');
       } else {
-        console.log('File not found:', filePath);
+        logger.info('File not found:', filePath);
       }
     }
 
@@ -596,7 +597,7 @@ export const deleteLogo = asyncHandler(async (req, res) => {
       message: 'Logo deleted successfully'
     });
   } catch (error) {
-    console.error('Logo deletion error:', error);
+    logger.error('Logo deletion error:', error);
     res.status(500);
     throw new Error('Failed to delete logo');
   }
@@ -637,7 +638,7 @@ export const getLogoPreview = asyncHandler(async (req, res) => {
 export const getSocialMediaSettings = asyncHandler(async (req, res) => {
   const settings = await Settings.getCategorySettings('social-media');
   
-  console.log('Retrieved social media settings:', settings);
+  logger.info('Retrieved social media settings:', settings);
   
   res.json({
     success: true,
@@ -702,7 +703,7 @@ export const testSocialMediaConnection = asyncHandler(async (req, res) => {
       platform
     });
   } catch (error) {
-    console.error('Social media test error:', error);
+    logger.error('Social media test error:', error);
     res.status(500);
     throw new Error('Failed to test social media connection');
   }
@@ -721,7 +722,7 @@ export const getSocialMediaStats = asyncHandler(async (req, res) => {
       stats
     });
   } catch (error) {
-    console.error('Social media stats error:', error);
+    logger.error('Social media stats error:', error);
     res.status(500);
     throw new Error('Failed to get social media statistics');
   }
@@ -772,7 +773,7 @@ export const manualSocialMediaPost = asyncHandler(async (req, res) => {
       successfulPosts: result.successfulPosts
     });
   } catch (error) {
-    console.error('Manual social media post error:', error);
+    logger.error('Manual social media post error:', error);
     res.status(500);
     throw new Error('Failed to post to social media');
   }
@@ -784,7 +785,7 @@ export const manualSocialMediaPost = asyncHandler(async (req, res) => {
 export const getFooterSettings = asyncHandler(async (req, res) => {
   const settings = await Settings.getCategorySettings('footer');
   
-  console.log('Retrieved footer settings:', settings);
+  logger.info('Retrieved footer settings:', settings);
   
   res.json({
     success: true,
@@ -881,14 +882,14 @@ export const getPublicSocialMediaSettings = asyncHandler(async (req, res) => {
       ];
     }
     
-    console.log('Retrieved public social media settings:', settings);
+    logger.info('Retrieved public social media settings:', settings);
     
     res.json({
       success: true,
       settings
     });
   } catch (error) {
-    console.error('Error fetching public social media settings:', error);
+    logger.error('Error fetching public social media settings:', error);
     res.status(500);
     throw new Error('Failed to fetch social media settings');
   }
@@ -912,14 +913,14 @@ export const getPublicLogoSettings = asyncHandler(async (req, res) => {
       };
     }
     
-    console.log('Retrieved public logo settings:', settings);
+    logger.info('Retrieved public logo settings:', settings);
     
     res.json({
       success: true,
       settings
     });
   } catch (error) {
-    console.error('Error fetching public logo settings:', error);
+    logger.error('Error fetching public logo settings:', error);
     res.status(500);
     throw new Error('Failed to fetch logo settings');
   }
@@ -945,14 +946,14 @@ export const getPublicFooterSettings = asyncHandler(async (req, res) => {
       };
     }
     
-    console.log('Retrieved public footer settings:', settings);
+    logger.info('Retrieved public footer settings:', settings);
     
     res.json({
       success: true,
       settings
     });
   } catch (error) {
-    console.error('Error fetching public footer settings:', error);
+    logger.error('Error fetching public footer settings:', error);
     res.status(500);
     throw new Error('Failed to fetch footer settings');
   }
@@ -1293,7 +1294,7 @@ export const checkTokenHealth = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Token health check error:', error);
+    logger.error('Token health check error:', error);
     res.status(500);
     throw new Error('Failed to check token health');
   }
@@ -1334,7 +1335,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
 
         if (isTokenValid) {
           // Token is still valid, try to refresh it
-          console.log('Facebook token is still valid, attempting refresh...');
+          logger.info('Facebook token is still valid, attempting refresh...');
           
           // Step 1: Get long-lived user token
           const userTokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
@@ -1383,7 +1384,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
           });
         } else {
           // Token is expired, cannot refresh automatically
-          console.log('Facebook token is expired, cannot refresh automatically');
+          logger.info('Facebook token is expired, cannot refresh automatically');
           return res.json({
             success: false,
             error: 'Token is expired and cannot be refreshed automatically. Please get a new token from Facebook Developer Console.',
@@ -1399,7 +1400,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
         }
         
       } catch (error) {
-        console.error('Token refresh failed:', error.response?.data || error.message);
+        logger.error('Token refresh failed:', error.response?.data || error.message);
         
         // Check if it's a token expiration error
         if (error.response?.data?.error?.code === 190) {
@@ -1428,7 +1429,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
     throw new Error(`Platform ${platform} not supported for token refresh`);
 
   } catch (error) {
-    console.error('Token refresh error:', error);
+    logger.error('Token refresh error:', error);
     res.status(500);
     throw new Error('Failed to refresh token');
   }

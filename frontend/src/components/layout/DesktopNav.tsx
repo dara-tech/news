@@ -277,7 +277,7 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
       ))}
 
       <div className="relative">
-        <button
+        <Button
           ref={categoriesBtnRef}
           className={`group relative px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-300 ${
             uiState.isCategoriesOpen
@@ -299,7 +299,7 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
           </div>
           Categories
           {state.isLoading && <Loader2 className="h-4 w-4 animate-spin ml-1" />}
-        </button>
+        </Button>
 
         <AnimatePresence>
           {uiState.isCategoriesOpen && (

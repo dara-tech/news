@@ -2,21 +2,22 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function testPlatformManagement() {
-  console.log('🔧 Testing Platform Management System');
-  console.log('=====================================\n');
+  logger.info('🔧 Testing Platform Management System');
+  logger.info('=====================================\n');
   
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    logger.info('✅ Connected to MongoDB\n');
     
     const settings = await Settings.getCategorySettings('social-media');
     
-    console.log('📋 Current Platform Status:');
-    console.log('============================\n');
+    logger.info('📋 Current Platform Status:');
+    logger.info('============================\n');
     
     const platforms = [
       { key: 'facebook', name: 'Facebook' },
@@ -30,52 +31,52 @@ async function testPlatformManagement() {
       const enabled = settings[`${platform.key}Enabled`] || false;
       const configured = checkPlatformConfigured(platform.key, settings);
       
-      console.log(`${platform.name}:`);
-      console.log(`  Enabled: ${enabled ? '✅' : '❌'}`);
-      console.log(`  Configured: ${configured ? '✅' : '❌'}`);
-      console.log(`  Status: ${enabled && configured ? '🟢 Active' : enabled ? '🟡 Enabled but not configured' : '🔴 Inactive'}\n`);
+      logger.info(`${platform.name}:`);
+      logger.info(`  Enabled: ${enabled ? '✅' : '❌'}`);
+      logger.info(`  Configured: ${configured ? '✅' : '❌'}`);
+      logger.info(`  Status: ${enabled && configured ? '🟢 Active' : enabled ? '🟡 Enabled but not configured' : '🔴 Inactive'}\n`);
     });
     
-    console.log('🎯 Platform Management Features:');
-    console.log('================================\n');
-    console.log('✅ Individual platform enable/disable controls');
-    console.log('✅ Visual status indicators for each platform');
-    console.log('✅ Bulk enable/disable all configured platforms');
-    console.log('✅ Real-time status updates');
-    console.log('✅ Configuration validation');
-    console.log('✅ Auto-posting respects platform settings\n');
+    logger.info('🎯 Platform Management Features:');
+    logger.info('================================\n');
+    logger.info('✅ Individual platform enable/disable controls');
+    logger.info('✅ Visual status indicators for each platform');
+    logger.info('✅ Bulk enable/disable all configured platforms');
+    logger.info('✅ Real-time status updates');
+    logger.info('✅ Configuration validation');
+    logger.info('✅ Auto-posting respects platform settings\n');
     
-    console.log('💡 How to Use:');
-    console.log('==============\n');
-    console.log('1. Go to Admin → System → Auto-Posting → Platforms');
-    console.log('2. Use toggle switches to enable/disable platforms');
-    console.log('3. Only enabled platforms will receive auto-posts');
-    console.log('4. Configure platforms in the Settings tab first');
-    console.log('5. Monitor token health in the Monitoring tab\n');
+    logger.info('💡 How to Use:');
+    logger.info('==============\n');
+    logger.info('1. Go to Admin → System → Auto-Posting → Platforms');
+    logger.info('2. Use toggle switches to enable/disable platforms');
+    logger.info('3. Only enabled platforms will receive auto-posts');
+    logger.info('4. Configure platforms in the Settings tab first');
+    logger.info('5. Monitor token health in the Monitoring tab\n');
     
-    console.log('🔧 API Endpoints:');
-    console.log('==================\n');
-    console.log('POST /admin/settings/social-media/update');
-    console.log('Body: { "facebookEnabled": true, "twitterEnabled": false }');
-    console.log('Purpose: Update platform enable/disable settings\n');
+    logger.info('🔧 API Endpoints:');
+    logger.info('==================\n');
+    logger.info('POST /admin/settings/social-media/update');
+    logger.info('Body: { "facebookEnabled": true, "twitterEnabled": false }');
+    logger.info('Purpose: Update platform enable/disable settings\n');
     
-    console.log('📊 Benefits:');
-    console.log('=============\n');
-    console.log('• Control costs by disabling unused platforms');
-    console.log('• Focus on your most important social channels');
-    console.log('• Easy platform management without reconfiguration');
-    console.log('• Maintain credentials while controlling usage');
-    console.log('• Bulk operations for efficient management\n');
+    logger.info('📊 Benefits:');
+    logger.info('=============\n');
+    logger.info('• Control costs by disabling unused platforms');
+    logger.info('• Focus on your most important social channels');
+    logger.info('• Easy platform management without reconfiguration');
+    logger.info('• Maintain credentials while controlling usage');
+    logger.info('• Bulk operations for efficient management\n');
     
     const activePlatforms = platforms.filter(p => 
       settings[`${p.key}Enabled`] && checkPlatformConfigured(p.key, settings)
     ).length;
     
-    console.log(`📈 Current Active Platforms: ${activePlatforms}/${platforms.length}`);
-    console.log(`🎯 Success Rate: ${Math.round((activePlatforms / platforms.length) * 100)}%\n`);
+    logger.info(`📈 Current Active Platforms: ${activePlatforms}/${platforms.length}`);
+    logger.info(`🎯 Success Rate: ${Math.round((activePlatforms / platforms.length) * 100)}%\n`);
     
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    logger.error('❌ Error:', error.message);
   } finally {
     await mongoose.disconnect();
     process.exit(0);

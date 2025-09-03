@@ -1,5 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
+import logger from './utils/logger.mjs';
 
 class CommentWebSocket {
   constructor(server) {
@@ -12,25 +13,25 @@ class CommentWebSocket {
   }
 
   handleConnection(ws, req) {
-    console.log('WebSocket client connected from:', req.socket.remoteAddress);
+    logger.info('WebSocket client connected from:', req.socket.remoteAddress);
     
     ws.on('message', (message) => {
       try {
         const data = JSON.parse(message);
-        console.log('Received WebSocket message:', data);
+        logger.info('Received WebSocket message:', data);
         this.handleMessage(ws, data);
       } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
+        logger.error('Error parsing WebSocket message:', error);
       }
     });
 
     ws.on('close', () => {
       this.removeClient(ws);
-      console.log('WebSocket client disconnected');
+      logger.info('WebSocket client disconnected');
     });
 
     ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
+      logger.error('WebSocket error:', error);
       this.removeClient(ws);
     });
   }
@@ -53,7 +54,7 @@ class CommentWebSocket {
         }
         break;
       default:
-        console.log('Unknown message type:', data.type);
+        logger.info('Unknown message type:', data.type);
     }
   }
 
@@ -63,7 +64,7 @@ class CommentWebSocket {
     }
     this.clients.get(newsId).add(ws);
     ws.newsId = newsId;
-    console.log(`Client subscribed to comments for news: ${newsId}. Total clients for this news: ${this.clients.get(newsId).size}`);
+    logger.info(`Client subscribed to comments for news: ${newsId}. Total clients for this news: ${this.clients.get(newsId).size}`);
   }
 
   unsubscribeFromComments(ws, newsId) {
@@ -74,7 +75,7 @@ class CommentWebSocket {
       }
     }
     ws.newsId = null;
-    console.log(`Client unsubscribed from comments for news: ${newsId}`);
+    logger.info(`Client unsubscribed from comments for news: ${newsId}`);
   }
 
   removeClient(ws) {
@@ -96,7 +97,7 @@ class CommentWebSocket {
         timestamp: new Date().toISOString()
       });
 
-      console.log(`Broadcasting ${updateType} to ${this.clients.get(newsId).size} clients for news: ${newsId}`);
+      logger.info(`Broadcasting ${updateType} to ${this.clients.get(newsId).size} clients for news: ${newsId}`);
       
       this.clients.get(newsId).forEach(client => {
         if (client.readyState === 1) { // WebSocket.OPEN
@@ -104,7 +105,7 @@ class CommentWebSocket {
         }
       });
     } else {
-      console.log(`No clients subscribed to news: ${newsId} for ${updateType} broadcast`);
+      logger.info(`No clients subscribed to news: ${newsId} for ${updateType} broadcast`);
     }
   }
 

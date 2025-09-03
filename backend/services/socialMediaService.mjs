@@ -1,6 +1,7 @@
 import Settings from '../models/Settings.mjs';
 import axios from 'axios';
 import RateLimitManager from './rateLimitManager.mjs';
+import logger from '../utils/logger.mjs';
 
 class SocialMediaService {
   constructor() {
@@ -25,7 +26,7 @@ class SocialMediaService {
       const settings = await Settings.getCategorySettings('social-media');
       
       if (!settings.autoPostEnabled) {
-        console.log('Auto-posting is disabled');
+        logger.info('Auto-posting is disabled');
         return { success: false, message: 'Auto-posting is disabled' };
       }
 
@@ -37,7 +38,7 @@ class SocialMediaService {
           // Check rate limits before posting
           const rateLimitCheck = await this.rateLimitManager.canPost(platform.platform);
           if (!rateLimitCheck.canPost) {
-            console.log(`⏳ Rate limit check failed for ${platform.platform}: ${rateLimitCheck.message}`);
+            logger.info(`⏳ Rate limit check failed for ${platform.platform}: ${rateLimitCheck.message}`);
             results.push({
               platform: platform.platform,
               success: false,
@@ -62,7 +63,7 @@ class SocialMediaService {
             url: result.url
           });
         } catch (error) {
-          console.error(`Error posting to ${platform.platform}:`, error);
+          logger.error(`Error posting to ${platform.platform}:`, error);
           
           // Handle rate limit errors specifically
           if (error.response?.status === 429) {
@@ -93,7 +94,7 @@ class SocialMediaService {
       };
 
     } catch (error) {
-      console.error('Auto-posting error:', error);
+      logger.error('Auto-posting error:', error);
       return {
         success: false,
         message: error.message
@@ -120,7 +121,7 @@ class SocialMediaService {
     // Add recommended delay if needed
     const recommendedDelay = this.rateLimitManager.getRecommendedDelay(platform.platform);
     if (recommendedDelay > 0) {
-      console.log(`⏳ Waiting ${Math.ceil(recommendedDelay / 1000)} seconds before posting to ${platform.platform}`);
+      logger.info(`⏳ Waiting ${Math.ceil(recommendedDelay / 1000)} seconds before posting to ${platform.platform}`);
       await this.rateLimitManager.sleep(recommendedDelay);
     }
 
@@ -186,9 +187,9 @@ class SocialMediaService {
     // Always add link for production domain, exclude localhost for Facebook
     if (articleUrl && !articleUrl.includes('localhost') && !articleUrl.includes('127.0.0.1')) {
       postData.link = articleUrl;
-      console.log('🔗 Adding link to Facebook post:', articleUrl);
+      logger.info('🔗 Adding link to Facebook post:', articleUrl);
     } else {
-      console.log('⚠️  Excluding localhost URL from Facebook post:', articleUrl);
+      logger.info('⚠️  Excluding localhost URL from Facebook post:', articleUrl);
     }
 
     try {
@@ -205,7 +206,7 @@ class SocialMediaService {
         message: 'Posted to Facebook successfully'
       };
     } catch (error) {
-      console.error('Facebook posting error:', error.response?.data || error.message);
+      logger.error('Facebook posting error:', error.response?.data || error.message);
       throw new Error(`Facebook posting failed: ${error.response?.data?.error?.message || error.message}`);
     }
   }
@@ -217,7 +218,7 @@ class SocialMediaService {
     try {
       const content = this.generatePostContent(newsArticle, 'twitter');
       
-      console.log('Posting to Twitter:', {
+      logger.info('Posting to Twitter:', {
         platform: platform.platform,
         content: content.substring(0, 100) + '...',
         url: platform.url
@@ -264,7 +265,7 @@ class SocialMediaService {
         }
       });
 
-      console.log('Twitter API Response:', response.data);
+      logger.info('Twitter API Response:', response.data);
 
       if (response.data.data && response.data.data.id) {
         return {
@@ -278,7 +279,7 @@ class SocialMediaService {
       }
 
     } catch (error) {
-      console.error('Twitter posting error:', error.response?.data || error.message);
+      logger.error('Twitter posting error:', error.response?.data || error.message);
       throw new Error(`Twitter posting failed: ${error.response?.data?.errors?.[0]?.message || error.message}`);
     }
   }
@@ -290,7 +291,7 @@ class SocialMediaService {
     try {
       const content = this.generatePostContent(newsArticle, 'linkedin');
       
-      console.log('Posting to LinkedIn:', {
+      logger.info('Posting to LinkedIn:', {
         platform: platform.platform,
         content: content.substring(0, 100) + '...',
         url: platform.url
@@ -328,9 +329,9 @@ class SocialMediaService {
 
       // For debugging, let's try without organization first
       if (isCompanyPost) {
-        console.log('🏢 Attempting to post to organization:', settings.linkedinOrganizationId);
+        logger.info('🏢 Attempting to post to organization:', settings.linkedinOrganizationId);
       } else {
-        console.log('👤 Attempting to post to personal profile');
+        logger.info('👤 Attempting to post to personal profile');
       }
 
       // Make API call to LinkedIn
@@ -354,7 +355,7 @@ class SocialMediaService {
       }
 
     } catch (error) {
-      console.error('LinkedIn posting error:', error.response?.data || error.message);
+      logger.error('LinkedIn posting error:', error.response?.data || error.message);
       throw new Error(`LinkedIn posting failed: ${error.response?.data?.message || error.message}`);
     }
   }
@@ -366,7 +367,7 @@ class SocialMediaService {
     try {
       const content = this.generatePostContent(newsArticle, 'instagram');
       
-      console.log('Posting to Instagram:', {
+      logger.info('Posting to Instagram:', {
         platform: platform.platform,
         content: content.substring(0, 100) + '...',
         url: platform.url
@@ -414,7 +415,7 @@ class SocialMediaService {
         }
 
         // If media creation fails, fall back to simulation
-        console.log('Instagram media creation failed, falling back to simulation');
+        logger.info('Instagram media creation failed, falling back to simulation');
         return {
           success: true,
           message: 'Posted to Instagram successfully (simulated - media required for real posts)',
@@ -423,7 +424,7 @@ class SocialMediaService {
         };
 
       } catch (apiError) {
-        console.log('Instagram API error, falling back to simulation:', apiError.response?.data || apiError.message);
+        logger.info('Instagram API error, falling back to simulation:', apiError.response?.data || apiError.message);
         
         // Fall back to simulation if API fails
         return {
@@ -446,7 +447,7 @@ class SocialMediaService {
     try {
       const content = this.generatePostContent(newsArticle, 'telegram');
       
-      console.log('Posting to Telegram:', {
+      logger.info('Posting to Telegram:', {
         platform: platform.platform,
         content: content.substring(0, 100) + '...',
         url: platform.url
@@ -493,11 +494,11 @@ class SocialMediaService {
       }
 
     } catch (error) {
-      console.error('Telegram posting error:', error.response?.data || error.message);
+      logger.error('Telegram posting error:', error.response?.data || error.message);
       
       // If API fails, fall back to simulation
       if (error.response?.status === 403) {
-        console.log('Telegram bot not authorized, falling back to simulation');
+        logger.info('Telegram bot not authorized, falling back to simulation');
         return {
           success: true,
           message: 'Posted to Telegram successfully (simulated - check bot permissions)',
@@ -517,7 +518,7 @@ class SocialMediaService {
     try {
       const content = this.generatePostContent(newsArticle, 'threads');
       
-      console.log('Posting to Threads:', {
+      logger.info('Posting to Threads:', {
         platform: platform.platform,
         content: content.substring(0, 100) + '...',
         url: platform.url
@@ -530,7 +531,7 @@ class SocialMediaService {
       
       // If no access token, use simulation mode
       if (!settings.threadsAccessToken) {
-        console.log('Threads Access Token not configured. Using simulation mode.');
+        logger.info('Threads Access Token not configured. Using simulation mode.');
       }
 
       // For dedicated Threads app, we'll try different approaches
@@ -540,7 +541,7 @@ class SocialMediaService {
         // Try to use Threads-specific API endpoints if available
         // Note: Threads API is still in development, so we'll simulate for now
         
-        console.log('Threads API is still in development. Using simulation mode.');
+        logger.info('Threads API is still in development. Using simulation mode.');
         
         // Simulate successful posting
         const postId = Date.now().toString();
@@ -555,7 +556,7 @@ class SocialMediaService {
         };
 
       } catch (apiError) {
-        console.log('Threads API error, using simulation:', apiError.response?.data || apiError.message);
+        logger.info('Threads API error, using simulation:', apiError.response?.data || apiError.message);
         
         // Fall back to simulation
         const postId = Date.now().toString();

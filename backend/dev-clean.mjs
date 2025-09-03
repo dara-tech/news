@@ -3,22 +3,23 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import logger from '../utils/logger.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log('🚀 Starting clean development server...');
-console.log('📁 Watching only essential files:');
-console.log('   - server.mjs');
-console.log('   - routes/');
-console.log('   - controllers/');
-console.log('   - models/');
-console.log('   - middleware/');
-console.log('   - config/');
-console.log('   - utils/');
-console.log('');
-console.log('🚫 Ignoring test files and utilities');
-console.log('');
+logger.info('🚀 Starting clean development server...');
+logger.info('📁 Watching only essential files:');
+logger.info('   - server.mjs');
+logger.info('   - routes/');
+logger.info('   - controllers/');
+logger.info('   - models/');
+logger.info('   - middleware/');
+logger.info('   - config/');
+logger.info('   - utils/');
+logger.info('');
+logger.info('🚫 Ignoring test files and utilities');
+logger.info('');
 
 const nodemon = spawn('npx', [
   'nodemon',
@@ -51,22 +52,22 @@ const nodemon = spawn('npx', [
 });
 
 nodemon.on('error', (error) => {
-  console.error('❌ Error starting nodemon:', error);
+  logger.error('❌ Error starting nodemon:', error);
   process.exit(1);
 });
 
 nodemon.on('exit', (code) => {
-  console.log(`\n🛑 Development server stopped with code ${code}`);
+  logger.info(`\n🛑 Development server stopped with code ${code}`);
   process.exit(code);
 });
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\n🛑 Shutting down development server...');
+  logger.info('\n🛑 Shutting down development server...');
   nodemon.kill('SIGINT');
 });
 
 process.on('SIGTERM', () => {
-  console.log('\n🛑 Shutting down development server...');
+  logger.info('\n🛑 Shutting down development server...');
   nodemon.kill('SIGTERM');
 }); 

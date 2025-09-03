@@ -6,9 +6,11 @@ import Category from '../models/Category.mjs';
 import User from '../models/User.mjs';
 import Settings from '../models/Settings.mjs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import connectCloudinary, { cloudinary } from '../utils/cloudinary.mjs';
+import { cloudinary, initializeCloudinary } from '../utils/cloudinary.mjs';
 import { formatContentAdvanced } from '../utils/advancedContentFormatter.mjs';
+import { cleanContent } from '../utils/contentCleaner.mjs';
 import imageGenerationService from './imageGenerationService.mjs';
+import logger from '../utils/logger.mjs';
 
 /**
  * Sentinel-PP-01: Enhanced AI News Analyst
@@ -94,7 +96,7 @@ class SentinelService {
       ]
     };
 
-    try { if (process.env.CLOUDINARY_CLOUD_NAME) connectCloudinary(); } catch {}
+    try { if (process.env.CLOUDINARY_CLOUD_NAME) initializeCloudinary(); } catch {}
 
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     this.genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
@@ -114,9 +116,9 @@ class SentinelService {
     const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
     const formattedMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
     
-    if (level === 'error') console.error(formattedMessage);
-    else if (level === 'warning') console.warn(formattedMessage);
-    else console.log(formattedMessage);
+    if (level === 'error') logger.error(formattedMessage);
+    else if (level === 'warning') logger.warn(formattedMessage);
+    else logger.info(formattedMessage);
     
     // Store last 500 entries (increased from 200)
     this.logBuffer.push(entry);
@@ -386,13 +388,13 @@ Return ONLY the JSON object.`;
     }
     if (this.intervalHandle) clearInterval(this.intervalHandle);
     this.intervalHandle = setInterval(() => {
-      this.runOnce({ persistOverride: cfg.autoPersist }).catch((e) => console.error('[Sentinel-PP-01] runOnce error:', e.message));
+      this.runOnce({ persistOverride: cfg.autoPersist }).catch((e) => logger.error('[Sentinel-PP-01] runOnce error:', e.message));
     }, frequencyMs);
     this.frequencyMs = frequencyMs;
     this.nextRunAt = new Date(Date.now() + frequencyMs);
     this.pushLog('info', `[Sentinel-PP-01] Started. Interval: ${frequencyMs}ms`);
     // Kick off immediately as well
-    this.runOnce({ persistOverride: cfg.autoPersist }).catch((e) => console.error('[Sentinel-PP-01] initial run error:', e.message));
+    this.runOnce({ persistOverride: cfg.autoPersist }).catch((e) => logger.error('[Sentinel-PP-01] initial run error:', e.message));
   }
 
   stop() {
@@ -841,7 +843,7 @@ Schema:
   "tags": string[],   // Use suggested tags from analysis + additional relevant tags
   "title": {"en": string}, // Use the enhanced title from analysis
   "description": {"en": string}, // Use the enhanced description from analysis
-  "content": {"en": string}, // Use the enhanced content from analysis, ensure 800-1200 words
+  "content": {"en": string}, // Use the enhanced content from analysis with proper HTML formatting, ensure 800-1200 words
   "thumbnailUrl": string | null,
   "isFeatured": boolean, // true for high-impact stories (based on impact level)
   "isBreaking": boolean, // true for urgent/time-sensitive news
@@ -860,12 +862,27 @@ Schema:
 Content Guidelines:
 - Use the enhanced content provided from the analysis
 - Style: Professional, neutral tone similar to Reuters/AP
-- Structure: Clear introduction, body with key facts, conclusion with context
+- Structure: 
+  * Clear introduction with hook and context
+  * Well-organized body with logical flow and clear sections
+  * Use proper paragraph breaks and transitions
+  * Include relevant quotes and expert opinions when available
+  * Conclusion with broader implications and regional context
+- Format: Use proper HTML structure with <p>, <h2>, <h3>, <blockquote> tags
+- HTML Formatting Requirements:
+  * Wrap paragraphs in <p> tags
+  * Use <h2> for main section headings
+  * Use <h3> for subsection headings
+  * Use <blockquote> for important quotes
+  * Use <strong> for emphasis on key terms
+  * Use <em> for subtle emphasis
+  * Use <ul> and <li> for lists
 - Accuracy: Stick to verifiable facts from the source
 - Context: Provide Southeast Asian perspective when relevant
 - Balance: Present multiple viewpoints when applicable
 - Ethics: Avoid sensationalism, maintain journalistic standards
 - Include key insights and contextual analysis in the content
+- Length: Ensure 800-1200 words with comprehensive coverage
 
 Safety Requirements:
 - No harmful, violent, or inappropriate content
@@ -921,10 +938,20 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
           kh: autoProcessedContent.kh || ''
         };
         
+        // Update title and description with Khmer translations
+        if (autoProcessedContent.khmerTitle) {
+          parsed.title.kh = autoProcessedContent.khmerTitle;
+        }
+        if (autoProcessedContent.khmerDescription) {
+          parsed.description.kh = autoProcessedContent.khmerDescription;
+        }
+        
         // Add auto-processing metadata
         parsed.autoProcessingMetadata = {
           formatted: true,
           translated: !!autoProcessedContent.kh,
+          titleTranslated: !!autoProcessedContent.khmerTitle,
+          descriptionTranslated: !!autoProcessedContent.khmerDescription,
           analyzed: !!autoProcessedContent.analysis,
           analysis: autoProcessedContent.analysis,
           processedAt: new Date().toISOString()
@@ -932,19 +959,60 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
         
         // Use generated image if no thumbnail is available
         if (!parsed.thumbnailUrl && autoProcessedContent.generatedImage) {
-          // Don't store the description as thumbnail URL - it's just text
-          // Instead, store it in metadata for future use
-          parsed.generatedImageMetadata = {
-            description: autoProcessedContent.generatedImage.description,
-            prompt: autoProcessedContent.generatedImage.prompt,
-            generated: true,
-            timestamp: autoProcessedContent.generatedImage.timestamp
-          };
-          
-          this.pushLog('info', '[Sentinel-PP-01] Generated image description stored in metadata', { 
-            title: parsed.title.en?.slice(0, 50),
-            imageDescription: autoProcessedContent.generatedImage.description?.slice(0, 100)
-          });
+          try {
+            // Check if we have an actual image buffer from the new service
+            if (autoProcessedContent.generatedImage.imageBuffer) {
+              // Upload the generated image to Cloudinary using base64
+              const base64Image = autoProcessedContent.generatedImage.imageBuffer.toString('base64');
+              const dataURI = `data:image/png;base64,${base64Image}`;
+              
+              try {
+                const uploadResult = await cloudinary.uploader.upload(dataURI, {
+                  folder: 'news/thumbnails',
+                  public_id: `sentinel-${Date.now()}`,
+                  resource_type: 'image',
+                  format: 'png'
+                });
+                
+                // Store the Cloudinary URL as thumbnail
+                parsed.thumbnailUrl = uploadResult.secure_url;
+                
+                this.pushLog('info', '[Sentinel-PP-01] Successfully uploaded generated image to Cloudinary', { 
+                  publicId: uploadResult.public_id,
+                  url: uploadResult.secure_url
+                });
+              } catch (uploadError) {
+                this.pushLog('error', '[Sentinel-PP-01] Failed to upload generated image to Cloudinary', { error: uploadError.message });
+                // Continue without setting thumbnailUrl
+              }
+            }
+            
+            // Store metadata about the generated image
+            parsed.generatedImageMetadata = {
+              description: autoProcessedContent.generatedImage.description,
+              prompt: autoProcessedContent.generatedImage.prompt,
+              generated: true,
+              timestamp: autoProcessedContent.generatedImage.timestamp,
+              service: autoProcessedContent.generatedImage.service
+            };
+            
+            this.pushLog('info', '[Sentinel-PP-01] Generated image processed successfully', { 
+              title: parsed.title.en?.slice(0, 50),
+              hasImageBuffer: !!autoProcessedContent.generatedImage.imageBuffer,
+              imageDescription: autoProcessedContent.generatedImage.description?.slice(0, 100)
+            });
+          } catch (uploadError) {
+            this.pushLog('error', '[Sentinel-PP-01] Error processing generated image', { error: uploadError.message });
+            // Fallback to just storing metadata
+            parsed.generatedImageMetadata = {
+              description: autoProcessedContent.generatedImage.description,
+              prompt: autoProcessedContent.generatedImage.prompt,
+              generated: true,
+              timestamp: autoProcessedContent.generatedImage.timestamp,
+              service: autoProcessedContent.generatedImage.service,
+              uploadError: uploadError.message
+            };
+          }
         }
       }
 
@@ -1143,14 +1211,14 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       categoryDoc = await Category.findOne();
     }
     if (!categoryDoc) {
-      console.warn('[Sentinel-PP-01] No category found. Skipping.');
+      logger.warn('[Sentinel-PP-01] No category found. Skipping.');
       return false;
     }
 
     // Choose a system author: first admin or any user
     const author = await User.findOne({ role: 'admin' }) || await User.findOne();
     if (!author) {
-      console.warn('[Sentinel-PP-01] No author found. Skipping.');
+      logger.warn('[Sentinel-PP-01] No author found. Skipping.');
       return false;
     }
 
@@ -1559,8 +1627,10 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       // Step 1: Auto-format content
       const formattedContent = await this.autoFormatContent(englishContent);
       
-      // Step 2: Auto-translate to Khmer
+      // Step 2: Auto-translate to Khmer (content, title, description)
       const khmerContent = await this.autoTranslateToKhmer(formattedContent);
+      const khmerTitle = await this.autoTranslateTitle(title);
+      const khmerDescription = await this.autoTranslateDescription(englishContent);
       
       // Step 3: Auto-analyze content quality
       const analysis = await this.autoAnalyzeContent(formattedContent);
@@ -1572,6 +1642,8 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
         title: title?.slice(0, 50),
         formatted: !!formattedContent,
         translated: !!khmerContent,
+        titleTranslated: !!khmerTitle,
+        descriptionTranslated: !!khmerDescription,
         analyzed: !!analysis,
         imageGenerated: !!generatedImage
       });
@@ -1579,6 +1651,8 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       return {
         en: formattedContent,
         kh: khmerContent,
+        khmerTitle: khmerTitle,
+        khmerDescription: khmerDescription,
         analysis: analysis,
         generatedImage: generatedImage
       };
@@ -1588,6 +1662,8 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       return {
         en: englishContent,
         kh: '',
+        khmerTitle: '',
+        khmerDescription: '',
         analysis: null,
         generatedImage: null
       };
@@ -1597,6 +1673,9 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
   // Auto-format content using advanced formatter
   async autoFormatContent(content) {
     try {
+      // Clean content first to remove unwanted HTML structure
+      const cleanedContent = cleanContent(content);
+      
       const formattingOptions = {
         enableAIEnhancement: true,
         enableReadabilityOptimization: true,
@@ -1604,14 +1683,17 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
         enableVisualEnhancement: true,
         addSectionHeadings: true,
         enhanceQuotes: true,
-        optimizeLists: true
+        optimizeLists: true,
+        enableContentAnalysis: true,
+        addKeyPoints: true,
+        enhanceStructure: true
       };
 
-      const result = await formatContentAdvanced(content, formattingOptions);
-      return result.success ? result.content : content;
+      const result = await formatContentAdvanced(cleanedContent, formattingOptions);
+      return result.success ? result.content : cleanedContent;
     } catch (error) {
       this.pushLog('error', '[Sentinel-PP-01] Auto-format error:', error);
-      return content;
+      return cleanContent(content); // Return cleaned content even if formatting fails
     }
   }
 
@@ -1622,12 +1704,20 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
 
       const prompt = `
         Translate the following English news article to Khmer (Cambodian language). 
-        Maintain the original meaning, tone, and context. 
-        If the text contains HTML tags, preserve them in the translation.
-        Provide only the Khmer translation without any additional text or explanations.
+        
+        Requirements:
+        - Maintain the original meaning, tone, and context
+        - Preserve all HTML tags and formatting structure
+        - Use proper Khmer grammar and vocabulary
+        - Ensure cultural appropriateness for Cambodian readers
+        - Maintain professional journalistic style
+        - Keep the same paragraph structure and headings
+        - Translate numbers and dates appropriately
         
         English text:
         ${englishContent}
+        
+        Provide only the Khmer translation without any additional text or explanations.
       `;
 
       const result = await this.model.generateContent(prompt);
@@ -1635,6 +1725,70 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       return response.text().trim();
     } catch (error) {
       this.pushLog('error', '[Sentinel-PP-01] Auto-translate error:', error);
+      return '';
+    }
+  }
+
+  // Auto-translate title to Khmer
+  async autoTranslateTitle(englishTitle) {
+    try {
+      if (!this.model || !englishTitle) return '';
+
+      const prompt = `
+        Translate the following English news title to Khmer (Cambodian language).
+        
+        Requirements:
+        - Maintain the original meaning and impact
+        - Use proper Khmer grammar and vocabulary
+        - Ensure cultural appropriateness
+        - Keep it concise and engaging
+        - Maintain professional journalistic style
+        
+        English title:
+        ${englishTitle}
+        
+        Provide only the Khmer translation without any additional text or explanations.
+      `;
+
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return response.text().trim();
+    } catch (error) {
+      this.pushLog('error', '[Sentinel-PP-01] Auto-translate title error:', error);
+      return '';
+    }
+  }
+
+  // Auto-translate description to Khmer
+  async autoTranslateDescription(englishContent) {
+    try {
+      if (!this.model || !englishContent) return '';
+
+      // Extract first few sentences for description
+      const sentences = englishContent.replace(/<[^>]*>/g, '').split(/[.!?]+/).filter(s => s.trim().length > 10);
+      const descriptionText = sentences.slice(0, 2).join('. ') + '.';
+
+      const prompt = `
+        Translate the following English news description to Khmer (Cambodian language).
+        
+        Requirements:
+        - Maintain the original meaning and context
+        - Use proper Khmer grammar and vocabulary
+        - Ensure cultural appropriateness
+        - Keep it concise (2-3 sentences)
+        - Maintain professional journalistic style
+        
+        English description:
+        ${descriptionText}
+        
+        Provide only the Khmer translation without any additional text or explanations.
+      `;
+
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return response.text().trim();
+    } catch (error) {
+      this.pushLog('error', '[Sentinel-PP-01] Auto-translate description error:', error);
       return '';
     }
   }

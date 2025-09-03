@@ -1,6 +1,7 @@
 import { trackPageView, getAnalyticsData, resetAnalyticsData } from './middleware/analytics.mjs';
+import logger from '../utils/logger.mjs';
 
-console.log('🧪 Generating test traffic data...');
+logger.info('🧪 Generating test traffic data...');
 
 // Reset analytics data
 resetAnalyticsData();
@@ -33,6 +34,6 @@ simulateRequest('/category', 'https://example.com/blog', 'Mozilla/5.0 (Windows N
 simulateRequest('/about', null, 'Mozilla/5.0 (iPad; CPU OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15'); // Direct Tablet
 simulateRequest('/contact', 'https://www.bing.com/search?q=contact', 'Mozilla/5.0 (Android 11; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0'); // Search Mobile
 
-console.log('✅ Test data generated!');
-console.log('📊 Analytics data:');
-console.log(JSON.stringify(getAnalyticsData(), null, 2)); 
+logger.info('✅ Test data generated!');
+logger.info('📊 Analytics data:');
+logger.info(JSON.stringify(getAnalyticsData(), null, 2)); 

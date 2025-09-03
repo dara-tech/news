@@ -3,52 +3,51 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function checkTwitterCredentials() {
-  console.log('🐦 Twitter Credentials Check');
-  console.log('===========================\n');
+  logger.info('🐦 Twitter Credentials Check');
+  logger.info('===========================\n');
 
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    logger.info('✅ Connected to MongoDB\n');
 
     // Get Twitter settings
     const settings = await Settings.getCategorySettings('social-media');
     
-    console.log('📋 Twitter Configuration:');
-    console.log(`API Key: ${settings.twitterApiKey ? 'Set' : 'Not set'}`);
-    console.log(`API Secret: ${settings.twitterApiSecret ? 'Set' : 'Not set'}`);
-    console.log(`Access Token: ${settings.twitterAccessToken ? 'Set' : 'Not set'}`);
-    console.log(`Access Token Secret: ${settings.twitterAccessTokenSecret ? 'Set' : 'Not set'}`);
-    console.log(`Enabled: ${settings.twitterEnabled}\n`);
+    logger.info('📋 Twitter Configuration:');
+    logger.info(`API Key: ${settings.twitterApiKey ? 'Set' : 'Not set'}`);
+    logger.info(`API Secret: ${settings.twitterApiSecret ? 'Set' : 'Not set'}`);
+    logger.info(`Access Token: ${settings.twitterAccessToken ? 'Set' : 'Not set'}`);
+    logger.info(`Access Token Secret: ${settings.twitterAccessTokenSecret ? 'Set' : 'Not set'}`);
+    logger.info(`Enabled: ${settings.twitterEnabled}\n`);
 
     if (!settings.twitterEnabled) {
-      console.log('❌ Twitter is not enabled');
+      logger.info('❌ Twitter is not enabled');
       return;
     }
 
     // Check what type of credentials we have
-    console.log('🔍 Credential Analysis:');
-    
     if (settings.twitterApiKey && settings.twitterApiSecret && settings.twitterAccessToken && settings.twitterAccessTokenSecret) {
-      console.log('✅ OAuth 1.0a User Context - Complete');
-      console.log('   This is the correct setup for posting tweets\n');
+      logger.info('✅ OAuth 1.0a User Context - Complete');
+      logger.info('   This is the correct setup for posting tweets\n');
     } else if (settings.twitterApiKey && settings.twitterApiSecret && settings.twitterAccessToken && !settings.twitterAccessTokenSecret) {
-      console.log('⚠️  OAuth 2.0 Application-Only - Incomplete');
-      console.log('   Missing Access Token Secret for user context\n');
+      logger.info('⚠️  OAuth 2.0 Application-Only - Incomplete');
+      logger.info('   Missing Access Token Secret for user context\n');
     } else if (settings.twitterAccessToken && !settings.twitterApiKey) {
-      console.log('⚠️  OAuth 2.0 Bearer Token - Limited');
-      console.log('   Can only read public data, cannot post\n');
+      logger.info('⚠️  OAuth 2.0 Bearer Token - Limited');
+      logger.info('   Can only read public data, cannot post\n');
     } else {
-      console.log('❌ Incomplete Twitter credentials');
-      console.log('   Missing required fields for posting\n');
+      logger.info('❌ Incomplete Twitter credentials');
+      logger.info('   Missing required fields for posting\n');
     }
 
     // Test with OAuth 1.0a if we have all credentials
     if (settings.twitterApiKey && settings.twitterApiSecret && settings.twitterAccessToken && settings.twitterAccessTokenSecret) {
-      console.log('🧪 Testing OAuth 1.0a User Context...');
+      logger.info('🧪 Testing OAuth 1.0a User Context...');
       
       try {
         const crypto = await import('crypto');
@@ -86,13 +85,13 @@ async function checkTwitterCredentials() {
           }
         });
 
-        console.log('✅ OAuth 1.0a User Context Test Successful!');
-        console.log(`User ID: ${userResponse.data.data.id}`);
-        console.log(`Username: ${userResponse.data.data.username}`);
-        console.log(`Name: ${userResponse.data.data.name}\n`);
+        logger.info('✅ OAuth 1.0a User Context Test Successful!');
+        logger.info(`User ID: ${userResponse.data.data.id}`);
+        logger.info(`Username: ${userResponse.data.data.username}`);
+        logger.info(`Name: ${userResponse.data.data.name}\n`);
 
         // Test posting a tweet
-        console.log('🧪 Testing Tweet Creation...');
+        logger.info('🧪 Testing Tweet Creation...');
         
         const timestamp2 = Math.floor(Date.now() / 1000);
         const nonce2 = crypto.randomBytes(16).toString('hex');
@@ -128,37 +127,37 @@ async function checkTwitterCredentials() {
           }
         });
 
-        console.log('✅ Tweet Created Successfully!');
-        console.log(`Tweet ID: ${postResponse.data.data.id}`);
-        console.log(`Tweet URL: https://twitter.com/${userResponse.data.data.username}/status/${postResponse.data.data.id}\n`);
+        logger.info('✅ Tweet Created Successfully!');
+        logger.info(`Tweet ID: ${postResponse.data.data.id}`);
+        logger.info(`Tweet URL: https://twitter.com/${userResponse.data.data.username}/status/${postResponse.data.data.id}\n`);
 
-        console.log('🎉 Twitter/X is working perfectly with OAuth 1.0a!');
-        console.log('✅ All credentials are correct');
-        console.log('✅ User context authentication works');
-        console.log('✅ Tweet posting works\n');
+        logger.info('🎉 Twitter/X is working perfectly with OAuth 1.0a!');
+        logger.info('✅ All credentials are correct');
+        logger.info('✅ User context authentication works');
+        logger.info('✅ Tweet posting works\n');
 
       } catch (error) {
-        console.log('❌ OAuth 1.0a test failed');
-        console.log(`Status: ${error.response?.status}`);
-        console.log(`Error: ${error.response?.data?.detail || error.response?.data?.message || error.message}`);
+        logger.info('❌ OAuth 1.0a test failed');
+        logger.info(`Status: ${error.response?.status}`);
+        logger.info(`Error: ${error.response?.data?.detail || error.response?.data?.message || error.message}`);
         
         if (error.response?.data) {
-          console.log('\n📋 Full Error Response:');
-          console.log(JSON.stringify(error.response.data, null, 2));
+          logger.info('\n📋 Full Error Response:');
+          logger.info(JSON.stringify(error.response.data, null, 2));
         }
       }
     } else {
-      console.log('❌ Cannot test - missing required credentials');
-      console.log('\n🔧 To fix Twitter/X posting, you need:');
-      console.log('1. API Key (Consumer Key)');
-      console.log('2. API Secret (Consumer Secret)');
-      console.log('3. Access Token');
-      console.log('4. Access Token Secret');
-      console.log('\n💡 Get these from: https://developer.twitter.com/en/portal/dashboard');
+      logger.info('❌ Cannot test - missing required credentials');
+      logger.info('\n🔧 To fix Twitter/X posting, you need:');
+      logger.info('1. API Key (Consumer Key)');
+      logger.info('2. API Secret (Consumer Secret)');
+      logger.info('3. Access Token');
+      logger.info('4. Access Token Secret');
+      logger.info('\n💡 Get these from: https://developer.twitter.com/en/portal/dashboard');
     }
 
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    logger.error('❌ Error:', error.message);
   } finally {
     await mongoose.disconnect();
     process.exit(0);

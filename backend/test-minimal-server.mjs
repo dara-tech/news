@@ -1,4 +1,5 @@
 import express from 'express';
+import logger from '../utils/logger.mjs';
 
 const app = express();
 const PORT = 5002;
@@ -37,6 +38,6 @@ app.get('/api/admin/user-logins/map', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Minimal test server running on port ${PORT}`);
-  console.log(`📊 Test the route: http://localhost:${PORT}/api/admin/user-logins/map`);
+  logger.info(`🚀 Minimal test server running on port ${PORT}`);
+  logger.info(`📊 Test the route: http://localhost:${PORT}/api/admin/user-logins/map`);
 }); 

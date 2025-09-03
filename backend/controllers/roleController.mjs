@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/User.mjs";
 import Role from "../models/Role.mjs";
+import logger from '../utils/logger.mjs';
 
 // Activity logging helper
 const logRoleActivity = async (action, entity, details, req) => {
@@ -23,7 +24,7 @@ const logRoleActivity = async (action, entity, details, req) => {
       req
     });
   } catch (error) {
-    console.error('Failed to log role activity:', error);
+    logger.error('Failed to log role activity:', error);
   }
 };
 
@@ -88,10 +89,10 @@ const initializeSystemRoles = async () => {
       ];
       
       await Role.insertMany(systemRoles);
-      console.log('System roles initialized successfully');
+      logger.info('System roles initialized successfully');
     }
   } catch (error) {
-    console.error('Error initializing system roles:', error);
+    logger.error('Error initializing system roles:', error);
   }
 };
 

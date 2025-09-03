@@ -4,6 +4,7 @@
  */
 
 import { extractContentInfo, calculateReadTime } from '../utils/contentFormatter.mjs';
+import logger from '../utils/logger.mjs';
 
 export class SEOService {
   constructor() {
@@ -50,7 +51,7 @@ export class SEOService {
         priorityActions: await this.getPriorityActions(scores, article)
       };
     } catch (error) {
-      console.error('Error calculating SEO score:', error);
+      logger.error('Error calculating SEO score:', error);
       return null;
     }
   }

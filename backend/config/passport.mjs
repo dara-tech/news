@@ -1,6 +1,7 @@
 import passport from 'passport';
 import GoogleStrategy from 'passport-google-oauth20';
 import User from '../models/User.mjs';
+import logger from '../utils/logger.mjs';
 
 // Function to initialize Google OAuth strategy
 const initializeGoogleStrategy = () => {
@@ -17,7 +18,7 @@ const initializeGoogleStrategy = () => {
       try {
         // Check if profile has email
         if (!profile.emails || !profile.emails[0] || !profile.emails[0].value) {
-          console.error('Google profile missing email:', profile);
+          logger.error('Google profile missing email:', profile);
           return done(new Error('No email found in Google profile'), null);
         }
 
@@ -63,15 +64,15 @@ const initializeGoogleStrategy = () => {
         
         return done(null, newUser);
       } catch (error) {
-        console.error('Error in Google OAuth strategy:', error);
+        logger.error('Error in Google OAuth strategy:', error);
         return done(error, null);
       }
     }));
     
-    console.log('✅ Google OAuth strategy initialized successfully');
+    logger.info('✅ Google OAuth strategy initialized successfully');
   } else {
-    console.warn('⚠️  Google OAuth credentials not found. Google OAuth will be disabled.');
-    console.warn('   Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file');
+    logger.warn('⚠️  Google OAuth credentials not found. Google OAuth will be disabled.');
+    logger.warn('   Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file');
   }
 };
 

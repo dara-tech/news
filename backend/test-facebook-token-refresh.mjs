@@ -3,34 +3,35 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function testFacebookTokenRefresh() {
-  console.log('📘 Facebook Token Refresh Test');
-  console.log('==============================\n');
+  logger.info('📘 Facebook Token Refresh Test');
+  logger.info('==============================\n');
 
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    logger.info('✅ Connected to MongoDB\n');
 
     // Get Facebook settings
     const settings = await Settings.getCategorySettings('social-media');
     
-    console.log('📋 Facebook Configuration:');
-    console.log(`Enabled: ${settings.facebookEnabled ? '✅' : '❌'}`);
-    console.log(`App ID: ${settings.facebookAppId || 'Not set'}`);
-    console.log(`App Secret: ${settings.facebookAppSecret ? 'Set' : 'Not set'}`);
-    console.log(`Page ID: ${settings.facebookPageId || 'Not set'}`);
-    console.log(`Page Access Token: ${settings.facebookPageAccessToken ? 'Set' : 'Not set'}\n`);
+    logger.info('📋 Facebook Configuration:');
+    logger.info(`Enabled: ${settings.facebookEnabled ? '✅' : '❌'}`);
+    logger.info(`App ID: ${settings.facebookAppId || 'Not set'}`);
+    logger.info(`App Secret: ${settings.facebookAppSecret ? 'Set' : 'Not set'}`);
+    logger.info(`Page ID: ${settings.facebookPageId || 'Not set'}`);
+    logger.info(`Page Access Token: ${settings.facebookPageAccessToken ? 'Set' : 'Not set'}\n`);
 
     if (!settings.facebookEnabled || !settings.facebookPageAccessToken) {
-      console.log('❌ Facebook not configured properly');
+      logger.info('❌ Facebook not configured properly');
       return;
     }
 
     // Test current token
-    console.log('🧪 Testing Current Token...');
+    logger.info('🧪 Testing Current Token...');
     try {
       const axios = await import('axios');
       
@@ -41,9 +42,9 @@ async function testFacebookTokenRefresh() {
           fields: 'id,name'
         }
       });
-      console.log('✅ Current token is valid');
-      console.log(`Page Name: ${testResponse.data.name}`);
-      console.log(`Page ID: ${testResponse.data.id}\n`);
+      logger.info('✅ Current token is valid');
+      logger.info(`Page Name: ${testResponse.data.name}`);
+      logger.info(`Page ID: ${testResponse.data.id}\n`);
 
       // Test 2: Get token info
       const tokenInfoResponse = await axios.default.get(`https://graph.facebook.com/v18.0/debug_token`, {
@@ -54,23 +55,23 @@ async function testFacebookTokenRefresh() {
       });
 
       const tokenInfo = tokenInfoResponse.data.data;
-      console.log('📋 Token Information:');
-      console.log(`Type: ${tokenInfo.type}`);
-      console.log(`App ID: ${tokenInfo.app_id}`);
-      console.log(`User ID: ${tokenInfo.user_id}`);
-      console.log(`Expires At: ${tokenInfo.expires_at ? new Date(tokenInfo.expires_at * 1000).toLocaleString() : 'Never'}`);
+      logger.info('📋 Token Information:');
+      logger.info(`Type: ${tokenInfo.type}`);
+      logger.info(`App ID: ${tokenInfo.app_id}`);
+      logger.info(`User ID: ${tokenInfo.user_id}`);
+      logger.info(`Expires At: ${tokenInfo.expires_at ? new Date(tokenInfo.expires_at * 1000).toLocaleString() : 'Never'}`);
       
       if (tokenInfo.expires_at) {
         const daysLeft = Math.ceil((tokenInfo.expires_at * 1000 - Date.now()) / (1000 * 60 * 60 * 24));
-        console.log(`Days Left: ${daysLeft}`);
+        logger.info(`Days Left: ${daysLeft}`);
       }
-      console.log('');
+      logger.info('');
 
       // Test 3: Try to refresh the token
-      console.log('🔄 Testing Token Refresh...');
+      logger.info('🔄 Testing Token Refresh...');
       
       // Step 1: Get long-lived user token
-      console.log('Step 1: Getting long-lived user token...');
+      logger.info('Step 1: Getting long-lived user token...');
       const userTokenResponse = await axios.default.get(`https://graph.facebook.com/v18.0/oauth/access_token`, {
         params: {
           grant_type: 'fb_exchange_token',
@@ -80,12 +81,12 @@ async function testFacebookTokenRefresh() {
         }
       });
       
-      console.log('✅ Long-lived user token obtained');
+      logger.info('✅ Long-lived user token obtained');
       const longLivedUserToken = userTokenResponse.data.access_token;
-      console.log(`Expires In: ${userTokenResponse.data.expires_in} seconds\n`);
+      logger.info(`Expires In: ${userTokenResponse.data.expires_in} seconds\n`);
       
       // Step 2: Get page access token
-      console.log('Step 2: Getting page access token...');
+      logger.info('Step 2: Getting page access token...');
       const pageTokenResponse = await axios.default.get(`https://graph.facebook.com/v18.0/${settings.facebookPageId}`, {
         params: {
           fields: 'access_token',
@@ -93,11 +94,11 @@ async function testFacebookTokenRefresh() {
         }
       });
       
-      console.log('✅ Page access token obtained');
+      logger.info('✅ Page access token obtained');
       const pageToken = pageTokenResponse.data.access_token;
       
       // Step 3: Get long-lived page token
-      console.log('Step 3: Getting long-lived page token...');
+      logger.info('Step 3: Getting long-lived page token...');
       const longLivedPageResponse = await axios.default.get(`https://graph.facebook.com/v18.0/oauth/access_token`, {
         params: {
           grant_type: 'fb_exchange_token',
@@ -107,13 +108,13 @@ async function testFacebookTokenRefresh() {
         }
       });
       
-      console.log('✅ Long-lived page token obtained');
+      logger.info('✅ Long-lived page token obtained');
       const newLongLivedToken = longLivedPageResponse.data.access_token;
-      console.log(`New Token: ${newLongLivedToken.substring(0, 20)}...`);
-      console.log(`Expires In: ${longLivedPageResponse.data.expires_in} seconds\n`);
+      logger.info(`New Token: ${newLongLivedToken.substring(0, 20)}...`);
+      logger.info(`Expires In: ${longLivedPageResponse.data.expires_in} seconds\n`);
       
       // Test 4: Verify new token works
-      console.log('🧪 Verifying New Token...');
+      logger.info('🧪 Verifying New Token...');
       const newTokenTestResponse = await axios.default.get(`https://graph.facebook.com/v18.0/me`, {
         params: {
           access_token: newLongLivedToken,
@@ -121,49 +122,49 @@ async function testFacebookTokenRefresh() {
         }
       });
       
-      console.log('✅ New token is valid');
-      console.log(`Page Name: ${newTokenTestResponse.data.name}`);
-      console.log(`Page ID: ${newTokenTestResponse.data.id}\n`);
+      logger.info('✅ New token is valid');
+      logger.info(`Page Name: ${newTokenTestResponse.data.name}`);
+      logger.info(`Page ID: ${newTokenTestResponse.data.id}\n`);
       
       // Test 5: Update database
-      console.log('💾 Updating Database...');
+      logger.info('💾 Updating Database...');
       await Settings.updateCategorySettings('social-media', {
         facebookPageAccessToken: newLongLivedToken
       });
-      console.log('✅ Database updated successfully\n');
+      logger.info('✅ Database updated successfully\n');
       
-      console.log('🎉 Facebook Token Refresh Test Completed Successfully!');
-      console.log('✅ Token refresh process works correctly');
-      console.log('✅ New token is valid and functional');
-      console.log('✅ Database has been updated\n');
+      logger.info('🎉 Facebook Token Refresh Test Completed Successfully!');
+      logger.info('✅ Token refresh process works correctly');
+      logger.info('✅ New token is valid and functional');
+      logger.info('✅ Database has been updated\n');
 
     } catch (error) {
-      console.log('❌ Facebook token test failed');
-      console.log(`Status: ${error.response?.status}`);
-      console.log(`Error: ${error.response?.data?.error?.message || error.message}`);
+      logger.info('❌ Facebook token test failed');
+      logger.info(`Status: ${error.response?.status}`);
+      logger.info(`Error: ${error.response?.data?.error?.message || error.message}`);
       
       if (error.response?.data) {
-        console.log('\n📋 Full Error Response:');
-        console.log(JSON.stringify(error.response.data, null, 2));
+        logger.info('\n📋 Full Error Response:');
+        logger.info(JSON.stringify(error.response.data, null, 2));
       }
 
       // Provide specific troubleshooting steps
-      console.log('\n🔧 Troubleshooting Steps:');
+      logger.info('\n🔧 Troubleshooting Steps:');
       if (error.response?.data?.error?.code === 190) {
-        console.log('• Token is expired or invalid');
-        console.log('• Get a new token from Facebook Developer Console');
-        console.log('• Run: node update-facebook-token.mjs');
+        logger.info('• Token is expired or invalid');
+        logger.info('• Get a new token from Facebook Developer Console');
+        logger.info('• Run: node update-facebook-token.mjs');
       } else if (error.response?.data?.error?.code === 104) {
-        console.log('• App ID or App Secret is incorrect');
-        console.log('• Check your Facebook app settings');
+        logger.info('• App ID or App Secret is incorrect');
+        logger.info('• Check your Facebook app settings');
       } else if (error.response?.data?.error?.code === 100) {
-        console.log('• Invalid parameter');
-        console.log('• Check Page ID and other settings');
+        logger.info('• Invalid parameter');
+        logger.info('• Check Page ID and other settings');
       }
     }
 
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    logger.error('❌ Error:', error.message);
   } finally {
     await mongoose.disconnect();
     process.exit(0);

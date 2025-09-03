@@ -5,29 +5,30 @@ import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
 import News from './models/News.mjs';
 import SocialMediaService from './services/socialMediaService.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function testAutoPosting() {
-  console.log('🚀 Testing Auto-Posting Functionality...\n');
+  logger.info('🚀 Testing Auto-Posting Functionality...\n');
   
   try {
     // Connect to MongoDB
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB');
+    logger.info('✅ Connected to MongoDB');
     
     // Test 1: Check Settings
-    console.log('\n📋 Test 1: Social Media Settings');
+    logger.info('\n📋 Test 1: Social Media Settings');
     const settings = await Settings.getCategorySettings('social-media');
-    console.log('- Auto Post Enabled:', settings.autoPostEnabled);
-    console.log('- Social Links Count:', settings.socialLinks?.length || 0);
-    console.log('- Facebook Enabled:', settings.facebookEnabled);
-    console.log('- Twitter Enabled:', settings.twitterEnabled);
-    console.log('- Instagram Enabled:', settings.instagramEnabled);
-    console.log('- Threads Enabled:', settings.threadsEnabled);
+    logger.info('- Auto Post Enabled:', settings.autoPostEnabled);
+    logger.info('- Social Links Count:', settings.socialLinks?.length || 0);
+    logger.info('- Facebook Enabled:', settings.facebookEnabled);
+    logger.info('- Twitter Enabled:', settings.twitterEnabled);
+    logger.info('- Instagram Enabled:', settings.instagramEnabled);
+    logger.info('- Threads Enabled:', settings.threadsEnabled);
     
     // Test 2: Check Platform Configurations
-    console.log('\n📱 Test 2: Platform Configurations');
+    logger.info('\n📱 Test 2: Platform Configurations');
     const platforms = ['facebook', 'twitter', 'instagram', 'telegram', 'threads'];
     
     for (const platform of platforms) {
@@ -37,20 +38,20 @@ async function testAutoPosting() {
       const hasApiKey = !!settings[`${platform}ApiKey`];
       const hasApiSecret = !!settings[`${platform}ApiSecret`];
       
-      console.log(`\n${platform.toUpperCase()}:`);
-      console.log(`  - Enabled: ${enabled ? '✅' : '❌'}`);
-      console.log(`  - App ID: ${hasAppId ? '✅' : '❌'}`);
-      console.log(`  - Access Token: ${hasAccessToken ? '✅' : '❌'}`);
-      console.log(`  - API Key: ${hasApiKey ? '✅' : '❌'}`);
-      console.log(`  - API Secret: ${hasApiSecret ? '✅' : '❌'}`);
+      logger.info(`\n${platform.toUpperCase()}:`);
+      logger.info(`  - Enabled: ${enabled ? '✅' : '❌'}`);
+      logger.info(`  - App ID: ${hasAppId ? '✅' : '❌'}`);
+      logger.info(`  - Access Token: ${hasAccessToken ? '✅' : '❌'}`);
+      logger.info(`  - API Key: ${hasApiKey ? '✅' : '❌'}`);
+      logger.info(`  - API Secret: ${hasApiSecret ? '✅' : '❌'}`);
       
       if (enabled && (!hasAppId || !hasAccessToken)) {
-        console.log(`  ⚠️  ${platform} is enabled but missing credentials`);
+        logger.info(`  ⚠️  ${platform} is enabled but missing credentials`);
       }
     }
     
     // Test 3: Test Content Generation
-    console.log('\n📝 Test 3: Content Generation');
+    logger.info('\n📝 Test 3: Content Generation');
     const testArticle = {
       title: { en: 'Test Article: Auto-Posting Test' },
       description: { en: 'This is a test article to verify auto-posting functionality.' },
@@ -60,22 +61,22 @@ async function testAutoPosting() {
     
     for (const platform of platforms) {
       const content = SocialMediaService.generatePostContent(testArticle, platform);
-      console.log(`${platform.toUpperCase()}: ${content.length} chars`);
-      console.log(`  Preview: ${content.substring(0, 80)}...`);
+      logger.info(`${platform.toUpperCase()}: ${content.length} chars`);
+      logger.info(`  Preview: ${content.substring(0, 80)}...`);
     }
     
     // Test 4: Test Auto-Posting Service
-    console.log('\n🚀 Test 4: Auto-Posting Service');
+    logger.info('\n🚀 Test 4: Auto-Posting Service');
     const result = await SocialMediaService.autoPostContent(testArticle, { _id: 'test-user' });
     
-    console.log('Auto-posting result:');
-    console.log('- Success:', result.success);
-    console.log('- Total Platforms:', result.totalPlatforms);
-    console.log('- Successful Posts:', result.successfulPosts);
-    console.log('- Results:', result.results?.map(r => `${r.platform}: ${r.success ? '✅' : '❌'} - ${r.message}`));
+    logger.info('Auto-posting result:');
+    logger.info('- Success:', result.success);
+    logger.info('- Total Platforms:', result.totalPlatforms);
+    logger.info('- Successful Posts:', result.successfulPosts);
+    logger.info('- Results:', result.results?.map(r => `${r.platform}: ${r.success ? '✅' : '❌'} - ${r.message}`));
     
     // Test 5: Check for Published Articles
-    console.log('\n📰 Test 5: Published Articles');
+    logger.info('\n📰 Test 5: Published Articles');
     const publishedArticle = await News.findOne({ status: 'published' })
       .populate('category', 'name')
       .populate('author', 'username')
@@ -83,22 +84,22 @@ async function testAutoPosting() {
       .limit(1);
     
     if (publishedArticle) {
-      console.log('Found published article:', publishedArticle.title.en);
-      console.log('- Status:', publishedArticle.status);
-      console.log('- Category:', publishedArticle.category?.name?.en);
-      console.log('- Author:', publishedArticle.author?.username);
+      logger.info('Found published article:', publishedArticle.title.en);
+      logger.info('- Status:', publishedArticle.status);
+      logger.info('- Category:', publishedArticle.category?.name?.en);
+      logger.info('- Author:', publishedArticle.author?.username);
       
       if (settings.autoPostEnabled) {
-        console.log('✅ This article would trigger auto-posting');
+        logger.info('✅ This article would trigger auto-posting');
       } else {
-        console.log('❌ Auto-posting is disabled');
+        logger.info('❌ Auto-posting is disabled');
       }
     } else {
-      console.log('⚠️  No published articles found');
+      logger.info('⚠️  No published articles found');
     }
     
     // Test 6: Check Integration
-    console.log('\n🔗 Test 6: Integration Check');
+    logger.info('\n🔗 Test 6: Integration Check');
     const fs = await import('fs');
     const newsControllerPath = './controllers/newsController.mjs';
     
@@ -109,15 +110,15 @@ async function testAutoPosting() {
       const hasAutoPostCall = content.includes('autoPostContent');
       const hasStatusCheck = content.includes('status === \'published\'');
       
-      console.log('News Controller Integration:');
-      console.log(`- Social Media Service Import: ${hasAutoPostImport ? '✅' : '❌'}`);
-      console.log(`- Auto-Post Call: ${hasAutoPostCall ? '✅' : '❌'}`);
-      console.log(`- Status Check: ${hasStatusCheck ? '✅' : '❌'}`);
+      logger.info('News Controller Integration:');
+      logger.info(`- Social Media Service Import: ${hasAutoPostImport ? '✅' : '❌'}`);
+      logger.info(`- Auto-Post Call: ${hasAutoPostCall ? '✅' : '❌'}`);
+      logger.info(`- Status Check: ${hasStatusCheck ? '✅' : '❌'}`);
     }
     
     // Generate Summary
-    console.log('\n📊 SUMMARY');
-    console.log('=' .repeat(40));
+    logger.info('\n📊 SUMMARY');
+    logger.info('=' .repeat(40));
     
     const issues = [];
     const recommendations = [];
@@ -147,28 +148,28 @@ async function testAutoPosting() {
     }
     
     if (issues.length === 0) {
-      console.log('✅ All components are in place!');
-      console.log('🎯 Next steps:');
-      console.log('1. Configure platform credentials');
-      console.log('2. Test with real API credentials');
-      console.log('3. Enable auto-posting for production');
+      logger.info('✅ All components are in place!');
+      logger.info('🎯 Next steps:');
+      logger.info('1. Configure platform credentials');
+      logger.info('2. Test with real API credentials');
+      logger.info('3. Enable auto-posting for production');
     } else {
-      console.log('❌ Issues found:');
+      logger.info('❌ Issues found:');
       issues.forEach((issue, index) => {
-        console.log(`${index + 1}. ${issue}`);
+        logger.info(`${index + 1}. ${issue}`);
       });
       
-      console.log('\n💡 Recommendations:');
+      logger.info('\n💡 Recommendations:');
       recommendations.forEach((rec, index) => {
-        console.log(`${index + 1}. ${rec}`);
+        logger.info(`${index + 1}. ${rec}`);
       });
     }
     
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
+    logger.error('❌ Test failed:', error.message);
   } finally {
     await mongoose.disconnect();
-    console.log('\n✅ Test completed!');
+    logger.info('\n✅ Test completed!');
   }
 }
 

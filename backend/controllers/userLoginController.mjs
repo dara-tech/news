@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import UserLogin from "../models/UserLogin.mjs";
 import User from "../models/User.mjs";
 import { getLocationFromIP, parseUserAgent, detectSecurityFlags } from "../utils/geoLocation.mjs";
+import logger from '../utils/logger.mjs';
 
 // @desc    Track user login
 // @route   POST /api/auth/login-track
@@ -141,7 +142,7 @@ export const getUserLoginMapData = asyncHandler(async (req, res) => {
     logins.forEach(login => {
       // Skip if no coordinates or invalid coordinates
       if (!login.location || !login.location.coordinates || !Array.isArray(login.location.coordinates) || login.location.coordinates.length < 2) {
-        console.warn('Invalid or missing coordinates for login:', login._id);
+        logger.warn('Invalid or missing coordinates for login:', login._id);
         return;
       }
       
@@ -149,7 +150,7 @@ export const getUserLoginMapData = asyncHandler(async (req, res) => {
       
       // Validate coordinate values
       if (typeof longitude !== 'number' || typeof latitude !== 'number' || isNaN(longitude) || isNaN(latitude)) {
-        console.warn('Invalid coordinate values for login:', login._id);
+        logger.warn('Invalid coordinate values for login:', login._id);
         return;
       }
       

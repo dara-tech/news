@@ -1,4 +1,5 @@
 import ActivityLog from '../models/ActivityLog.mjs';
+import logger from '../utils/logger.mjs';
 
 // Helper function to log activities
 export const logActivity = async ({
@@ -30,7 +31,7 @@ export const logActivity = async ({
 
     await ActivityLog.create(logData);
   } catch (error) {
-    console.error('Failed to log activity:', error);
+    logger.error('Failed to log activity:', error);
     // Don't throw error to prevent breaking the main operation
   }
 };

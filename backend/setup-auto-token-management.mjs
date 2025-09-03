@@ -3,26 +3,27 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function setupAutoTokenManagement() {
-  console.log('🔧 Setting Up Automatic Token Management');
-  console.log('=========================================\n');
+  logger.info('🔧 Setting Up Automatic Token Management');
+  logger.info('=========================================\n');
 
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    logger.info('✅ Connected to MongoDB\n');
 
     // Get current settings
     const settings = await Settings.getCategorySettings('social-media');
     
-    console.log('📋 Current Token Status:');
-    console.log('========================\n');
+    logger.info('📋 Current Token Status:');
+    logger.info('========================\n');
 
     // Check Facebook token
     if (settings.facebookEnabled && settings.facebookPageAccessToken) {
-      console.log('📘 Facebook Token:');
+      logger.info('📘 Facebook Token:');
       try {
         const axios = await import('axios');
         
@@ -46,19 +47,19 @@ async function setupAutoTokenManagement() {
         const expiresAt = tokenInfo.expires_at ? new Date(tokenInfo.expires_at * 1000) : null;
         const daysLeft = expiresAt ? Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24)) : null;
 
-        console.log(`  Status: ${daysLeft && daysLeft > 0 ? '🟢 Valid' : '🔴 Expired'}`);
-        console.log(`  Page: ${testResponse.data.name}`);
-        console.log(`  Expires: ${expiresAt ? expiresAt.toLocaleString() : 'Never'}`);
-        console.log(`  Days Left: ${daysLeft || 'N/A'}\n`);
+        logger.info(`  Status: ${daysLeft && daysLeft > 0 ? '🟢 Valid' : '🔴 Expired'}`);
+        logger.info(`  Page: ${testResponse.data.name}`);
+        logger.info(`  Expires: ${expiresAt ? expiresAt.toLocaleString() : 'Never'}`);
+        logger.info(`  Days Left: ${daysLeft || 'N/A'}\n`);
 
         if (daysLeft && daysLeft > 0) {
-          console.log('✅ Facebook token is valid! Setting up automatic management...\n');
+          logger.info('✅ Facebook token is valid! Setting up automatic management...\n');
           
-          console.log('🚀 Starting Facebook Token Manager...');
-          console.log('This will:');
-          console.log('• Check token every 24 hours');
-          console.log('• Auto-refresh when ≤10 days left');
-          console.log('• Never let your token expire again!\n');
+          logger.info('🚀 Starting Facebook Token Manager...');
+          logger.info('This will:');
+          logger.info('• Check token every 24 hours');
+          logger.info('• Auto-refresh when ≤10 days left');
+          logger.info('• Never let your token expire again!\n');
 
           // Start the token manager
           const { spawn } = await import('child_process');
@@ -68,90 +69,90 @@ async function setupAutoTokenManagement() {
           });
 
           tokenManager.unref();
-          console.log('✅ Facebook Token Manager started in background');
-          console.log(`Process ID: ${tokenManager.pid}\n`);
+          logger.info('✅ Facebook Token Manager started in background');
+          logger.info(`Process ID: ${tokenManager.pid}\n`);
 
-          console.log('📋 How It Works:');
-          console.log('===============');
-          console.log('1. Token Manager runs continuously in background');
-          console.log('2. Checks token health every 24 hours');
-          console.log('3. Automatically refreshes when token is ≤10 days from expiry');
-          console.log('4. Updates database with new token');
-          console.log('5. Logs all activities for monitoring\n');
+          logger.info('📋 How It Works:');
+          logger.info('===============');
+          logger.info('1. Token Manager runs continuously in background');
+          logger.info('2. Checks token health every 24 hours');
+          logger.info('3. Automatically refreshes when token is ≤10 days from expiry');
+          logger.info('4. Updates database with new token');
+          logger.info('5. Logs all activities for monitoring\n');
 
-          console.log('🔧 To Stop Token Manager:');
-          console.log('kill $(pgrep -f "facebook-token-manager.mjs")\n');
+          logger.info('🔧 To Stop Token Manager:');
+          logger.info('kill $(pgrep -f "facebook-token-manager.mjs")\n');
 
-          console.log('📊 To Monitor Token Manager:');
-          console.log('tail -f logs/facebook-token-manager.log\n');
+          logger.info('📊 To Monitor Token Manager:');
+          logger.info('tail -f logs/facebook-token-manager.log\n');
 
         } else {
-          console.log('❌ Facebook token is expired or invalid');
-          console.log('🔧 You need to get a new token first, then run this script again\n');
+          logger.info('❌ Facebook token is expired or invalid');
+          logger.info('🔧 You need to get a new token first, then run this script again\n');
           
-          console.log('💡 Quick Fix:');
-          console.log('1. Get new token from Facebook Developer Console');
-          console.log('2. Run: node quick-facebook-fix.mjs');
-          console.log('3. Then run this script again to set up auto-management\n');
+          logger.info('💡 Quick Fix:');
+          logger.info('1. Get new token from Facebook Developer Console');
+          logger.info('2. Run: node quick-facebook-fix.mjs');
+          logger.info('3. Then run this script again to set up auto-management\n');
         }
 
       } catch (error) {
-        console.log('❌ Facebook token test failed:');
-        console.log(`Error: ${error.response?.data?.error?.message || error.message}\n`);
-        console.log('🔧 You need to fix the token first before setting up auto-management\n');
+        logger.info('❌ Facebook token test failed:');
+        logger.info(`Error: ${error.response?.data?.error?.message || error.message}\n`);
+        logger.info('🔧 You need to fix the token first before setting up auto-management\n');
       }
     } else {
-      console.log('❌ Facebook not configured');
-      console.log('🔧 Configure Facebook first, then run this script\n');
+      logger.info('❌ Facebook not configured');
+      logger.info('🔧 Configure Facebook first, then run this script\n');
     }
 
     // Check other platforms
-    console.log('📋 Other Platforms:');
-    console.log('===================\n');
+    logger.info('📋 Other Platforms:');
+    logger.info('===================\n');
 
     if (settings.twitterEnabled && settings.twitterAccessToken) {
-      console.log('🐦 Twitter/X: ✅ Configured (tokens don\'t expire)');
+      logger.info('🐦 Twitter/X: ✅ Configured (tokens don\'t expire)');
     } else {
-      console.log('🐦 Twitter/X: ❌ Not configured');
+      logger.info('🐦 Twitter/X: ❌ Not configured');
     }
 
     if (settings.linkedinEnabled && settings.linkedinAccessToken) {
-      console.log('🔗 LinkedIn: ✅ Configured (refresh token available)');
+      logger.info('🔗 LinkedIn: ✅ Configured (refresh token available)');
     } else {
-      console.log('🔗 LinkedIn: ❌ Not configured');
+      logger.info('🔗 LinkedIn: ❌ Not configured');
     }
 
     if (settings.instagramEnabled && settings.instagramAccessToken) {
-      console.log('📷 Instagram: ✅ Configured');
+      logger.info('📷 Instagram: ✅ Configured');
     } else {
-      console.log('📷 Instagram: ❌ Not configured');
+      logger.info('📷 Instagram: ❌ Not configured');
     }
 
-    console.log('\n🎯 Best Practices for Token Management:');
-    console.log('=======================================');
-    console.log('1. ✅ Use Facebook Token Manager for Facebook');
-    console.log('2. ✅ Monitor tokens in admin panel');
-    console.log('3. ✅ Set up alerts for token issues');
-    console.log('4. ✅ Keep backup tokens for critical platforms');
-    console.log('5. ✅ Document token generation processes\n');
+    logger.info('\n🎯 Best Practices for Token Management:');
+    logger.info('=======================================');
+    logger.info('1. ✅ Use Facebook Token Manager for Facebook');
+    logger.info('2. ✅ Monitor tokens in admin panel');
+    logger.info('3. ✅ Set up alerts for token issues');
+    logger.info('4. ✅ Keep backup tokens for critical platforms');
+    logger.info('5. ✅ Document token generation processes\n');
 
-    console.log('💡 Pro Tips:');
-    console.log('============');
-    console.log('• Facebook tokens expire every 60 days');
-    console.log('• LinkedIn refresh tokens last 60 days');
-    console.log('• Twitter tokens don\'t expire but can be revoked');
-    console.log('• Always use long-lived tokens when possible');
-    console.log('• Monitor token health regularly\n');
+    logger.info('💡 Pro Tips:');
+    logger.info('============');
+    logger.info('• Facebook tokens expire every 60 days');
+    logger.info('• LinkedIn refresh tokens last 60 days');
+    logger.info('• Twitter tokens don\'t expire but can be revoked');
+    logger.info('• Always use long-lived tokens when possible');
+    logger.info('• Monitor token health regularly\n');
 
-    console.log('🔧 Commands for Token Management:');
-    console.log('=================================');
-    console.log('• Start Facebook Token Manager: node facebook-token-manager.mjs');
-    console.log('• Check token health: node test-token-monitoring.mjs');
-    console.log('• Test all platforms: node test-auto-posting.mjs');
-    console.log('• View token status: Admin → System → Auto-Posting → Monitoring\n');
+    logger.info('🔧 Commands for Token Management:');
+    logger.info('=================================');
+    logger.info('• Start Facebook Token Manager: node facebook-token-manager.mjs');
+    logger.info('• Check token health: node test-token-monitoring.mjs');
+    logger.info('• Test all platforms: node test-auto-posting.mjs');
+    logger.info('• View token status: Admin → System → Auto-Posting → Monitoring\n');
 
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    logger.error('❌ Error:', error.message);
   } finally {
     await mongoose.disconnect();
     process.exit(0);

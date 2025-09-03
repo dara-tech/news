@@ -1,3 +1,4 @@
+import logger from '../utils/logger.mjs';
 // import axios from 'axios';
 
 // Free IP geolocation service
@@ -57,7 +58,7 @@ export const getLocationFromIP = async (ipAddress) => {
       }
     };
   } catch (error) {
-    console.error('Error getting location from IP:', error.message);
+    logger.error('Error getting location from IP:', error.message);
     return {
       country: 'Unknown',
       region: 'Unknown',

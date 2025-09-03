@@ -3,27 +3,28 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function addTelegramToSocialLinks() {
-  console.log('🔧 Adding Telegram to Social Links...\n');
+  logger.info('🔧 Adding Telegram to Social Links...\n');
   
   try {
     // Connect to MongoDB
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB');
+    logger.info('✅ Connected to MongoDB');
     
     // Get current social media settings
     const settings = await Settings.getCategorySettings('social-media');
-    console.log('📋 Current social links count:', settings.socialLinks?.length || 0);
+    logger.info('📋 Current social links count:', settings.socialLinks?.length || 0);
     
     if (settings.socialLinks) {
       // Check if Telegram already exists
       const hasTelegram = settings.socialLinks.some(link => link.platform === 'telegram');
       
       if (hasTelegram) {
-        console.log('✅ Telegram already exists in social links');
+        logger.info('✅ Telegram already exists in social links');
         return;
       }
       
@@ -40,8 +41,8 @@ async function addTelegramToSocialLinks() {
          socialLinks: settings.socialLinks
        }, new mongoose.Types.ObjectId());
       
-      console.log('✅ Added Telegram to social links');
-      console.log('📊 New social links count:', settings.socialLinks.length);
+      logger.info('✅ Added Telegram to social links');
+      logger.info('📊 New social links count:', settings.socialLinks.length);
     } else {
       // Create new social links array with Telegram
       const newSocialLinks = [
@@ -93,8 +94,8 @@ async function addTelegramToSocialLinks() {
          socialLinks: newSocialLinks
        }, new mongoose.Types.ObjectId());
       
-      console.log('✅ Created new social links with Telegram');
-      console.log('📊 Social links count:', newSocialLinks.length);
+      logger.info('✅ Created new social links with Telegram');
+      logger.info('📊 Social links count:', newSocialLinks.length);
     }
     
     // Verify the update
@@ -102,23 +103,23 @@ async function addTelegramToSocialLinks() {
     const telegramLink = updatedSettings.socialLinks?.find(link => link.platform === 'telegram');
     
     if (telegramLink) {
-      console.log('✅ Verification successful: Telegram found in social links');
-      console.log('📱 Telegram link:', telegramLink);
+      logger.info('✅ Verification successful: Telegram found in social links');
+      logger.info('📱 Telegram link:', telegramLink);
     } else {
-      console.log('❌ Verification failed: Telegram not found in social links');
+      logger.info('❌ Verification failed: Telegram not found in social links');
     }
     
-    console.log('\n🎉 Telegram has been successfully added to social links!');
-    console.log('💡 Next steps:');
-    console.log('   1. Enable Telegram in the admin panel');
-    console.log('   2. Configure Telegram bot token and channel ID');
-    console.log('   3. Test auto-posting with real articles');
+    logger.info('\n🎉 Telegram has been successfully added to social links!');
+    logger.info('💡 Next steps:');
+    logger.info('   1. Enable Telegram in the admin panel');
+    logger.info('   2. Configure Telegram bot token and channel ID');
+    logger.info('   3. Test auto-posting with real articles');
     
   } catch (error) {
-    console.error('❌ Error adding Telegram to social links:', error);
+    logger.error('❌ Error adding Telegram to social links:', error);
   } finally {
     await mongoose.disconnect();
-    console.log('🔌 Disconnected from MongoDB');
+    logger.info('🔌 Disconnected from MongoDB');
   }
 }
 

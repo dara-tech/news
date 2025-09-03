@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import os from 'os';
 import Settings from '../models/Settings.mjs';
 import sentinelService from '../services/sentinelService.mjs';
+import logger from '../utils/logger.mjs';
 
 // @desc    Get system metrics
 // @route   GET /api/admin/system/metrics
@@ -178,7 +179,7 @@ export const updateSentinelConfig = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 export const runSentinelOnce = asyncHandler(async (req, res) => {
   try {
-    console.log('[Sentinel] Starting run-once execution...');
+    logger.info('[Sentinel] Starting run-once execution...');
     
     // Check if Gemini API key is available
     if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
@@ -192,7 +193,7 @@ export const runSentinelOnce = asyncHandler(async (req, res) => {
     const now = new Date();
     await Settings.updateCategorySettings('integrations', { sentinelLastRunAt: now }, req.user?._id);
     
-    console.log('[Sentinel] Run-once completed successfully:', result);
+    logger.info('[Sentinel] Run-once completed successfully:', result);
     res.json({ 
       success: true, 
       message: 'Sentinel executed successfully.',
@@ -203,7 +204,7 @@ export const runSentinelOnce = asyncHandler(async (req, res) => {
       }
     });
   } catch (e) {
-    console.error('[Sentinel] Run-once error:', e);
+    logger.error('[Sentinel] Run-once error:', e);
     res.status(500).json({ 
       success: false, 
       message: e.message || 'Failed to execute Sentinel',

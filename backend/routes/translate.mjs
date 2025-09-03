@@ -1,6 +1,7 @@
 import express from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { protect, admin } from '../middleware/auth.mjs';
+import logger from '../utils/logger.mjs';
 
 const router = express.Router();
 
@@ -57,7 +58,7 @@ router.post('/', protect, admin, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Translation error:', error);
+    logger.error('Translation error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to translate text',

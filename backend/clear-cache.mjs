@@ -2,21 +2,22 @@ import dotenv from 'dotenv';
 dotenv.config();
 import connectDB from './config/db.mjs';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 async function clearCache() {
   try {
-    console.log('Connecting to database...');
+    logger.info('Connecting to database...');
     await connectDB();
     
-    console.log('Clearing settings cache...');
+    logger.info('Clearing settings cache...');
     // Force a fresh fetch from database
     const settings = await Settings.getCategorySettings('general');
-    console.log('Current maintenance mode:', settings.maintenanceMode);
+    logger.info('Current maintenance mode:', settings.maintenanceMode);
     
-    console.log('Cache cleared successfully');
+    logger.info('Cache cleared successfully');
     process.exit(0);
   } catch (error) {
-    console.error('Error clearing cache:', error);
+    logger.error('Error clearing cache:', error);
     process.exit(1);
   }
 }

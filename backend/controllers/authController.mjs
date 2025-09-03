@@ -7,6 +7,7 @@ import Like from "../models/Like.mjs";
 import Follow from "../models/Follow.mjs";
 import ActivityLog from "../models/ActivityLog.mjs";
 import UserLogin from "../models/UserLogin.mjs";
+import logger from '../utils/logger.mjs';
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -52,7 +53,7 @@ const registerUser = asyncHandler(async (req, res) => {
         req
       });
     } catch (error) {
-      console.error('Failed to log registration activity:', error);
+      logger.error('Failed to log registration activity:', error);
     }
     
     res.status(201).json({
@@ -98,7 +99,7 @@ const loginUser = asyncHandler(async (req, res) => {
         req
       });
     } catch (error) {
-      console.error('Failed to log login activity:', error);
+      logger.error('Failed to log login activity:', error);
     }
 
     res.status(200).json({
@@ -126,7 +127,7 @@ const loginUser = asyncHandler(async (req, res) => {
         req
       });
     } catch (error) {
-      console.error('Failed to log failed login activity:', error);
+      logger.error('Failed to log failed login activity:', error);
     }
 
     res.status(401);
@@ -173,22 +174,22 @@ const googleAuthCallback = asyncHandler(async (req, res) => {
 
   passport.authenticate('google', { session: false }, async (err, user) => {
     if (err) {
-      console.error('Google OAuth error:', err);
+      logger.error('Google OAuth error:', err);
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       return res.redirect(`${frontendUrl}/en/login?error=google_auth_failed`);
     }
 
     try {
       if (!user) {
-        console.error('No user received from Google OAuth');
+        logger.error('No user received from Google OAuth');
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
         return res.redirect(`${frontendUrl}/en/login?error=no_user`);
       }
 
       // Generate token
       const token = generateToken(res, user);
-      console.log('✅ Google OAuth successful - Token generated for user:', user.email);
-      console.log('🔗 Redirecting to:', process.env.FRONTEND_URL || 'http://localhost:3000');
+      logger.info('✅ Google OAuth successful - Token generated for user:', user.email);
+      logger.info('🔗 Redirecting to:', process.env.FRONTEND_URL || 'http://localhost:3000');
 
       // Create user data to pass to frontend (including token)
       const userData = {
@@ -207,11 +208,11 @@ const googleAuthCallback = asyncHandler(async (req, res) => {
         ? `${baseUrl}/admin/dashboard?auth=success&user=${userDataEncoded}`
         : `${baseUrl}?auth=success&user=${userDataEncoded}`;
       
-      console.log('🎯 Final redirect URL:', redirectUrl);
+      logger.info('🎯 Final redirect URL:', redirectUrl);
       res.redirect(redirectUrl);
     } catch (error) {
-      console.error('Google OAuth error:', error);
-      console.error('Error details:', {
+      logger.error('Google OAuth error:', error);
+      logger.error('Error details:', {
         message: error.message,
         code: error.code,
         name: error.name
@@ -262,7 +263,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         req
       });
     } catch (error) {
-      console.error('Failed to log logout activity:', error);
+      logger.error('Failed to log logout activity:', error);
     }
   }
 
@@ -405,7 +406,7 @@ const dataDeletionCallback = asyncHandler(async (req, res) => {
       platform = 'unknown'
     } = req.body;
 
-    console.log('🗑️ Data Deletion Callback received:', {
+    logger.info('🗑️ Data Deletion Callback received:', {
       platform,
       userId: user_id,
       hasSignedRequest: !!signed_request,
@@ -414,7 +415,7 @@ const dataDeletionCallback = asyncHandler(async (req, res) => {
 
     // Validate the request
     if (!user_id) {
-      console.error('❌ Data deletion callback missing user_id');
+      logger.error('❌ Data deletion callback missing user_id');
       return res.status(400).json({
         url: `${process.env.FRONTEND_URL || 'https://news-eta-vert.vercel.app'}/data-deletion-status?status=error&message=missing_user_id`
       });
@@ -437,13 +438,13 @@ const dataDeletionCallback = asyncHandler(async (req, res) => {
     }
 
     if (!user) {
-      console.log('⚠️  User not found for deletion:', { user_id, platform });
+      logger.info('⚠️  User not found for deletion:', { user_id, platform });
       return res.status(200).json({
         url: `${process.env.FRONTEND_URL || 'https://news-eta-vert.vercel.app'}/data-deletion-status?status=success&message=user_not_found`
       });
     }
 
-    console.log('🗑️ Processing data deletion for user:', {
+    logger.info('🗑️ Processing data deletion for user:', {
       userId: user._id,
       email: user.email,
       platform
@@ -474,7 +475,7 @@ const dataDeletionCallback = asyncHandler(async (req, res) => {
     const successfulDeletions = deletionResults.filter(result => result.status === 'fulfilled').length;
     const failedDeletions = deletionResults.filter(result => result.status === 'rejected').length;
 
-    console.log('📊 Data deletion results:', {
+    logger.info('📊 Data deletion results:', {
       successful: successfulDeletions,
       failed: failedDeletions,
       total: deletionResults.length
@@ -501,21 +502,21 @@ const dataDeletionCallback = asyncHandler(async (req, res) => {
         req
       });
     } catch (error) {
-      console.error('Failed to log data deletion activity:', error);
+      logger.error('Failed to log data deletion activity:', error);
     }
 
     // Return success URL
     const successUrl = `${process.env.FRONTEND_URL || 'https://news-eta-vert.vercel.app'}/data-deletion-status?status=success&deleted=true&platform=${platform}`;
     
-    console.log('✅ Data deletion completed successfully');
-    console.log('🔗 Redirecting to:', successUrl);
+    logger.info('✅ Data deletion completed successfully');
+    logger.info('🔗 Redirecting to:', successUrl);
 
     res.status(200).json({
       url: successUrl
     });
 
   } catch (error) {
-    console.error('❌ Data deletion callback error:', error);
+    logger.error('❌ Data deletion callback error:', error);
     
     const errorUrl = `${process.env.FRONTEND_URL || 'https://news-eta-vert.vercel.app'}/data-deletion-status?status=error&message=${encodeURIComponent(error.message)}`;
     
@@ -555,7 +556,7 @@ const checkDataDeletionStatus = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error checking deletion status:', error);
+    logger.error('Error checking deletion status:', error);
     res.status(500).json({
       error: 'Failed to check deletion status'
     });

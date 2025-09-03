@@ -1,12 +1,11 @@
 import { getAnalyticsData } from './middleware/analytics.mjs';
-
-console.log('🔍 Testing dashboard analytics data processing...');
+import logger from '../utils/logger.mjs';
 
 // Get the raw analytics data
 const analyticsData = getAnalyticsData();
 
-console.log('📊 Raw analytics data:');
-console.log(JSON.stringify(analyticsData, null, 2));
+logger.info('📊 Raw analytics data:');
+logger.info(JSON.stringify(analyticsData, null, 2));
 
 // Test the data processing logic from dashboard controller
 const totalTraffic = Object.values(analyticsData.trafficSources).reduce((sum, count) => sum + count, 0);
@@ -23,10 +22,10 @@ const deviceBreakdown = Object.entries(analyticsData.deviceBreakdown).map(([devi
   color: ['#8884d8', '#82ca9d', '#ffc658'][index] || '#8884d8'
 }));
 
-console.log('\n🎯 Processed traffic sources:');
-console.log(JSON.stringify(trafficSourcesWithPercentage, null, 2));
+logger.info('\n🎯 Processed traffic sources:');
+logger.info(JSON.stringify(trafficSourcesWithPercentage, null, 2));
 
-console.log('\n📱 Processed device breakdown:');
-console.log(JSON.stringify(deviceBreakdown, null, 2));
+logger.info('\n📱 Processed device breakdown:');
+logger.info(JSON.stringify(deviceBreakdown, null, 2));
 
-console.log('\n✅ Analytics data processing test completed!'); 
+logger.info('\n✅ Analytics data processing test completed!'); 

@@ -1,51 +1,52 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
 async function fixLinkedInOrganization() {
-  console.log('🔗 LinkedIn Organization ID Fix Tool');
-  console.log('====================================\n');
+  logger.info('🔗 LinkedIn Organization ID Fix Tool');
+  logger.info('====================================\n');
   
   try {
     // Connect to MongoDB
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB');
+    logger.info('✅ Connected to MongoDB');
     
     // Get current settings
     const settings = await Settings.getCategorySettings('social-media');
-    console.log('📋 Current LinkedIn Configuration:');
-    console.log(`Client ID: ${settings.linkedinClientId || 'Not set'}`);
-    console.log(`Client Secret: ${settings.linkedinClientSecret ? 'Set' : 'Not set'}`);
-    console.log(`Access Token: ${settings.linkedinAccessToken ? 'Set' : 'Not set'}`);
-    console.log(`Refresh Token: ${settings.linkedinRefreshToken ? 'Set' : 'Not set'}`);
-    console.log(`Organization ID: ${settings.linkedinOrganizationId || 'Not set'}`);
-    console.log(`Enabled: ${settings.linkedinEnabled}\n`);
+    logger.info('📋 Current LinkedIn Configuration:');
+    logger.info(`Client ID: ${settings.linkedinClientId || 'Not set'}`);
+    logger.info(`Client Secret: ${settings.linkedinClientSecret ? 'Set' : 'Not set'}`);
+    logger.info(`Access Token: ${settings.linkedinAccessToken ? 'Set' : 'Not set'}`);
+    logger.info(`Refresh Token: ${settings.linkedinRefreshToken ? 'Set' : 'Not set'}`);
+    logger.info(`Organization ID: ${settings.linkedinOrganizationId || 'Not set'}`);
+    logger.info(`Enabled: ${settings.linkedinEnabled}\n`);
     
     // The correct Organization ID from your LinkedIn URL
     const correctOrganizationId = '108162812';
     
-    console.log('🎯 Found Organization ID from LinkedIn URL:');
-    console.log(`Organization ID: ${correctOrganizationId}`);
-    console.log(`LinkedIn URL: https://www.linkedin.com/company/${correctOrganizationId}/admin/dashboard/\n`);
+    logger.info('🎯 Found Organization ID from LinkedIn URL:');
+    logger.info(`Organization ID: ${correctOrganizationId}`);
+    logger.info(`LinkedIn URL: https://www.linkedin.com/company/${correctOrganizationId}/admin/dashboard/\n`);
     
     // Update the Organization ID
-    console.log('💾 Updating LinkedIn Organization ID in database...');
+    logger.info('💾 Updating LinkedIn Organization ID in database...');
     await Settings.updateCategorySettings('social-media', {
       linkedinOrganizationId: correctOrganizationId
     });
     
-    console.log('✅ Organization ID updated successfully!');
+    logger.info('✅ Organization ID updated successfully!');
     
     // Test the configuration
-    console.log('\n🧪 Testing LinkedIn configuration...');
+    logger.info('\n🧪 Testing LinkedIn configuration...');
     const updatedSettings = await Settings.getCategorySettings('social-media');
     
     if (updatedSettings.linkedinOrganizationId === correctOrganizationId) {
-      console.log('✅ Organization ID is correctly set');
+      logger.info('✅ Organization ID is correctly set');
     } else {
-      console.log('❌ Organization ID update failed');
+      logger.info('❌ Organization ID update failed');
     }
     
     // Check if we have all required credentials
@@ -56,23 +57,23 @@ async function fixLinkedInOrganization() {
     if (!updatedSettings.linkedinRefreshToken) missingCredentials.push('Refresh Token');
     
     if (missingCredentials.length > 0) {
-      console.log('\n⚠️  Missing LinkedIn credentials:');
-      missingCredentials.forEach(cred => console.log(`   - ${cred}`));
-      console.log('\n💡 You need to add these credentials to enable LinkedIn auto-posting');
+      logger.info('\n⚠️  Missing LinkedIn credentials:');
+      missingCredentials.forEach(cred => logger.info(`   - ${cred}`));
+      logger.info('\n💡 You need to add these credentials to enable LinkedIn auto-posting');
     } else {
-      console.log('\n✅ All LinkedIn credentials are configured!');
-      console.log('🎉 LinkedIn auto-posting should now work correctly');
+      logger.info('\n✅ All LinkedIn credentials are configured!');
+      logger.info('🎉 LinkedIn auto-posting should now work correctly');
     }
     
-    console.log('\n📋 Next Steps:');
-    console.log('1. Go to: Admin → System → Auto-Posting → LinkedIn');
-    console.log('2. Verify Organization ID is set to: 108162812');
-    console.log('3. Add any missing credentials (Client ID, Client Secret, etc.)');
-    console.log('4. Test the connection');
-    console.log('5. Enable LinkedIn auto-posting');
+    logger.info('\n📋 Next Steps:');
+    logger.info('1. Go to: Admin → System → Auto-Posting → LinkedIn');
+    logger.info('2. Verify Organization ID is set to: 108162812');
+    logger.info('3. Add any missing credentials (Client ID, Client Secret, etc.)');
+    logger.info('4. Test the connection');
+    logger.info('5. Enable LinkedIn auto-posting');
     
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    logger.error('❌ Error:', error.message);
   } finally {
     await mongoose.disconnect();
     process.exit(0);

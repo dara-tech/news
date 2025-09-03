@@ -17,11 +17,13 @@ import {
 import { protect, admin } from "../middleware/auth.mjs";
 import upload from "../middleware/upload.mjs";
 import { formatArticleContent } from "../utils/contentFormatter.mjs";
+import { trackPageView } from "../middleware/userTracking.mjs";
+import logger from '../utils/logger.mjs';
 
 const router = express.Router();
 
-// Debug: Log all routes being registered
-console.log('Registering news routes...');
+
+logger.info('Registering news routes...');
 
 // Public routes - specific routes first
 router.get('/', getNews);
@@ -30,13 +32,13 @@ router.get('/featured', getFeaturedNews);
 router.get('/breaking', getBreakingNews);
 router.get('/category/:category', getNewsByCategory);
 
-// Debug: Log author route registration
-console.log('Registering author route: /author/:authorId');
-console.log('getAuthorProfile function:', typeof getAuthorProfile);
+
+logger.info('Registering author route: /author/:authorId');
+logger.info('getAuthorProfile function:', typeof getAuthorProfile);
 
 // Test route to see if routing works
 router.get('/test-author', (req, res) => {
-  console.log('Author test route hit');
+  logger.info('Author test route hit');
   res.json({ message: 'Author test route working' });
 });
 
@@ -45,7 +47,7 @@ router.get('/author/:authorId', getAuthorProfile);
 router.get('/admin', protect, admin, getNewsForAdmin);
 
 // This route will handle both slugs and MongoDB ObjectIds - MUST BE LAST
-router.get('/:identifier', getNewsByIdentifier);
+router.get('/:identifier', trackPageView, getNewsByIdentifier);
 
 // Protected Admin routes
 router.post('/', protect, admin, upload.any(), createNews);
@@ -81,12 +83,12 @@ router.post('/:id/format-content', protect, admin, async (req, res) => {
       // Handle both string and object content formats
       let formattedContent;
       if (typeof content === 'string') {
-        // Single string content
+        // Single string content - assume it's English and format it
         const result = await formatContentAdvanced(content, options);
         if (result.success) {
           formattedContent = {
             en: result.content,
-            kh: result.content // For now, use same content for both languages
+            kh: '' // Don't auto-translate, let user handle Khmer separately
           };
         } else {
           return res.status(500).json({
@@ -111,7 +113,7 @@ router.post('/:id/format-content', protect, admin, async (req, res) => {
         });
       }
       
-      console.log('Formatted content structure:', JSON.stringify(formattedContent, null, 2));
+      logger.info('Formatted content structure:', JSON.stringify(formattedContent, null, 2));
       
       return res.json({
         success: true,
@@ -123,10 +125,21 @@ router.post('/:id/format-content', protect, admin, async (req, res) => {
     
     // Fallback to basic formatting
     const { formatArticleContent } = await import('../utils/contentFormatter.mjs');
-    const formatted = {
-      en: formatArticleContent(content?.en || ''),
-      kh: formatArticleContent(content?.kh || '')
-    };
+    let formatted;
+    
+    if (typeof content === 'string') {
+      // Single string - format as English only
+      formatted = {
+        en: formatArticleContent(content),
+        kh: ''
+      };
+    } else {
+      // Object with en/kh properties
+      formatted = {
+        en: formatArticleContent(content?.en || ''),
+        kh: formatArticleContent(content?.kh || '')
+      };
+    }
     
     return res.json({
       success: true,
@@ -135,7 +148,7 @@ router.post('/:id/format-content', protect, admin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Content formatting error:', error);
+    logger.error('Content formatting error:', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to format content',
@@ -171,6 +184,6 @@ router.post('/analyze-content', protect, admin, async (req, res) => {
 // Route for duplicating an article
 router.route('/:id/duplicate').post(protect, admin, duplicateNews);
 
-console.log('News routes registered successfully');
+logger.info('News routes registered successfully');
 
 export default router;

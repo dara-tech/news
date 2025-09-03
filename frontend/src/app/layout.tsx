@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Kantumruy_Pro } from 'next/font/google';
 import './globals.css';
 import AppProviders from "@/components/layout/AppProviders";
+import AdSenseScript from "@/components/adsense/AdSenseScript";
 
 const kantumruyPro = Kantumruy_Pro({
   variable: '--font-kantumruy-pro',
@@ -69,6 +70,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontVariables} antialiased`}>
+        <AdSenseScript />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

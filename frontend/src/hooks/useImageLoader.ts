@@ -92,8 +92,10 @@ export const getArticleImage = (article: any): string | null => {
   if (article.thumbnail) {
     // Check if thumbnail is a valid image URL (not a text description)
     if (article.thumbnail.startsWith('http://') || article.thumbnail.startsWith('https://') || article.thumbnail.startsWith('/')) {
-      // Additional validation: check if it's not a long text description
-      if (article.thumbnail.length < 200 && !article.thumbnail.includes(' ')) {
+      // Allow placeholder images and Cloudinary images
+      if (article.thumbnail.includes('via.placeholder.com') || 
+          article.thumbnail.includes('res.cloudinary.com') ||
+          (article.thumbnail.length < 200 && !article.thumbnail.includes(' '))) {
         return article.thumbnail;
       }
     }
@@ -111,6 +113,10 @@ export const getArticleImage = (article: any): string | null => {
 export const getArticleImageUrl = (article: any): string | null => {
   const imagePath = getArticleImage(article);
   if (imagePath) {
+    // If it's already a full URL, return it as-is
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
     return getFullImageUrl(imagePath);
   }
   

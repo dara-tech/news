@@ -2,14 +2,15 @@ import 'dotenv/config';
 import connectDB from './config/db.mjs';
 import sentinelService from './services/sentinelService.mjs';
 import News from './models/News.mjs';
+import logger from '../utils/logger.mjs';
 
 (async () => {
   try {
     await connectDB();
     const start = new Date();
-    console.log('[Test] Running Sentinel once (persist)...');
+    logger.info('[Test] Running Sentinel once (persist)...');
     const result = await sentinelService.runOnce({ persistOverride: true });
-    console.log('[Test] Result:', result);
+    logger.info('[Test] Result:', result);
 
     // Wait briefly for DB writes to settle
     await new Promise(r => setTimeout(r, 1000));
@@ -20,9 +21,9 @@ import News from './models/News.mjs';
       .select({ 'title.en': 1, 'title.kh': 1, thumbnail: 1, 'source.name': 1, 'source.url': 1, 'ingestion.method': 1, createdAt: 1 })
       .lean();
 
-    console.log('[Test] Recently created drafts:');
+    logger.info('[Test] Recently created drafts:');
     for (const doc of recent) {
-      console.log({
+      logger.info({
         title_en: doc?.title?.en,
         title_kh: doc?.title?.kh,
         thumbnail: doc?.thumbnail,
@@ -35,7 +36,7 @@ import News from './models/News.mjs';
 
     process.exit(0);
   } catch (e) {
-    console.error('[Test] Error:', e);
+    logger.error('[Test] Error:', e);
     process.exit(1);
   }
 })();

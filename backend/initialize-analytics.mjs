@@ -1,6 +1,7 @@
 import { trackPageView, getAnalyticsData, resetAnalyticsData } from './middleware/analytics.mjs';
+import logger from '../utils/logger.mjs';
 
-console.log('🚀 Initializing analytics with test data...');
+logger.info('🚀 Initializing analytics with test data...');
 
 // Reset analytics data
 resetAnalyticsData();
@@ -26,7 +27,7 @@ const simulateRequest = (path, referer, userAgent) => {
 };
 
 // Generate realistic test data
-console.log('📊 Generating test traffic...');
+logger.info('📊 Generating test traffic...');
 
 // Direct traffic (40% - users typing URL directly)
 for (let i = 0; i < 20; i++) {
@@ -58,6 +59,6 @@ for (let i = 0; i < 15; i++) {
   simulateRequest(`/tablet-${i}`, null, 'Mozilla/5.0 (iPad; CPU OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15');
 }
 
-console.log('✅ Analytics initialized with test data!');
-console.log('📊 Current analytics data:');
-console.log(JSON.stringify(getAnalyticsData(), null, 2)); 
+logger.info('✅ Analytics initialized with test data!');
+logger.info('📊 Current analytics data:');
+logger.info(JSON.stringify(getAnalyticsData(), null, 2)); 

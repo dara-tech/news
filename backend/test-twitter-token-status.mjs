@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import Settings from './models/Settings.mjs';
 import axios from 'axios';
 import crypto from 'crypto';
+import logger from '../utils/logger.mjs';
 
 dotenv.config();
 
@@ -15,34 +16,32 @@ function generateOAuthSignature(method, url, params, consumerSecret, tokenSecret
 }
 
 async function testTwitterTokenStatus() {
-  console.log('🐦 Twitter Token Status Check');
-  console.log('=============================\n');
+  logger.info('🐦 Twitter Token Status Check');
+  logger.info('=============================\n');
   
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    logger.info('✅ Connected to MongoDB\n');
     
     const settings = await Settings.getCategorySettings('social-media');
     
-    console.log('📋 Twitter Configuration:');
-    console.log('==========================\n');
-    console.log(`API Key: ${settings.twitterApiKey ? '✅ Set' : '❌ Not set'}`);
-    console.log(`API Secret: ${settings.twitterApiSecret ? '✅ Set' : '❌ Not set'}`);
-    console.log(`Access Token: ${settings.twitterAccessToken ? '✅ Set' : '❌ Not set'}`);
-    console.log(`Access Token Secret: ${settings.twitterAccessTokenSecret ? '✅ Set' : '❌ Not set'}`);
-    console.log(`Enabled: ${settings.twitterEnabled ? '✅ Yes' : '❌ No'}\n`);
+    logger.info('📋 Twitter Configuration:');
+    logger.info('==========================\n');
+    logger.info(`API Key: ${settings.twitterApiKey ? '✅ Set' : '❌ Not set'}`);
+    logger.info(`API Secret: ${settings.twitterApiSecret ? '✅ Set' : '❌ Not set'}`);
+    logger.info(`Access Token: ${settings.twitterAccessToken ? '✅ Set' : '❌ Not set'}`);
+    logger.info(`Access Token Secret: ${settings.twitterAccessTokenSecret ? '✅ Set' : '❌ Not set'}`);
+    logger.info(`Enabled: ${settings.twitterEnabled ? '✅ Yes' : '❌ No'}\n`);
     
     if (!settings.twitterApiKey || !settings.twitterApiSecret || !settings.twitterAccessToken || !settings.twitterAccessTokenSecret) {
-      console.log('❌ Missing Twitter credentials');
-      console.log('💡 Please configure all Twitter credentials first\n');
+      logger.info('❌ Missing Twitter credentials');
+      logger.info('💡 Please configure all Twitter credentials first\n');
       return;
     }
     
-    console.log('🔍 Testing Twitter Token Status...\n');
-    
     // Test 1: Check if token is expired by testing user info
-    console.log('📋 Test 1: Token Validity Check');
-    console.log('===============================');
+    logger.info('📋 Test 1: Token Validity Check');
+    logger.info('===============================');
     
     try {
       const timestamp = Math.floor(Date.now() / 1000);
@@ -69,14 +68,14 @@ async function testTwitterTokenStatus() {
         }
       });
       
-      console.log('✅ Token is VALID!');
-      console.log(`User ID: ${response.data.data.id}`);
-      console.log(`Username: @${response.data.data.username}`);
-      console.log(`Name: ${response.data.data.name}\n`);
+      logger.info('✅ Token is VALID!');
+      logger.info(`User ID: ${response.data.data.id}`);
+      logger.info(`Username: @${response.data.data.username}`);
+      logger.info(`Name: ${response.data.data.name}\n`);
       
       // Test 2: Try to post a test tweet
-      console.log('📋 Test 2: Posting Test');
-      console.log('=======================');
+      logger.info('📋 Test 2: Posting Test');
+      logger.info('=======================');
       
       try {
         const tweetText = `🧪 Twitter Token Test - ${new Date().toLocaleString()}`;
@@ -103,47 +102,47 @@ async function testTwitterTokenStatus() {
           }
         });
         
-        console.log('✅ Tweet posted successfully!');
-        console.log(`Tweet ID: ${tweetResponse.data.data.id}`);
-        console.log(`Text: ${tweetResponse.data.data.text}\n`);
+        logger.info('✅ Tweet posted successfully!');
+        logger.info(`Tweet ID: ${tweetResponse.data.data.id}`);
+        logger.info(`Text: ${tweetResponse.data.data.text}\n`);
         
       } catch (tweetError) {
         if (tweetError.response?.status === 429) {
-          console.log('⚠️  Rate limited (429) - Token is valid but too many requests');
-          console.log('💡 Wait a few minutes and try again\n');
+          logger.info('⚠️  Rate limited (429) - Token is valid but too many requests');
+          logger.info('💡 Wait a few minutes and try again\n');
         } else if (tweetError.response?.status === 403) {
-          console.log('❌ Permission denied (403) - Token may have insufficient permissions');
-          console.log(`Error: ${tweetError.response?.data?.detail || tweetError.message}\n`);
+          logger.info('❌ Permission denied (403) - Token may have insufficient permissions');
+          logger.info(`Error: ${tweetError.response?.data?.detail || tweetError.message}\n`);
         } else {
-          console.log('❌ Tweet posting failed:');
-          console.log(`Status: ${tweetError.response?.status}`);
-          console.log(`Error: ${tweetError.response?.data?.detail || tweetError.message}\n`);
+          logger.info('❌ Tweet posting failed:');
+          logger.info(`Status: ${tweetError.response?.status}`);
+          logger.info(`Error: ${tweetError.response?.data?.detail || tweetError.message}\n`);
         }
       }
       
     } catch (error) {
       if (error.response?.status === 401) {
-        console.log('❌ Token is EXPIRED or INVALID');
-        console.log('💡 You need to regenerate your Twitter tokens\n');
+        logger.info('❌ Token is EXPIRED or INVALID');
+        logger.info('💡 You need to regenerate your Twitter tokens\n');
       } else if (error.response?.status === 429) {
-        console.log('⚠️  Rate limited (429) - Token is valid but too many requests');
-        console.log('💡 Wait a few minutes and try again\n');
+        logger.info('⚠️  Rate limited (429) - Token is valid but too many requests');
+        logger.info('💡 Wait a few minutes and try again\n');
       } else {
-        console.log('❌ Token validation failed:');
-        console.log(`Status: ${error.response?.status}`);
-        console.log(`Error: ${error.response?.data?.detail || error.message}\n`);
+        logger.info('❌ Token validation failed:');
+        logger.info(`Status: ${error.response?.status}`);
+        logger.info(`Error: ${error.response?.data?.detail || error.message}\n`);
       }
     }
     
-    console.log('🎯 Summary:');
-    console.log('===========');
-    console.log('✅ Twitter credentials are properly configured');
-    console.log('✅ OAuth 1.0a authentication is set up correctly');
-    console.log('⚠️  Rate limiting is the main issue, not token expiration');
-    console.log('💡 Your tokens are likely valid, just respect rate limits\n');
+    logger.info('🎯 Summary:');
+    logger.info('===========');
+    logger.info('✅ Twitter credentials are properly configured');
+    logger.info('✅ OAuth 1.0a authentication is set up correctly');
+    logger.info('⚠️  Rate limiting is the main issue, not token expiration');
+    logger.info('💡 Your tokens are likely valid, just respect rate limits\n');
     
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
+    logger.error('❌ Test failed:', error.message);
   } finally {
     await mongoose.disconnect();
     process.exit(0);

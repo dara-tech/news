@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Follow from '../models/Follow.mjs';
 import User from '../models/User.mjs';
 import Notification from '../models/Notification.mjs';
+import logger from '../utils/logger.mjs';
 
 // @desc    Follow a user
 // @route   POST /api/follows/:userId
@@ -55,7 +56,7 @@ const followUser = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error creating follow notification:', error);
+    logger.error('Error creating follow notification:', error);
   }
 
   res.status(201).json({
@@ -145,7 +146,7 @@ const toggleFollow = asyncHandler(async (req, res) => {
         }
       });
     } catch (error) {
-      console.error('Error creating follow notification:', error);
+      logger.error('Error creating follow notification:', error);
     }
 
     res.status(201).json({

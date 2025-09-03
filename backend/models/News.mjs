@@ -84,6 +84,50 @@ const newsSchema = new mongoose.Schema(
       cost: { type: Number },   // estimated token/$ if available
       retries: { type: Number, default: 0 },
     },
+    // Data quality assessment (optional)
+    qualityAssessment: {
+      overallScore: { type: Number, min: 0, max: 100 },
+      qualityGrade: { type: String, enum: ['excellent', 'good', 'acceptable', 'poor', 'unacceptable'] },
+      factorScores: {
+        contentAccuracy: {
+          score: { type: Number, min: 0, max: 100 },
+          confidence: { type: String, enum: ['low', 'medium', 'high'] }
+        },
+        sourceReliability: {
+          score: { type: Number, min: 0, max: 100 },
+          confidence: { type: String, enum: ['low', 'medium', 'high'] }
+        },
+        contentCompleteness: {
+          score: { type: Number, min: 0, max: 100 },
+          missingElements: [{ type: String }]
+        },
+        languageQuality: {
+          score: { type: Number, min: 0, max: 100 },
+          issues: [{ type: String }]
+        },
+        relevanceScore: {
+          score: { type: Number, min: 0, max: 100 },
+          matchedCategories: [{ type: String }]
+        },
+        uniquenessScore: {
+          score: { type: Number, min: 0, max: 100 },
+          duplicateFactors: [{ type: String }]
+        }
+      },
+      recommendations: [{
+        category: { type: String },
+        priority: { type: String, enum: ['low', 'medium', 'high'] },
+        suggestion: { type: String },
+        impact: { type: String }
+      }],
+      riskFactors: [{
+        level: { type: String, enum: ['low', 'medium', 'high'] },
+        factor: { type: String },
+        description: { type: String },
+        mitigation: { type: String }
+      }],
+      assessedAt: { type: Date, default: Date.now }
+    },
 
   },
   {

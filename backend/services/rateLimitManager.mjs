@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Settings from '../models/Settings.mjs';
+import logger from '../utils/logger.mjs';
 
 class RateLimitManager {
   constructor() {
@@ -142,7 +143,7 @@ class RateLimitManager {
     // Store updated data
     this.rateLimits.set(platformKey, rateLimitData);
 
-    console.log(`📊 Rate limit updated for ${platform}: ${rateLimitData.hourlyPosts.length}/${this.getRateLimitConfig(platform).postsPerHour} hourly posts`);
+    logger.info(`📊 Rate limit updated for ${platform}: ${rateLimitData.hourlyPosts.length}/${this.getRateLimitConfig(platform).postsPerHour} hourly posts`);
   }
 
   /**
@@ -159,7 +160,7 @@ class RateLimitManager {
     const baseDelay = config.retryDelay;
     const delay = baseDelay * Math.pow(2, attempt - 1);
     
-    console.log(`⏳ Rate limit hit for ${platform}. Waiting ${delay / 1000} seconds before retry ${attempt}/${config.maxRetries}`);
+    logger.info(`⏳ Rate limit hit for ${platform}. Waiting ${delay / 1000} seconds before retry ${attempt}/${config.maxRetries}`);
     
     await this.sleep(delay);
     
@@ -215,7 +216,7 @@ class RateLimitManager {
   resetRateLimits(platform) {
     const platformKey = `${platform}_rate_limit`;
     this.rateLimits.delete(platformKey);
-    console.log(`🔄 Rate limits reset for ${platform}`);
+    logger.info(`🔄 Rate limits reset for ${platform}`);
   }
 
   /**

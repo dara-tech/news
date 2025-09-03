@@ -11,6 +11,8 @@ import { fileURLToPath } from "url"
 import connectDB from "./config/db.mjs"
 import connectCloudinary from "./utils/cloudinary.mjs"
 import errorHandler from "./middleware/error.mjs"
+import logger from "./utils/logger.mjs"
+import { securityHeaders, apiRateLimit, authRateLimit, requestLogger } from "./middleware/security.mjs"
 import authRoutes from "./routes/auth.mjs"
 import userRoutes from "./routes/users.mjs"
 import newsRoutes from "./routes/news.mjs"
@@ -34,12 +36,18 @@ import seoRoutes from "./routes/seo.mjs"
 import autoPublishRoutes from "./routes/autoPublish.mjs"
 import translateRoutes from "./routes/translate.mjs"
 import sentinelRoutes from "./routes/sentinel.mjs"
+import tokenManagerRoutes from "./routes/tokenManager.mjs"
+import dataQualityRoutes from "./routes/dataQualityTest.mjs"
+import apiKeyManagementRoutes from "./routes/apiKeyManagement.mjs"
+import enterpriseAnalyticsRoutes from "./routes/enterpriseAnalyticsTest.mjs"
+import frontendSettingsRoutes from "./routes/frontendSettingsTest.mjs"
 // AI routes removed - now frontend-only
 import sourcesRoutes from "./routes/sources.mjs"
 import http from 'http';
 import https from 'https';
 import CommentWebSocket from './websocket.mjs';
 import sentinelService from './services/sentinelService.mjs';
+import tokenManager from './services/tokenManager.mjs';
 
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -60,6 +68,10 @@ const app = express()
 
 // Trust first proxy (important for production with HTTPS and real IP detection)
 app.set('trust proxy', true);
+
+// Security middleware
+app.use(securityHeaders);
+app.use(requestLogger);
 
 // Middleware
 app.use(express.json({ limit: "10mb" }))
@@ -128,20 +140,20 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
-      console.log('CORS: Allowing request with no origin');
+      logger.info('CORS: Allowing request with no origin');
       return callback(null, true);
     }
     
-    console.log(`CORS: Checking origin: ${origin}`);
+    logger.info(`CORS: Checking origin: ${origin}`);
     
     const isAllowed = allowedOrigins.some(pattern => {
       if (typeof pattern === 'string') {
         const matches = pattern === origin;
-        if (matches) console.log(`CORS: Matched string pattern: ${pattern}`);
+        if (matches) logger.info(`CORS: Matched string pattern: ${pattern}`);
         return matches;
       } else if (pattern instanceof RegExp) {
         const matches = pattern.test(origin);
-        if (matches) console.log(`CORS: Matched regex pattern: ${pattern}`);
+        if (matches) logger.info(`CORS: Matched regex pattern: ${pattern}`);
         return matches;
       }
       return false;
@@ -149,11 +161,11 @@ const corsOptions = {
 
     if (!isAllowed) {
       const msg = `CORS: Origin ${origin} not allowed. Allowed origins: ${allowedOrigins.map(o => typeof o === 'string' ? o : o.toString()).join(', ')}`;
-      console.error(msg);
+      logger.error(msg);
       return callback(new Error(msg), false);
     }
     
-    console.log(`CORS: Origin ${origin} allowed`);
+    logger.info(`CORS: Origin ${origin} allowed`);
     return callback(null, true);
   },
   credentials: true, // Required for cookies
@@ -176,7 +188,9 @@ app.use((req, res, next) => {
 
 // Logging middleware
 if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"))
+  app.use(morgan("combined", { stream: logger.stream }))
+} else {
+  app.use(morgan("combined", { stream: logger.stream }))
 }
 
 // Health check endpoint
@@ -197,7 +211,7 @@ app.use('/api', trackPageView);
 
 // Test route at the very beginning
 app.get('/api/test-simple', (req, res) => {
-  console.log('🎯 SIMPLE TEST ROUTE CALLED');
+  logger.info('🎯 SIMPLE TEST ROUTE CALLED');
   res.json({ success: true, message: 'Simple test route working!' });
 });
 
@@ -216,9 +230,9 @@ app.get("/api/maintenance-status", async (req, res) => {
       key: 'maintenanceMode' 
     });
     
-    console.log('Maintenance setting from DB:', maintenanceSetting);
+    logger.info('Maintenance setting from DB:', maintenanceSetting);
     const isMaintenanceMode = maintenanceSetting?.value === true;
-    console.log('Is maintenance mode:', isMaintenanceMode);
+    logger.info('Is maintenance mode:', isMaintenanceMode);
     
     // Check if user is authenticated and is admin
     let isAdmin = false;
@@ -244,7 +258,7 @@ app.get("/api/maintenance-status", async (req, res) => {
       canAccess: isAdmin || !isMaintenanceMode
     });
   } catch (error) {
-    console.error('Error checking maintenance status:', error);
+    logger.error('Error checking maintenance status:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to check maintenance status'
@@ -262,10 +276,10 @@ app.get("/api/test-maintenance", (req, res) => {
   });
 });
 
-// API routes
-app.use("/api/auth", authRoutes)
-app.use("/api/users", userRoutes)
-app.use("/api/news", newsRoutes)
+// API routes with rate limiting
+app.use("/api/auth", authRateLimit, authRoutes)
+app.use("/api/users", apiRateLimit, userRoutes)
+app.use("/api/news", apiRateLimit, newsRoutes)
 app.use("/api/categories", categoryRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/api/notifications", notificationRoutes)
@@ -337,14 +351,14 @@ app.get("/api/settings/public/social-media", async (req, res) => {
       ];
     }
     
-    console.log('Retrieved public social media settings:', settings);
+    logger.info('Retrieved public social media settings:', settings);
     
     res.json({
       success: true,
       settings
     });
   } catch (error) {
-    console.error('Error fetching public social media settings:', error);
+    logger.error('Error fetching public social media settings:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch social media settings'
@@ -360,6 +374,11 @@ app.use("/api/admin/seo", seoRoutes)
 app.use("/api/admin/auto-publish", autoPublishRoutes)
 app.use("/api/translate", translateRoutes)
 app.use("/api/sentinel", sentinelRoutes)
+app.use("/api/admin/tokens", tokenManagerRoutes)
+app.use("/api/admin/data-quality", dataQualityRoutes)
+app.use("/api/admin/api-keys", apiKeyManagementRoutes)
+app.use("/api/admin/analytics", enterpriseAnalyticsRoutes)
+app.use("/api/admin/frontend-settings", frontendSettingsRoutes)
 app.use("/api/analytics", analyticsRoutes)
 
 // AI routes
@@ -418,7 +437,7 @@ import { createServer } from 'http';
 const server = createServer(app);
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 })
 
 // Initialize WebSocket for real-time comments
@@ -441,6 +460,11 @@ setTimeout(() => {
   sentinelService.start();
 }, 2000);
 
+// Start Token Manager
+setTimeout(() => {
+  tokenManager.start();
+}, 3000);
+
 // --- Auto-Reload (Keep-Alive) Ping ---
 // Fix: Always ping the deployed Render URL, not the current server's own URL.
 // This keeps the Render instance alive, regardless of which deployment is running this code.
@@ -452,11 +476,11 @@ function pingRender() {
   const url = RENDER_URL;
   const isHttps = url.startsWith('https://');
   const protocol = isHttps ? https : http;
-  console.log(`[${new Date().toISOString()}] 🔄 Pinging Render at: ${url}`);
+  logger.info(`[${new Date().toISOString()}] 🔄 Pinging Render at: ${url}`);
   protocol.get(url, (res) => {
-    console.log(`[${new Date().toISOString()}] 🔄 Render ping status: ${res.statusCode}`);
+    logger.info(`[${new Date().toISOString()}] 🔄 Render ping status: ${res.statusCode}`);
   }).on("error", (err) => {
-    console.log(`[${new Date().toISOString()}] ❌ Render ping failed: ${err.message}`);
+    logger.info(`[${new Date().toISOString()}] ❌ Render ping failed: ${err.message}`);
   });
 }
 
@@ -470,28 +494,28 @@ if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "developme
 // Graceful shutdown - only in production
 if (process.env.NODE_ENV === 'production') {
   process.on('SIGTERM', () => {
-    console.log('SIGTERM received, shutting down gracefully');
+    logger.info('SIGTERM received, shutting down gracefully');
     server.close(() => {
-      console.log('Process terminated');
+      logger.info('Process terminated');
     });
   });
 
   process.on('SIGINT', () => {
-    console.log('SIGINT received, shutting down gracefully');
+    logger.info('SIGINT received, shutting down gracefully');
     server.close(() => {
-      console.log('Process terminated');
+      logger.info('Process terminated');
     });
   });
 } else {
   // In development, ignore SIGINT to keep server running
   process.on('SIGINT', () => {
-    console.log('SIGINT received in development mode - ignoring to keep server running');
-    console.log('Use Ctrl+C again to force quit, or stop the process manually');
+    logger.info('SIGINT received in development mode - ignoring to keep server running');
+    logger.info('Use Ctrl+C again to force quit, or stop the process manually');
   });
   
   // Also ignore SIGTERM in development
   process.on('SIGTERM', () => {
-    console.log('SIGTERM received in development mode - ignoring to keep server running');
+    logger.info('SIGTERM received in development mode - ignoring to keep server running');
   });
 }
 

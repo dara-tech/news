@@ -1,4 +1,5 @@
 import { getAnalytics } from './controllers/dashboardController.mjs';
+import logger from '../utils/logger.mjs';
 
-console.log('getAnalytics function:', typeof getAnalytics);
-console.log('Import successful!'); 
+logger.info('getAnalytics function:', typeof getAnalytics);
+logger.info('Import successful!'); 

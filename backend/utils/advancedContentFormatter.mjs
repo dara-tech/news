@@ -4,6 +4,8 @@
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { cleanContent } from './contentCleaner.mjs';
+import logger from '../utils/logger.mjs';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -29,7 +31,8 @@ export const formattingOptions = {
  */
 export async function formatContentAdvanced(content, options = formattingOptions) {
   try {
-    let formattedContent = content;
+    // Step 0: Clean content first to remove unwanted HTML structure
+    let formattedContent = cleanContent(content);
 
     // Step 1: Basic HTML formatting
     if (!options.preserveOriginalStructure) {
@@ -77,7 +80,7 @@ export async function formatContentAdvanced(content, options = formattingOptions
       analysis: options.enableContentAnalysis ? await analyzeContent(formattedContent) : null
     };
   } catch (error) {
-    console.error('Error in advanced content formatting:', error);
+    logger.error('Error in advanced content formatting:', error);
     return {
       success: false,
       error: error.message,
@@ -113,7 +116,7 @@ async function enhanceContentWithAI(content) {
     const response = await result.response;
     return response.text().trim();
   } catch (error) {
-    console.error('AI enhancement failed:', error);
+    logger.error('AI enhancement failed:', error);
     return content; // Return original content if AI fails
   }
 }
@@ -316,7 +319,7 @@ async function analyzeContent(content) {
 
     return analysis;
   } catch (error) {
-    console.error('Content analysis failed:', error);
+    logger.error('Content analysis failed:', error);
     return null;
   }
 }
