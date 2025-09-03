@@ -1677,15 +1677,15 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       const cleanedContent = cleanContent(content);
       
       const formattingOptions = {
-        enableAIEnhancement: true,
+        enableAIEnhancement: false, // Disable AI enhancement to avoid API key issues
         enableReadabilityOptimization: true,
         enableSEOOptimization: true,
         enableVisualEnhancement: true,
         addSectionHeadings: true,
         enhanceQuotes: true,
         optimizeLists: true,
-        enableContentAnalysis: true,
-        addKeyPoints: true,
+        enableContentAnalysis: false, // Disable AI analysis
+        addKeyPoints: false, // Disable AI features
         enhanceStructure: true
       };
 

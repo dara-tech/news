@@ -88,6 +88,11 @@ export function useGenerateContent() {
       // Remove markdown code blocks if present
       jsonString = jsonString.replace(/```json\s*|\s*```/g, '');
       
+      // Clean up any remaining markdown artifacts
+      jsonString = jsonString.replace(/```html\s*|\s*```/g, '');
+      jsonString = jsonString.replace(/Background\s*/gi, '');
+      jsonString = jsonString.replace(/ផ្ទៃខាងក្រោយ\s*/gi, '');
+      
       // Find JSON object boundaries
       const jsonStart = jsonString.indexOf('{');
       const jsonEnd = jsonString.lastIndexOf('}');

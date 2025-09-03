@@ -44,6 +44,34 @@ export function cleanContent(content) {
     changes.push('removed </html> tag');
   }
 
+  // Remove specific problematic text patterns that appear in content
+  cleaned = cleaned.replace(/Former U\. S\. Background\s*/gi, '');
+  if (cleaned !== content) { changes.push('removed "Former U.S. Background" text'); }
+  
+  // Remove "Background" text in HTML tags (like <h2>Background</h2>)
+  cleaned = cleaned.replace(/<[^>]*>Background\s*<\/[^>]*>/gi, '');
+  if (cleaned !== content) { changes.push('removed "Background" text in HTML tags'); }
+  
+  // Also remove standalone "Background" text that might be left over
+  cleaned = cleaned.replace(/\bBackground\b\s*/gi, '');
+  if (cleaned !== content) { changes.push('removed standalone "Background" text'); }
+  
+  // Remove "Background" at the beginning of content
+  cleaned = cleaned.replace(/^Background\s*/gi, '');
+  if (cleaned !== content) { changes.push('removed "Background" text from beginning'); }
+  
+  // Remove Khmer "Background" text (ផ្ទៃខាងក្រោយ)
+  cleaned = cleaned.replace(/ផ្ទៃខាងក្រោយ\s*/gi, '');
+  if (cleaned !== content) { changes.push('removed Khmer "Background" text'); }
+  
+  // Remove triple quotes at the end
+  cleaned = cleaned.replace(/'''\s*$/g, '');
+  if (cleaned !== content) { changes.push('removed triple quotes at end'); }
+  
+  // Remove double triple quotes
+  cleaned = cleaned.replace(/"""/g, '');
+  if (cleaned !== content) { changes.push('removed double triple quotes'); }
+
   // Remove markdown code blocks
   cleaned = cleaned.replace(/```html\s*/gi, '');
   cleaned = cleaned.replace(/```\s*$/gi, '');

@@ -29,55 +29,58 @@ export const formattingOptions = {
 /**
  * Format content with advanced options
  */
-export async function formatContentAdvanced(content, options = formattingOptions) {
+export async function formatContentAdvanced(content, options = {}) {
   try {
+    // Merge options with defaults
+    const mergedOptions = { ...formattingOptions, ...options };
+    
     // Step 0: Clean content first to remove unwanted HTML structure
     let formattedContent = cleanContent(content);
 
     // Step 1: Basic HTML formatting
-    if (!options.preserveOriginalStructure) {
+    if (!mergedOptions.preserveOriginalStructure) {
       formattedContent = formatArticleContent(formattedContent);
     }
 
     // Step 2: AI Enhancement
-    if (options.enableAIEnhancement) {
+    if (mergedOptions.enableAIEnhancement) {
       formattedContent = await enhanceContentWithAI(formattedContent);
     }
 
     // Step 3: Readability Optimization
-    if (options.enableReadabilityOptimization) {
+    if (mergedOptions.enableReadabilityOptimization) {
       formattedContent = optimizeReadability(formattedContent);
     }
 
     // Step 4: SEO Optimization
-    if (options.enableSEOOptimization) {
+    if (mergedOptions.enableSEOOptimization) {
       formattedContent = optimizeSEO(formattedContent);
     }
 
     // Step 5: Visual Enhancement
-    if (options.enableVisualEnhancement) {
+    if (mergedOptions.enableVisualEnhancement) {
       formattedContent = enhanceVisualElements(formattedContent);
     }
 
     // Step 6: Add section headings if requested
-    if (options.addSectionHeadings) {
+    if (mergedOptions.addSectionHeadings) {
       formattedContent = addSectionHeadings(formattedContent);
     }
 
     // Step 7: Enhance quotes
-    if (options.enhanceQuotes) {
+    if (mergedOptions.enhanceQuotes) {
       formattedContent = enhanceQuotes(formattedContent);
     }
 
     // Step 8: Optimize lists
-    if (options.optimizeLists) {
+    if (mergedOptions.optimizeLists) {
       formattedContent = optimizeLists(formattedContent);
     }
 
     return {
       success: true,
       content: formattedContent,
-      analysis: options.enableContentAnalysis ? await analyzeContent(formattedContent) : null
+      analysis: mergedOptions.enableContentAnalysis ? await analyzeContent(formattedContent) : null
     };
   } catch (error) {
     logger.error('Error in advanced content formatting:', error);
@@ -503,17 +506,52 @@ function formatArticleContent(content) {
     return '';
   }
 
-  const cleanContent = content.replace(/<[^>]*>/g, '').trim();
+  // First clean the content to remove unwanted HTML
+  let cleanContent = content.replace(/<[^>]*>/g, '').trim();
+  
+  // Remove specific problematic patterns
+  cleanContent = cleanContent.replace(/Former U\. S\. Background\s*/gi, '');
+  cleanContent = cleanContent.replace(/^Background\s*/gi, '');
+  cleanContent = cleanContent.replace(/'''\s*$/g, '');
+  cleanContent = cleanContent.replace(/"""/g, '');
   
   if (!cleanContent) {
     return '';
   }
 
-  // Split content into paragraphs
-  const paragraphs = cleanContent.split(/\n\s*\n/).filter(p => p.trim());
+  // Split content into sentences first
+  const sentences = cleanContent.split(/[.!?]+/).filter(s => s.trim().length > 10);
   
-  if (paragraphs.length === 0) {
+  if (sentences.length === 0) {
     return `<p>${cleanContent}</p>`;
+  }
+
+  // Group sentences into paragraphs (3-4 sentences per paragraph)
+  const paragraphs = [];
+  let currentParagraph = '';
+  
+  for (let i = 0; i < sentences.length; i++) {
+    const sentence = sentences[i].trim();
+    if (!sentence) continue;
+    
+    // Add period if missing
+    const cleanSentence = sentence.endsWith('.') ? sentence : sentence + '.';
+    
+    if (currentParagraph.length + cleanSentence.length > 500 || 
+        (currentParagraph && currentParagraph.split('.').length >= 3)) {
+      // Start new paragraph
+      if (currentParagraph) {
+        paragraphs.push(currentParagraph.trim());
+      }
+      currentParagraph = cleanSentence;
+    } else {
+      currentParagraph += (currentParagraph ? ' ' : '') + cleanSentence;
+    }
+  }
+  
+  // Add the last paragraph
+  if (currentParagraph) {
+    paragraphs.push(currentParagraph.trim());
   }
 
   // Process paragraphs with better structure
@@ -522,7 +560,7 @@ function formatArticleContent(content) {
     
     if (!trimmedParagraph) return '';
     
-    // Check if this looks like a heading
+    // Check if this looks like a heading (first paragraph, short, or contains key words)
     if (isHeading(trimmedParagraph, index)) {
       return `<h2>${trimmedParagraph}</h2>`;
     }
@@ -561,7 +599,7 @@ function isHeading(text, index) {
   if (trimmed.length < 60 && trimmed === trimmed.toUpperCase()) return true;
   
   // Text that starts with common heading words
-  const headingWords = ['breaking', 'update', 'latest', 'news', 'report', 'analysis', 'summary', 'background', 'conclusion'];
+  const headingWords = ['breaking', 'update', 'latest', 'news', 'report', 'analysis', 'summary', 'conclusion'];
   const lowerText = trimmed.toLowerCase();
   return headingWords.some(word => lowerText.startsWith(word));
 }

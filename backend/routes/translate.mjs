@@ -2,6 +2,7 @@ import express from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { protect, admin } from '../middleware/auth.mjs';
 import logger from '../utils/logger.mjs';
+import { cleanContent } from '../utils/contentCleaner.mjs';
 
 const router = express.Router();
 
@@ -32,13 +33,16 @@ router.post('/', protect, admin, async (req, res) => {
     const sourceLanguage = targetLanguage === 'kh' ? 'English' : 'Khmer';
     const targetLang = targetLanguage === 'kh' ? 'Khmer' : 'English';
 
+    // Clean the content before translation to remove markdown blocks and formatting issues
+    const cleanedText = cleanContent(text);
+
     const prompt = `
       Translate the following ${sourceLanguage} text to ${targetLang}. 
       Maintain the original meaning, tone, and context. 
-      If the text contains HTML tags, preserve them in the translation.
+      Use proper paragraph structure and formatting.
       
       ${sourceLanguage} text:
-      ${text}
+      ${cleanedText}
       
       Please provide only the ${targetLang} translation without any additional text or explanations.
     `;

@@ -48,6 +48,8 @@ import https from 'https';
 import CommentWebSocket from './websocket.mjs';
 import sentinelService from './services/sentinelService.mjs';
 import tokenManager from './services/tokenManager.mjs';
+import integrationService from './services/integrationService.mjs';
+import enhancedSecurityMiddleware from './middleware/enhancedSecurity.mjs';
 
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -69,9 +71,11 @@ const app = express()
 // Trust first proxy (important for production with HTTPS and real IP detection)
 app.set('trust proxy', true);
 
-// Security middleware
-app.use(securityHeaders);
-app.use(requestLogger);
+// Enhanced Security middleware
+app.use(enhancedSecurityMiddleware.createHelmetConfig());
+app.use(enhancedSecurityMiddleware.requestLogger());
+app.use(enhancedSecurityMiddleware.securityHeaders());
+app.use(enhancedSecurityMiddleware.detectSuspiciousActivity());
 
 // Middleware
 app.use(express.json({ limit: "10mb" }))
@@ -276,10 +280,10 @@ app.get("/api/test-maintenance", (req, res) => {
   });
 });
 
-// API routes with rate limiting
-app.use("/api/auth", authRateLimit, authRoutes)
-app.use("/api/users", apiRateLimit, userRoutes)
-app.use("/api/news", apiRateLimit, newsRoutes)
+// API routes with enhanced rate limiting
+app.use("/api/auth", enhancedSecurityMiddleware.createAuthRateLimit(), authRoutes)
+app.use("/api/users", enhancedSecurityMiddleware.createAPIRateLimit(), userRoutes)
+app.use("/api/news", enhancedSecurityMiddleware.createAPIRateLimit(), newsRoutes)
 app.use("/api/categories", categoryRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/api/notifications", notificationRoutes)
@@ -387,6 +391,161 @@ app.use("/api/analytics", analyticsRoutes)
 // Sources routes
 app.use("/api/ai/sources", sourcesRoutes)
 
+// Enhanced Integration API Routes
+app.get("/api/integration/health", async (req, res) => {
+  try {
+    const health = await integrationService.getHealthStatus();
+    res.json(health);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/integration/stats", async (req, res) => {
+  try {
+    const stats = await integrationService.getSystemStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Enhanced Analytics Routes
+app.get("/api/analytics/dashboard", async (req, res) => {
+  try {
+    const dashboard = await integrationService.services.analytics.getDashboardData(req.query.timeRange || '7d');
+    res.json(dashboard);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/analytics/content-performance", async (req, res) => {
+  try {
+    const performance = await integrationService.services.analytics.getContentPerformance(
+      req.query.articleId, 
+      req.query.timeRange || '30d'
+    );
+    res.json(performance);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// AI Enhancement Routes
+app.post("/api/ai/summarize", async (req, res) => {
+  try {
+    const { content, maxLength } = req.body;
+    const summary = await integrationService.services.ai.generateSummary(content, maxLength);
+    res.json({ summary });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/ai/fact-check", async (req, res) => {
+  try {
+    const { content } = req.body;
+    const factCheck = await integrationService.services.ai.factCheck(content);
+    res.json(factCheck);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/ai/generate-tags", async (req, res) => {
+  try {
+    const { content, title, maxTags } = req.body;
+    const tags = await integrationService.services.ai.generateTags(content, title, maxTags);
+    res.json({ tags });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Performance Optimization Routes
+app.post("/api/performance/optimize-image", async (req, res) => {
+  try {
+    const { imagePath, options } = req.body;
+    const optimized = await integrationService.services.performance.optimizeImage(imagePath, options);
+    res.json(optimized);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cache Management Routes
+app.get("/api/cache/stats", (req, res) => {
+  try {
+    const stats = integrationService.services.cache.getStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/cache/clear", async (req, res) => {
+  try {
+    const { pattern } = req.body;
+    if (pattern) {
+      await integrationService.services.cache.deletePattern(pattern);
+    } else {
+      await integrationService.services.cache.clear();
+    }
+    res.json({ success: true, message: 'Cache cleared' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Monetization Routes
+app.get("/api/monetization/plans", (req, res) => {
+  try {
+    const plans = integrationService.services.monetization.getSubscriptionPlans();
+    res.json(plans);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/monetization/revenue", async (req, res) => {
+  try {
+    const report = await integrationService.services.monetization.getRevenueReport(req.query.timeRange || '30d');
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Content Management Routes
+app.get("/api/content/analytics", async (req, res) => {
+  try {
+    const analytics = await integrationService.services.content.getContentAnalytics(req.query.timeRange || '30d');
+    res.json(analytics);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// WebSocket Routes
+app.get("/api/websocket/rooms", (req, res) => {
+  try {
+    const rooms = integrationService.services.websocket.getAllRooms();
+    res.json(rooms);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/websocket/stats", (req, res) => {
+  try {
+    const stats = integrationService.services.websocket.getStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // WebSocket test endpoint
 app.get('/api/websocket-test', (req, res) => {
   res.json({ 
@@ -436,8 +595,17 @@ const PORT = process.env.PORT || 5001
 import { createServer } from 'http';
 const server = createServer(app);
 
-server.listen(PORT, () => {
+// Initialize integration services
+server.listen(PORT, async () => {
   logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  
+  // Initialize all integration services
+  try {
+    await integrationService.initialize(server);
+    logger.info('✅ All integration services initialized successfully');
+  } catch (error) {
+    logger.error('❌ Failed to initialize integration services:', error);
+  }
 })
 
 // Initialize WebSocket for real-time comments
@@ -493,15 +661,17 @@ if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "developme
 
 // Graceful shutdown - only in production
 if (process.env.NODE_ENV === 'production') {
-  process.on('SIGTERM', () => {
+  process.on('SIGTERM', async () => {
     logger.info('SIGTERM received, shutting down gracefully');
+    await integrationService.shutdown();
     server.close(() => {
       logger.info('Process terminated');
     });
   });
 
-  process.on('SIGINT', () => {
+  process.on('SIGINT', async () => {
     logger.info('SIGINT received, shutting down gracefully');
+    await integrationService.shutdown();
     server.close(() => {
       logger.info('Process terminated');
     });
