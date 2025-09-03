@@ -306,7 +306,7 @@ const AdSenseManager: React.FC = () => {
                       <div key={slot}>
                         <Label className="capitalize">{slot} Ad</Label>
                         <Input
-                          value={id}
+                          value={id as string}
                           readOnly
                           className="font-mono text-xs"
                         />

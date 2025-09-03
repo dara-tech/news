@@ -1,15 +1,15 @@
 {
   "pageViews": {
-    "/news/breaking": 989,
-    "/news": 1177,
-    "/news/featured": 992,
-    "/categories": 2221,
-    "/notifications/count": 6763,
+    "/news/breaking": 990,
+    "/news": 1179,
+    "/news/featured": 993,
+    "/categories": 2223,
+    "/notifications/count": 6774,
     "/dashboard/advanced-stats": 903,
     "/maintenance-status": 600,
     "/auth/login": 75,
-    "/auth/profile": 1211,
-    "/notifications": 1224,
+    "/auth/profile": 1213,
+    "/notifications": 1225,
     "/dashboard/stats": 1481,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -448,8 +448,9 @@
     "/admin/analytics/real-time": 48,
     "/admin/analytics/simulate-users": 13,
     "/admin/analytics/clear-users": 5,
-    "/admin/frontend-settings": 3,
-    "/admin/frontend-settings/status": 1
+    "/admin/frontend-settings": 6,
+    "/admin/frontend-settings/status": 1,
+    "/admin/frontend-settings/test-adsense": 1
   },
   "userActions": {},
   "dailyStats": {
@@ -781,27 +782,27 @@
       }
     },
     "2025-09-03": {
-      "pageViews": 1562,
+      "pageViews": 1586,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 1118,
-        "Direct": 444
+        "Referral": 1136,
+        "Direct": 450
       },
       "deviceTypes": {
-        "Desktop": 1562
+        "Desktop": 1586
       }
     }
   },
   "trafficSources": {
-    "Direct": 5440,
-    "Referral": 35973
+    "Direct": 5446,
+    "Referral": 35991
   },
   "deviceTypes": {
-    "Desktop": 40689,
+    "Desktop": 40713,
     "Mobile": 724
   }
 }

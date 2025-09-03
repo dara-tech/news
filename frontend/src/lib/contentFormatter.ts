@@ -11,6 +11,12 @@ export interface FormattedContent {
   hasQuotes: boolean;
 }
 
+interface Pattern {
+  text: string;
+  replacement: string;
+  index: number;
+}
+
 /**
  * Format article content for better readability
  */
@@ -220,7 +226,7 @@ function enhanceParagraphText(text: string): string {
 
   // Use a more careful approach to avoid nested HTML issues
   // First, identify all the patterns we want to highlight
-  const patterns = [];
+  const patterns: Pattern[] = [];
   
   // Find important terms
   const importantMatches = enhanced.match(/\b(breaking|urgent|important|latest|update|confirmed|announced)\b/gi);
