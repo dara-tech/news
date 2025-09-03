@@ -153,72 +153,74 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
   const CategoriesDropdown = () => (
     <motion.div
       data-dropdown-content
-      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+      initial={{ opacity: 0, y: 8, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 10, scale: 0.98 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className="absolute left-0 mt-3 w-96 bg-background/95 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl z-50 overflow-hidden"
+      exit={{ opacity: 0, y: 8, scale: 0.96 }}
+      transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+      className="absolute left-0 mt-2 w-80 bg-background/98 backdrop-blur-xl border border-border/20 rounded-xl shadow-xl z-50 overflow-hidden"
     >
-      {/* Enhanced search bar with gradient background */}
-      <div className="p-4 border-b border-border/30 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+      {/* Minimalistic search bar */}
+      <div className="p-3 border-b border-border/10">
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl blur-lg"></div>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-            <Input
-              placeholder="Search categories..."
-              value={state.searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="pl-12 h-12 bg-background/80 backdrop-blur-sm border-0 shadow-lg rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-background/90"
-            />
-          </div>
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+          <Input
+            placeholder="Search categories..."
+            value={state.searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="pl-10 h-9 bg-transparent border-0 focus-visible:ring-0 text-sm placeholder:text-muted-foreground/50"
+          />
         </div>
       </div>
 
-      {/* Enhanced categories list */}
-      <div className="max-h-96 overflow-y-auto">
+      {/* Categories list */}
+      <div className="max-h-80 overflow-y-auto">
         {state.isLoading ? (
-          <div className="p-6 space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-muted/30">
-                <Skeleton className="h-10 w-10 rounded-xl" />
-                <Skeleton className="h-4 flex-1" />
+          <div className="p-2 space-y-1">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-2 mx-1">
+                <Skeleton className="h-6 w-6 rounded-md" />
+                <Skeleton className="h-4 flex-1 rounded" />
               </div>
             ))}
           </div>
         ) : state.error ? (
           <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span role="img" aria-label="cat sad" className="text-3xl">😿</span>
+            <div className="w-12 h-12 bg-muted/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <span className="text-lg text-muted-foreground/60">⚠</span>
             </div>
-            <p className="text-sm text-muted-foreground mb-4">{state.error}</p>
-            <Button size="sm" variant="outline" onClick={() => fetchCategories()} disabled={state.isLoading} className="rounded-xl">
-              Try Again
+            <p className="text-xs text-muted-foreground mb-3">{state.error}</p>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => fetchCategories()} 
+              disabled={state.isLoading} 
+              className="h-7 px-3 text-xs rounded-lg hover:bg-muted/40"
+            >
+              Retry
             </Button>
           </div>
         ) : state.filteredCategories.length === 0 ? (
           <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Search className="h-8 w-8 text-muted-foreground" />
+            <div className="w-12 h-12 bg-muted/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <Search className="h-5 w-5 text-muted-foreground/60" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              {state.searchQuery ? "No categories found" : "No categories available"}
+            <p className="text-xs text-muted-foreground/70">
+              {state.searchQuery ? "No matches found" : "No categories available"}
             </p>
           </div>
         ) : (
-          <div className="p-2 space-y-1">
+          <div className="p-1">
             {state.filteredCategories.map((cat, index) => {
               return (
               <motion.div
                 key={cat._id}
-                initial={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0, x: -4 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: index * 0.02, duration: 0.1 }}
               >
                 <Link
                   href={`/${lang}/category/${cat.slug}`}
-                  className="group flex items-center justify-between p-4 rounded-2xl hover:bg-muted/40 transition-all duration-300 border border-transparent hover:border-border/50"
-                  style={cat.color ? { borderLeft: `4px solid ${cat.color}` } : undefined}
+                  className="group flex items-center justify-between p-2 mx-1 rounded-lg hover:bg-muted/30 transition-all duration-150"
                   onClick={(e) => {
                     e.stopPropagation()
                     setTimeout(() => {
@@ -226,24 +228,23 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
                     }, 50)
                   }}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color || '#6b7280' }}></div>
-                    </div>
-                    <div className="flex-1">
-                      <span className="font-medium text-base group-hover:text-primary transition-colors">
-                        {typeof cat.name === "string"
-                          ? cat.name
-                          : cat.name[(lang === "km" || lang === "kh") ? "kh" : "en"]}
-                      </span>
-                      {cat.count !== undefined && cat.count !== null && (
-                        <Badge variant="secondary" className="ml-2 text-xs rounded-full">
-                          {cat.count}
-                        </Badge>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div 
+                      className="w-2 h-2 rounded-full flex-shrink-0" 
+                      style={{ backgroundColor: cat.color || '#9ca3af' }}
+                    ></div>
+                    <span className="text-sm font-medium text-foreground/90 group-hover:text-foreground transition-colors truncate">
+                      {typeof cat.name === "string"
+                        ? cat.name
+                        : cat.name[(lang === "km" || lang === "kh") ? "kh" : "en"]}
+                    </span>
+                    {cat.count !== undefined && cat.count !== null && (
+                      <Badge variant="secondary" className="ml-auto text-xs h-5 px-1.5 rounded-md bg-muted/50 text-muted-foreground border-0">
+                        {cat.count}
+                      </Badge>
+                    )}
                   </div>
-                  <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-60 transition-opacity" />
+                  <ChevronRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-40 transition-opacity flex-shrink-0 ml-2" />
                 </Link>
               </motion.div>
             )})}
@@ -254,24 +255,18 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
   )
 
   return (
-    <nav className="hidden lg:flex items-center gap-4">
+    <nav className="hidden lg:flex items-center gap-1">
       {NAV_LINKS.map((link) => (
         <Link
           key={link.href}
           href={link.href}
-          className={`group relative px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+          className={`group relative px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 flex items-center gap-2 ${
             pathname === link.href
-              ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
-              : "text-muted-foreground hover:text-primary hover:bg-muted/30"
+              ? "bg-muted/40 text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
           }`}
         >
-          <div className={`p-1 rounded-md transition-all duration-300 ${
-            pathname === link.href
-              ? "bg-primary/20"
-              : "bg-muted/60 group-hover:bg-primary/10"
-          }`}>
-            {link.icon && <link.icon className="h-4 w-4" />}
-          </div>
+          <link.icon className="h-4 w-4" />
           {link.label}
         </Link>
       ))}
@@ -279,10 +274,12 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
       <div className="relative">
         <Button
           ref={categoriesBtnRef}
-          className={`group relative px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-300 ${
+          variant="ghost"
+          size="sm"
+          className={`group relative px-3 py-1.5 h-auto rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-150 ${
             uiState.isCategoriesOpen
-              ? "bg-blue-500/10 text-primary border border-blue-500/20 shadow-sm"
-              : "text-muted-foreground hover:text-primary hover:bg-muted/30"
+              ? "bg-muted/40 text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
           }`}
           onClick={() => {
             setUiState((prev) => ({ ...prev, isCategoriesOpen: !prev.isCategoriesOpen }))
@@ -290,15 +287,14 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
           aria-haspopup="true"
           aria-expanded={uiState.isCategoriesOpen}
         >
-          <div className={`p-1 rounded-md transition-all duration-300 ${
-            uiState.isCategoriesOpen
-              ? "bg-primary/20"
-              : "bg-muted/60 group-hover:bg-primary/10"
-          }`}>
-            <ChevronDown className="h-4 w-4 transition-transform duration-300" />
-          </div>
           Categories
-          {state.isLoading && <Loader2 className="h-4 w-4 animate-spin ml-1" />}
+          {state.isLoading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${
+              uiState.isCategoriesOpen ? 'rotate-180' : ''
+            }`} />
+          )}
         </Button>
 
         <AnimatePresence>

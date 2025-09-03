@@ -3,8 +3,7 @@
 import { motion } from 'framer-motion';
 import { Article, Category } from '@/types';
 
-import Hero from '@/components/hero/Hero';
-import LatestNewsSection from '@/components/news/LatestNewsSection';
+import { NYTimesLayout } from '@/components/news/NYTimesLayout';
 
 interface HomePageProps {
   lang: 'en' | 'km';
@@ -20,15 +19,41 @@ export default function HomePage({ lang, newsData, categories }: HomePageProps) 
   const locale = lang === 'km' ? 'kh' : 'en';
   const { breaking, featured, latest } = newsData;
 
+  // Transform articles to match NY Times component interface
+  const transformArticle = (article: Article) => ({
+    id: article._id || article.id || '',
+    title: article.title,
+    description: article.description,
+    thumbnail: article.thumbnail,
+    category: {
+      name: article.category?.name || 'General',
+      color: article.category?.color || '#3b82f6'
+    },
+    publishedAt: article.publishedAt || article.createdAt || new Date().toISOString(),
+    views: article.views || 0,
+    author: article.author ? {
+      name: article.author.username || article.author.name || 'Staff Writer',
+      profileImage: article.author.avatar
+    } : undefined,
+    isFeatured: (article as any).isFeatured || false,
+    isBreaking: (article as any).isBreaking || false,
+    slug: article.slug
+  });
+
+  // Combine all articles and prioritize breaking/featured
+  const allArticles = [
+    ...breaking.map(article => ({ ...transformArticle(article), isBreaking: true })),
+    ...featured.map(article => ({ ...transformArticle(article), isFeatured: true })),
+    ...latest.map(transformArticle)
+  ].filter((article, index, self) => 
+    // Remove duplicates based on ID
+    index === self.findIndex(a => a.id === article.id)
+  );
+
   return (
-    <motion.div
-      className="space-y-12"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Hero breaking={breaking} featured={featured} categories={categories} locale={locale} />
-      <LatestNewsSection latest={latest} locale={locale} />
-    </motion.div>
+    <NYTimesLayout 
+      articles={allArticles}
+      lang={lang}
+    />
   );
 }

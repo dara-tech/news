@@ -1,7 +1,8 @@
 // app/layout.tsx
 import type { Metadata } from "next";
 import { Kantumruy_Pro } from 'next/font/google';
-import './globals.css';
+import './globals.css'
+import '../styles/enterprise.css';
 import AppProviders from "@/components/layout/AppProviders";
 import AdSenseScript from "@/components/adsense/AdSenseScript";
 

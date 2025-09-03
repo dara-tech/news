@@ -122,25 +122,31 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 100 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col overflow-hidden"
-          style={{ 
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 50,
-            overflow: 'hidden'
-          }}
-        >
+        <>
+          {/* Enhanced backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          
+          <motion.div
+            initial={{ opacity: 0, x: "100%", scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: "100%", scale: 0.95 }}
+            transition={{ 
+              duration: 0.4, 
+              ease: [0.16, 1, 0.3, 1],
+              scale: { duration: 0.3 }
+            }}
+            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-background/98 backdrop-blur-2xl flex flex-col overflow-hidden shadow-2xl border-l border-border/30"
+          >
           {/* Mobile header with glassmorphism */}
           <div className="flex justify-between items-center p-6 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-            <Logo lang={lang} />
+            {/* <Logo lang={lang} /> */}
             <Button
               variant="ghost"
               size="icon"
@@ -386,7 +392,8 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
               )}
             </div>
           </div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   )
