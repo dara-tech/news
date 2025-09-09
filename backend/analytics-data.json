@@ -1,36 +1,36 @@
 {
   "pageViews": {
-    "/news/breaking": 1144,
-    "/news": 1347,
-    "/news/featured": 1147,
-    "/categories": 2533,
-    "/notifications/count": 7068,
-    "/dashboard/advanced-stats": 912,
-    "/maintenance-status": 721,
+    "/news/breaking": 1153,
+    "/news": 1376,
+    "/news/featured": 1156,
+    "/categories": 2552,
+    "/notifications/count": 7264,
+    "/dashboard/advanced-stats": 915,
+    "/maintenance-status": 730,
     "/auth/login": 81,
-    "/auth/profile": 1243,
-    "/notifications": 1252,
-    "/dashboard/stats": 1488,
+    "/auth/profile": 1253,
+    "/notifications": 1263,
+    "/dashboard/stats": 1499,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
-    "/admin/settings/security": 16,
-    "/admin/security/stats": 16,
+    "/admin/settings/security": 17,
+    "/admin/security/stats": 17,
     "/admin/settings/general": 15,
-    "/dashboard/analytics": 112,
-    "/admin/system/metrics": 1619,
+    "/dashboard/analytics": 114,
+    "/admin/system/metrics": 1620,
     "/dashboard/export": 2,
-    "/admin/user-logins/map": 422,
+    "/admin/user-logins/map": 423,
     "/auth/google": 16,
     "/auth/google/callback": 9,
     "/admin/user-login": 2,
     "/test-map": 2,
     "/test-simple": 51,
     "/dashboard/user-logins/map": 3,
-    "/news/admin": 279,
+    "/news/admin": 285,
     "/health": 1,
     "/new": 1,
-    "/admin/likes": 59,
-    "/admin/comments": 62,
+    "/admin/likes": 60,
+    "/admin/comments": 63,
     "/admin/activity": 48,
     "/admin/activity/security": 37,
     "/admin/activity/stats": 37,
@@ -73,7 +73,7 @@
     "/news/category/business": 8,
     "/news/category/entertainment": 2,
     "/categories/slug/business": 6,
-    "/admin/settings/logo": 1600,
+    "/admin/settings/logo": 1608,
     "/admin/settings/logo/preview": 41,
     "/admin/settings/logo/generate": 1,
     "/admin/settings/logo/upload": 3,
@@ -110,10 +110,10 @@
     "/comments/68940700b4cf5ac48729df9d": 3,
     "/comments/68940700b4cf5ac48729df9d/stats": 3,
     "/admin/settings/footer": 129,
-    "/admin/settings/social-media": 873,
+    "/admin/settings/social-media": 878,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
-    "/settings/public/social-media": 284,
+    "/settings/public/social-media": 288,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -123,11 +123,11 @@
     "/comments/6896d76d35003ae5b6370ba9/like": 2,
     "/admin/comments/6894625c70cb3d494df61813": 1,
     "/comments/6896de0335003ae5b6371192/like": 2,
-    "/admin/system/sentinel": 1916,
+    "/admin/system/sentinel": 1917,
     "/admin/system/matric": 3,
     "/admin/system": 1,
     "/admin/system/sentinel/run-once": 31,
-    "/admin/system/sentinel/logs": 2960,
+    "/admin/system/sentinel/logs": 2961,
     "/news/6896ec891389acbe4dd79cb5/status": 1,
     "/news/hun-sen-warns-of-slingshot-skirmishes-threatening-cambodia-thailand-ceasefire": 6,
     "/likes/6896ed139dcd4b7fbf50850a/status": 5,
@@ -279,8 +279,8 @@
     "/likes/689c3dd12a53bb052e7e30c6/status": 1,
     "/comments/689c3dd12a53bb052e7e30c6": 1,
     "/comments/689c3dd12a53bb052e7e30c6/stats": 1,
-    "/settings/public/logo": 224,
-    "/settings/public/footer": 165,
+    "/settings/public/logo": 228,
+    "/settings/public/footer": 169,
     "/users/688e46a0b9e9e59928015fdf": 1,
     "/auth/data-deletion-callback": 7,
     "/auth/data-deletion-status/123456789": 2,
@@ -311,12 +311,12 @@
     "/likes/6898049b577870e5f520a5e2/status": 1,
     "/comments/6898049b577870e5f520a5e2": 1,
     "/comments/6898049b577870e5f520a5e2/stats": 1,
-    "/admin/auto-publish/stats": 286,
-    "/admin/auto-publish/logs": 68,
-    "/admin/auto-publish/settings": 67,
-    "/admin/auto-publish/telegram-settings": 28,
+    "/admin/auto-publish/stats": 343,
+    "/admin/auto-publish/logs": 124,
+    "/admin/auto-publish/settings": 75,
+    "/admin/auto-publish/telegram-settings": 32,
     "/admin/auto-publish/test-telegram": 2,
-    "/admin/auto-publish/sentinel": 3,
+    "/admin/auto-publish/sentinel": 11,
     "/news/air-canada-strike-flight-attendants-defy-court-order": 2,
     "/likes/68a36db20b2432338e701640/status": 1,
     "/comments/68a36db20b2432338e701640": 1,
@@ -451,7 +451,7 @@
     "/admin/frontend-settings": 6,
     "/admin/frontend-settings/status": 1,
     "/admin/frontend-settings/test-adsense": 1,
-    "/admin/analytics/overview": 243,
+    "/admin/analytics/overview": 322,
     "/news/ukraine-defiant-as-trump-s-peace-deadline-passes": 2,
     "/likes/68b579dbcee2a9b63b86cfe9/status": 1,
     "/comments/68b579dbcee2a9b63b86cfe9": 1,
@@ -492,7 +492,14 @@
     "/news/belgium-to-recognize-palestine-sanction-israel-un-move-sparks-debate": 2,
     "/likes/68b6a5b1267501376c896267/status": 1,
     "/comments/68b6a5b1267501376c896267": 1,
-    "/comments/68b6a5b1267501376c896267/stats": 1
+    "/comments/68b6a5b1267501376c896267/stats": 1,
+    "/admin/auto-publish/status": 51,
+    "/news/trump-faces-backlash-over-cook-firing-attempt": 4,
+    "/likes/68ad810425ff6fe6a87b5025/status": 1,
+    "/comments/68ad810425ff6fe6a87b5025": 1,
+    "/comments/68ad810425ff6fe6a87b5025/stats": 1,
+    "/articles": 9,
+    "/news/68ad768825ff6fe6a87b4f60": 4
   },
   "userActions": {},
   "dailyStats": {
@@ -824,27 +831,55 @@
       }
     },
     "2025-09-03": {
-      "pageViews": 3509,
+      "pageViews": 3599,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Referral": 2338,
-        "Direct": 1171
+        "Referral": 2424,
+        "Direct": 1175
       },
       "deviceTypes": {
-        "Desktop": 3509
+        "Desktop": 3599
+      }
+    },
+    "2025-09-08": {
+      "pageViews": 478,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 26,
+        "Referral": 452
+      },
+      "deviceTypes": {
+        "Desktop": 478
+      }
+    },
+    "2025-09-09": {
+      "pageViews": 62,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 14,
+        "Referral": 48
+      },
+      "deviceTypes": {
+        "Desktop": 62
       }
     }
   },
   "trafficSources": {
-    "Direct": 6167,
-    "Referral": 37193
+    "Direct": 6211,
+    "Referral": 37779
   },
   "deviceTypes": {
-    "Desktop": 42636,
+    "Desktop": 43266,
     "Mobile": 724
   }
 }

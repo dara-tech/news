@@ -2,6 +2,9 @@ import api from '@/lib/api';
 import { Article, Category } from '@/types';
 import MaintenanceCheck from '@/components/MaintenanceCheck';
 import HomePage from '@/components/home/HomePage';
+import { Metadata } from 'next';
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.razewire.online';
 
 interface HomeProps {
   params: Promise<{ lang: 'en' | 'km' }>;
@@ -47,6 +50,45 @@ async function getCategories(): Promise<Category[]> {
     console.error('Error fetching categories:', error);
     return [];
   }
+}
+
+export async function generateMetadata({ params }: HomeProps): Promise<Metadata> {
+  const { lang } = await params;
+  const isKhmer = lang === 'km';
+  
+  const title = isKhmer ? 'Razewire - ព័ត៌មានថ្មីៗ' : 'Razewire - Your Daily Source of News';
+  const description = isKhmer 
+    ? 'ព័ត៌មានថ្មីៗ និងព័ត៌មានចុងក្រោយពីពិភពលោក បច្ចេកវិទ្យា អាជីវកម្ម និងកីឡា។'
+    : 'Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.';
+  
+  const canonicalUrl = `${BASE_URL}/${lang}`;
+  
+  return {
+    title,
+    description,
+    metadataBase: new URL(BASE_URL),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        en: isKhmer ? '/en' : undefined,
+        km: !isKhmer ? '/km' : undefined,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: 'Razewire',
+      locale: isKhmer ? 'km_KH' : 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      site: '@razewire',
+    },
+  };
 }
 
 export default async function Home({ params }: HomeProps) {

@@ -10,6 +10,9 @@ class SentinelAutoPublishService {
   constructor() {
     this.telegramSettings = null;
     this.baseUrl = process.env.FRONTEND_URL || 'https://razewire.com';
+    this.isRunning = false;
+    this.lastRunAt = null;
+    this.nextRunAt = null;
   }
 
   /**
@@ -34,6 +37,8 @@ class SentinelAutoPublishService {
    */
   async autoPublishSentinelDrafts() {
     try {
+      this.isRunning = true;
+      this.lastRunAt = new Date();
       logger.info('🤖 Starting Sentinel Auto-Publish Process...');
       
       // Initialize Telegram settings
@@ -79,10 +84,10 @@ class SentinelAutoPublishService {
           try {
             const { formatContentAdvanced } = await import('../utils/advancedContentFormatter.mjs');
             
-            // Format English content
+            // Format English content (without AI enhancement for faster processing)
             if (article.content?.en && article.content.en.trim()) {
               const enResult = await formatContentAdvanced(article.content.en, {
-                enableAIEnhancement: true,
+                enableAIEnhancement: false, // Disabled for faster processing
                 enableReadabilityOptimization: true,
                 enableSEOOptimization: true,
                 enableVisualEnhancement: true,
@@ -98,10 +103,10 @@ class SentinelAutoPublishService {
               }
             }
             
-            // Format Khmer content
+            // Format Khmer content (without AI enhancement for faster processing)
             if (article.content?.kh && article.content.kh.trim()) {
               const khResult = await formatContentAdvanced(article.content.kh, {
-                enableAIEnhancement: true,
+                enableAIEnhancement: false, // Disabled for faster processing
                 enableReadabilityOptimization: true,
                 enableSEOOptimization: true,
                 enableVisualEnhancement: true,
@@ -196,6 +201,9 @@ class SentinelAutoPublishService {
 
     } catch (error) {
       logger.error('❌ Error in auto-publish process:', error.message);
+    } finally {
+      this.isRunning = false;
+      this.nextRunAt = new Date(Date.now() + 5 * 60 * 1000); // Next run in 5 minutes
     }
   }
 

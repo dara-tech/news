@@ -61,6 +61,10 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
+    noarchive: false,
+    nosnippet: false,
+    noimageindex: false,
+    nocache: false,
   },
 };
 

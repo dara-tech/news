@@ -40,6 +40,7 @@ import {
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Input } from '@/components/ui/input';
 
 interface AdvancedShareComponentProps {
   url: string;
@@ -288,7 +289,7 @@ export default function AdvancedShareComponent({
           <div className="flex items-center space-x-2">
             <div className="flex-1 flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
               <Link className="w-4 h-4 text-gray-400" />
-              <input
+              <Input
                 type="text"
                 value={url}
                 readOnly

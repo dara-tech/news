@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   autoPublishSentinelDrafts,
+  getAutoPublishStatus,
   getAutoPublishStats,
   getAutoPublishSettings,
   updateAutoPublishSettings,
@@ -20,6 +21,7 @@ router.use(admin);
 
 // Auto-publish main routes
 router.post('/sentinel', autoPublishSentinelDrafts);
+router.get('/status', getAutoPublishStatus);
 router.get('/stats', getAutoPublishStats);
 
 // Settings routes

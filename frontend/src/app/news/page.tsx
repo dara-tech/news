@@ -10,10 +10,46 @@ interface NewsPageProps {
   searchParams: Promise<{ page?: string; category?: string; search?: string }>;
 }
 
-export const metadata: Metadata = {
-  title: 'All News - Razewire',
-  description: 'Browse all the latest news articles from various categories including technology, business, sports, and more.',
-};
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.razewire.online';
+
+export async function generateMetadata({ params }: NewsPageProps): Promise<Metadata> {
+  const { lang } = await params;
+  const isKhmer = lang === 'km';
+  
+  const title = isKhmer ? 'ព័ត៌មានទាំងអស់ - Razewire' : 'All News - Razewire';
+  const description = isKhmer 
+    ? 'រកមើលអត្ថបទព័ត៌មានចុងក្រោយពីប្រភេទផ្សេងៗ រួមមានបច្ចេកវិទ្យា អាជីវកម្ម កីឡា និងច្រើនទៀត។'
+    : 'Browse all the latest news articles from various categories including technology, business, sports, and more.';
+  
+  const canonicalUrl = `${BASE_URL}/${lang}/news`;
+  
+  return {
+    title,
+    description,
+    metadataBase: new URL(BASE_URL),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        en: isKhmer ? '/en/news' : undefined,
+        km: !isKhmer ? '/km/news' : undefined,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: 'Razewire',
+      locale: isKhmer ? 'km_KH' : 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      site: '@razewire',
+    },
+  };
+}
 
 function getLocalizedText(text: string | { [key: string]: string | undefined } | undefined, locale: Locale): string {
   if (!text) return '';

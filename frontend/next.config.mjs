@@ -21,6 +21,52 @@ const nextConfig = {
     ];
   },
 
+  // Add redirects to handle common URL patterns and prevent 404s
+  async redirects() {
+    return [
+      // Redirect old pagination URLs to main pages
+      {
+        source: '/news/page/:page',
+        destination: '/news',
+        permanent: true,
+      },
+      {
+        source: '/archive/page/:page',
+        destination: '/archive',
+        permanent: true,
+      },
+      {
+        source: '/categories/page/:page',
+        destination: '/categories',
+        permanent: true,
+      },
+      // Redirect search with query parameters to basic search
+      {
+        source: '/search',
+        has: [
+          {
+            type: 'query',
+            key: 'q',
+          },
+        ],
+        destination: '/search',
+        permanent: false,
+      },
+      // Redirect old article URLs to new format
+      {
+        source: '/article/:slug',
+        destination: '/news/:slug',
+        permanent: true,
+      },
+      // Redirect category pages with pagination
+      {
+        source: '/category/:slug/page/:page',
+        destination: '/category/:slug',
+        permanent: true,
+      },
+    ];
+  },
+
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [

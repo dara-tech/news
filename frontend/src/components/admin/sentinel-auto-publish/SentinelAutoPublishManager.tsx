@@ -190,22 +190,70 @@ export default function SentinelAutoPublishManager() {
       setIsRunning(true);
       setLoading(true);
       
-      const response = await api.post('/admin/auto-publish/sentinel');
+      // Create a custom axios instance with longer timeout for auto-publish
+      const autoPublishApi = api.create({
+        timeout: 60000, // 60 seconds for auto-publish endpoint
+      });
+      
+      const response = await autoPublishApi.post('/admin/auto-publish/sentinel');
       
       if (response.data.success) {
-        toast.success('Auto-publish process completed successfully!');
-        await fetchStats();
-        await fetchLogs();
+        if (response.data.data?.status === 'started') {
+          toast.success('Auto-publish process started! It will run in the background.');
+          // Start polling for updates
+          startPollingForUpdates();
+        } else {
+          toast.success('Auto-publish process completed successfully!');
+          await fetchStats();
+          await fetchLogs();
+        }
       } else {
         toast.error('Auto-publish process failed');
       }
     } catch (error) {
       console.error('Error triggering auto-publish:', error);
-      toast.error('Failed to trigger auto-publish process');
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'ECONNABORTED') {
+        toast.error('Auto-publish request timed out. The process may still be running in the background.');
+        // Start polling anyway in case it's still running
+        startPollingForUpdates();
+      } else {
+        toast.error('Failed to trigger auto-publish process');
+      }
     } finally {
       setIsRunning(false);
       setLoading(false);
     }
+  };
+
+  const startPollingForUpdates = () => {
+    // Poll for updates every 5 seconds for 2 minutes
+    let pollCount = 0;
+    const maxPolls = 24; // 2 minutes
+    
+    const pollInterval = setInterval(async () => {
+      pollCount++;
+      
+      try {
+        // Check status first
+        const statusResponse = await api.get('/admin/auto-publish/status');
+        const isRunning = statusResponse.data.success && statusResponse.data.data?.isRunning;
+        
+        await fetchStats();
+        await fetchLogs();
+        
+        // Stop polling if we've reached max polls or if process is no longer running
+        if (pollCount >= maxPolls || !isRunning) {
+          clearInterval(pollInterval);
+          if (isRunning && pollCount >= maxPolls) {
+            toast.info('Auto-publish process may still be running. Check the logs for updates.');
+          } else if (!isRunning) {
+            toast.success('Auto-publish process completed!');
+          }
+        }
+      } catch (error) {
+        console.error('Error polling for updates:', error);
+      }
+    }, 5000);
   };
 
   const updateSettings = async (newSettings: Partial<AutoPublishSettings>) => {

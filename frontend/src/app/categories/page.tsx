@@ -1,6 +1,31 @@
 import type React from "react"
 import { Layers, Package, ServerCrash } from "lucide-react"
 import Link from "next/link"
+import { Metadata } from 'next'
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.razewire.online';
+
+export const metadata: Metadata = {
+  title: 'News Categories - Razewire',
+  description: 'Browse news by categories including technology, business, sports, politics, and more. Find the latest news in your area of interest.',
+  metadataBase: new URL(BASE_URL),
+  alternates: {
+    canonical: `${BASE_URL}/categories`,
+  },
+  openGraph: {
+    title: 'News Categories - Razewire',
+    description: 'Browse news by categories including technology, business, sports, politics, and more.',
+    url: `${BASE_URL}/categories`,
+    siteName: 'Razewire',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'News Categories - Razewire',
+    description: 'Browse news by categories including technology, business, sports, politics, and more.',
+    site: '@razewire',
+  },
+};
 
 // --- TYPES ---
 // It's a good practice to have your types defined in a central file (e.g., @/types/index.ts)

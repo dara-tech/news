@@ -89,6 +89,7 @@ export default async function ArchivePage({ params, searchParams }: ArchivePageP
               <select
                 name="year"
                 defaultValue={year || ''}
+                title="Filter articles by year"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               >
                 <option value="">All Years</option>
@@ -106,6 +107,7 @@ export default async function ArchivePage({ params, searchParams }: ArchivePageP
               <select
                 name="month"
                 defaultValue={month || ''}
+                title="Filter articles by month"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               >
                 <option value="">All Months</option>
@@ -123,6 +125,7 @@ export default async function ArchivePage({ params, searchParams }: ArchivePageP
               <select
                 name="category"
                 defaultValue={category || ''}
+                title="Filter articles by category"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               >
                 <option value="">All Categories</option>

@@ -1,0 +1,64 @@
+{
+  "timestamp": "2025-09-09T02:00:12.999Z",
+  "baseUrl": "https://www.razewire.online",
+  "issues": [
+    {
+      "type": "MISSING_CANONICAL",
+      "count": 5,
+      "pages": [
+        {
+          "page": "/",
+          "hasCanonical": false,
+          "canonicalUrl": null
+        },
+        {
+          "page": "/news",
+          "hasCanonical": false,
+          "canonicalUrl": null
+        },
+        {
+          "page": "/categories",
+          "hasCanonical": false,
+          "canonicalUrl": null
+        },
+        {
+          "page": "/archive",
+          "hasCanonical": false,
+          "canonicalUrl": null
+        },
+        {
+          "page": "/search",
+          "hasCanonical": false,
+          "canonicalUrl": null
+        }
+      ]
+    }
+  ],
+  "fixes": [],
+  "recommendations": [
+    {
+      "priority": "MEDIUM",
+      "issue": "Missing Canonical URLs",
+      "solution": "Add canonical URLs to all pages to prevent duplicate content issues",
+      "action": "Ensure all page components include canonical metadata"
+    },
+    {
+      "priority": "HIGH",
+      "issue": "Google Search Console Issues",
+      "solution": "Submit updated sitemap to Google Search Console",
+      "action": "Go to Google Search Console > Sitemaps > Add new sitemap URL"
+    },
+    {
+      "priority": "MEDIUM",
+      "issue": "Improve Page Speed",
+      "solution": "Optimize images and reduce JavaScript bundle size",
+      "action": "Use Next.js Image component and enable compression"
+    },
+    {
+      "priority": "LOW",
+      "issue": "Add Structured Data",
+      "solution": "Implement JSON-LD structured data for better search results",
+      "action": "Add structured data to article and category pages"
+    }
+  ]
+}

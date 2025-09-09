@@ -3,6 +3,30 @@ import api from '@/lib/api';
 import NewsGrid from '@/components/news/NewsGrid';
 import Pagination from '@/components/common/Pagination';
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.razewire.online';
+
+export const metadata: Metadata = {
+  title: 'News Archive - Razewire',
+  description: 'Browse archived news articles by date, category, and more. Find historical news and past articles.',
+  metadataBase: new URL(BASE_URL),
+  alternates: {
+    canonical: `${BASE_URL}/archive`,
+  },
+  openGraph: {
+    title: 'News Archive - Razewire',
+    description: 'Browse archived news articles by date, category, and more.',
+    url: `${BASE_URL}/archive`,
+    siteName: 'Razewire',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'News Archive - Razewire',
+    description: 'Browse archived news articles by date, category, and more.',
+    site: '@razewire',
+  },
+};
+
 interface ArchivePageProps {
   params: Promise<{ lang: string }>;
   searchParams: Promise<{ 
@@ -13,10 +37,6 @@ interface ArchivePageProps {
   }>;
 }
 
-export const metadata: Metadata = {
-  title: 'News Archive - Razewire',
-  description: 'Browse our complete archive of news articles organized by date and category.',
-};
 
 async function getArchiveData(lang: string, page: number = 1, year?: string, month?: string, category?: string) {
   try {
@@ -88,6 +108,7 @@ export default async function ArchivePage({ params, searchParams }: ArchivePageP
               </label>
               <select
                 name="year"
+                title="Filter articles by year"
                 defaultValue={year || ''}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               >
@@ -105,6 +126,7 @@ export default async function ArchivePage({ params, searchParams }: ArchivePageP
               </label>
               <select
                 name="month"
+                title="Filter articles by month"
                 defaultValue={month || ''}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               >
@@ -122,6 +144,7 @@ export default async function ArchivePage({ params, searchParams }: ArchivePageP
               </label>
               <select
                 name="category"
+                title="Filter articles by category"
                 defaultValue={category || ''}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               >

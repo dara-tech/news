@@ -128,30 +128,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority,
       }));
       
-      // Add comprehensive search and filter routes for better content discovery
+      // Add language-specific news routes
+      const languageNewsRoutes = [
+        { lang: 'en', priority: 0.9 },
+        { lang: 'km', priority: 0.9 },
+      ].map(({ lang, priority }) => ({
+        url: `${URL}/${lang}/news`,
+        lastModified,
+        changeFrequency: 'daily' as const,
+        priority,
+      }));
+      
+      // Add only basic search routes (avoid query parameters that might cause 404s)
       const searchRoutes = [
-        // Basic search
         '/search',
-        // Popular search queries
-        '/search?q=technology',
-        '/search?q=business',
-        '/search?q=sports',
-        '/search?q=breaking-news',
-        '/search?q=politics',
-        '/search?q=entertainment',
-        '/search?q=health',
-        '/search?q=cambodia',
-        '/search?q=phnom-penh',
-        // Search with filters
-        '/search?category=technology',
-        '/search?category=business',
-        '/search?category=sports',
-        '/search?dateRange=today',
-        '/search?dateRange=week',
-        '/search?dateRange=month',
-        '/search?sortBy=date',
-        '/search?sortBy=relevance',
-        '/search?sortBy=views',
       ].map((route) => ({
         url: `${URL}${route}`,
         lastModified,
@@ -172,19 +162,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.5, // Lower priority for user-specific pages
       }));
       
-      // Add demo and test pages (lower priority)
-      const demoRoutes = [
-        '/share-demo',
-        '/likes-demo',
-        '/debug-follow',
-        '/test-follow',
-        '/test-debug',
-      ].map((route) => ({
-        url: `${URL}${route}`,
-        lastModified,
-        changeFrequency: 'monthly' as const,
-        priority: 0.3, // Very low priority for demo pages
-      }));
+      // Remove demo and test pages from sitemap to avoid SEO issues
+      const demoRoutes: any[] = [];
       
       // Add author pages (if you have author profiles)
       const authorRoutes = articles
@@ -196,47 +175,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           priority: 0.6,
         }));
       
-      // Add pagination routes for better content discovery
-      const paginationRoutes = [
-        // News pagination
-        '/news?page=1',
-        '/news?page=2',
-        '/news?page=3',
-        // Archive pagination
-        '/archive?page=1',
-        '/archive?page=2',
-        // Categories pagination
-        '/categories?page=1',
-      ].map((route) => ({
-        url: `${URL}${route}`,
-        lastModified,
-        changeFrequency: 'weekly' as const,
-        priority: 0.5,
-      }));
+      // Remove pagination routes to avoid 404s - only include if pages actually exist
+      const paginationRoutes: any[] = [];
       
-      // Add category-specific news pages
-      const categoryNewsRoutes = categories.map((category: { slug: string }) => [
-        `${URL}/category/${category.slug}?page=1`,
-        `${URL}/category/${category.slug}?page=2`,
-      ]).flat().map((url: string) => ({
-        url,
-        lastModified,
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      }));
+      // Remove category pagination to avoid 404s - only include if pages actually exist
+      const categoryNewsRoutes: any[] = [];
       
       // Combine all routes with proper ordering
       const allRoutes = [
         ...staticRoutes,
         ...languageRoutes,
+        ...languageNewsRoutes,
         ...categoryRoutes,
         ...newsRoutes,
         ...searchRoutes,
         ...userRoutes,
         ...authorRoutes,
-        ...paginationRoutes,
-        ...categoryNewsRoutes,
-        ...demoRoutes, // Demo pages last since they have lowest priority
+        // Removed paginationRoutes, categoryNewsRoutes, and demoRoutes to avoid 404s
       ];
       
       // Sort by priority (highest first) and then by URL

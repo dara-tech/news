@@ -11,20 +11,66 @@ export const autoPublishSentinelDrafts = asyncHandler(async (req, res) => {
   try {
     logger.info('🤖 Manual auto-publish triggered by admin');
     
-    await sentinelAutoPublishService.autoPublishSentinelDrafts();
+    // Start the auto-publish process asynchronously
+    const processId = `auto-publish-${Date.now()}`;
     
-    const stats = await sentinelAutoPublishService.getAutoPublishStats();
+    // Set a longer timeout for this specific request
+    req.setTimeout(300000); // 5 minutes
     
+    // Start the process in the background
+    sentinelAutoPublishService.autoPublishSentinelDrafts()
+      .then(async (result) => {
+        logger.info(`✅ Auto-publish process ${processId} completed successfully`);
+        // You could emit a WebSocket event here to notify the frontend
+      })
+      .catch((error) => {
+        logger.error(`❌ Auto-publish process ${processId} failed:`, error);
+        // You could emit a WebSocket event here to notify the frontend
+      });
+    
+    // Return immediately with process started confirmation
     res.json({
       success: true,
-      message: 'Auto-publish process completed successfully',
-      data: stats
+      message: 'Auto-publish process started successfully',
+      processId: processId,
+      data: {
+        status: 'started',
+        message: 'The auto-publish process is running in the background. Check the logs for progress updates.'
+      }
     });
   } catch (error) {
     logger.error('Auto-publish error:', error);
     res.status(500).json({
       success: false,
-      message: 'Auto-publish process failed',
+      message: 'Failed to start auto-publish process',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get auto-publish process status
+// @route   GET /api/admin/auto-publish/status
+// @access  Private/Admin
+export const getAutoPublishStatus = asyncHandler(async (req, res) => {
+  try {
+    const isRunning = sentinelAutoPublishService.isRunning || false;
+    const lastRunAt = sentinelAutoPublishService.lastRunAt || null;
+    const nextRunAt = sentinelAutoPublishService.nextRunAt || null;
+    
+    res.json({
+      success: true,
+      data: {
+        isRunning,
+        lastRunAt,
+        nextRunAt,
+        status: isRunning ? 'running' : 'idle'
+      }
+    });
+  } catch (error) {
+    logger.error('Error getting auto-publish status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get auto-publish status',
       error: error.message
     });
   }
