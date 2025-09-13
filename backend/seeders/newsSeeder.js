@@ -17,7 +17,6 @@ const importData = async () => {
     const categories = await Category.find({});
 
     if (!adminUser) {
-      console.log('No admin user found');
       process.exit(1);
     }
 
@@ -31,7 +30,6 @@ const importData = async () => {
     const educationCategory = categories.find(c => c.name.en === 'Education');
 
     if (!technologyCategory || !businessCategory || !healthCategory || !politicsCategory || !entertainmentCategory || !sportsCategory || !educationCategory) {
-      console.log('Required categories not found');
       process.exit(1);
     }
 
@@ -207,9 +205,6 @@ const importData = async () => {
     ];
 
     await News.insertMany(sampleNews);
-    console.log('News articles seeded successfully!');
-    console.log(`Created ${sampleNews.length} articles with realistic content and view counts.`);
-
     process.exit();
   } catch (error) {
     console.error('Error seeding news:', error);
@@ -220,7 +215,6 @@ const importData = async () => {
 const destroyData = async () => {
   try {
     await News.deleteMany();
-    console.log('News articles deleted successfully!');
     process.exit();
   } catch (error) {
     console.error('Error deleting news:', error);

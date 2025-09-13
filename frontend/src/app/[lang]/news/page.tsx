@@ -3,6 +3,7 @@ import api from '@/lib/api';
 import NewsGrid from '@/components/news/NewsGrid';
 import Pagination from '@/components/common/Pagination';
 import CategoryFilter from '@/components/news/CategoryFilter';
+import { Button } from '@/components/ui/button';
 import type { Category, Locale } from '@/types';
 
 interface NewsPageProps {
@@ -239,12 +240,12 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
               An unexpected error occurred while loading the news.
             </p>
             <div className="flex gap-4 justify-center">
-              <button
+              <Button
                 onClick={() => window.location.reload()}
                 className="inline-block px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
               >
                 Try Again
-              </button>
+              </Button>
               <a
                 href={`/${lang}/news`}
                 className="inline-block px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"

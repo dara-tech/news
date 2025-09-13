@@ -216,6 +216,7 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
                   src={item.thumbnail}
                   alt={title}
                   fill
+                  sizes="96px"
                   className="object-cover rounded-lg"
                 />
               ) : (

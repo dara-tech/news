@@ -600,7 +600,7 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
     realTimeIntervalRef.current = setInterval(() => {
       fetchMapData();
     }, refreshInterval * 1000);
-  }, [fetchMapData, refreshInterval]);
+  }, [refreshInterval]);
 
   const stopRealTimeUpdates = useCallback(() => {
     if (realTimeIntervalRef.current) {
@@ -900,7 +900,7 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
 
       return () => clearInterval(interval);
     }
-  }, [autoRefresh, refreshInterval, fetchMapData]);
+  }, [autoRefresh, refreshInterval]);
 
   // Cleanup on unmount
   useEffect(() => {

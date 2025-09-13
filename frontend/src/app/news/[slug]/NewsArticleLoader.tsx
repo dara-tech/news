@@ -10,8 +10,8 @@ import LikeButton from '@/components/common/LikeButton';
 import CommentSection from '@/components/comments/CommentSection';
 import AdvancedShareComponent from '@/components/common/AdvancedShareComponent';
 import AuthorMiniCard from '@/components/news/AuthorMiniCard';
-import { useState } from 'react';
 import { formatArticleContent, extractContentInfo } from '@/lib/contentFormatter';
+import { useState, useEffect } from 'react';
 
 interface NewsArticleProps {
   article: Article;
@@ -28,8 +28,14 @@ const getLocalizedString = (str: string | LocalizedString | undefined, locale: '
 export default function NewsArticleLoader({ article, locale }: NewsArticleProps) {
   const { title, content, author, createdAt, thumbnail } = article;
   const [imageError, setImageError] = useState(false);
-  
+  const [currentUrl, setCurrentUrl] = useState('');
+  const [isClient, setIsClient] = useState(false);
 
+  // Set client-side values after hydration
+  useEffect(() => {
+    setIsClient(true);
+    setCurrentUrl(window.location.href);
+  }, []);
 
   // Safely handle localized strings with fallbacks
   const localizedTitle = getLocalizedString(title, locale);
@@ -115,7 +121,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
 
                 <div className="flex items-center gap-2">
                   <MessageCircle className="h-4 w-4 text-gray-500" />
-                  <span className="font-medium text-gray-700 dark:text-gray-300">{formattedContent.readTime} min read</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">5 min read</span>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -144,9 +150,9 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
               <div className="flex items-center space-x-4">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Share this article:</span>
                 <AdvancedShareComponent
-                  url={typeof window !== 'undefined' ? window.location.href : ''}
+                  url={currentUrl}
                   title={localizedTitle}
-                  description={contentInfo.summary}
+                  description={rawContent.substring(0, 160)}
                   image={thumbnail}
                   variant="minimal"
                   size="sm"
@@ -162,20 +168,6 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
                 Save for later
               </Button>
             </div>
-
-            {/* Content Summary (for long articles) */}
-            {formattedContent.wordCount > 500 && contentInfo.keyPoints.length > 0 && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-r-lg mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Key Points</h3>
-                <ul className="space-y-2">
-                  {contentInfo.keyPoints.map((point, index) => (
-                    <li key={index} className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                      • {point}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
 
             {/* Article Content */}
             <div 

@@ -27,7 +27,7 @@ const LatestNewsSection = ({ latest, locale }: LatestNewsSectionProps) => {
     <section className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold text-gray-800 dark:text-white">{translations[locale].title}</h2>
-                <Link href={`/${locale === 'kh' ? 'km' : 'en'}/news`} className="text-blue-600 hover:underline">{translations[locale].viewAll}</Link>
+                <Link href={`/${locale === 'kh' ? 'kh' : 'en'}/news`} className="text-blue-600 hover:underline">{translations[locale].viewAll}</Link>
       </div>
       <motion.div 
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"

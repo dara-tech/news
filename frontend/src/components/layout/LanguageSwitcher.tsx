@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 
 const LANGUAGES = [
   { code: "en", label: "EN" },
-  { code: "km", label: "KH" },
+  { code: "kh", label: "KH" },
 ]
 
 export default function LanguageSwitcher() {
@@ -18,7 +18,7 @@ export default function LanguageSwitcher() {
   const currentLabel = LANGUAGES.find(l => l.code === currentLang)?.label || "EN"
 
   const switchLanguage = useCallback(async () => {
-    const nextLang = currentLang === "en" ? "km" : "en"
+    const nextLang = currentLang === "en" ? "kh" : "en"
     let newPath = pathname.replace(`/${currentLang}`, `/${nextLang}`)
     if (!newPath.startsWith(`/${nextLang}`)) {
       newPath = `/${nextLang}${pathname}`

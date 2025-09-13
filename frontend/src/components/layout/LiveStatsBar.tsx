@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { TrendingUp, Users, Eye, Clock, Activity } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Activity, TrendingUp } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import api from "@/lib/api"
 
 interface LiveStats {
@@ -28,7 +28,6 @@ const LiveStatsBar = () => {
       const response = await api.get('/admin/analytics/overview')
       const data = response.data
 
-      // Transform the data into our LiveStats format
       const liveStats: LiveStats = {
         activeUsers: data.realTime?.activeUsers || 0,
         totalArticles: data.overview?.totalArticles || 0,
@@ -44,121 +43,90 @@ const LiveStatsBar = () => {
       setStats(liveStats)
       setError(null)
     } catch (err) {
-      console.error('Failed to fetch live stats:', err)
       setError('Failed to load stats')
     }
   }
 
   useEffect(() => {
     fetchLiveStats()
-    
-    // Update stats every 30 seconds
     const interval = setInterval(fetchLiveStats, 30000)
     return () => clearInterval(interval)
   }, [])
-
+  
   if (error || !stats) return null
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'healthy': return 'text-green-500'
-      case 'warning': return 'text-yellow-500'
-      case 'error': return 'text-red-500'
-      default: return 'text-gray-500'
-    }
-  }
-
-  const getStatusBg = (status: string) => {
-    switch (status) {
-      case 'healthy': return 'bg-green-500/10'
-      case 'warning': return 'bg-yellow-500/10'
-      case 'error': return 'bg-red-500/10'
-      default: return 'bg-gray-500/10'
-    }
-  }
+  const statusColor = stats.status === 'healthy' ? 'bg-emerald-500' : 'bg-amber-500'
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-          className="bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 backdrop-blur-sm border-b border-border/30"
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+          className="border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md"
         >
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between py-2 text-sm">
-              {/* Left side - Live indicators */}
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${getStatusBg(stats.status)} animate-pulse`}>
-                    <div className={`w-full h-full rounded-full ${getStatusColor(stats.status)} animate-ping`}></div>
-                  </div>
-                  <span className="text-muted-foreground">Live</span>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-blue-500" />
-                  <span className="font-medium">{stats.activeUsers}</span>
-                  <span className="text-muted-foreground">active</span>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <Eye className="h-4 w-4 text-green-500" />
-                  <span className="font-medium">{stats.totalViews.toLocaleString()}</span>
-                  <span className="text-muted-foreground">views</span>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <Activity className="h-4 w-4 text-purple-500" />
-                  <span className="font-medium">{stats.totalArticles}</span>
-                  <span className="text-muted-foreground">articles</span>
-                </div>
-              </div>
-
-              {/* Center - Trending */}
-              <div className="hidden lg:flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-orange-500" />
-                  <span className="text-muted-foreground">Trending:</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  {stats.trending.slice(0, 2).map((item, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-center gap-1"
-                    >
-                      <span className="text-foreground font-medium truncate max-w-32">
-                        {item.title}
-                      </span>
-                      <Badge variant="secondary" className="text-xs">
-                        {item.views}
-                      </Badge>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right side - Last updated & close */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  <span className="text-xs">
-                    {new Date(stats.lastUpdated).toLocaleTimeString()}
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="flex items-center justify-between py-1.5">
+              {/* Status & Core Metrics */}
+              <div className="flex items-center gap-6 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-1.5 h-1.5 rounded-full ${statusColor}`} />
+                  <span className="text-neutral-600 dark:text-neutral-400 font-mono">
+                    {stats.activeUsers} live
                   </span>
                 </div>
-                <button
-                  onClick={() => setIsVisible(false)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Hide stats bar"
-                >
-                  ×
-                </button>
+                
+                <div className="hidden sm:flex items-center gap-1 text-neutral-500 dark:text-neutral-500">
+                  <span className="font-mono">{stats.totalViews.toLocaleString()}</span>
+                  <span>views</span>
+                </div>
+
+                <div className="hidden md:flex items-center gap-1 text-neutral-500 dark:text-neutral-500">
+                  <span className="font-mono">{stats.totalArticles}</span>
+                  <span>articles</span>
+                </div>
               </div>
+
+              {/* Trending */}
+              <div className="hidden lg:flex items-center gap-3">
+                {stats.trending.length > 0 && (
+                  <>
+                    <div className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-500">
+                      <TrendingUp className="w-3 h-3" />
+                      <span className="text-xs">trending</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {stats.trending.slice(0, 1).map((item, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="flex items-center gap-2"
+                        >
+                          <span className="text-xs text-neutral-900 dark:text-neutral-100 font-medium max-w-40 truncate">
+                            {item.title}
+                          </span>
+                          <span className="text-xs text-neutral-500 dark:text-neutral-500 font-mono">
+                            {item.views}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Close */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsVisible(false)}
+                className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors text-xs px-1 h-auto"
+              >
+                ×
+              </Button>
             </div>
           </div>
         </motion.div>

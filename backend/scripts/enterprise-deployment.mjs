@@ -396,8 +396,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   
   deployment.deploy()
     .then(result => {
-      console.log('\n📊 Deployment Results:');
-      console.log(JSON.stringify(result, null, 2));
       process.exit(result.success ? 0 : 1);
     })
     .catch(error => {

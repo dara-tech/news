@@ -15,11 +15,7 @@ app.use(express.json());
 // Test route to check if the service can be imported
 app.get('/test-import', async (req, res) => {
   try {
-    console.log('Testing import...');
     const enhancedSentinelService = await import('./services/enhancedSentinelService.mjs');
-    console.log('Import successful');
-    console.log('Service:', enhancedSentinelService.default);
-    console.log('getStatus method:', typeof enhancedSentinelService.default.getStatus);
     
     if (typeof enhancedSentinelService.default.getStatus === 'function') {
       const status = await enhancedSentinelService.default.getStatus();
@@ -35,6 +31,6 @@ app.get('/test-import', async (req, res) => {
 
 const PORT = 5002;
 app.listen(PORT, () => {
-  console.log(`Test server running on port ${PORT}`);
-  console.log('Test endpoint: http://localhost:5002/test-import');
+  // Test server running on port 5002
+  // Test endpoint: http://localhost:5002/test-import
 });

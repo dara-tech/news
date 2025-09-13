@@ -50,8 +50,6 @@ export const fetchImageInfo = async (
         size: contentLength ? parseInt(contentLength) : undefined
       };
     } catch (error) {
-      console.warn(`Image fetch attempt ${attempt + 1} failed for ${url}:`, error);
-      
       if (attempt === retries) {
         return null;
       }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Comment, CommentStats } from '@/lib/commentApi';
 import api from '@/lib/api';
 import { config } from '@/lib/config';
@@ -255,9 +255,9 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
     });
   };
 
-  // WebSocket real-time updates
-  const { isConnected } = useWebSocket(newsId, {
-    onCommentCreated: (newComment) => {
+  // WebSocket real-time updates - memoize options to prevent infinite loops
+  const wsOptions = useMemo(() => ({
+    onCommentCreated: (newComment: any) => {
       const comment = wsCommentToComment(newComment);
       setComments((prev: OptimisticComment[]) => {
         // If this is a reply, add it to the parent comment's replies with de-dup
@@ -275,11 +275,11 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
         totalReplies: (prev.totalReplies || 0) + (comment.parentComment ? 1 : 0)
       } : null);
     },
-    onCommentUpdated: (updatedComment) => {
+    onCommentUpdated: (updatedComment: any) => {
       const comment = wsCommentToComment(updatedComment);
       setComments((prev: Comment[]) => replaceCommentInTree(prev, comment));
     },
-    onCommentDeleted: (commentId) => {
+    onCommentDeleted: (commentId: string) => {
       setComments((prev: Comment[]) => deleteCommentInTree(prev, commentId));
        
       setStats((prev: CommentStats | null) => prev ? {
@@ -287,18 +287,20 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
         totalComments: Math.max(0, prev.totalComments - 1)
       } : null);
     },
-    onCommentLiked: (updatedComment) => {
+    onCommentLiked: (updatedComment: any) => {
       const comment = wsCommentToComment(updatedComment);
       const newLikes = (comment.likes || []).map(id => id.toString());
       setComments((prev: Comment[]) => updateLikesInTree(prev, comment._id, newLikes));
     },
-    onStatsUpdated: (newStats) => {
+    onStatsUpdated: (newStats: any) => {
       setStats(wsStatsToStats(newStats));
     },
     onError: () => {
       setWsError('Real-time connection failed - using fallback mode');
     }
-  });
+  }), []);
+
+  const { isConnected } = useWebSocket(newsId, wsOptions);
 
   useEffect(() => {
     if (!isConnected && !wsError) {

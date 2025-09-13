@@ -13,15 +13,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!article) {
     return {
-      title: lang === 'km' ? 'អត្ថប្រយោគមិនត្រូវបានរកឃើញ' : 'Article not found',
-      description: lang === 'km' ? 'អត្ថប្រយោគដែលអ្នកកំពុងស្វែងរកមិនមានទេ។' : 'The article you are looking for does not exist.',
+      title: lang === 'kh' ? 'អត្ថប្រយោគមិនត្រូវបានរកឃើញ' : 'Article not found',
+      description: lang === 'kh' ? 'អត្ថប្រយោគដែលអ្នកកំពុងស្វែងរកមិនមានទេ។' : 'The article you are looking for does not exist.',
     };
   }
 
   const { title, description, thumbnail, tags, createdAt, updatedAt, author, category } = article;
 
   // Determine language settings
-  const isKhmer = lang === 'km';
+  const isKhmer = lang === 'kh';
   const locale = isKhmer ? 'kh' : 'en';
   const alternateLocale = isKhmer ? 'en' : 'kh';
   
@@ -79,8 +79,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        en: isKhmer ? `/en/news/${article.slug}` : undefined,
-        km: !isKhmer ? `/km/news/${article.slug}` : undefined,
+        'en': isKhmer ? `/en/news/${article.slug}` : undefined,
+        'km': !isKhmer ? `/kh/news/${article.slug}` : undefined,
       },
     },
     openGraph: {
@@ -141,7 +141,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string;
     notFound();
   }
 
-  const locale = lang === 'km' ? 'kh' : 'en';
+  const locale = lang === 'kh' ? 'kh' : 'en';
 
   return <NewsArticleLoader article={article} locale={locale} />;
 }

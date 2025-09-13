@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -44,9 +46,9 @@ export default function AboutPage() {
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Legal</h3>
               <div className="flex flex-wrap gap-4 text-blue-600 dark:text-blue-400">
-                <a href="/privacy" className="hover:underline">Privacy Policy</a>
-                <a href="/terms" className="hover:underline">Terms of Service</a>
-                <a href="/cookie-policy" className="hover:underline">Cookie Policy</a>
+                <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+                <Link href="/terms" className="hover:underline">Terms of Service</Link>
+                <Link href="/cookie-policy" className="hover:underline">Cookie Policy</Link>
               </div>
             </div>
             

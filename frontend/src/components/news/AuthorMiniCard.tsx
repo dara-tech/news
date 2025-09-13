@@ -260,7 +260,7 @@ export default function AuthorMiniCard({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <Link href={`/${locale === 'kh' ? 'km' : 'en'}/author/${author._id}`} className="block">
+          <Link href={`/${locale === 'kh' ? 'kh' : 'en'}/author/${author._id}`} className="block">
             <Button 
               variant="outline" 
               size="sm"

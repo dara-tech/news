@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, ChevronDown, ChevronRight, Search, Loader2 } from "lucide-react"
+import { Home, ChevronDown, ChevronRight, Search, Loader2, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import api from "@/lib/api"
+import { useAuth } from "@/context/AuthContext"
 
 type Category = {
   _id: string
@@ -22,6 +23,8 @@ interface DesktopNavProps {
 }
 
 const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
+  const { user } = useAuth()
+  
   // Refs
   const categoriesBtnRef = useRef<HTMLButtonElement>(null)
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -41,7 +44,10 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
   })
 
   // Navigation links
-  const NAV_LINKS = useMemo(() => [{ href: `/${lang}`, label: "Home", icon: Home }], [lang])
+  const NAV_LINKS = useMemo(() => [
+    { href: `/${lang}`, label: "Home", icon: Home },
+    { href: `/${lang}/recommendations`, label: "Recommendations", icon: Star }
+  ], [lang])
 
   // Fetch categories with retry logic
   const fetchCategories = useCallback(
@@ -105,7 +111,7 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
           query.trim() === ""
             ? prev.categories
             : prev.categories.filter((cat) => {
-                const isKhmer = lang === "km" || lang === "kh"
+                const isKhmer = lang === "kh"
                 const name =
                   typeof cat.name === "string"
                     ? cat.name
@@ -236,7 +242,7 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
                     <span className="text-sm font-medium text-foreground/90 group-hover:text-foreground transition-colors truncate">
                       {typeof cat.name === "string"
                         ? cat.name
-                        : cat.name[(lang === "km" || lang === "kh") ? "kh" : "en"]}
+                        : cat.name[lang === "kh" ? "kh" : "en"]}
                     </span>
                     {cat.count !== undefined && cat.count !== null && (
                       <Badge variant="secondary" className="ml-auto text-xs h-5 px-1.5 rounded-md bg-muted/50 text-muted-foreground border-0">
@@ -303,6 +309,7 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
           )}
         </AnimatePresence>
       </div>
+
     </nav>
   )
 }

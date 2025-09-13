@@ -25,7 +25,7 @@ function getLocalizedText(
   text: string | { [key: string]: string | undefined } | undefined,
   locale: string
 ): string {
-  const safeLocale = locale === 'kh' ? 'kh' : 'en';
+  const safeLocale = locale === 'km' ? 'km' : 'en';
   if (!text) return '';
   if (typeof text === 'string') return text;
   if (typeof text === 'object') {
@@ -37,7 +37,7 @@ function getLocalizedText(
 }
 
 const NewsCard = ({ article, locale }: NewsCardProps) => {
-  const langPath = locale === 'kh' ? 'km' : 'en';
+  const langPath = locale === 'kh' ? 'kh' : 'en';
   const articleSlug =
     typeof article.slug === 'string'
       ? article.slug

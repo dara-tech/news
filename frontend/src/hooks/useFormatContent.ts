@@ -47,9 +47,6 @@ export function useFormatContent() {
         });
         
         if (response.data.success) {
-          console.log('Backend formatting response:', response.data);
-          console.log('Formatted content structure:', response.data.data.content);
-          
           return {
             content: response.data.data.content
           };

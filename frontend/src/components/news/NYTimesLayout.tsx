@@ -32,13 +32,14 @@ interface NYTimesLayoutProps {
 }
 
 export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
+  
   const renderText = (text: string | { en: string; kh: string }) => {
     if (typeof text === 'string') return text
     return text[lang as keyof typeof text] || text.en || ''
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(lang === 'km' ? 'km-KH' : 'en-US', {
+    return new Date(dateString).toLocaleDateString(lang === 'kh' ? 'km-KH' : 'en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -47,7 +48,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
   }
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString(lang === 'km' ? 'km-KH' : 'en-US', {
+    return new Date(dateString).toLocaleTimeString(lang === 'kh' ? 'km-KH' : 'en-US', {
       hour: '2-digit',
       minute: '2-digit'
     })
@@ -60,11 +61,19 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
     article.id !== mainStory?.id && 
     !article.isBreaking
   ).slice(0, 4)
-  const sidebarStories = articles.filter(article => 
-    article.id !== mainStory?.id && 
-    !topStories.some(ts => ts.id === article.id) &&
-    !article.isBreaking
-  ).slice(0, 6)
+  
+  // For sidebar, use all articles except the main story, prioritizing non-breaking news
+  const sidebarStories = articles
+    .filter(article => article.id !== mainStory?.id)
+    .sort((a, b) => {
+      // Prioritize non-breaking news for sidebar
+      if (a.isBreaking && !b.isBreaking) return 1
+      if (!a.isBreaking && b.isBreaking) return -1
+      // Then sort by views (most popular first)
+      return (b.views || 0) - (a.views || 0)
+    })
+    .slice(0, 6)
+  
 
   return (
     <div className=" min-h-screen">
@@ -132,6 +141,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                           src={mainStory.thumbnail}
                           alt={renderText(mainStory.title)}
                           fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
@@ -194,6 +204,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                           src={article.thumbnail}
                           alt={renderText(article.title)}
                           fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
@@ -304,6 +315,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                                 src={article.thumbnail}
                                 alt={renderText(article.title)}
                                 fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 20vw"
                                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                               />
                             </div>

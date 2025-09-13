@@ -87,6 +87,7 @@ export const EnterpriseNewsGrid = ({
                     src={featuredArticle.thumbnail}
                     alt={renderText(featuredArticle.title)}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover transition-transform duration-500 hover:scale-105"
                   />
                 )}
@@ -163,6 +164,7 @@ export const EnterpriseNewsGrid = ({
                         src={article.thumbnail}
                         alt={renderText(article.title)}
                         fill
+                        sizes="80px"
                         className="object-cover"
                       />
                     </div>

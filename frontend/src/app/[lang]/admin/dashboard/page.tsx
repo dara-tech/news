@@ -29,11 +29,9 @@ import {
   Globe,
   MessageSquare,
   Heart,
-  Palette,
-  Image,
-  Type
+  Palette
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -125,7 +123,7 @@ export default function DashboardPage() {
   const [filters, setFilters] = useState<FilterOptions>(defaultFilters);
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [logoSettings, setLogoSettings] = useState<LogoSettings>({
+  const [, setLogoSettings] = useState<LogoSettings>({
     logoDisplayMode: 'text',
     logoText: 'Newsly',
     logoTextColor: '#000000',
@@ -258,7 +256,7 @@ export default function DashboardPage() {
       setLoading(false);
       setIsRefreshing(false);
     }
-  }, [filters, settings.enableNotifications]);
+  }, []);
 
   // Auto-refresh functionality
   useEffect(() => {
@@ -331,7 +329,7 @@ export default function DashboardPage() {
       }
 
       toast.success(`Data exported as ${format.toUpperCase()}`);
-    } catch (error) {
+    } catch {
       toast.error('Export failed. Please try again.');
     }
   }, [filters]);
@@ -438,7 +436,7 @@ export default function DashboardPage() {
           {/* Date Range Filter */}
           <Select
             value={filters.dateRange}
-            onValueChange={(value: any) => setFilters(prev => ({ ...prev, dateRange: value }))}
+            onValueChange={(value: '7d' | '30d' | '90d' | 'custom') => setFilters(prev => ({ ...prev, dateRange: value }))}
           >
             <SelectTrigger className="w-fit">
               <Calendar className="h-4 w-4 mr-2" />
@@ -584,7 +582,7 @@ export default function DashboardPage() {
               <h3 className="text-lg font-semibold">Content Metrics</h3>
               <Select
                 value={filters.sortBy}
-                onValueChange={(value: any) => setFilters(prev => ({ ...prev, sortBy: value }))}
+                onValueChange={(value: 'date' | 'views' | 'engagement') => setFilters(prev => ({ ...prev, sortBy: value }))}
               >
                 <SelectTrigger className="w-fit">
                   <Filter className="h-4 w-4 mr-2" />
@@ -685,7 +683,7 @@ export default function DashboardPage() {
         
         <TabsContent value="social" className="space-y-6">
           <SocialMediaManagement 
-            onSettingsChange={(newSettings) => {
+            onSettingsChange={() => {
               // Handle social media settings change
             }}
           />

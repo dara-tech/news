@@ -63,6 +63,92 @@ async function getRealTimeData() {
 }
 
 /**
+ * GET /api/admin/analytics/overview
+ * Overview data for LiveStatsBar component
+ */
+router.get('/overview', async (req, res) => {
+  try {
+    // Get real analytics data from database
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const [
+      totalArticles,
+      publishedToday,
+      totalUsers,
+      activeUsers24h,
+      totalViews
+    ] = await Promise.all([
+      News.countDocuments({ status: 'published' }),
+      News.countDocuments({ 
+        status: 'published',
+        publishedAt: { $gte: today }
+      }),
+      User.countDocuments(),
+      User.countDocuments({ 
+        lastLogin: { $gte: last24Hours }
+      }),
+      News.aggregate([
+        { $match: { status: 'published' } },
+        { $group: { _id: null, totalViews: { $sum: { $ifNull: ['$views', 0] } } } }
+      ])
+    ]);
+
+    // Get real-time active users
+    const realTimeData = await getRealTimeData();
+
+    // Get trending articles
+    const trendingArticles = await News.find({
+      status: 'published',
+      publishedAt: { $gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) }
+    })
+    .populate('category', 'name')
+    .sort({ views: -1 })
+    .limit(3)
+    .select('title slug views publishedAt category');
+
+    const overviewData = {
+      realTime: {
+        activeUsers: realTimeData.currentUsers,
+        status: 'healthy',
+        requestsPerSecond: realTimeData.requestsPerSecond || 0,
+        avgResponseTime: realTimeData.avgResponseTime || 0
+      },
+      overview: {
+        totalArticles,
+        totalViews: totalViews.length > 0 ? totalViews[0].totalViews : 0,
+        totalUsers,
+        publishedToday,
+        activeUsers24h
+      },
+      trending: {
+        articles: trendingArticles.map(article => ({
+          _id: article._id,
+          title: typeof article.title === 'string' ? article.title : article.title?.en || 'Untitled',
+          views: article.views || 0,
+          slug: article.slug,
+          category: article.category?.name || 'Uncategorized'
+        }))
+      }
+    };
+    
+    res.json({
+      success: true,
+      data: overviewData,
+      timestamp: new Date()
+    });
+  } catch (error) {
+    logger.error('Analytics overview error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get analytics overview',
+      error: error.message
+    });
+  }
+});
+
+/**
  * GET /api/admin/analytics/dashboard
  * Real-time analytics dashboard data
  */
@@ -495,8 +581,6 @@ router.get('/live-users', async (req, res) => {
 router.post('/simulate-users', async (req, res) => {
   try {
     const { count = 5 } = req.body;
-    
-    console.log(`🧪 Simulating ${count} live users...`);
     
     // Sample user data for simulation
     const sampleUsers = [

@@ -184,7 +184,7 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
   // Get localized text
   const getLocalizedText = (text: string | { en?: string; kh?: string } | undefined, locale: string) => {
     if (typeof text === 'string') return text
-    return text?.[locale === 'km' ? 'kh' : 'en'] || text?.en || ''
+    return text?.[locale === 'kh' ? 'kh' : 'en'] || text?.en || ''
   }
 
   // Get author name
@@ -216,6 +216,7 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
                   src={item.thumbnail}
                   alt={title}
                   fill
+                  sizes="96px"
                   className="object-cover rounded-lg"
                 />
               ) : (
@@ -301,7 +302,7 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
             <Button variant="outline" className="w-full justify-between">
               <Filter className="w-4 h-4" />
               {filters.category ?
-                categories.find(c => c._id === filters.category)?.name?.[lang === 'km' ? 'kh' : 'en'] || 'Category'
+                categories.find(c => c._id === filters.category)?.name?.[lang === 'kh' ? 'kh' : 'en'] || 'Category'
                 : 'Category'
               }
             </Button>

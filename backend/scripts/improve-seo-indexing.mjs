@@ -24,8 +24,6 @@ class SEOImprovementService {
   }
 
   async validateSitemap() {
-    console.log('🔍 Validating sitemap URLs...');
-    
     try {
       const response = await axios.get(`${BASE_URL}/sitemap.xml`);
       const sitemapContent = response.data;
@@ -33,8 +31,6 @@ class SEOImprovementService {
       // Extract URLs from sitemap
       const urlMatches = sitemapContent.match(/<loc>(.*?)<\/loc>/g);
       const urls = urlMatches ? urlMatches.map(match => match.replace(/<\/?loc>/g, '')) : [];
-      
-      console.log(`📊 Found ${urls.length} URLs in sitemap`);
       
       // Check each URL
       const validationResults = [];
@@ -63,9 +59,6 @@ class SEOImprovementService {
           count: invalidUrls.length,
           urls: invalidUrls
         });
-        console.log(`❌ Found ${invalidUrls.length} invalid URLs`);
-      } else {
-        console.log('✅ All checked URLs are valid');
       }
       
       return validationResults;
@@ -76,8 +69,6 @@ class SEOImprovementService {
   }
 
   async checkCanonicalUrls() {
-    console.log('🔗 Checking canonical URL implementation...');
-    
     try {
       // Check main pages for canonical URLs
       const pagesToCheck = [
@@ -119,9 +110,6 @@ class SEOImprovementService {
           count: missingCanonical.length,
           pages: missingCanonical
         });
-        console.log(`❌ Found ${missingCanonical.length} pages without canonical URLs`);
-      } else {
-        console.log('✅ All checked pages have canonical URLs');
       }
       
       return canonicalResults;
@@ -132,8 +120,6 @@ class SEOImprovementService {
   }
 
   async generateSEOReport() {
-    console.log('📊 Generating SEO report...');
-    
     const report = {
       timestamp: new Date().toISOString(),
       baseUrl: BASE_URL,
@@ -187,13 +173,10 @@ class SEOImprovementService {
     const reportPath = path.join(process.cwd(), 'seo-report.json');
     await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
     
-    console.log(`📄 SEO report saved to: ${reportPath}`);
     return report;
   }
 
   async run() {
-    console.log('🚀 Starting SEO improvement analysis...\n');
-    
     // Run all checks
     await this.validateSitemap();
     await this.checkCanonicalUrls();
@@ -201,18 +184,6 @@ class SEOImprovementService {
     // Generate report
     const report = await this.generateSEOReport();
     
-    console.log('\n📋 Summary:');
-    console.log(`- Issues found: ${this.issues.length}`);
-    console.log(`- Recommendations: ${report.recommendations.length}`);
-    
-    if (this.issues.length > 0) {
-      console.log('\n❌ Issues to fix:');
-      this.issues.forEach((issue, index) => {
-        console.log(`${index + 1}. ${issue.type}: ${issue.count} items`);
-      });
-    }
-    
-    console.log('\n✅ SEO improvement analysis complete!');
     return report;
   }
 }

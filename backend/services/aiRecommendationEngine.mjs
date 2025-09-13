@@ -8,6 +8,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import News from '../models/News.mjs';
 import User from '../models/User.mjs';
+import Category from '../models/Category.mjs';
 import logger from '../utils/logger.mjs';
 
 class AIRecommendationEngine {
@@ -549,6 +550,372 @@ class AIRecommendationEngine {
   async analyzeTrendingTopics() {
     // Placeholder for trending topics analysis
     logger.info('Trending topics analyzed');
+  }
+
+  /**
+   * Get Similar Content
+   */
+  async getSimilarContent(article, limit, language) {
+    try {
+      const query = {
+        status: 'published',
+        _id: { $ne: article._id },
+        $or: [
+          { category: article.category },
+          { tags: { $in: article.tags || [] } },
+          { keywords: { $regex: (article.tags || []).join('|'), $options: 'i' } }
+        ]
+      };
+
+      const similarArticles = await News.find(query)
+        .populate('category', 'name')
+        .populate('author', 'name profileImage')
+        .sort({ publishedAt: -1 })
+        .limit(limit * 2)
+        .select('title slug description thumbnail publishedAt views category author qualityAssessment tags');
+
+      // Use AI to analyze similarity
+      const scoredArticles = await Promise.all(
+        similarArticles.map(async (similarArticle) => {
+          const similarity = await this.analyzeContentSimilarity(article, similarArticle);
+          return {
+            ...similarArticle.toObject(),
+            similarityScore: similarity,
+            recommendationType: 'similar-content'
+          };
+        })
+      );
+
+      return scoredArticles
+        .sort((a, b) => b.similarityScore - a.similarityScore)
+        .slice(0, limit);
+    } catch (error) {
+      logger.error('Similar content error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get Category-Based Recommendations
+   */
+  async getCategoryBasedRecommendations(categories, limit, language) {
+    try {
+      if (!categories || categories.length === 0) {
+        return this.getPopularRecommendations(limit);
+      }
+
+      const query = {
+        status: 'published',
+        category: { $in: categories }
+      };
+
+      const recommendations = await News.find(query)
+        .populate('category', 'name')
+        .populate('author', 'name profileImage')
+        .sort({ 
+          'qualityAssessment.overallScore': -1,
+          publishedAt: -1,
+          views: -1 
+        })
+        .limit(limit)
+        .select('title slug description thumbnail publishedAt views category author qualityAssessment tags');
+
+      return recommendations.map(article => ({
+        ...article.toObject(),
+        recommendationScore: this.calculateCategoryScore(article, categories),
+        recommendationType: 'category-based'
+      }));
+    } catch (error) {
+      logger.error('Category-based recommendations error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get Explore Content (Diverse, High-Quality)
+   */
+  async getExploreContent(limit, language, categories = [], excludeIds = []) {
+    try {
+      const query = {
+        status: 'published',
+        'qualityAssessment.overallScore': { $gte: 80 }
+      };
+
+      if (categories.length > 0) {
+        query.category = { $in: categories };
+      }
+
+      if (excludeIds.length > 0) {
+        query._id = { $nin: excludeIds };
+      }
+
+      const exploreContent = await News.find(query)
+        .populate('category', 'name')
+        .populate('author', 'name profileImage')
+        .sort({ 
+          'qualityAssessment.overallScore': -1,
+          publishedAt: -1 
+        })
+        .limit(limit * 2)
+        .select('title slug description thumbnail publishedAt views category author qualityAssessment tags');
+
+      // Add diversity by ensuring different categories
+      const diversified = this.addDiversityToContent(exploreContent, limit);
+
+      return diversified.map(article => ({
+        ...article.toObject(),
+        recommendationScore: article.qualityAssessment?.overallScore || 0,
+        recommendationType: 'explore-diverse'
+      }));
+    } catch (error) {
+      logger.error('Explore content error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Generate User Insights using AI
+   */
+  async generateUserInsights(userId, language) {
+    try {
+      const userProfile = await this.getUserProfile(userId);
+      const userBehavior = this.userBehavior.get(userId) || {};
+
+      if (!userBehavior.readArticles || userBehavior.readArticles.length === 0) {
+        return {
+          insights: [],
+          message: 'Not enough data to generate insights yet'
+        };
+      }
+
+      // Get user's reading history
+      const readArticles = await News.find({
+        _id: { $in: userBehavior.readArticles.slice(-20) }
+      }).select('title category tags keywords publishedAt');
+
+      const prompt = `
+        Analyze this user's reading behavior and generate personalized insights:
+
+        Reading History (last 20 articles):
+        ${readArticles.map(article => ({
+          title: article.title?.en || article.title,
+          category: article.category?.name || 'Unknown',
+          tags: article.tags || [],
+          publishedAt: article.publishedAt
+        })).map(item => `- ${item.title} (${item.category}) [${item.tags.join(', ')}]`).join('\n')}
+
+        User Interests: ${userProfile.interests?.join(', ') || 'None specified'}
+        Preferred Categories: ${userProfile.preferredCategories?.join(', ') || 'None specified'}
+
+        Generate insights about:
+        1. Reading patterns and preferences
+        2. Topic interests and trends
+        3. Content quality preferences
+        4. Reading time patterns
+        5. Suggestions for content discovery
+
+        Respond with a JSON object containing:
+        {
+          "readingPatterns": {
+            "favoriteCategories": ["category1", "category2"],
+            "favoriteTopics": ["topic1", "topic2"],
+            "readingFrequency": "daily|weekly|occasional",
+            "preferredContentLength": "short|medium|long"
+          },
+          "insights": [
+            {
+              "type": "pattern|preference|suggestion",
+              "title": "Insight title",
+              "description": "Detailed description",
+              "confidence": 0.85
+            }
+          ],
+          "recommendations": [
+            {
+              "type": "category|topic|author",
+              "suggestion": "Try exploring [suggestion]",
+              "reason": "Based on your interest in [reason]"
+            }
+          ]
+        }
+      `;
+
+      const result = await this.model.generateContent(prompt);
+      const response = result.response.text();
+      
+      try {
+        const insights = JSON.parse(response);
+        return {
+          insights: insights.insights || [],
+          readingPatterns: insights.readingPatterns || {},
+          recommendations: insights.recommendations || [],
+          generatedAt: new Date()
+        };
+      } catch {
+        return {
+          insights: [],
+          message: 'Unable to generate insights at this time'
+        };
+      }
+    } catch (error) {
+      logger.error('User insights generation error:', error);
+      return {
+        insights: [],
+        message: 'Error generating insights'
+      };
+    }
+  }
+
+  /**
+   * Deduplicate and Shuffle Recommendations
+   */
+  deduplicateAndShuffle(recommendations, limit) {
+    const seen = new Set();
+    const unique = recommendations.filter(rec => {
+      const id = rec._id?.toString();
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+
+    // Shuffle array
+    for (let i = unique.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [unique[i], unique[j]] = [unique[j], unique[i]];
+    }
+
+    return unique.slice(0, limit);
+  }
+
+  /**
+   * Add Diversity to Content
+   */
+  addDiversityToContent(content, limit) {
+    const diversified = [];
+    const categoryCount = new Map();
+
+    // Sort by quality score first
+    const sortedContent = content.sort((a, b) => 
+      (b.qualityAssessment?.overallScore || 0) - (a.qualityAssessment?.overallScore || 0)
+    );
+
+    // Add content ensuring category diversity
+    for (const article of sortedContent) {
+      if (diversified.length >= limit) break;
+
+      const category = article.category?.name || 'Unknown';
+      const count = categoryCount.get(category) || 0;
+      
+      // Allow max 2 articles per category for diversity
+      if (count < 2) {
+        diversified.push(article);
+        categoryCount.set(category, count + 1);
+      }
+    }
+
+    // Fill remaining slots if needed
+    if (diversified.length < limit) {
+      const remaining = sortedContent.filter(article => 
+        !diversified.some(d => d._id.toString() === article._id.toString())
+      );
+      diversified.push(...remaining.slice(0, limit - diversified.length));
+    }
+
+    return diversified;
+  }
+
+  /**
+   * Calculate Category Score
+   */
+  calculateCategoryScore(article, userCategories) {
+    let score = 0;
+    
+    // Base quality score
+    score += (article.qualityAssessment?.overallScore || 0) * 0.4;
+    
+    // Category match bonus
+    if (userCategories.includes(article.category?.toString())) {
+      score += 30;
+    }
+    
+    // Recency bonus
+    const ageInHours = (Date.now() - new Date(article.publishedAt)) / (1000 * 60 * 60);
+    const recencyScore = Math.max(0, 100 - ageInHours);
+    score += recencyScore * 0.3;
+    
+    return Math.min(100, score);
+  }
+
+  /**
+   * Enhanced Trending Recommendations with Time Range
+   */
+  async getTrendingRecommendations(limit, language, timeRange = '24h') {
+    try {
+      let timeFilter;
+      switch (timeRange) {
+        case '1h':
+          timeFilter = new Date(Date.now() - 60 * 60 * 1000);
+          break;
+        case '24h':
+          timeFilter = new Date(Date.now() - 24 * 60 * 60 * 1000);
+          break;
+        case '7d':
+          timeFilter = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          timeFilter = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          timeFilter = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      }
+      
+      const trending = await News.find({
+        status: 'published',
+        publishedAt: { $gte: timeFilter }
+      })
+      .populate('category', 'name')
+      .populate('author', 'name profileImage')
+      .sort({ views: -1, publishedAt: -1 })
+      .limit(limit)
+      .select('title slug description thumbnail publishedAt views category author qualityAssessment tags');
+
+      return trending.map(article => ({
+        ...article.toObject(),
+        recommendationScore: this.calculateTrendingScore(article, timeRange),
+        recommendationType: 'trending'
+      }));
+    } catch (error) {
+      logger.error('Trending recommendations error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Enhanced Trending Score with Time Range
+   */
+  calculateTrendingScore(article, timeRange) {
+    const ageInHours = (Date.now() - new Date(article.publishedAt)) / (1000 * 60 * 60);
+    const views = article.views || 0;
+    
+    // Adjust scoring based on time range
+    let timeMultiplier = 1;
+    switch (timeRange) {
+      case '1h':
+        timeMultiplier = 2;
+        break;
+      case '24h':
+        timeMultiplier = 1.5;
+        break;
+      case '7d':
+        timeMultiplier = 1;
+        break;
+      case '30d':
+        timeMultiplier = 0.8;
+        break;
+    }
+    
+    const trendingScore = (views / Math.max(1, ageInHours)) * 10 * timeMultiplier;
+    return Math.min(100, trendingScore);
   }
 }
 

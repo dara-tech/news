@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Home, Search, LogOut, LogIn, Loader2, AlertCircle, RefreshCw, Settings, Shield, ChevronRight } from "lucide-react"
+import { X, Home, Search, LogOut, LogIn, Loader2, AlertCircle, RefreshCw, Settings, Shield, ChevronRight, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -43,7 +43,10 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
   })
 
   // Navigation links
-  const NAV_LINKS = [{ href: `/${lang}`, label: "Home", icon: Home }]
+  const NAV_LINKS = [
+    { href: `/${lang}`, label: "Home", icon: Home },
+    { href: `/${lang}/recommendations`, label: "Recommendations", icon: Sparkles }
+  ]
 
   // Fetch categories with retry logic
   const fetchCategories = useCallback(
@@ -85,7 +88,7 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
           query.trim() === ""
             ? prev.categories
             : prev.categories.filter((cat) => {
-                const isKhmer = lang === "km" || lang === "kh"
+                const isKhmer = lang === "kh"
                 const name =
                   typeof cat.name === "string"
                     ? cat.name
@@ -347,7 +350,7 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
                           <span className="font-medium text-base group-hover:text-primary transition-colors">
                             {typeof cat.name === "string"
                               ? cat.name
-                              : cat.name[(lang === "km" || lang === "kh") ? "kh" : "en"]}
+                              : cat.name[lang === "kh" ? "kh" : "en"]}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">

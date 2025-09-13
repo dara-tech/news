@@ -77,8 +77,6 @@ export default function AuthorProfilePage() {
         setError(null);
         
         const response = await getAuthorProfile(authorId as string);
-        console.log('🔍 Author API Response:', response);
-        console.log('🔍 Author Data:', response.author);
         setData(response);
       } catch (err) {
         const errorObj = err as FetchError;

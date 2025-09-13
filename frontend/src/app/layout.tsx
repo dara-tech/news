@@ -19,6 +19,17 @@ export const metadata: Metadata = {
     template: '%s | Razewire',
   },
   description: 'Your daily source for the latest news in tech, business, and sports. Stay informed, stay ahead.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-modern.svg', type: 'image/svg+xml' },
+      { url: '/favicon-advanced.svg', type: 'image/svg+xml' },
+      { url: '/favicon-animated.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/favicon-modern.svg',
+  },
+  manifest: '/manifest.json',
   verification: {
     google: 'google28105ddce768934a',
   },

@@ -1,47 +1,9 @@
 {
-  "timestamp": "2025-09-09T02:00:12.999Z",
+  "timestamp": "2025-09-09T02:04:50.716Z",
   "baseUrl": "https://www.razewire.online",
-  "issues": [
-    {
-      "type": "MISSING_CANONICAL",
-      "count": 5,
-      "pages": [
-        {
-          "page": "/",
-          "hasCanonical": false,
-          "canonicalUrl": null
-        },
-        {
-          "page": "/news",
-          "hasCanonical": false,
-          "canonicalUrl": null
-        },
-        {
-          "page": "/categories",
-          "hasCanonical": false,
-          "canonicalUrl": null
-        },
-        {
-          "page": "/archive",
-          "hasCanonical": false,
-          "canonicalUrl": null
-        },
-        {
-          "page": "/search",
-          "hasCanonical": false,
-          "canonicalUrl": null
-        }
-      ]
-    }
-  ],
+  "issues": [],
   "fixes": [],
   "recommendations": [
-    {
-      "priority": "MEDIUM",
-      "issue": "Missing Canonical URLs",
-      "solution": "Add canonical URLs to all pages to prevent duplicate content issues",
-      "action": "Ensure all page components include canonical metadata"
-    },
     {
       "priority": "HIGH",
       "issue": "Google Search Console Issues",

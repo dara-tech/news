@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   ZoomIn, 
@@ -9,7 +9,8 @@ import {
   Target, 
   AlertTriangle 
 } from 'lucide-react';
-
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 interface MapContainerProps {
   mapRef: React.RefObject<HTMLDivElement | null>;
   mapInstanceRef: React.MutableRefObject<any>;
@@ -39,6 +40,26 @@ export default function MapContainer({
   loading = false,
   error = null
 }: MapContainerProps) {
+  // Memoize callback functions to prevent infinite loops
+  const handleSpeedChange = useCallback((value: string) => {
+    onSpeedChange(parseInt(value));
+  }, [onSpeedChange]);
+
+  const handleTimeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onTimeChange(parseInt(e.target.value));
+  }, [onTimeChange]);
+
+  const handleZoomIn = useCallback(() => {
+    mapInstanceRef.current?.zoomIn();
+  }, [mapInstanceRef]);
+
+  const handleZoomOut = useCallback(() => {
+    mapInstanceRef.current?.zoomOut();
+  }, [mapInstanceRef]);
+
+  const handleResetView = useCallback(() => {
+    mapInstanceRef.current?.setView([20, 0], 2);
+  }, [mapInstanceRef]);
   return (
     <div className="relative h-80 sm:h-96 rounded-xl border border-gray-200 overflow-hidden shadow-lg bg-gray-50">
       {loading && (
@@ -124,7 +145,7 @@ export default function MapContainer({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => mapInstanceRef.current?.zoomIn()}
+            onClick={handleZoomIn}
             className="w-7 h-7 sm:w-8 sm:h-8 p-0 hover:bg-blue-50"
           >
             <ZoomIn className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -132,7 +153,7 @@ export default function MapContainer({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => mapInstanceRef.current?.zoomOut()}
+            onClick={handleZoomOut}
             className="w-7 h-7 sm:w-8 sm:h-8 p-0 hover:bg-blue-50"
           >
             <ZoomOut className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -141,7 +162,7 @@ export default function MapContainer({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => mapInstanceRef.current?.setView([20, 0], 2)}
+            onClick={handleResetView}
             className="text-xs px-1.5 sm:px-2 py-1"
           >
             <Navigation className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
@@ -163,26 +184,27 @@ export default function MapContainer({
               <Navigation className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
             <div className="flex items-center gap-1 sm:gap-2">
-              <input
+              <Input
                 type="range"
                 min="0"
                 max="100"
                 value={currentTimeIndex}
-                onChange={(e) => onTimeChange(parseInt(e.target.value))}
+                onChange={handleTimeChange}
                 className="w-16 sm:w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
               />
               <span className="text-xs text-gray-600">{currentTimeIndex}%</span>
             </div>
-            <select
-              value={playbackSpeed}
-              onChange={(e) => onSpeedChange(parseInt(e.target.value))}
-              className="text-xs border border-gray-300 rounded px-1 sm:px-2 py-1"
-            >
-              <option value={1}>1x</option>
-              <option value={2}>2x</option>
-              <option value={5}>5x</option>
-              <option value={10}>10x</option>
-            </select>
+            <Select value={playbackSpeed.toString()} onValueChange={handleSpeedChange}>
+              <SelectTrigger className="w-12 h-6 text-xs border border-gray-300 rounded px-1 sm:px-2 py-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1x</SelectItem>
+                <SelectItem value="2">2x</SelectItem>
+                <SelectItem value="5">5x</SelectItem>
+                <SelectItem value="10">10x</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       )}

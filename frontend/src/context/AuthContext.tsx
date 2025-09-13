@@ -101,12 +101,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userDataParam = urlParams.get('user');
         
         // Debug OAuth callback
-        console.log('🔍 OAuth Debug:', {
-          currentUrl: window.location.href,
-          authSuccess,
-          hasUserData: !!userDataParam,
-          userDataLength: userDataParam?.length
-        });
         
         if (authSuccess === 'success' && userDataParam) {
           const newUrl = new URL(window.location.href);
@@ -116,9 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           
           try {
             // Parse user data from URL
-            console.log('📦 Raw user data param:', userDataParam);
             const userData = JSON.parse(decodeURIComponent(userDataParam));
-            console.log('🔓 Parsed user data:', userData);
             
             const userToStore: User = {
               _id: userData._id,
@@ -129,11 +121,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               token: userData.token // Store the JWT token for API calls
             };
             
-            console.log('💾 Storing user:', userToStore);
             localStorage.setItem('userInfo', JSON.stringify(userToStore));
             if (isMounted) setUser(userToStore);
             if (isMounted) setLoading(false);
-            console.log('✅ OAuth login successful!');
             return;
           } catch (error) {
             console.error('❌ Failed to parse user data from OAuth callback:', error);

@@ -8,9 +8,6 @@ try {
   const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
   if (apiKey && apiKey.trim() !== '') {
     genAI = new GoogleGenerativeAI(apiKey);
-    console.log('✅ Gemini AI initialized successfully');
-  } else {
-    console.warn('⚠️ No Gemini API key found, using demo mode');
   }
 } catch (error) {
   console.error('❌ Failed to initialize Gemini AI:', error);
@@ -143,7 +140,6 @@ async function retryWithBackoff<T>(
         
         if (attempt < maxRetries) {
           const delay = RATE_LIMIT_CONFIG.retryDelay * Math.pow(2, attempt);
-          console.log(`Rate limit hit, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
@@ -382,9 +378,7 @@ Please provide a clear, comprehensive explanation.`;
     // Generate content with retry logic and better error handling
     const result = await retryWithBackoff(async () => {
       try {
-        console.log('🔄 Attempting to generate content with model:', modelToUse);
         const result = await model.generateContent(fullPrompt);
-        console.log('✅ Content generated successfully');
         return result;
       } catch (error: any) {
         console.error('❌ Content generation failed:', error);

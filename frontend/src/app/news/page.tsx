@@ -4,52 +4,17 @@ import NewsGrid from '@/components/news/NewsGrid';
 import Pagination from '@/components/common/Pagination';
 import CategoryFilter from '@/components/news/CategoryFilter';
 import type { Category, Locale } from '@/types';
+import { Button } from '@/components/ui/button';
 
 interface NewsPageProps {
   params: Promise<{ lang: string }>;
   searchParams: Promise<{ page?: string; category?: string; search?: string }>;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.razewire.online';
-
-export async function generateMetadata({ params }: NewsPageProps): Promise<Metadata> {
-  const { lang } = await params;
-  const isKhmer = lang === 'km';
-  
-  const title = isKhmer ? 'ព័ត៌មានទាំងអស់ - Razewire' : 'All News - Razewire';
-  const description = isKhmer 
-    ? 'រកមើលអត្ថបទព័ត៌មានចុងក្រោយពីប្រភេទផ្សេងៗ រួមមានបច្ចេកវិទ្យា អាជីវកម្ម កីឡា និងច្រើនទៀត។'
-    : 'Browse all the latest news articles from various categories including technology, business, sports, and more.';
-  
-  const canonicalUrl = `${BASE_URL}/${lang}/news`;
-  
-  return {
-    title,
-    description,
-    metadataBase: new URL(BASE_URL),
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        en: isKhmer ? '/en/news' : undefined,
-        km: !isKhmer ? '/km/news' : undefined,
-      },
-    },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      siteName: 'Razewire',
-      locale: isKhmer ? 'km_KH' : 'en_US',
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      site: '@razewire',
-    },
-  };
-}
+export const metadata: Metadata = {
+  title: 'All News - Razewire',
+  description: 'Browse all the latest news articles from various categories including technology, business, sports, and more.',
+};
 
 function getLocalizedText(text: string | { [key: string]: string | undefined } | undefined, locale: Locale): string {
   if (!text) return '';
@@ -197,12 +162,12 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
                 placeholder="Search articles..."
                 className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
               />
-              <button
+              <Button
                 type="submit"
                 className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
               >
                 Search
-              </button>
+              </Button>
             </form>
           </div>
         </div>
@@ -275,12 +240,12 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
               An unexpected error occurred while loading the news.
             </p>
             <div className="flex gap-4 justify-center">
-              <button
+              <Button
                 onClick={() => window.location.reload()}
                 className="inline-block px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
               >
                 Try Again
-              </button>
+              </Button>
               <a
                 href={`/${lang}/news`}
                 className="inline-block px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"

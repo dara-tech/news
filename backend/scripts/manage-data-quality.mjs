@@ -34,13 +34,9 @@ class DataQualityManager {
 
   async showStatus() {
     if (!this.initialized) {
-      console.log('❌ Manager not initialized. Run: node manage-data-quality.mjs init');
       return;
     }
 
-    console.log('\n🎯 Data Quality System Status');
-    console.log('============================');
-    
     // Enhanced Sentinel Status
     const status = {
       qualityThreshold: enhancedSentinelService.qualityThreshold,
@@ -48,87 +44,46 @@ class DataQualityManager {
       enhancementEnabled: enhancedSentinelService.enhancementEnabled
     };
 
-    console.log(`📊 Quality Threshold: ${status.qualityThreshold}/100`);
-    console.log(`🚀 Auto-Publish: ${status.autoPublishEnabled ? 'Enabled' : 'Disabled'}`);
-    console.log(`🔧 Enhancement: ${status.enhancementEnabled ? 'Enabled' : 'Disabled'}`);
-
     // Quality Statistics
     const stats = await advancedDataQualityService.getQualityStatistics('7d');
-    if (stats) {
-      console.log('\n📈 Quality Statistics (Last 7 Days)');
-      console.log('===================================');
-      console.log(`📰 Total Articles: ${stats.totalArticles}`);
-      console.log(`📊 Average Score: ${stats.averageScore}/100`);
-      console.log(`🟢 Excellent: ${stats.qualityDistribution.excellent}`);
-      console.log(`🔵 Good: ${stats.qualityDistribution.good}`);
-      console.log(`🟡 Acceptable: ${stats.qualityDistribution.acceptable}`);
-      console.log(`🟠 Poor: ${stats.qualityDistribution.poor}`);
-      console.log(`🔴 Unacceptable: ${stats.qualityDistribution.unacceptable}`);
-    }
-
+    
     // Recommendations
     const recommendations = await enhancedSentinelService.getQualityRecommendations();
-    if (recommendations.length > 0) {
-      console.log('\n💡 Quality Recommendations');
-      console.log('==========================');
-      recommendations.forEach((rec, index) => {
-        console.log(`${index + 1}. [${rec.priority.toUpperCase()}] ${rec.suggestion}`);
-        console.log(`   Impact: ${rec.impact}`);
-      });
-    }
+    
+    return { status, stats, recommendations };
   }
 
   async runEnhancedSentinel() {
     if (!this.initialized) {
-      console.log('❌ Manager not initialized. Run: node manage-data-quality.mjs init');
       return;
     }
-
-    console.log('\n🚀 Running Enhanced Sentinel...');
-    console.log('===============================');
     
     const results = await enhancedSentinelService.runEnhancedSentinel();
-    
-    console.log(`✅ Processing completed:`);
-    console.log(`   📰 Processed: ${results.processed} articles`);
-    console.log(`   📝 Created: ${results.created} articles`);
-    console.log(`   🟢 High Quality: ${results.highQuality}`);
-    console.log(`   🟡 Medium Quality: ${results.mediumQuality}`);
-    console.log(`   🔴 Low Quality: ${results.lowQuality}`);
-    
-    if (results.qualityStats) {
-      console.log(`   📊 Average Quality: ${results.qualityStats.averageScore}/100`);
-    }
+    return results;
   }
 
   async setQualityThreshold(threshold) {
     if (!this.initialized) {
-      console.log('❌ Manager not initialized. Run: node manage-data-quality.mjs init');
       return;
     }
 
     if (threshold < 0 || threshold > 100) {
-      console.log('❌ Threshold must be between 0 and 100');
       return;
     }
 
     enhancedSentinelService.setQualityThreshold(threshold);
-    console.log(`✅ Quality threshold updated to: ${threshold}/100`);
   }
 
   async toggleAutoPublish(enabled) {
     if (!this.initialized) {
-      console.log('❌ Manager not initialized. Run: node manage-data-quality.mjs init');
       return;
     }
 
     enhancedSentinelService.setAutoPublishEnabled(enabled);
-    console.log(`✅ Auto-publish ${enabled ? 'enabled' : 'disabled'}`);
   }
 
   async assessArticle(articleId) {
     if (!this.initialized) {
-      console.log('❌ Manager not initialized. Run: node manage-data-quality.mjs init');
       return;
     }
 
@@ -137,64 +92,36 @@ class DataQualityManager {
       const article = await News.findById(articleId);
       
       if (!article) {
-        console.log('❌ Article not found');
         return;
       }
 
-      console.log(`\n🔍 Assessing article: ${article.title?.en || article.title}`);
-      console.log('================================================');
-
       const assessment = await advancedDataQualityService.assessDataQuality(article);
-      
-      if (assessment) {
-        console.log(`📊 Overall Score: ${assessment.overallScore}/100`);
-        console.log(`🏆 Quality Grade: ${assessment.qualityGrade}`);
-        console.log('\n📈 Factor Scores:');
-        console.log(`   🎯 Content Accuracy: ${assessment.factorScores.contentAccuracy?.score || 0}/100`);
-        console.log(`   🔗 Source Reliability: ${assessment.factorScores.sourceReliability?.score || 0}/100`);
-        console.log(`   📝 Content Completeness: ${assessment.factorScores.contentCompleteness?.score || 0}/100`);
-        console.log(`   ✍️ Language Quality: ${assessment.factorScores.languageQuality?.score || 0}/100`);
-        console.log(`   🎯 Relevance Score: ${assessment.factorScores.relevanceScore?.score || 0}/100`);
-        console.log(`   🔄 Uniqueness Score: ${assessment.factorScores.uniquenessScore?.score || 0}/100`);
-
-        if (assessment.recommendations?.length > 0) {
-          console.log('\n💡 Recommendations:');
-          assessment.recommendations.forEach((rec, index) => {
-            console.log(`   ${index + 1}. [${rec.priority.toUpperCase()}] ${rec.suggestion}`);
-          });
-        }
-
-        if (assessment.riskFactors?.length > 0) {
-          console.log('\n⚠️ Risk Factors:');
-          assessment.riskFactors.forEach((risk, index) => {
-            console.log(`   ${index + 1}. [${risk.level.toUpperCase()}] ${risk.factor}: ${risk.description}`);
-          });
-        }
-      } else {
-        console.log('❌ Assessment failed');
-      }
+      return assessment;
     } catch (error) {
-      console.log('❌ Error assessing article:', error.message);
+      return null;
     }
   }
 
   async showHelp() {
-    console.log('\n🎯 Data Quality Management Commands');
-    console.log('====================================');
-    console.log('init                    - Initialize the data quality system');
-    console.log('status                  - Show system status and statistics');
-    console.log('run                     - Run enhanced Sentinel with quality assessment');
-    console.log('threshold <score>       - Set quality threshold (0-100)');
-    console.log('auto-publish <on|off>   - Enable/disable auto-publishing');
-    console.log('assess <articleId>      - Assess specific article quality');
-    console.log('help                    - Show this help message');
-    console.log('\nExamples:');
-    console.log('  node manage-data-quality.mjs init');
-    console.log('  node manage-data-quality.mjs status');
-    console.log('  node manage-data-quality.mjs run');
-    console.log('  node manage-data-quality.mjs threshold 75');
-    console.log('  node manage-data-quality.mjs auto-publish on');
-    console.log('  node manage-data-quality.mjs assess 507f1f77bcf86cd799439011');
+    return {
+      commands: [
+        { command: 'init', description: 'Initialize the data quality system' },
+        { command: 'status', description: 'Show system status and statistics' },
+        { command: 'run', description: 'Run enhanced Sentinel with quality assessment' },
+        { command: 'threshold <score>', description: 'Set quality threshold (0-100)' },
+        { command: 'auto-publish <on|off>', description: 'Enable/disable auto-publishing' },
+        { command: 'assess <articleId>', description: 'Assess specific article quality' },
+        { command: 'help', description: 'Show this help message' }
+      ],
+      examples: [
+        'node manage-data-quality.mjs init',
+        'node manage-data-quality.mjs status',
+        'node manage-data-quality.mjs run',
+        'node manage-data-quality.mjs threshold 75',
+        'node manage-data-quality.mjs auto-publish on',
+        'node manage-data-quality.mjs assess 507f1f77bcf86cd799439011'
+      ]
+    };
   }
 
   async cleanup() {
@@ -217,39 +144,59 @@ async function main() {
         await manager.initialize();
         break;
       case 'status':
-        await manager.showStatus();
+        const statusResult = await manager.showStatus();
+        if (statusResult) {
+          logger.info('📊 Data Quality Status:', statusResult);
+        }
         break;
       case 'run':
-        await manager.runEnhancedSentinel();
+        const runResult = await manager.runEnhancedSentinel();
+        if (runResult) {
+          logger.info('🚀 Enhanced Sentinel Results:', runResult);
+        }
         break;
       case 'threshold':
         if (!arg) {
-          console.log('❌ Please provide a threshold value (0-100)');
+          logger.error('❌ Please provide a threshold value (0-100)');
           break;
         }
         await manager.setQualityThreshold(parseInt(arg));
         break;
       case 'auto-publish':
         if (!arg) {
-          console.log('❌ Please specify "on" or "off"');
+          logger.error('❌ Please specify "on" or "off"');
           break;
         }
         await manager.toggleAutoPublish(arg === 'on');
         break;
       case 'assess':
         if (!arg) {
-          console.log('❌ Please provide an article ID');
+          logger.error('❌ Please provide an article ID');
           break;
         }
-        await manager.assessArticle(arg);
+        const assessment = await manager.assessArticle(arg);
+        if (assessment) {
+          logger.info('🔍 Article Assessment:', assessment);
+        } else {
+          logger.error('❌ Assessment failed');
+        }
         break;
       case 'help':
       default:
-        await manager.showHelp();
+        const helpData = await manager.showHelp();
+        logger.info('🎯 Data Quality Management Commands');
+        logger.info('====================================');
+        helpData.commands.forEach(cmd => {
+          logger.info(`${cmd.command.padEnd(20)} - ${cmd.description}`);
+        });
+        logger.info('\nExamples:');
+        helpData.examples.forEach(example => {
+          logger.info(`  ${example}`);
+        });
         break;
     }
   } catch (error) {
-    console.error('❌ Command failed:', error.message);
+    logger.error('❌ Command failed:', error.message);
   } finally {
     await manager.cleanup();
   }

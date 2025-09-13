@@ -8,6 +8,7 @@ import { Menu, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher"
 import NewsSearch from "@/components/search/NewsSearch"
+import EnterpriseSearch from "@/components/search/EnterpriseSearch"
 import { useAuth } from "@/context/AuthContext"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import NotificationDropdown from "@/components/notifications/NotificationDropdown"
@@ -100,7 +101,6 @@ const Header = () => {
         transition={{ duration: 0.3 }}
       >
         {/* Enhanced glassmorphism overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/3 via-transparent to-purple-500/3 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
         
         <div className="relative container mx-auto flex h-20 items-center justify-between px-4">
@@ -110,7 +110,7 @@ const Header = () => {
           {/* Desktop Navigation */}
           <DesktopNav lang={lang} pathname={pathname} />
 
-          {/* Enhanced Search Component */}
+          {/* Enhanced Enterprise Search Component */}
           <motion.div 
             className="hidden lg:block flex-1 max-w-md mx-8"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -118,9 +118,9 @@ const Header = () => {
             transition={{ delay: 0.2, duration: 0.3 }}
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl blur-sm" />
+              <div className="absolute inset-0  rounded-2xl blur-sm" />
               <div className="relative">
-                <NewsSearch />
+                <EnterpriseSearch lang={lang} />
               </div>
             </div>
           </motion.div>

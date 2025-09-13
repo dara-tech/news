@@ -42,6 +42,10 @@ export interface Article {
     role?: string;
   };
   tags?: string[];
+  isBreaking?: boolean;
+  isFeatured?: boolean;
+  status?: string;
+  keywords?: string;
 }
 
 export interface User {

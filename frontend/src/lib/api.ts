@@ -1,7 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-console.log('API URL:', apiUrl);
 
 // Create axios instance with default config
 const api: AxiosInstance = axios.create({
@@ -53,24 +52,6 @@ api.interceptors.request.use(
       }
     }
     
-    // Enhanced logging for debugging
-    console.group(`[API] ${config.method?.toUpperCase()} ${config.url}`);
-    console.log('Request Config:', {
-      method: config.method,
-      url: config.url,
-      baseURL: config.baseURL,
-      params: config.params,
-      data: config.data,
-      headers: {
-        ...config.headers,
-        // Don't log the full auth token for security
-        Authorization: config.headers.Authorization ? 'Bearer [token]' : undefined,
-      },
-      withCredentials: config.withCredentials,
-      xsrfCookieName: config.xsrfCookieName,
-      xsrfHeaderName: config.xsrfHeaderName,
-    });
-    console.groupEnd();
     
     return config;
   },
@@ -83,14 +64,6 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.group(`[API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`);
-    console.log('Response:', {
-      status: response.status,
-      statusText: response.statusText,
-      data: response.data,
-      headers: response.headers
-    });
-    console.groupEnd();
     return response;
   },
   async (error: AxiosError) => {
@@ -209,7 +182,6 @@ api.interceptors.response.use(
     
     // Handle 403 Forbidden
     if (error.response?.status === 403) {
-      console.log('[API] Forbidden, redirecting to unauthorized page');
       if (typeof window !== 'undefined' && !window.location.pathname.includes('unauthorized')) {
         window.location.href = '/unauthorized';
       }

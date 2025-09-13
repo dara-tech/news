@@ -193,7 +193,7 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
             <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
             <p className="text-gray-600 dark:text-gray-300">
-              {lang === 'kh' 
+              {lang === 'km' 
                 ? 'ភាពឯកជនរបស់អ្នកមានសារៈសំខាន់សម្រាប់យើង។ យើងប្តេជ្ញាចិត្តក្នុងការការពារព័ត៌មានរបស់អ្នកដោយសុវត្ថិភាព។'
                 : 'Your privacy matters to us. We are committed to protecting your information with the highest security standards.'
               }

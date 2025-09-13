@@ -64,13 +64,16 @@ export default function RoleAssignmentDialog({
   useEffect(() => {
     if (isOpen) {
       fetchRoles();
-      if (user) {
-        // Find the role ID that matches the user's current role
-        const currentRole = roles.find(role => role.name === user.role);
-        setSelectedRole(currentRole?._id || '');
-      }
     }
-  }, [isOpen, user, roles]);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (user && roles.length > 0) {
+      // Find the role ID that matches the user's current role
+      const currentRole = roles.find(role => role.name === user.role);
+      setSelectedRole(currentRole?._id || '');
+    }
+  }, [user, roles]);
 
   const fetchRoles = async () => {
     try {

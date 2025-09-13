@@ -116,6 +116,7 @@ export const ProfilePictureHistory = ({
                 src={item.imageUrl}
                 alt="Profile picture"
                 fill
+                sizes="(max-width: 768px) 100vw, 200px"
                 className="object-cover"
                 unoptimized
               />

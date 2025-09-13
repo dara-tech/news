@@ -7,14 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-  RefreshCw, Settings, TrendingUp, PieChart, BarChart, Gauge,
-  Database, FileText, Clock, Shield, Activity, AlertTriangle, CheckCircle,
-  Radio, Bot, Cpu, Target, FileCheck, ArrowRight, Zap, Smartphone, Monitor,
-  LineChart, Bell, Calendar, Timer, Rocket, Lightbulb, Sparkles,
-  Hexagon, Circle, Square, Triangle, Star, Award, Trophy, Users, Server,
-  Network, HardDrive, TrendingDown, Play, Pause, Maximize2, Minimize2,
-  Eye, Filter, Download, Share2, Info, Workflow, GitBranch, GitCommit,
-  Layers, Globe, TrendingUp as TrendingUpIcon, Image
+  RefreshCw, Database, Clock, Shield, Activity, AlertTriangle, CheckCircle,
+  Cpu, HardDrive, Play, Pause, Circle, Image, Calendar, TrendingUp,
+  TrendingDown, Server, Bot, Timer, FileText, Radio, Target, FileCheck,
+  Monitor, ArrowRight, Workflow, Settings, Download, BarChart, LineChart,
+  Lightbulb, Zap, Sparkles, PieChart
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ProcessingDashboardService } from '@/lib/processingDashboardService';
@@ -146,7 +143,7 @@ function ProcessMetricsCard({ title, value, change, icon: Icon, trend = 'up' }: 
   };
 
   const getTrendIcon = () => {
-    if (trend === 'up') return <TrendingUpIcon className="w-4 h-4" />;
+    if (trend === 'up') return <TrendingUp className="w-4 h-4" />;
     if (trend === 'down') return <TrendingDown className="w-4 h-4" />;
     return <Activity className="w-4 h-4" />;
   };
@@ -877,15 +874,6 @@ export default function ProcessingDashboard() {
         ProcessingDashboardService.fetchImageGenerationMetrics()
       ]);
 
-      console.log('Dashboard Data Fetched:', {
-        metrics: metricsData,
-        flows: flowsData,
-        health: healthData,
-        logs: logsData.length,
-        sentinel: sentinelData,
-        contentAnalytics: contentAnalyticsData,
-        imageGeneration: imageGenData
-      });
       
       setMetrics(metricsData);
       setProcessFlows(flowsData);
@@ -1238,7 +1226,6 @@ export default function ProcessingDashboard() {
               <div className="lg:col-span-3">
                 <ImageGenerationMetricsCard 
                   metrics={imageGenerationMetrics} 
-                  onRefresh={handleManualRefresh}
                 />
               </div>
               {/* Content Category Performance */}

@@ -163,7 +163,7 @@ const NewsSearch = () => {
           .map((item: SearchResult) => {
             const title = typeof item.title === 'string'
               ? item.title
-              : item.title[lang === 'km' ? 'kh' : 'en']
+              : item.title[lang === 'kh' ? 'kh' : 'en']
             return title ? title.split(' ').slice(0, 3).join(' ') : ''
           })
           .filter((suggestion: string | undefined): suggestion is string => Boolean(suggestion))
@@ -202,7 +202,8 @@ const NewsSearch = () => {
   // Get localized text
   const getLocalizedText = (text: string | { en?: string; kh?: string } | undefined, locale: string) => {
     if (typeof text === 'string') return text
-    return text?.[locale === 'km' ? 'kh' : 'en'] || text?.en || ''
+    if (!text || typeof text !== 'object') return ''
+    return text[locale === 'kh' ? 'kh' : 'en'] || text.en || ''
   }
 
   // Get author name
@@ -217,7 +218,21 @@ const NewsSearch = () => {
     const description = getLocalizedText(item.description, lang)
     const categoryName = getLocalizedText(item.category?.name, lang)
     const authorName = getAuthorName(item.author)
-    const timeAgo = formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })
+    
+    // Safely format the date with error handling
+    const getTimeAgo = (dateString: string) => {
+      try {
+        if (!dateString) return 'Unknown time'
+        const date = new Date(dateString)
+        if (isNaN(date.getTime())) return 'Invalid date'
+        return formatDistanceToNow(date, { addSuffix: true })
+      } catch (error) {
+        console.error('Error formatting date:', error)
+        return 'Unknown time'
+      }
+    }
+    
+    const timeAgo = getTimeAgo(item.createdAt)
 
     return (
       <motion.div
@@ -234,6 +249,7 @@ const NewsSearch = () => {
                   src={item.thumbnail}
                   alt={title}
                   fill
+                  sizes="96px"
                   className="object-cover rounded-lg"
                 />
               ) : (
@@ -292,7 +308,7 @@ const NewsSearch = () => {
                   </span>
                   <span className="flex items-center gap-1">
                     <Eye className="w-3 h-3" />
-                    {item.views} views
+                    {item.views || 0} views
                   </span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -320,7 +336,7 @@ const NewsSearch = () => {
               <Button variant="outline" className="w-full justify-between">
                 <Filter className="w-4 h-4" />
                 {filters.category ?
-                  categories.find(c => c._id === filters.category)?.name?.[lang === 'km' ? 'kh' : 'en'] || 'Category'
+                  categories.find(c => c._id === filters.category)?.name?.[lang === 'kh' ? 'kh' : 'en'] || 'Category'
                   : 'Category'
                 }
               </Button>

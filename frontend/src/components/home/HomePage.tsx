@@ -6,7 +6,7 @@ import { Article, Category } from '@/types';
 import { NYTimesLayout } from '@/components/news/NYTimesLayout';
 
 interface HomePageProps {
-  lang: 'en' | 'km';
+  lang: 'en' | 'kh';
   newsData: {
     breaking: Article[];
     featured: Article[];
@@ -16,7 +16,7 @@ interface HomePageProps {
 }
 
 export default function HomePage({ lang, newsData, categories }: HomePageProps) {
-  const locale = lang === 'km' ? 'kh' : 'en';
+  const locale = lang;
   const { breaking, featured, latest } = newsData;
 
   // Transform articles to match NY Times component interface

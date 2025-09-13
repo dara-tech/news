@@ -44,9 +44,9 @@ app.get('/routes', (req, res) => {
 
 const PORT = 5002;
 app.listen(PORT, () => {
-  console.log(`Test server running on port ${PORT}`);
-  console.log('Test endpoints:');
-  console.log(`- GET http://localhost:${PORT}/test`);
-  console.log(`- GET http://localhost:${PORT}/routes`);
-  console.log(`- GET http://localhost:${PORT}/api/admin/data-quality/enhanced-sentinel/status`);
+  // Test server running on port 5002
+  // Test endpoints:
+  // - GET http://localhost:5002/test
+  // - GET http://localhost:5002/routes
+  // - GET http://localhost:5002/api/admin/data-quality/enhanced-sentinel/status
 });

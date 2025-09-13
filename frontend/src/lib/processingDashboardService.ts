@@ -79,7 +79,7 @@ export interface SentinelLog {
   timestamp: string;
   level: 'info' | 'warning' | 'error';
   message: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface SentinelMetrics {
@@ -133,13 +133,13 @@ export class ProcessingDashboardService {
   static async fetchMetrics(): Promise<ProcessingMetrics> {
     try {
       // Fetch real Sentinel metrics using the new endpoints
-      const [sentinelMetricsResponse, sentinelLogsResponse] = await Promise.all([
+      const [sentinelMetricsResponse] = await Promise.all([
         api.get('/sentinel/metrics').catch(() => ({ data: { success: false } })),
         api.get('/sentinel/logs').catch(() => ({ data: { logs: [] } }))
       ]);
 
       const sentinelData = sentinelMetricsResponse.data?.metrics;
-      const logsData = sentinelLogsResponse.data?.logs || [];
+      // const logsData = sentinelLogsResponse.data?.logs || [];
 
       // Calculate real metrics from Sentinel data
       const totalProcessed = sentinelData?.performanceMetrics?.totalProcessed || 0;
@@ -165,7 +165,6 @@ export class ProcessingDashboardService {
         }
       };
       
-      console.log('ProcessingDashboardService.fetchMetrics result:', result);
       return result;
     } catch (error) {
       console.error('Error fetching processing metrics:', error);
@@ -309,13 +308,13 @@ export class ProcessingDashboardService {
 
   static async fetchProcessFlows(): Promise<ProcessFlow[]> {
     try {
-      const [sentinelMetricsResponse, sentinelLogsResponse] = await Promise.all([
+      const [sentinelMetricsResponse] = await Promise.all([
         api.get('/sentinel/metrics').catch(() => ({ data: { success: false } })),
         api.get('/sentinel/logs').catch(() => ({ data: { logs: [] } }))
       ]);
 
       const sentinelData = sentinelMetricsResponse.data?.metrics;
-      const logsData = sentinelLogsResponse.data?.logs || [];
+      // const logsData = sentinelLogsResponse.data?.logs || [];
 
       // Create real process flows based on Sentinel data
       const flows: ProcessFlow[] = [];
@@ -396,13 +395,13 @@ export class ProcessingDashboardService {
 
   static async fetchSystemHealth(): Promise<SystemHealth> {
     try {
-      const [sentinelMetricsResponse, sentinelLogsResponse] = await Promise.all([
+      const [sentinelMetricsResponse] = await Promise.all([
         api.get('/sentinel/metrics').catch(() => ({ data: { success: false } })),
         api.get('/sentinel/logs').catch(() => ({ data: { logs: [] } }))
       ]);
 
       const sentinelData = sentinelMetricsResponse.data?.metrics;
-      const logsData = sentinelLogsResponse.data?.logs || [];
+      // const logsData = sentinelLogsResponse.data?.logs || [];
 
       // Determine system status based on Sentinel health
       let status: 'healthy' | 'warning' | 'critical' = 'healthy';

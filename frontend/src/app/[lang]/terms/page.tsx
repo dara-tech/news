@@ -242,7 +242,7 @@ export default async function TermsPage({ params }: TermsPageProps) {
           <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-6">
             <Scale className="w-8 h-8 text-amber-600 dark:text-amber-400 mx-auto mb-4" />
             <p className="text-gray-600 dark:text-gray-300">
-              {lang === 'kh' 
+              {lang === 'km' 
                 ? 'ដោយការប្រើប្រាស់សេវាកម្មរបស់យើង អ្នកយល់ព្រមអនុលោមតាមលក្ខខណ្ឌទាំងនេះ។'
                 : 'By using our service, you agree to comply with these terms and conditions.'
               }

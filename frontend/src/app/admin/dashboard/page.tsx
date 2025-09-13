@@ -258,7 +258,7 @@ export default function DashboardPage() {
       setLoading(false);
       setIsRefreshing(false);
     }
-  }, [filters, settings.enableNotifications]);
+  }, []);
 
   // Auto-refresh functionality
   useEffect(() => {

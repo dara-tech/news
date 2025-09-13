@@ -37,7 +37,7 @@ function getLocalizedText(
   text: string | { [key: string]: string | undefined } | undefined,
   lang: string
 ): string {
-  const safeLang = lang === 'km' ? 'kh' : lang;
+  const safeLang = lang === 'km' ? 'km' : lang;
   if (!text) return '';
   if (typeof text === 'string') return text;
   if (typeof text === 'object') {

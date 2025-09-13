@@ -36,7 +36,7 @@ export default function AdSenseAd({
         console.error('AdSense ad initialization error:', error);
       }
     }
-  }, []);
+  }, [adSlot]); // Add adSlot as dependency to prevent re-initialization
 
   return (
     <div className={`adsense-container ${className}`}>

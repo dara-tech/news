@@ -59,7 +59,7 @@ const data = {
   user: {
     name: 'Admin User',
     email: 'admin@example.com',
-    avatar: '/avatars/admin.jpg',
+    avatar: '/placeholder.jpg',
   },
   navMain: [
     {
@@ -75,6 +75,11 @@ const data = {
           title: 'AI Assistant',
           url: '/ai-assistant',
           icon: Brain,
+        },
+        {
+          title: 'AI Recommendations',
+          url: '/admin/recommendations',
+          icon: Target,
         },
       ],
     },
@@ -214,8 +219,14 @@ export default function AdminSidebar() {
   const lang = params?.lang || 'en';
   const { logout, user } = useAuth();
 
-  // Helper function to get full href with language prefix
-  const getFullHref = (href: string) => `/${lang}${href}`;
+  // Helper function to get full href with language prefix (only for non-admin routes)
+  const getFullHref = (href: string) => {
+    // Admin routes don't use language prefix
+    if (href.startsWith('/admin/')) {
+      return href;
+    }
+    return `/${lang}${href}`;
+  };
 
   // Helper function to check if a path is active
   const isPathActive = (path: string) => {

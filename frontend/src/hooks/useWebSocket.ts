@@ -68,9 +68,6 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
     const host = url.hostname;
     const port = url.port || (window.location.protocol === 'https:' ? '443' : '80');
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`WebSocket: Connecting to ${protocol}//${host}:${port}`);
-    }
 
     return `${protocol}//${host}:${port}`;
   }, []);
@@ -109,11 +106,15 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
         }
         break;
       default:
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Unknown comment update type:', message.updateType);
-        }
+        break;
     }
-  }, [options]);
+  }, [
+    options.onCommentCreated,
+    options.onCommentUpdated,
+    options.onCommentDeleted,
+    options.onCommentLiked,
+    options.onStatsUpdated
+  ]);
 
   const disconnect = useCallback(() => {
     shouldConnectRef.current = false;
@@ -145,9 +146,6 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
   const connect = useCallback(() => {
     // Don't connect if WebSocket is disabled
     if (!config.websocket.enabled) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('WebSocket disabled - using fallback mode');
-      }
       return;
     }
 
@@ -165,9 +163,6 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
 
     try {
       const wsUrl = getWebSocketUrl();
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`Attempting WebSocket connection to: ${wsUrl} (attempt ${reconnectAttemptsRef.current + 1})`);
-      }
 
       // Wrap WebSocket creation in try-catch to prevent unhandled errors
       let ws: WebSocket;
@@ -184,10 +179,6 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
       ws.onmessage = (event: MessageEvent) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
-          // Only log in development for debugging
-          if (process.env.NODE_ENV === 'development') {
-            console.log('WebSocket message received:', message.type);
-          }
           switch (message.type) {
             case 'comment_update':
               handleCommentUpdate(message);
@@ -196,9 +187,7 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
               // Heartbeat response - connection is alive
               break;
             default:
-              if (process.env.NODE_ENV === 'development') {
-                console.log('Unknown WebSocket message type:', message.type);
-              }
+              break;
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
@@ -206,11 +195,6 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
       };
 
       ws.onerror = (error: Event) => {
-        // Only log WebSocket errors in development and only for actual connection issues
-        if (process.env.NODE_ENV === 'development' && ws.readyState === WebSocket.CONNECTING) {
-          console.warn('WebSocket connection error - will retry automatically');
-        }
-
         // Don't call onError for connection errors - let onclose handle reconnection
         if (ws.readyState !== WebSocket.CONNECTING) {
           options.onError?.(error instanceof Error ? error : new Error('WebSocket error'));
@@ -228,7 +212,6 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
 
       ws.onopen = () => {
         clearTimeout(connectionTimeout);
-        console.log('WebSocket connected successfully');
         isConnectingRef.current = false;
         reconnectAttemptsRef.current = 0;
 
@@ -261,10 +244,6 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
           heartbeatIntervalRef.current = null;
         }
 
-        // Only log in development for non-normal closures
-        if (process.env.NODE_ENV === 'development' && event.code !== 1000) {
-          console.log('WebSocket disconnected, will reconnect:', event.code, event.reason);
-        }
 
         // Don't reconnect if component is unmounting or if it was a normal closure
         if (!shouldConnectRef.current || event.code === 1000) {
@@ -274,9 +253,6 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
         // Attempt reconnection with exponential backoff
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
           const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 10000);
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`Attempting reconnection in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1}/${maxReconnectAttempts})`);
-          }
           
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttemptsRef.current++;
@@ -293,7 +269,7 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
       console.error('Error creating WebSocket connection:', error);
       options.onError?.(error instanceof Error ? error : new Error('WebSocket connection error'));
     }
-  }, [newsId, options, getWebSocketUrl, handleCommentUpdate, maxReconnectAttempts]);
+  }, [newsId, getWebSocketUrl, handleCommentUpdate, maxReconnectAttempts, options.onError]);
 
   // Connect on mount and when newsId changes
   useEffect(() => {
@@ -325,10 +301,6 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
   const sendMessage = useCallback((message: OutgoingWebSocketMessage) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(message));
-    } else {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('WebSocket is not connected, cannot send message');
-      }
     }
   }, []);
 
