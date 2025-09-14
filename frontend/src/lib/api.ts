@@ -1,6 +1,10 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+// Use relative URL for client-side requests to leverage Next.js proxy
+// Use absolute URL for server-side requests
+const apiUrl = typeof window !== 'undefined' 
+  ? '' // Client-side: use relative URL to leverage Next.js proxy
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'); // Server-side: use absolute URL
 
 // Create axios instance with default config
 const api: AxiosInstance = axios.create({

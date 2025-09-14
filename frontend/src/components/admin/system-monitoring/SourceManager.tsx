@@ -748,7 +748,7 @@ export default function SourceManager({ sentinel, onUpdate }: SourceManagerProps
                   onClick={async () => {
                     console.log('🧪 [SourceManager] Testing API call...');
                     try {
-                      const response = await fetch('http://localhost:5001/api/ai/sources/all');
+                      const response = await fetch('/api/ai/sources/all');
                       const data = await response.json();
                       console.log('🧪 [SourceManager] Direct fetch result:', data);
                       toast.success(`Direct API test: ${data.sources?.length || 0} sources`);
