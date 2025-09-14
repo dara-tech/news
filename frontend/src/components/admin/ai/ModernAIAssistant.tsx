@@ -120,9 +120,7 @@ export default function ModernAIAssistant() {
         );
 
         toast.success('Response generated');
-      } catch (error: any) {
-        console.error('AI response error:', error);
-        toast.error('Failed to generate response: ' + (error.message || 'Unknown error'));
+      } catch (error: any) {toast.error('Failed to generate response: ' + (error.message || 'Unknown error'));
       } finally {
         setIsProcessing(false);
         setProcessingStage('');
@@ -196,9 +194,7 @@ export default function ModernAIAssistant() {
       );
 
       toast.success('Response generated');
-    } catch (error: any) {
-      console.error('AI response error:', error);
-      toast.error('Failed to generate response: ' + (error.message || 'Unknown error'));
+    } catch (error: any) {toast.error('Failed to generate response: ' + (error.message || 'Unknown error'));
     } finally {
       setIsProcessing(false);
       setProcessingStage('');

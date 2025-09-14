@@ -182,9 +182,7 @@ export default function DashboardPage() {
       if (response.data.success && response.data.settings) {
         setLogoSettings(prev => ({ ...prev, ...response.data.settings }));
       }
-    } catch (error) {
-      console.error('Error fetching logo settings:', error);
-    }
+    } catch (error) {}
   }, []);
 
   // Smart refresh mechanism

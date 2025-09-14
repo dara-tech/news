@@ -114,9 +114,7 @@ export default function RecommendationWidget({
       } else {
         throw new Error(data.message || 'Failed to fetch recommendations');
       }
-    } catch (err) {
-      console.error('Error fetching recommendations:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch recommendations');
+    } catch (err) {setError(err instanceof Error ? err.message : 'Failed to fetch recommendations');
     } finally {
       setLoading(false);
     }
@@ -134,9 +132,7 @@ export default function RecommendationWidget({
         },
         body: JSON.stringify({ action, data }),
       });
-    } catch (err) {
-      console.error('Error tracking behavior:', err);
-    }
+    } catch (err) {}
   };
 
   const handleArticleClick = async (article: RecommendationItem) => {

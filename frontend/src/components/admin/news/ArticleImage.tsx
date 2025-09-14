@@ -18,9 +18,7 @@ const ArticleImage: React.FC<ArticleImageProps> = ({
 }) => {
   const imageUrl = getArticleImageUrl(article);
   
-  const handleError = useCallback(() => {
-    console.warn('Failed to load image:', imageUrl);
-  }, [imageUrl]);
+  const handleError = useCallback(() => {}, [imageUrl]);
   
   const { isLoading, hasError } = useImageLoader({ 
     src: imageUrl,

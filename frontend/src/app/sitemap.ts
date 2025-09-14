@@ -75,12 +75,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       
       // Create enhanced category routes with better SEO
       const categoryRoutes = categories.map((category: {
+        _id: string;
         slug: string;
         updatedAt?: string;
         name?: string;
         articleCount?: number;
       }) => ({
-        url: `${URL}/category/${category.slug}`,
+        url: `${URL}/category/${typeof category.slug === 'string' ? category.slug : category._id}`,
         lastModified: category.updatedAt ? new Date(category.updatedAt).toISOString() : lastModified,
         changeFrequency: 'weekly' as const,
         priority: 0.8, // High priority for category pages
@@ -120,7 +121,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // Add language-specific routes for better international SEO
       const languageRoutes = [
         { lang: 'en', priority: 0.8 },
-        { lang: 'km', priority: 0.8 },
+        { lang: 'kh', priority: 0.8 },
       ].map(({ lang, priority }) => ({
         url: `${URL}/${lang}`,
         lastModified,
@@ -131,7 +132,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // Add language-specific news routes
       const languageNewsRoutes = [
         { lang: 'en', priority: 0.9 },
-        { lang: 'km', priority: 0.9 },
+        { lang: 'kh', priority: 0.9 },
       ].map(({ lang, priority }) => ({
         url: `${URL}/${lang}/news`,
         lastModified,
@@ -139,14 +140,73 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority,
       }));
       
-      // Add only basic search routes (avoid query parameters that might cause 404s)
-      const searchRoutes = [
-        '/search',
-      ].map((route) => ({
-        url: `${URL}${route}`,
+      // Add language-specific category routes
+      const languageCategoryRoutes = categories.flatMap((category: {
+        _id: string;
+        slug: string;
+        updatedAt?: string;
+      }) => [
+        {
+          url: `${URL}/en/category/${typeof category.slug === 'string' ? category.slug : category._id}`,
+          lastModified: category.updatedAt ? new Date(category.updatedAt).toISOString() : lastModified,
+          changeFrequency: 'weekly' as const,
+          priority: 0.8,
+        },
+        {
+          url: `${URL}/kh/category/${typeof category.slug === 'string' ? category.slug : category._id}`,
+          lastModified: category.updatedAt ? new Date(category.updatedAt).toISOString() : lastModified,
+          changeFrequency: 'weekly' as const,
+          priority: 0.8,
+        },
+      ]);
+      
+      // Add language-specific news article routes
+      const languageNewsArticleRoutes = articles.flatMap((article: {
+        slug: string;
+        updatedAt?: string;
+        publishedAt?: string;
+        title?: string;
+        category?: string;
+      }) => {
+        let priority = 0.7;
+        const publishDate = article.publishedAt ? new Date(article.publishedAt) : new Date();
+        const daysSincePublished = (Date.now() - publishDate.getTime()) / (1000 * 60 * 60 * 24);
+        
+        if (daysSincePublished < 7) priority = 0.9;
+        else if (daysSincePublished < 30) priority = 0.8;
+        
+        if (article.category === 'breaking-news' || article.category === 'technology') {
+          priority = Math.min(priority + 0.1, 0.9);
+        }
+        
+        const lastMod = article.updatedAt ? new Date(article.updatedAt).toISOString() : 
+                       article.publishedAt ? new Date(article.publishedAt).toISOString() : lastModified;
+        
+        return [
+          {
+            url: `${URL}/en/news/${article.slug}`,
+            lastModified: lastMod,
+            changeFrequency: 'daily' as const,
+            priority,
+          },
+          {
+            url: `${URL}/kh/news/${article.slug}`,
+            lastModified: lastMod,
+            changeFrequency: 'daily' as const,
+            priority,
+          },
+        ];
+      });
+      
+      // Add language-specific search routes
+      const languageSearchRoutes = [
+        { lang: 'en', priority: 0.6 },
+        { lang: 'kh', priority: 0.6 },
+      ].map(({ lang, priority }) => ({
+        url: `${URL}/${lang}/search`,
         lastModified,
         changeFrequency: 'daily' as const,
-        priority: 0.6,
+        priority,
       }));
       
       // Add user profile and activity routes
@@ -162,9 +222,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.5, // Lower priority for user-specific pages
       }));
       
-      // Remove demo and test pages from sitemap to avoid SEO issues
-      const demoRoutes: any[] = [];
-      
       // Add author pages (if you have author profiles)
       const authorRoutes = articles
         .filter((article: { author?: { slug?: string } }) => article.author?.slug)
@@ -175,23 +232,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           priority: 0.6,
         }));
       
-      // Remove pagination routes to avoid 404s - only include if pages actually exist
-      const paginationRoutes: any[] = [];
-      
-      // Remove category pagination to avoid 404s - only include if pages actually exist
-      const categoryNewsRoutes: any[] = [];
-      
       // Combine all routes with proper ordering
       const allRoutes = [
         ...staticRoutes,
         ...languageRoutes,
         ...languageNewsRoutes,
+        ...languageCategoryRoutes,
+        ...languageNewsArticleRoutes,
+        ...languageSearchRoutes,
         ...categoryRoutes,
         ...newsRoutes,
-        ...searchRoutes,
         ...userRoutes,
         ...authorRoutes,
-        // Removed paginationRoutes, categoryNewsRoutes, and demoRoutes to avoid 404s
       ];
       
       // Sort by priority (highest first) and then by URL
@@ -206,12 +258,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       
     } catch (error) {
       clearTimeout(timeoutId);
-      console.log('Sitemap: Using static routes only due to API timeout or error:', error instanceof Error ? error.message : 'Unknown error');
       return staticRoutes;
     }
     
   } catch (error) {
-    console.log('Sitemap: Using static routes only due to import error:', error instanceof Error ? error.message : 'Unknown error');
     return staticRoutes;
   }
 }

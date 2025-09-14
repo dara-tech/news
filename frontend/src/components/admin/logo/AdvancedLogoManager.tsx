@@ -74,9 +74,7 @@ export function AdvancedLogoManager({ onLogoChange }: AdvancedLogoManagerProps) 
         setLogoAnalytics(analyticsResponse.data.analytics);
       }
 
-    } catch (error) {
-      console.error('Error fetching logo data:', error);
-      toast.error('Failed to load logo data');
+    } catch (error) {toast.error('Failed to load logo data');
     } finally {
       setLoading(false);
     }
@@ -111,9 +109,7 @@ export function AdvancedLogoManager({ onLogoChange }: AdvancedLogoManagerProps) 
       setCurrentLogo({ url: version.url });
       onLogoChange?.(version.url);
       toast.success(`Restored to version ${version.version}`);
-    } catch (error) {
-      console.error('Error restoring version:', error);
-      toast.error('Failed to restore version');
+    } catch (error) {toast.error('Failed to restore version');
     }
   };
 
@@ -125,9 +121,7 @@ export function AdvancedLogoManager({ onLogoChange }: AdvancedLogoManagerProps) 
         onLogoChange?.(response.data.logo.url);
         toast.success('Logo optimized successfully!');
       }
-    } catch (error) {
-      console.error('Error optimizing logo:', error);
-      toast.error('Failed to optimize logo');
+    } catch (error) {toast.error('Failed to optimize logo');
     }
   };
 
@@ -142,9 +136,7 @@ export function AdvancedLogoManager({ onLogoChange }: AdvancedLogoManagerProps) 
       a.click();
       window.URL.revokeObjectURL(url);
       toast.success(`Logo exported as ${format.toUpperCase()}`);
-    } catch (error) {
-      console.error('Error exporting logo:', error);
-      toast.error('Failed to export logo');
+    } catch (error) {toast.error('Failed to export logo');
     }
   };
 

@@ -50,9 +50,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       
       setNotifications(Array.isArray(fetchedNotifications) ? fetchedNotifications : []);
       setUnreadCount(fetchedUnreadCount || 0);
-    } catch (err) {
-      console.error('Error fetching notifications:', err);
-      setError('Failed to load notifications');
+    } catch (err) {setError('Failed to load notifications');
       setNotifications([]);
       setUnreadCount(0);
     } finally {
@@ -66,9 +64,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     try {
       const response = await api.get<NotificationCountResponse>('/notifications/count');
       setUnreadCount(response.data.unreadCount || 0);
-    } catch (err) {
-      console.error('Error fetching notification count:', err);
-      setUnreadCount(0);
+    } catch (err) {setUnreadCount(0);
     }
   }, [user]);
 
@@ -85,9 +81,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       );
       
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (err) {
-      console.error('Error marking notification as read:', err);
-    }
+    } catch (err) {}
   }, []);
 
   const markAllAsRead = useCallback(async () => {
@@ -99,9 +93,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       );
       
       setUnreadCount(0);
-    } catch (err) {
-      console.error('Error marking all notifications as read:', err);
-    }
+    } catch (err) {}
   }, []);
 
   const deleteNotification = useCallback(async (id: string) => {
@@ -117,9 +109,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       if (deletedNotification && !deletedNotification.isRead) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
-    } catch (err) {
-      console.error('Error deleting notification:', err);
-    }
+    } catch (err) {}
   }, [notifications]);
 
   // Initial fetch when user is available

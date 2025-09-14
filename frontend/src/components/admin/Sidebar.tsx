@@ -219,12 +219,9 @@ export default function AdminSidebar() {
   const lang = params?.lang || 'en';
   const { logout, user } = useAuth();
 
-  // Helper function to get full href with language prefix (only for non-admin routes)
+  // Helper function to get full href with language prefix
   const getFullHref = (href: string) => {
-    // Admin routes don't use language prefix
-    if (href.startsWith('/admin/')) {
-      return href;
-    }
+    // All routes use language prefix
     return `/${lang}${href}`;
   };
 

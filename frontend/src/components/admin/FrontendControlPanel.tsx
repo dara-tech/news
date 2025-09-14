@@ -100,9 +100,7 @@ const FrontendControlPanel: React.FC = () => {
         // Load default settings if API fails
         setSettings(getDefaultSettings());
       }
-    } catch (error) {
-      console.error('Failed to load frontend settings:', error);
-      setSettings(getDefaultSettings());
+    } catch (error) {setSettings(getDefaultSettings());
     } finally {
       setLoading(false);
     }
@@ -126,9 +124,7 @@ const FrontendControlPanel: React.FC = () => {
       } else {
         alert('❌ Failed to save settings');
       }
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-      alert('❌ Error saving settings');
+    } catch (error) {alert('❌ Error saving settings');
     } finally {
       setSaving(false);
     }

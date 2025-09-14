@@ -57,19 +57,14 @@ const FollowsPage = () => {
     const fetchFollows = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/admin/follows');
-        console.log('API Response:', response); // Debug log
+        const response = await api.get('/admin/follows');// Debug log
         
         // Extract data from the response structure
         const followsData = response.data?.data || response.data || [];
-        const followsArray = Array.isArray(followsData) ? followsData : [];
-        
-        console.log('Follows Array:', followsArray); // Debug log
+        const followsArray = Array.isArray(followsData) ? followsData : [];// Debug log
         
         // If no data from API, use mock data for testing
-        if (followsArray.length === 0) {
-          console.log('No data from API, using mock data');
-          const mockFollows: FollowRelationship[] = [
+        if (followsArray.length === 0) {const mockFollows: FollowRelationship[] = [
             {
               _id: '1',
               follower: {
@@ -134,9 +129,7 @@ const FollowsPage = () => {
           setFollows(followsArray);
           setFilteredFollows(followsArray);
         }
-      } catch (err) {
-        console.error('Error fetching follows:', err);
-        toast.error('Failed to fetch follow relationships.');
+      } catch (err) {toast.error('Failed to fetch follow relationships.');
         setFollows([]);
         setFilteredFollows([]);
       } finally {

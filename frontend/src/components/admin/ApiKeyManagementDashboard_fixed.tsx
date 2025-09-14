@@ -111,9 +111,7 @@ const ApiKeyManagementDashboard: React.FC = () => {
         setRawData(rawData.data);
       }
 
-    } catch (error) {
-      console.error('Failed to load API key data:', error);
-    } finally {
+    } catch (error) {} finally {
       setLoading(false);
     }
   };
@@ -220,9 +218,7 @@ const ApiKeyManagementDashboard: React.FC = () => {
           alert('Failed to update API keys: ' + data.message);
         }
       }
-    } catch (error) {
-      console.error('Failed to update API keys:', error);
-      alert('Failed to update API keys');
+    } catch (error) {alert('Failed to update API keys');
     }
   };
 
@@ -250,9 +246,7 @@ const ApiKeyManagementDashboard: React.FC = () => {
       } else {
         alert('Failed to test API key: ' + data.message);
       }
-    } catch (error) {
-      console.error('Failed to test API key:', error);
-      alert('Failed to test API key');
+    } catch (error) {alert('Failed to test API key');
     } finally {
       setTestingService(null);
     }

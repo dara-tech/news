@@ -57,9 +57,7 @@ export default function LogoSettingsPage() {
       if (response.data.success && response.data.settings) {
         setSettings(prev => ({ ...prev, ...response.data.settings }));
       }
-    } catch (error: any) {
-      console.error('Error fetching logo settings:', error);
-      toast.error('Failed to load logo settings');
+    } catch (error: any) {toast.error('Failed to load logo settings');
     } finally {
       setLoading(false);
     }
@@ -120,9 +118,7 @@ export default function LogoSettingsPage() {
         setPreviewUrl(null);
         toast.success('Logo uploaded successfully!');
       }
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload logo');
+    } catch (error: any) {toast.error('Failed to upload logo');
     } finally {
       setSaving(false);
     }
@@ -133,9 +129,7 @@ export default function LogoSettingsPage() {
       setSaving(true);
       await api.put('/admin/settings/logo', { settings });
       toast.success('Logo settings saved successfully!');
-    } catch (error: any) {
-      console.error('Error saving logo settings:', error);
-      toast.error('Failed to save logo settings');
+    } catch (error: any) {toast.error('Failed to save logo settings');
     } finally {
       setSaving(false);
     }
@@ -151,9 +145,7 @@ export default function LogoSettingsPage() {
         logoDisplayMode: 'text' as const,
       }));
       toast.success('Logo deleted successfully!');
-    } catch (error: any) {
-      console.error('Delete error:', error);
-      toast.error('Failed to delete logo');
+    } catch (error: any) {toast.error('Failed to delete logo');
     } finally {
       setSaving(false);
     }

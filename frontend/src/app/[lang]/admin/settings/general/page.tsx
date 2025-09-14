@@ -74,9 +74,7 @@ export default function GeneralSettingsPage() {
         setSettings(data.settings);
         setHasChanges(false);
       }
-    } catch (error: any) {
-      console.error('Error fetching settings:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to load settings';
+    } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to load settings';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -149,9 +147,7 @@ export default function GeneralSettingsPage() {
             setSettings(response.data.settings);
           }
         }
-      } catch (error: any) {
-        console.error('Error saving settings:', error);
-        const errorMessage = error.response?.data?.message || 'Failed to save settings';
+      } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to save settings';
         toast.error(errorMessage);
         
         // Show field-specific errors if available
@@ -178,9 +174,7 @@ export default function GeneralSettingsPage() {
           setSettings(response.data.settings);
         }
       }
-    } catch (error: any) {
-      console.error('Error saving settings:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to save settings';
+    } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to save settings';
       toast.error(errorMessage);
       
       // Show field-specific errors if available

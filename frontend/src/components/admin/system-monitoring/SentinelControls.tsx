@@ -54,10 +54,21 @@ export default function SentinelControls({ sentinel, runtime, sentinelError, onU
   const metrics = getSentinelMetrics(runtime);
   const recommendations = getSentinelRecommendations(metrics, sentinel || {});
 
+  // Debug logging for Force Run button state
+  console.log('🔍 [SentinelControls] Debug Info:', {
+    isForceRun,
+    sentinelError,
+    healthStatus,
+    sentinelEnabled: sentinel?.enabled,
+    runtimeRunning: runtime?.running,
+    buttonDisabled: isForceRun || !!sentinelError || healthStatus === 'running'
+  });
+
   const emergencyStop = async () => {
     try {
       setIsEmergencyStop(true);
-      const { data } = await api.post('/admin/system/sentinel/emergency-stop');
+      // Use the existing update endpoint to disable Sentinel
+      const { data } = await api.put('/admin/system/sentinel', { enabled: false });
       if (data?.success) {
         toast.success('Sentinel emergency stopped');
         onUpdate();
@@ -74,15 +85,15 @@ export default function SentinelControls({ sentinel, runtime, sentinelError, onU
   const forceRun = async () => {
     try {
       setIsForceRun(true);
-      const { data } = await api.post('/admin/system/sentinel/force-run');
+      const { data } = await api.post('/admin/system/sentinel/run-once');
       if (data?.success) {
-        toast.success('Sentinel force run initiated');
+        toast.success('Sentinel run-once initiated');
         onUpdate();
       } else {
-        toast.error('Failed to force run Sentinel');
+        toast.error('Failed to run Sentinel');
       }
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to force run Sentinel');
+      toast.error(e?.response?.data?.message || 'Failed to run Sentinel');
     } finally {
       setIsForceRun(false);
     }
@@ -237,9 +248,17 @@ export default function SentinelControls({ sentinel, runtime, sentinelError, onU
               onClick={forceRun}
               disabled={isForceRun || !!sentinelError || healthStatus === 'running'}
               className="border-orange-200 text-orange-700 hover:bg-orange-50"
+              title={
+                isForceRun ? 'Run once in progress...' :
+                sentinelError ? `Error: ${sentinelError}` :
+                healthStatus === 'running' ? 'Sentinel is already running' :
+                healthStatus === 'disabled' ? 'Sentinel is disabled' :
+                healthStatus === 'cooldown' ? 'Sentinel is in cooldown' :
+                'Click to run Sentinel once'
+              }
             >
               <Zap className="h-3 w-3 mr-2" />
-              Force Run
+              Run Once
             </Button>
             
             <Button

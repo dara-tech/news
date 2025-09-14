@@ -9,8 +9,8 @@ import {
   ThumbsDown
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+// import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Message } from './types';
 
 interface ChatMessageProps {
@@ -112,7 +112,7 @@ export default function ChatMessage({ message, onCopyMessage }: ChatMessageProps
                     const match = /language-(\w+)/.exec(className || '');
                     return match ? (
                       <SyntaxHighlighter
-                        style={tomorrow}
+                        style={{}}
                         language={match[1]}
                         PreTag="div"
                         className="rounded-lg my-3 text-xs overflow-hidden border border-border/20"

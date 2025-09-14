@@ -18,7 +18,6 @@ import UserDropdown from "@/components/layout/UserDropdown"
 import Logo from "@/components/layout/Logo"
 import LiveStatsBar from "./LiveStatsBar"
 import EnhancedLoginButton from "./EnhancedLoginButton"
-import QuickAdminAccess from "./QuickAdminAccess"
 
 const Header = () => {
   const { user, logout } = useAuth()
@@ -112,13 +111,13 @@ const Header = () => {
 
           {/* Enhanced Enterprise Search Component */}
           <motion.div 
-            className="hidden lg:block flex-1 max-w-md mx-8"
+            className="hidden lg:block flex-1 max-w-lg mx-8"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            <div className="relative">
-              <div className="absolute inset-0  rounded-2xl blur-sm" />
+            <div className="relative overflow-hidden rounded-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl blur-sm" />
               <div className="relative">
                 <EnterpriseSearch lang={lang} />
               </div>
@@ -159,7 +158,7 @@ const Header = () => {
                 </motion.div>
                 
                 {/* Quick Admin Access */}
-                <QuickAdminAccess user={user} lang={lang} />
+                {/* <QuickAdminAccess user={user} lang={lang} /> */}
               </div>
             )}
 

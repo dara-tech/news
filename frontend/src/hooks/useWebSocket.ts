@@ -169,9 +169,7 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
       try {
         ws = new WebSocket(wsUrl);
         wsRef.current = ws;
-      } catch (wsError) {
-        console.error('Failed to create WebSocket:', wsError);
-        isConnectingRef.current = false;
+      } catch (wsError) {isConnectingRef.current = false;
         options.onError?.(wsError instanceof Error ? wsError : new Error('WebSocket creation failed'));
         return;
       }
@@ -189,9 +187,7 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
             default:
               break;
           }
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
+        } catch (error) {}
       };
 
       ws.onerror = (error: Event) => {
@@ -203,9 +199,7 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
 
       // Add timeout for connection
       const connectionTimeout = setTimeout(() => {
-        if (ws.readyState === WebSocket.CONNECTING) {
-          console.warn('WebSocket connection timeout');
-          ws.close();
+        if (ws.readyState === WebSocket.CONNECTING) {ws.close();
           options.onError?.('Connection timeout');
         }
       }, config.websocket.connectionTimeout);
@@ -258,16 +252,12 @@ export const useWebSocket = (newsId: string, options: UseWebSocketOptions = {}) 
             reconnectAttemptsRef.current++;
             connect();
           }, delay);
-        } else {
-          console.error('Max reconnection attempts reached');
-          options.onError?.('Max reconnection attempts reached');
+        } else {options.onError?.('Max reconnection attempts reached');
         }
       };
 
     } catch (error) {
-      isConnectingRef.current = false;
-      console.error('Error creating WebSocket connection:', error);
-      options.onError?.(error instanceof Error ? error : new Error('WebSocket connection error'));
+      isConnectingRef.current = false;options.onError?.(error instanceof Error ? error : new Error('WebSocket connection error'));
     }
   }, [newsId, getWebSocketUrl, handleCommentUpdate, maxReconnectAttempts, options.onError]);
 

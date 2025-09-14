@@ -163,9 +163,7 @@ export default function LikeManager() {
       } else {
         throw new Error('Failed to fetch likes');
       }
-    } catch (error) {
-      console.error('Error fetching likes:', error);
-      setError('Failed to load likes. Please try again.');
+    } catch (error) {setError('Failed to load likes. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -176,9 +174,7 @@ export default function LikeManager() {
       await api.delete(`/admin/likes/${likeId}`);
       setLikes(prev => prev.filter(like => like._id !== likeId));
       fetchLikes(); // Refresh to update stats
-    } catch (error) {
-      console.error('Error deleting like:', error);
-    }
+    } catch (error) {}
   };
 
   const handleBulkDelete = async () => {
@@ -188,9 +184,7 @@ export default function LikeManager() {
       await api.delete('/admin/likes/bulk-delete', { data: { likeIds: selectedLikes } });
       setSelectedLikes([]);
       fetchLikes();
-    } catch (error) {
-      console.error('Error bulk deleting likes:', error);
-    }
+    } catch (error) {}
   };
 
   const handleSelectAll = (checked: boolean) => {

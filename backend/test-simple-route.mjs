@@ -23,9 +23,7 @@ app.get('/test-import', async (req, res) => {
     } else {
       res.json({ success: false, error: 'getStatus is not a function' });
     }
-  } catch (error) {
-    console.error('Import error:', error);
-    res.json({ success: false, error: error.message });
+  } catch (error) {res.json({ success: false, error: error.message });
   }
 });
 

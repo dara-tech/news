@@ -183,7 +183,6 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
           !isNaN(location.coordinates.longitude)
         );
         
-        console.log('Transformed map data:', validData);
         setMapData(validData);
         
         // Calculate analytics
@@ -282,27 +281,21 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
     markersRef.current.forEach(marker => {
       try {
         mapInstanceRef.current.removeLayer(marker);
-      } catch (e) {
-        console.error('Error removing marker:', e);
-      }
+      } catch (e) {}
     });
     markersRef.current = [];
 
     if (heatmapRef.current) {
       try {
         mapInstanceRef.current.removeLayer(heatmapRef.current);
-      } catch (e) {
-        console.error('Error removing heatmap:', e);
-      }
+      } catch (e) {}
       heatmapRef.current = null;
     }
 
     if (clusterRef.current) {
       try {
         mapInstanceRef.current.removeLayer(clusterRef.current);
-      } catch (e) {
-        console.error('Error removing cluster:', e);
-      }
+      } catch (e) {}
       clusterRef.current = null;
     }
 
@@ -329,14 +322,12 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
         }).addTo(mapInstanceRef.current);
       } else {
         // Fallback to regular markers if heatmap plugin is not available
-        console.warn('Heatmap plugin not available, falling back to markers');
         locations.forEach((location, index) => {
           if (!location.coordinates || 
               typeof location.coordinates.latitude !== 'number' || 
               typeof location.coordinates.longitude !== 'number' ||
               isNaN(location.coordinates.latitude) || 
               isNaN(location.coordinates.longitude)) {
-            console.warn('Invalid coordinates for location:', location);
             return;
           }
           
@@ -413,14 +404,12 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
         clusterRef.current.addTo(mapInstanceRef.current);
       } else {
         // Fallback to regular markers if clustering plugin is not available
-        console.warn('Clustering plugin not available, falling back to individual markers');
         locations.forEach((location, index) => {
           if (!location.coordinates || 
               typeof location.coordinates.latitude !== 'number' || 
               typeof location.coordinates.longitude !== 'number' ||
               isNaN(location.coordinates.latitude) || 
               isNaN(location.coordinates.longitude)) {
-            console.warn('Invalid coordinates for location:', location);
             return;
           }
           
@@ -437,7 +426,6 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
             typeof location.coordinates.longitude !== 'number' ||
             isNaN(location.coordinates.latitude) || 
             isNaN(location.coordinates.longitude)) {
-          console.warn('Invalid coordinates for location:', location);
           return;
         }
         
@@ -600,7 +588,7 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
     realTimeIntervalRef.current = setInterval(() => {
       fetchMapData();
     }, refreshInterval * 1000);
-  }, [refreshInterval]);
+  }, [refreshInterval, fetchMapData]);
 
   const stopRealTimeUpdates = useCallback(() => {
     if (realTimeIntervalRef.current) {
@@ -701,9 +689,7 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
     if (mapInstanceRef.current) {
       try {
         mapInstanceRef.current.remove();
-      } catch (e) {
-        console.error('Error removing existing map:', e);
-      }
+      } catch (e) {}
       mapInstanceRef.current = null;
     }
 
@@ -748,8 +734,6 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
         wheelPxPerZoomLevel: 60,
         bounceAtZoomLimits: true
       });
-      
-      console.log('Map initialized successfully');
 
       // Add tile layer based on map type
       const tileLayer = getTileLayer(mapType);
@@ -767,7 +751,7 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
         updateMapMarkers(mapData);
       }
     } catch (error) {
-      console.error('Error initializing map:', error);
+      console.error('Failed to initialize map:', error);
     } finally {
       // Reset initializing flag
       isInitializingRef.current = false;
@@ -900,7 +884,7 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
 
       return () => clearInterval(interval);
     }
-  }, [autoRefresh, refreshInterval]);
+  }, [autoRefresh, refreshInterval, fetchMapData]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -998,7 +982,7 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
 
   return (
     <Card className={className}>
-      <CardContent className="p-4 sm:p-6 ">
+      <CardContent className="p-4 sm:p-6">
         {/* Map Controls */}
         <MapControls
           searchQuery={searchQuery}
@@ -1034,12 +1018,6 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
           analytics={analytics}
         />
 
-
-
-
-
-       
-
         {/* Main Content */}
         <div className="mt-2">
           {/* Map and Analytics */}
@@ -1073,7 +1051,6 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
               mapType={mapType}
               onMapReady={() => {
                 setMapReady(true);
-                console.log('Map is ready for markers');
               }}
             />
           )}
@@ -1255,14 +1232,13 @@ export default function UserLoginMap({ className }: UserLoginMapProps) {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6">
                 {/* Users */}
                 <div>
                   <h4 className="font-medium mb-2 flex items-center gap-2">
                     <Users className="w-4 h-4" />
                     Users ({selectedLocation.userCount})
                   </h4>
-                 
                   
                   {/* Debug Profile Images */}
                   {process.env.NODE_ENV === 'development' && (

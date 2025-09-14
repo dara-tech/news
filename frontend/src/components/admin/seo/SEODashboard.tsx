@@ -86,9 +86,7 @@ const SEODashboard: React.FC = () => {
       setLoading(true);
       const response = await api.get('/admin/seo/dashboard');
       setData(response.data.data);
-    } catch (error) {
-      console.error('Error fetching SEO dashboard:', error);
-      setError('Failed to load SEO dashboard data');
+    } catch (error) {setError('Failed to load SEO dashboard data');
       toast.error('Failed to load SEO dashboard');
     } finally {
       setLoading(false);

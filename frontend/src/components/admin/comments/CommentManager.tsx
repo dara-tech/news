@@ -193,9 +193,7 @@ export default function CommentManager() {
       } else {
         throw new Error('Failed to fetch comments');
       }
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-      setError('Failed to load comments. Please try again.');
+    } catch (error) {setError('Failed to load comments. Please try again.');
       toast.error('Failed to load comments');
     } finally {
       setLoading(false);
@@ -218,9 +216,7 @@ export default function CommentManager() {
       
       fetchComments(); // Refresh to update stats
       toast.success(`Comment ${status} successfully`);
-    } catch (error) {
-      console.error(`Error ${status}ing comment:`, error);
-      setError(`Failed to ${status} comment. Please try again.`);
+    } catch (error) {setError(`Failed to ${status} comment. Please try again.`);
       toast.error(`Failed to ${status} comment`);
     }
   };
@@ -231,9 +227,7 @@ export default function CommentManager() {
       setComments(prev => prev.filter(comment => comment._id !== commentId));
       fetchComments(); // Refresh to update stats
       toast.success('Comment deleted successfully');
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-      setError('Failed to delete comment. Please try again.');
+    } catch (error) {setError('Failed to delete comment. Please try again.');
       toast.error('Failed to delete comment');
     }
   };
@@ -253,9 +247,7 @@ export default function CommentManager() {
       setSelectedComments([]);
       fetchComments();
       toast.success(`Comments ${action}${action === 'approve' ? 'd' : action === 'reject' ? 'ed' : 'd'} successfully`);
-    } catch (error) {
-      console.error(`Error bulk ${action}ing comments:`, error);
-      setError(`Failed to ${action} comments. Please try again.`);
+    } catch (error) {setError(`Failed to ${action} comments. Please try again.`);
       toast.error(`Failed to ${action} comments`);
     }
   };

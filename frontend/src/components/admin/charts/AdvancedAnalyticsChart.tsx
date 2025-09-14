@@ -64,9 +64,7 @@ export default function AdvancedAnalyticsChart() {
       } else {
         throw new Error('Failed to fetch analytics data');
       }
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-      setError('Failed to load analytics data');
+    } catch (error) {setError('Failed to load analytics data');
     } finally {
       setLoading(false);
     }
@@ -337,7 +335,7 @@ export default function AdvancedAnalyticsChart() {
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ name, value, visitors }) => `${safeDisplayValue(name)}: ${value}%`}
+                  label={({ name, value }) => `${safeDisplayValue(name)}: ${value}%`}
                 >
                   {data.trafficSources.map((entry, index) => (
                     <Cell key={`traffic-cell-${index}-${entry.source}`} fill={COLORS[index]} />

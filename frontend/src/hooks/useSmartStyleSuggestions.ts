@@ -214,9 +214,7 @@ export function useSmartStyleSuggestions() {
       const suggestions = analyzeUserContext(userContext);
       setSuggestions(suggestions);
       return suggestions;
-    } catch (error) {
-      console.error('Error analyzing user context:', error);
-      return [];
+    } catch (error) {return [];
     } finally {
       setIsAnalyzing(false);
     }

@@ -33,9 +33,7 @@ export default function FollowStats({ userId, className = '', showDetails = fals
         
         setFollowersCount(followersResponse.count);
         setFollowingCount(followingResponse.count);
-      } catch (error) {
-        console.error('Error fetching follow stats:', error);
-        // Don't show error state, just keep the default values (0)
+      } catch (error) {// Don't show error state, just keep the default values (0)
       } finally {
         setIsLoading(false);
       }

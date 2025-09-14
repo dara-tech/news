@@ -82,9 +82,7 @@ export default function RoleAssignmentDialog({
       if (data.success) {
         setRoles(data.roles);
       }
-    } catch (error) {
-      console.error('Failed to fetch roles:', error);
-      toast.error('Failed to fetch roles');
+    } catch (error) {toast.error('Failed to fetch roles');
     } finally {
       setLoading(false);
     }

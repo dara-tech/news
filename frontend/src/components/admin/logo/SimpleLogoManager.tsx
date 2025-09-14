@@ -50,9 +50,7 @@ export function SimpleLogoManager({ onLogoChange }: SimpleLogoManagerProps) {
       if (response.data.success && response.data.settings) {
         setSettings(prev => ({ ...prev, ...response.data.settings }));
       }
-    } catch (error) {
-      console.error('Error fetching logo settings:', error);
-      toast.error('Failed to load logo settings');
+    } catch (error) {toast.error('Failed to load logo settings');
     } finally {
       setLoading(false);
     }
@@ -64,9 +62,7 @@ export function SimpleLogoManager({ onLogoChange }: SimpleLogoManagerProps) {
       await api.put('/admin/settings/logo', { settings });
       onLogoChange?.(settings.logoText);
       toast.success('Logo settings saved successfully!');
-    } catch (error) {
-      console.error('Error saving logo settings:', error);
-      toast.error('Failed to save logo settings');
+    } catch (error) {toast.error('Failed to save logo settings');
     } finally {
       setSaving(false);
     }

@@ -15,9 +15,7 @@ async function testEnhancedSentinel() {
     const methodExists = typeof enhancedSentinelService.getStatus;
     const availableMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(enhancedSentinelService));
     
-  } catch (error) {
-    console.error('Test failed:', error);
-  }
+  } catch (error) {}
 }
 
 testEnhancedSentinel();

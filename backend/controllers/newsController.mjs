@@ -845,10 +845,24 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
 // @route   GET /api/news/category/:slug
 // @access  Public
 export const getNewsByCategorySlug = asyncHandler(async (req, res) => {
-  const { slug } = req.params;
-
-  // Find the category by slug
-  const categoryDoc = await Category.findOne({ slug });
+  const { slug } = req.params;// Find the category by slug (handle localized slugs)
+  let categoryDoc = await Category.findOne({ 'slug.en': slug });
+  
+  // If not found, try to find by Khmer slug
+  if (!categoryDoc) {
+    categoryDoc = await Category.findOne({ 'slug.kh': slug });
+  }
+  
+  // If still not found, try case-insensitive search on both slug fields
+  if (!categoryDoc) {
+    categoryDoc = await Category.findOne({ 
+      $or: [
+        { 'slug.en': { $regex: new RegExp('^' + slug + '$', 'i') } },
+        { 'slug.kh': { $regex: new RegExp('^' + slug + '$', 'i') } }
+      ]
+    });
+  }
+  
   if (!categoryDoc) {
     return res.status(404).json({
       success: false,
@@ -959,6 +973,118 @@ export const getAuthorProfile = asyncHandler(async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching author profile',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// @desc    Get top authors by article count and engagement
+// @route   GET /api/news/top-authors
+// @access  Public
+export const getTopAuthors = asyncHandler(async (req, res) => {
+  try {
+    const { limit = 10, lang = 'en' } = req.query;
+
+    // Aggregate authors by their article performance
+    const topAuthors = await News.aggregate([
+      {
+        $match: {
+          status: 'published',
+          publishedAt: { $exists: true, $ne: null }
+        }
+      },
+      {
+        $group: {
+          _id: '$author',
+          articleCount: { $sum: 1 },
+          totalViews: { $sum: { $ifNull: ['$views', 0] } },
+          totalLikes: { $sum: { $ifNull: ['$likes', 0] } },
+          avgViews: { $avg: { $ifNull: ['$views', 0] } },
+          latestArticle: { $max: '$publishedAt' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'authorInfo'
+        }
+      },
+      {
+        $unwind: '$authorInfo'
+      },
+      {
+        $project: {
+          _id: 1,
+          username: '$authorInfo.username',
+          email: '$authorInfo.email',
+          avatar: '$authorInfo.avatar',
+          profileImage: '$authorInfo.profileImage',
+          role: '$authorInfo.role',
+          createdAt: '$authorInfo.createdAt',
+          articleCount: 1,
+          totalViews: 1,
+          totalLikes: 1,
+          avgViews: 1,
+          latestArticle: 1,
+          // Calculate engagement score (weighted combination)
+          engagementScore: {
+            $add: [
+              { $multiply: ['$articleCount', 10] }, // 10 points per article
+              { $multiply: [{ $divide: ['$totalViews', 100] }, 1] }, // 1 point per 100 views
+              { $multiply: ['$totalLikes', 2] } // 2 points per like
+            ]
+          }
+        }
+      },
+      {
+        $sort: { engagementScore: -1 }
+      },
+      {
+        $limit: parseInt(limit)
+      }
+    ]);
+
+    // Get recent articles for each top author
+    const authorsWithRecentArticles = await Promise.all(
+      topAuthors.map(async (author) => {
+        const recentArticles = await News.find({
+          author: author._id,
+          status: 'published'
+        })
+        .select('title description thumbnail publishedAt views likes category')
+        .populate('category', 'name color slug')
+        .sort({ publishedAt: -1 })
+        .limit(3);
+
+        return {
+          ...author,
+          recentArticles: recentArticles.map(article => ({
+            id: article._id,
+            title: article.title,
+            description: article.description,
+            thumbnail: article.thumbnail,
+            publishedAt: article.publishedAt,
+            views: article.views || 0,
+            likes: article.likes || 0,
+            category: article.category
+          }))
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      data: authorsWithRecentArticles,
+      total: authorsWithRecentArticles.length
+    });
+
+  } catch (error) {
+    logger.error('Error fetching top authors:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching top authors',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

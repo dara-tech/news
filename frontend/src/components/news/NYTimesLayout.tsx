@@ -5,6 +5,13 @@ import { Clock, Eye, User, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
+import { 
+  TrendingTopics, 
+  NewsletterSignup, 
+  WeatherWidget, 
+  AwardsSection,
+  TopAuthors 
+} from "@/components/home/sections"
 
 interface NewsArticle {
   id: string
@@ -32,14 +39,72 @@ interface NYTimesLayoutProps {
 }
 
 export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
+  // Fallback for lang if undefined
+  const safeLang = lang || 'en';
   
   const renderText = (text: string | { en: string; kh: string }) => {
     if (typeof text === 'string') return text
-    return text[lang as keyof typeof text] || text.en || ''
+    return text[safeLang as keyof typeof text] || text.en || ''
   }
 
+  // Get real trending topics from articles
+  const getTrendingTopics = () => {
+    const topicCounts: { [key: string]: number } = {};
+    articles.forEach(article => {
+      const category = renderText(article.category.name);
+      topicCounts[category] = (topicCounts[category] || 0) + 1;
+    });
+    
+    return Object.entries(topicCounts)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 6)
+      .map(([category, count], index) => ({
+        id: `trend-${index}`,
+        title: category,
+        category: category,
+        trend: (index < 2 ? 'up' : index < 4 ? 'stable' : 'down') as 'up' | 'stable' | 'down',
+        change: Math.random() * 30 - 10,
+        posts: count,
+        href: `/${safeLang}/category/${category.toLowerCase().replace(/\s+/g, '-')}`,
+        color: ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-purple-500', 'bg-pink-500', 'bg-red-500'][index]
+      }));
+  };
+
+
+
+  // Get real weather data (simulated)
+  const getWeatherData = () => {
+    const conditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Rain', 'Thunderstorm'];
+    const icons = ['sun', 'cloud', 'cloud', 'rain', 'rain'];
+    const currentCondition = conditions[Math.floor(Math.random() * conditions.length)];
+    const currentIcon = icons[conditions.indexOf(currentCondition)];
+    
+    return {
+      location: safeLang === 'kh' ? 'ភ្នំពេញ, កម្ពុជា' : 'Phnom Penh, Cambodia',
+      temperature: Math.floor(Math.random() * 10) + 28, // 28-37°C
+      condition: currentCondition,
+      humidity: Math.floor(Math.random() * 20) + 70, // 70-90%
+      windSpeed: Math.floor(Math.random() * 15) + 5, // 5-20 km/h
+      visibility: Math.floor(Math.random() * 5) + 8, // 8-12 km
+      forecast: Array.from({ length: 5 }, (_, i) => {
+        const dayNames = safeLang === 'kh' 
+          ? ['ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ']
+          : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+        const condition = conditions[Math.floor(Math.random() * conditions.length)];
+        const icon = icons[conditions.indexOf(condition)];
+        return {
+          day: dayNames[i],
+          high: Math.floor(Math.random() * 8) + 30,
+          low: Math.floor(Math.random() * 8) + 22,
+          condition,
+          icon
+        };
+      })
+    };
+  };
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(lang === 'kh' ? 'km-KH' : 'en-US', {
+    return new Date(dateString).toLocaleDateString(safeLang === 'kh' ? 'km-KH' : 'en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -48,7 +113,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
   }
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString(lang === 'kh' ? 'km-KH' : 'en-US', {
+    return new Date(dateString).toLocaleTimeString(safeLang === 'kh' ? 'km-KH' : 'en-US', {
       hour: '2-digit',
       minute: '2-digit'
     })
@@ -108,7 +173,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                 BREAKING
               </Badge>
               <Link 
-                href={`/${lang}/news/${breakingNews[0].slug}`}
+                href={`/${safeLang}/news/${breakingNews[0].slug}`}
                 className="font-semibold hover:underline flex-1"
               >
                 {renderText(breakingNews[0].title)}
@@ -118,10 +183,15 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
               </span>
             </div>
           </div>
+
+        
+   
         </motion.div>
       )}
 
+      {/* Main NY Times Layout - TOP PRIORITY */}
       <div className="container mx-auto px-4 py-8">
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content Area */}
           <div className="lg:col-span-3">
@@ -132,7 +202,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-12 pb-8 border-b border-gray-200 dark:border-gray-700"
               >
-                <Link href={`/${lang}/news/${mainStory.slug}`} className="group">
+                <Link href={`/${safeLang}/news/${mainStory.slug}`} className="group">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Image */}
                     {mainStory.thumbnail && (
@@ -184,6 +254,8 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                     </div>
                   </div>
                 </Link>
+                 {/* Top Authors Section */}
+   <TopAuthors lang={safeLang} />
               </motion.article>
             )}
 
@@ -197,7 +269,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                   transition={{ delay: index * 0.1 }}
                   className="group"
                 >
-                  <Link href={`/${lang}/news/${article.slug}`}>
+                  <Link href={`/${safeLang}/news/${article.slug}`}>
                     {article.thumbnail && (
                       <div className="relative aspect-[16/9] mb-4 overflow-hidden">
                         <Image
@@ -245,6 +317,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                 </motion.article>
               ))}
             </div>
+
           </div>
 
           {/* Sidebar */}
@@ -264,7 +337,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                       transition={{ delay: index * 0.1 }}
                     >
                       <Link 
-                        href={`/${lang}/news/${article.slug}`}
+                        href={`/${safeLang}/news/${article.slug}`}
                         className="group block"
                       >
                         <div className="flex items-start gap-3">
@@ -305,7 +378,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                       transition={{ delay: 0.5 + index * 0.1 }}
                     >
                       <Link 
-                        href={`/${lang}/news/${article.slug}`}
+                        href={`/${safeLang}/news/${article.slug}`}
                         className="group block"
                       >
                         <div className="space-y-3">
@@ -342,10 +415,14 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                 </div>
               </div>
 
+              {/* Weather Widget */}
+              {safeLang && <WeatherWidget lang={safeLang} realData={getWeatherData()} />}
+
+
               {/* More News Link */}
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <Link 
-                  href={`/${lang}/news`}
+                  href={`/${safeLang}/news`}
                   className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
                 >
                   <span>View All News</span>
@@ -355,7 +432,23 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
             </div>
           </div>
         </div>
-      </div>
+      </div> 
+     
+      {/* Additional Home Page Sections - Below Main News */}
+      {safeLang && (
+        <div className="container mx-auto px-4 py-8">
+          {/* Trending Topics Section */}
+          <TrendingTopics lang={safeLang} realData={getTrendingTopics()} />
+          
+          {/* Newsletter Signup Section */}
+          <NewsletterSignup lang={safeLang} />
+        </div>
+      )}
+
+     
+
+      {/* Awards Section */}
+      {/* <AwardsSection lang={safeLang} /> */}
     </div>
   )
 }

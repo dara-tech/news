@@ -887,9 +887,7 @@ export default function ProcessingDashboard() {
       if (showToast) {
         toast.success('Dashboard data refreshed successfully');
       }
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-      if (showToast) {
+    } catch (error) {if (showToast) {
         toast.error('Failed to load dashboard data');
       }
     } finally {
@@ -928,8 +926,8 @@ export default function ProcessingDashboard() {
           <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-2xl shadow-black/25">
             {/* Animated Background Elements */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/10 to-indigo-600/20"></div>
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-500/30 to-transparent rounded-full -translate-y-48 translate-x-48 blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-500/30 to-transparent rounded-full translate-y-48 -translate-x-48 blur-3xl"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-blue-500/20 to-transparent rounded-full -translate-y-32 translate-x-32 blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-full translate-y-32 -translate-x-32 blur-2xl"></div>
             
             {/* Content */}
             <div className="relative p-8 lg:p-12">

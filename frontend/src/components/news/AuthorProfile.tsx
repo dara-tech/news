@@ -85,18 +85,7 @@ export default function AuthorProfile({
     joinDate: new Date()
   });
   const [authorArticles, setAuthorArticles] = useState<AuthorArticle[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  console.log('🔍 AuthorProfile Debug:', {
-    author,
-    profileImage: author.profileImage,
-    avatar: author.avatar,
-    hasProfileImage: !!author.profileImage,
-    hasAvatar: !!author.avatar,
-    imageError
-  });
-
-  useEffect(() => {
+  const [isLoading, setIsLoading] = useState(true);useEffect(() => {
     if (providedStats && providedArticles) {
       setAuthorStats(providedStats);
       setAuthorArticles(providedArticles);
@@ -240,9 +229,7 @@ export default function AuthorProfile({
                   src={author.profileImage || author.avatar} 
                   alt={authorName}
                   className="object-cover"
-                  onError={() => {
-                    console.log('🚨 Avatar image failed to load:', author.profileImage || author.avatar);
-                    setImageError(true);
+                  onError={() => {setImageError(true);
                   }}
                 />
                 <AvatarFallback className="bg-black text-white text-2xl sm:text-4xl font-bold">

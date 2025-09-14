@@ -111,9 +111,7 @@ const DataQualityDashboard: React.FC = () => {
         }
       }
 
-    } catch (error) {
-      console.error('Failed to load data quality data:', error);
-    } finally {
+    } catch (error) {} finally {
       setLoading(false);
     }
   };
@@ -131,9 +129,7 @@ const DataQualityDashboard: React.FC = () => {
       } else {
         alert('Enhanced Sentinel run failed: ' + data.message);
       }
-    } catch (error) {
-      console.error('Enhanced Sentinel run failed:', error);
-      alert('Enhanced Sentinel run failed');
+    } catch (error) {alert('Enhanced Sentinel run failed');
     }
   };
 
@@ -152,9 +148,7 @@ const DataQualityDashboard: React.FC = () => {
       } else {
         alert('Failed to update quality threshold: ' + data.message);
       }
-    } catch (error) {
-      console.error('Failed to update quality threshold:', error);
-      alert('Failed to update quality threshold');
+    } catch (error) {alert('Failed to update quality threshold');
     }
   };
 
@@ -173,9 +167,7 @@ const DataQualityDashboard: React.FC = () => {
       } else {
         alert('Failed to toggle auto-publish: ' + data.message);
       }
-    } catch (error) {
-      console.error('Failed to toggle auto-publish:', error);
-      alert('Failed to toggle auto-publish');
+    } catch (error) {alert('Failed to toggle auto-publish');
     }
   };
 
@@ -379,7 +371,7 @@ const DataQualityDashboard: React.FC = () => {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent ? percent * 100 : 0).toFixed(0)}%`}
+                      label={({ name, value }) => `${name} ${(Number(value) || 0).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"

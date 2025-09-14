@@ -96,9 +96,7 @@ export default function MapInitializer({
       if (!window.L || !mapRef.current) return;
 
       // Check if map is already initialized
-      if (mapInstanceRef.current) {
-        console.log('Map already initialized, skipping...');
-        return;
+      if (mapInstanceRef.current) {return;
       }
 
       // Ensure map container has proper dimensions and is visible
@@ -111,10 +109,7 @@ export default function MapInitializer({
         mapRef.current.style.display = 'block';
       }
 
-      try {
-        console.log('Initializing map...', { mapRef: mapRef.current, mapType });
-        
-        // Initialize map with comprehensive options
+      try {// Initialize map with comprehensive options
         mapInstanceRef.current = window.L.map(mapRef.current, {
           center: [20, 0],
           zoom: 2,
@@ -139,17 +134,13 @@ export default function MapInitializer({
         });
 
         // Add tile layer
-        const { url, options } = MapUtils.getTileLayer(mapType);
-        console.log('Adding tile layer:', { url, options });
-        const tileLayer = window.L.tileLayer(url, options);
+        const { url, options } = MapUtils.getTileLayer(mapType);const tileLayer = window.L.tileLayer(url, options);
         tileLayer.addTo(mapInstanceRef.current);
 
         // Force proper rendering with multiple attempts
         const forceRender = () => {
           if (mapInstanceRef.current) {
-            mapInstanceRef.current.invalidateSize();
-            console.log('Map size invalidated');
-          }
+            mapInstanceRef.current.invalidateSize();}
         };
 
         // Multiple attempts to ensure proper rendering
@@ -158,11 +149,7 @@ export default function MapInitializer({
         setTimeout(forceRender, 1000);
 
         isInitialized.current = true;
-        onMapReady();
-        console.log('Map initialized successfully');
-      } catch (error) {
-        console.error('Failed to initialize map:', error);
-        mapInstanceRef.current = null;
+        onMapReady();} catch (error) {mapInstanceRef.current = null;
         isInitialized.current = false;
       }
     };
@@ -173,9 +160,7 @@ export default function MapInitializer({
         await loadHeatmapPlugin();
         await loadClusteringPlugin();
         initializeMap();
-      } catch (error) {
-        console.error('Failed to initialize map:', error);
-      }
+      } catch (error) {}
     };
 
     initializeMapAsync();
@@ -185,9 +170,7 @@ export default function MapInitializer({
       if (mapInstanceRef.current) {
         try {
           mapInstanceRef.current.remove();
-        } catch (error) {
-          console.log('Map already removed or not initialized');
-        }
+        } catch (error) {}
         mapInstanceRef.current = null;
       }
       isInitialized.current = false;

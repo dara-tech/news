@@ -28,9 +28,9 @@ function getLocalizedText(text: string | { [key: string]: string | undefined } |
 }
 
 function getCategorySlug(category: Category): string {
-  // Require slug to exist, no fallback to _id
+  // Use slug if available, fallback to _id
   if (!category.slug) {
-    throw new Error(`Category ${category._id} has no slug defined`);
+    return String(category._id || 'unknown');
   }
   return category.slug;
 }
@@ -110,21 +110,26 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
   const { lang } = await params;
   const { page, category, search } = await searchParams;
   const currentPage = parseInt(page || '1', 10);
-  const locale: Locale = lang === 'km' ? 'kh' : 'en';
+  const locale: Locale = lang === 'kh' ? 'kh' : 'en';
 
+  // Debug logging for locale
+  if (process.env.NODE_ENV === 'development') {
+    console.log('News page - lang:', lang, 'locale:', locale, 'URL:', `/${lang}/news`);
+  }
 
   try {
     // Fetch categories for filter chips
     const categories = await getCategories();
     
+    // Debug logging for categories
+    if (process.env.NODE_ENV === 'development' && locale === 'kh') {
+      console.log('Categories data:', categories.slice(0, 2)); // Log first 2 categories
+    }
+    
     // Find the current category for display
     const currentCategory = category ? categories.find((c: Category) => {
-      try {
-        const categorySlug = getCategorySlug(c);
-        return categorySlug === category;
-      } catch {
-        return false;
-      }
+      const categorySlug = getCategorySlug(c);
+      return categorySlug === category;
     }) : null;
 
 
@@ -240,17 +245,17 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
               An unexpected error occurred while loading the news.
             </p>
             <div className="flex gap-4 justify-center">
-              <Button
-                onClick={() => window.location.reload()}
+              <a
+                href={`/${lang}/news`}
                 className="inline-block px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
               >
                 Try Again
-              </Button>
+              </a>
               <a
-                href={`/${lang}/news`}
+                href={`/${lang}`}
                 className="inline-block px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
               >
-                View All News
+                Back to Home
               </a>
             </div>
           </div>

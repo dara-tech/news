@@ -25,7 +25,7 @@ function getLocalizedText(
   text: string | { [key: string]: string | undefined } | undefined,
   locale: string
 ): string {
-  const safeLocale = locale === 'km' ? 'km' : 'en';
+  const safeLocale = locale === 'kh' ? 'kh' : 'en';
   if (!text) return '';
   if (typeof text === 'string') return text;
   if (typeof text === 'object') {
@@ -42,7 +42,9 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
     typeof article.slug === 'string'
       ? article.slug
       : article.slug?.[locale] || article.slug?.en || article._id;
-  const categorySlug = article.category?.slug || '';
+  const categorySlug = typeof article.category?.slug === 'string' ? article.category.slug : 
+                      typeof article.category?._id === 'string' ? article.category._id : 
+                      '';
   const title = getLocalizedText(article.title, locale) || 'News article';
   const categoryName = getLocalizedText(article.category?.name, locale);
 
@@ -71,7 +73,7 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
       <div className="relative z-20 flex flex-col justify-end h-full p-6">
         {article.category && categorySlug && (
           <Link
-            href={`/${langPath}/category/${categorySlug}`}
+            href={`/${langPath}/category/${String(categorySlug).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
             className="inline-flex items-center gap-2 self-start bg-white/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 border border-white/30 capitalize hover:bg-white/30 transition-colors"
           >
             {/* Category color badge */}

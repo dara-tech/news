@@ -83,9 +83,7 @@ export function useFrontendSettings() {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(errorMessage);
-      console.error('Failed to load frontend settings:', err);
-    } finally {
+      setError(errorMessage);} finally {
       setLoading(false);
     }
   }, []);
@@ -112,9 +110,7 @@ export function useFrontendSettings() {
         throw new Error(data.message || 'Failed to save settings');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('Failed to save frontend settings:', err);
-      return { success: false, message: errorMessage };
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';return { success: false, message: errorMessage };
     }
   }, []);
 
@@ -148,9 +144,7 @@ export function useFrontendSettings() {
       
       const result = await response.json();
       return result;
-    } catch (err) {
-      console.error('AdSense test failed:', err);
-      return { 
+    } catch (err) {return { 
         success: false, 
         message: 'Failed to test AdSense configuration' 
       };
@@ -171,9 +165,7 @@ export function useFrontendSettings() {
         updateSetting('appearance.primaryColor', primaryColor);
       }
       return result;
-    } catch (err) {
-      console.error('Theme application failed:', err);
-      return { 
+    } catch (err) {return { 
         success: false, 
         message: 'Failed to apply theme' 
       };

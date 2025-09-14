@@ -5,13 +5,9 @@ const categorySchema = new mongoose.Schema({
     en: { type: String, required: true, trim: true, unique: true },
     kh: { type: String, required: true, trim: true, unique: true },
   },
-  slug: { 
-    
-    type: String, 
-    required: true, 
-    unique: true, 
-    lowercase: true,
-    trim: true
+  slug: {
+    en: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    kh: { type: String, required: true, unique: true, lowercase: true, trim: true }
   },
   description: {
     en: { type: String, trim: true },
@@ -33,12 +29,23 @@ const categorySchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-// Pre-save hook to generate slug from the English name if not provided
+// Pre-save hook to generate slugs from names if not provided
 categorySchema.pre('validate', function(next) {
-  // Generate a slug from the English name if the document is new or the name has been modified.
+  // Generate English slug if the document is new or the English name has been modified
   if (this.isNew || this.isModified('name.en')) {
-    this.slug = this.name.en.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    this.slug.en = this.name.en.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
   }
+  
+  // Generate Khmer slug if the document is new or the Khmer name has been modified
+  if (this.isNew || this.isModified('name.kh')) {
+    // For Khmer, we'll use a transliteration approach or fallback to English slug
+    // For now, we'll use a simple approach: convert to English slug format
+    this.slug.kh = this.name.kh.toLowerCase()
+      .replace(/[\u1780-\u17FF]/g, 'kh') // Replace Khmer characters with 'kh'
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]+/g, '');
+  }
+  
   next();
 });
 

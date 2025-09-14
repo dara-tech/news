@@ -57,9 +57,7 @@ const NotificationsPageClient: React.FC = () => {
     !notificationData ||
     typeof notificationData !== "object" ||
     !("notifications" in notificationData)
-  ) {
-    console.error('Error accessing notification context: context value is invalid', notificationData);
-    notificationData = fallbackNotificationData;
+  ) {notificationData = fallbackNotificationData;
   }
 
   const { 

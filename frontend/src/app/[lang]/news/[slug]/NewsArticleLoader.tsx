@@ -286,7 +286,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
                         action: 'article_like',
                         data: { articleId: article._id, liked, count: newCount }
                       })
-                    }).catch(console.error);
+                    }).catch(() => {});
                   }}
                 />
                 <Button 
@@ -303,7 +303,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
                         action: 'article_save',
                         data: { articleId: article._id, timestamp: new Date().toISOString() }
                       })
-                    }).catch(console.error);
+                    }).catch(() => {});
                   }}
                 >
                   <Bookmark className="w-4 h-4 mr-2" />

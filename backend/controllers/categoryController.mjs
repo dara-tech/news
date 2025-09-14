@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import Category from "../models/Category.mjs";
+import News from "../models/News.mjs";
 import logger from '../utils/logger.mjs';
 
 // @desc    Get all categories
@@ -7,14 +8,24 @@ import logger from '../utils/logger.mjs';
 // @access  Public
 export const getCategories = asyncHandler(async (req, res) => {
   try {
-    // Fetch all categories without article counts for now
+    // Fetch all categories
     const categories = await Category.find({ isActive: true }).sort({ 'name.en': 1 });
 
-    // Add default article count of 0 for now
-    const categoriesWithCounts = categories.map(cat => ({
-      ...cat.toObject(),
-      articlesCount: 0
-    }));
+    // Get article counts for each category
+    const categoriesWithCounts = await Promise.all(
+      categories.map(async (cat) => {
+        const articleCount = await News.countDocuments({ 
+          category: cat._id, 
+          status: 'published' 
+        });
+        
+        return {
+          ...cat.toObject(),
+          articlesCount: articleCount,
+          newsCount: articleCount // Also add newsCount for compatibility
+        };
+      })
+    );
 
     res.json({ success: true, data: categoriesWithCounts });
   } catch (error) {
@@ -34,9 +45,18 @@ export const createCategory = asyncHandler(async (req, res) => {
     throw new Error('Category name (EN and KH) is required.');
   }
 
-  const slug = name.en.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+  const slugEn = name.en.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+  const slugKh = name.kh.toLowerCase()
+    .replace(/[\u1780-\u17FF]/g, 'kh')
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '');
 
-  const categoryExists = await Category.findOne({ slug });
+  const categoryExists = await Category.findOne({ 
+    $or: [
+      { 'slug.en': slugEn },
+      { 'slug.kh': slugKh }
+    ]
+  });
 
   if (categoryExists) {
     res.status(400);
@@ -45,7 +65,10 @@ export const createCategory = asyncHandler(async (req, res) => {
 
   const category = new Category({
     name,
-    slug,
+    slug: {
+      en: slugEn,
+      kh: slugKh
+    },
     description,
   });
 
@@ -172,18 +195,21 @@ export const bulkDeleteCategories = asyncHandler(async (req, res) => {
 export const getCategoryBySlug = asyncHandler(async (req, res) => {
   const slug = req.params.slug;
   
-  // First try to find by direct slug match (new format)
-  let category = await Category.findOne({ slug });
+  // Try to find by English slug
+  let category = await Category.findOne({ 'slug.en': slug });
   
-  // If not found, try to find by English slug in the name object (legacy format)
+  // If not found, try to find by Khmer slug
   if (!category) {
-    category = await Category.findOne({ 'name.en': { $regex: new RegExp('^' + slug + '$', 'i') } });
+    category = await Category.findOne({ 'slug.kh': slug });
   }
-
-  // If still not found, try case-insensitive search on the slug field
+  
+  // If still not found, try case-insensitive search on both slug fields
   if (!category) {
     category = await Category.findOne({ 
-      slug: { $regex: new RegExp('^' + slug + '$', 'i') } 
+      $or: [
+        { 'slug.en': { $regex: new RegExp('^' + slug + '$', 'i') } },
+        { 'slug.kh': { $regex: new RegExp('^' + slug + '$', 'i') } }
+      ]
     });
   }
 

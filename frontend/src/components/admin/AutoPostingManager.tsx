@@ -224,9 +224,7 @@ export default function AutoPostingManager() {
           }
         }));
       }
-    } catch (error: any) {
-      console.error('Error fetching auto-posting settings:', error);
-      toast.error('Failed to load auto-posting settings');
+    } catch (error: any) {toast.error('Failed to load auto-posting settings');
     } finally {
       setLoading(false);
     }
@@ -277,9 +275,7 @@ export default function AutoPostingManager() {
       
       await api.put('/admin/settings/social-media', { settings: apiSettings });
       toast.success('Auto-posting settings saved successfully!');
-    } catch (error: any) {
-      console.error('Error saving auto-posting settings:', error);
-      toast.error('Failed to save auto-posting settings');
+    } catch (error: any) {toast.error('Failed to save auto-posting settings');
     } finally {
       setSaving(false);
     }
@@ -311,9 +307,7 @@ export default function AutoPostingManager() {
           }
         }));
       }
-    } catch (error: any) {
-      console.error('Test connection error:', error);
-      toast.error(`Failed to test ${platform} connection: ${error.response?.data?.message || error.message}`);
+    } catch (error: any) {toast.error(`Failed to test ${platform} connection: ${error.response?.data?.message || error.message}`);
       
       setSettings(prev => ({
         ...prev,
@@ -339,9 +333,7 @@ export default function AutoPostingManager() {
       } else {
         toast.error(`Manual posting failed: ${response.data.message}`);
       }
-    } catch (error: any) {
-      console.error('Manual post error:', error);
-      toast.error(`Manual posting failed: ${error.response?.data?.message || error.message}`);
+    } catch (error: any) {toast.error(`Manual posting failed: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -464,7 +456,7 @@ export default function AutoPostingManager() {
             />
             
             {/* Debug logging */}
-            {(() => { console.log('AutoPostingManager telegram settings:', settings.telegram); return null; })()}
+            {(() => {return null; })()}
             
             <TelegramConfig
               settings={{

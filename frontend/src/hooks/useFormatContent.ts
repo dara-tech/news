@@ -108,9 +108,7 @@ export function useFormatContent() {
               kh: formattedKh
             }
           };
-        } catch (aiError) {
-          console.error('AI formatting failed, using local formatting:', aiError);
-          // Fallback to local formatting if AI fails
+        } catch (aiError) {// Fallback to local formatting if AI fails
           return {
             content: {
               en: formattedEn,
@@ -119,9 +117,7 @@ export function useFormatContent() {
           };
         }
       }
-    } catch (error) {
-      console.error('Error formatting content:', error);
-      setError("Failed to format content. Please try again.");
+    } catch (error) {setError("Failed to format content. Please try again.");
       return null;
     } finally {
       setIsFormatting(false);

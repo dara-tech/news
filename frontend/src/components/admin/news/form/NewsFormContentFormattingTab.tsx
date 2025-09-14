@@ -178,9 +178,7 @@ export default function NewsFormContentFormattingTab({
       setContentAnalysis(analysis);
       onFormDataChange('contentAnalysis', analysis);
       toast.success('Content analysis completed');
-    } catch (error) {
-      console.error('Error analyzing content:', error);
-      toast.error('Failed to analyze content');
+    } catch (error) {toast.error('Failed to analyze content');
     } finally {
       setIsAnalyzing(false);
     }
@@ -205,9 +203,7 @@ export default function NewsFormContentFormattingTab({
         onFormDataChange('content', result.content);
         toast.success('Content optimized successfully');
       }
-    } catch (error) {
-      console.error('Error optimizing content:', error);
-      toast.error('Failed to optimize content');
+    } catch (error) {toast.error('Failed to optimize content');
     } finally {
       setIsOptimizing(false);
     }
@@ -233,9 +229,7 @@ export default function NewsFormContentFormattingTab({
       });
       
       toast.success('Local formatting applied');
-    } catch (error) {
-      console.error('Error applying local formatting:', error);
-      toast.error('Failed to apply local formatting');
+    } catch (error) {toast.error('Failed to apply local formatting');
     }
   };
 

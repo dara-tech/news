@@ -54,9 +54,7 @@ export default function TelegramNotificationPanel() {
     try {
       const response = await api.get('/admin/auto-publish/telegram-settings');
       setSettings(response.data.data);
-    } catch (error) {
-      console.error('Error fetching Telegram settings:', error);
-    }
+    } catch (error) {}
   };
 
   const updateSettings = async (newSettings: Partial<TelegramSettings>) => {
@@ -68,9 +66,7 @@ export default function TelegramNotificationPanel() {
         setSettings(prev => ({ ...prev, ...newSettings }));
         toast.success('Telegram settings updated successfully');
       }
-    } catch (error) {
-      console.error('Error updating Telegram settings:', error);
-      toast.error('Failed to update Telegram settings');
+    } catch (error) {toast.error('Failed to update Telegram settings');
     } finally {
       setSaving(false);
     }
@@ -99,9 +95,7 @@ export default function TelegramNotificationPanel() {
         });
         toast.error('Telegram test failed');
       }
-    } catch (error) {
-      console.error('Error testing Telegram connection:', error);
-      setTestResult({
+    } catch (error) {setTestResult({
         success: false,
         message: 'Failed to test Telegram connection'
       });

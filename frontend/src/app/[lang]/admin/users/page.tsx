@@ -260,10 +260,7 @@ const UsersPage = () => {
                 limit: 1
               }
             });
-            const totalArticles = articlesResponse.data?.pagination?.totalArticles || 0;
-            console.log(`User ${user.username}: ${totalArticles} articles`);
-            
-            // Get last login from user's lastLogin field (if available) or fetch from UserLogin
+            const totalArticles = articlesResponse.data?.pagination?.totalArticles || 0;// Get last login from user's lastLogin field (if available) or fetch from UserLogin
             let lastLogin = user.lastLogin;
             if (!lastLogin) {
               try {
@@ -274,9 +271,7 @@ const UsersPage = () => {
                   }
                 });
                 lastLogin = lastLoginResponse.data?.data?.[0]?.loginTime || null;
-              } catch (loginError) {
-                console.warn(`Could not fetch last login for user ${user._id}:`, loginError);
-                lastLogin = null;
+              } catch (loginError) {lastLogin = null;
               }
             }
             
@@ -286,9 +281,7 @@ const UsersPage = () => {
               lastLogin: lastLogin,
               totalArticles: totalArticles
             };
-          } catch (error) {
-            console.error(`Error fetching data for user ${user._id} (${user.username}):`, error);
-            // If data fetch fails, use fallback values
+          } catch (error) {// If data fetch fails, use fallback values
             return {
               ...user,
               status: user.status || 'active',
@@ -301,9 +294,7 @@ const UsersPage = () => {
       
       setUsers(usersWithRealData);
       setFilteredUsers(usersWithRealData);
-    } catch (error) {
-      console.error('Error refreshing users:', error);
-      toast.error('Failed to refresh users.');
+    } catch (error) {toast.error('Failed to refresh users.');
     } finally {
       setLoading(false);
     }

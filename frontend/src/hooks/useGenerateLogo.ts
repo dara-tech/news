@@ -256,36 +256,23 @@ CRITICAL INSTRUCTIONS:
         },
       });
 
-      const parts = response?.candidates?.[0]?.content?.parts;
-      console.log('AI Response parts:', parts);
-      
-      if (!parts) throw new Error("Invalid response format from the API");
+      const parts = response?.candidates?.[0]?.content?.parts;if (!parts) throw new Error("Invalid response format from the API");
 
       let imageData: string | null = null;
       let generatedText = "";
 
-      for (const part of parts) {
-        console.log('Processing part:', part);
-        if (part.text) {
-          generatedText = part.text;
-          console.log('Text part found:', generatedText);
-        }
+      for (const part of parts) {if (part.text) {
+          generatedText = part.text;}
         else if (part.inlineData?.data) {
-          imageData = part.inlineData.data;
-          console.log('Image data found, length:', imageData?.length);
-        }
+          imageData = part.inlineData.data;}
       }
 
       if (!imageData) {
-        console.error('No image data found in response');
         throw new Error("No image data returned from the API");
       }
 
       // Convert base64 to Blob/File
-      console.log('Converting image data to blob...');
       const byteString = atob(imageData);
-      console.log('Byte string length:', byteString.length);
-      
       const ab = new ArrayBuffer(byteString.length);
       const ia = new Uint8Array(ab);
       for (let i = 0; i < byteString.length; i++) {
@@ -293,8 +280,6 @@ CRITICAL INSTRUCTIONS:
       }
 
       const blob = new Blob([ab], { type: "image/png" });
-      console.log('Blob created, size:', blob.size);
-      
       const file = new File(
         [blob],
         `logo-${text.toLowerCase()}-${style}.png`,
@@ -303,10 +288,7 @@ CRITICAL INSTRUCTIONS:
 
       // Create URLs
       const url = URL.createObjectURL(blob);
-      const previewUrl = URL.createObjectURL(blob);
-      console.log('URLs created:', { url, previewUrl });
-
-      // Create SVG placeholder for compatibility
+      const previewUrl = URL.createObjectURL(blob);// Create SVG placeholder for compatibility
       const svgContent = `
         <svg width="200" height="60" xmlns="http://www.w3.org/2000/svg">
           <image href="${url}" width="200" height="60" preserveAspectRatio="xMidYMid meet"/>
@@ -329,9 +311,7 @@ CRITICAL INSTRUCTIONS:
       setGeneratedLogos(prev => [logo, ...prev]);
       toast.success('Logo generated successfully!');
       return logo;
-    } catch (error: unknown) {
-      console.error('AI Logo generation failed:', error);
-      let message = "Logo generation failed. Please try again later.";
+    } catch (error: unknown) {let message = "Logo generation failed. Please try again later.";
       if (error instanceof Error) {
         message = error.message;
       }
@@ -339,7 +319,6 @@ CRITICAL INSTRUCTIONS:
       toast.error(message);
       
       // Fallback: Create a simple SVG logo for testing
-      console.log('Creating fallback SVG logo...');
       const fallbackSvg = `
         <svg width="200" height="60" xmlns="http://www.w3.org/2000/svg">
           <rect width="200" height="60" fill="#3B82F6" rx="8"/>

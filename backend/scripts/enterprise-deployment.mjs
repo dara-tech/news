@@ -398,9 +398,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     .then(result => {
       process.exit(result.success ? 0 : 1);
     })
-    .catch(error => {
-      console.error('💥 Deployment failed:', error);
-      process.exit(1);
+    .catch(error => {process.exit(1);
     });
 }
 

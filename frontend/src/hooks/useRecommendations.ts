@@ -158,9 +158,7 @@ export function useRecommendations({
       } else {
         throw new Error(data.message || 'Failed to fetch recommendations');
       }
-    } catch (err) {
-      console.error('Error fetching recommendations:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch recommendations');
+    } catch (err) {setError(err instanceof Error ? err.message : 'Failed to fetch recommendations');
     } finally {
       setLoading(false);
     }
@@ -178,9 +176,7 @@ export function useRecommendations({
         },
         body: JSON.stringify({ action, data }),
       });
-    } catch (err) {
-      console.error('Error tracking behavior:', err);
-    }
+    } catch (err) {}
   }, [user]);
 
   const submitFeedback = useCallback(async (articleId: string, feedback: 'like' | 'dislike' | 'not_interested' | 'save', reason?: string) => {
@@ -200,9 +196,7 @@ export function useRecommendations({
           timestamp: new Date()
         }),
       });
-    } catch (err) {
-      console.error('Error submitting feedback:', err);
-    }
+    } catch (err) {}
   }, [user]);
 
   const getInsights = useCallback(async () => {
@@ -220,9 +214,7 @@ export function useRecommendations({
         const data = await response.json();
         return data.success ? data.data : null;
       }
-    } catch (err) {
-      console.error('Error fetching insights:', err);
-    }
+    } catch (err) {}
     
     return null;
   }, [user, filters.language]);

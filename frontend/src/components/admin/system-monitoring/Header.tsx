@@ -40,13 +40,17 @@ export default function Header({
         </div>
         
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-white/80 backdrop-blur-sm rounded-lg border border-slate-200/50 shadow-sm">
-            <span className={`inline-block h-2 w-2 sm:h-3 sm:w-3 rounded-full animate-pulse ${
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-white/80 backdrop-blur-sm border-slate-200/50 shadow-sm hover:bg-white transition-all duration-200"
+          >
+            <span className={`inline-block h-2 w-2 sm:h-3 sm:w-3 rounded-full animate-pulse mr-2 ${
               metrics.server.status === 'healthy' ? 'bg-emerald-500' : 
               metrics.server.status === 'warning' ? 'bg-amber-500' : 'bg-red-500'
             }`} />
             <span className="text-xs sm:text-sm font-medium capitalize">{metrics.server.status}</span>
-          </div>
+          </Button>
           
           <Button
             variant="outline"

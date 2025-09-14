@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, ChevronDown, ChevronRight, Search, Loader2, Star } from "lucide-react"
+import { Home, ChevronDown, ChevronRight, Search, Loader2, Star, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -22,7 +22,7 @@ interface DesktopNavProps {
   pathname: string
 }
 
-const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
+const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
   const { user } = useAuth()
   
   // Refs
@@ -46,6 +46,7 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
   // Navigation links
   const NAV_LINKS = useMemo(() => [
     { href: `/${lang}`, label: "Home", icon: Home },
+    { href: `/${lang}/news`, label: "News", icon: FileText },
     { href: `/${lang}/recommendations`, label: "Recommendations", icon: Star }
   ], [lang])
 
@@ -217,15 +218,18 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
         ) : (
           <div className="p-1">
             {state.filteredCategories.map((cat, index) => {
+              const categorySlug = typeof cat.slug === 'string' ? cat.slug : 
+                                 typeof cat._id === 'string' ? cat._id : 
+                                 `category-${index}`;
               return (
               <motion.div
-                key={cat._id}
+                key={`category-${index}-${String(cat._id || 'unknown')}`}
                 initial={{ opacity: 0, x: -4 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.02, duration: 0.1 }}
               >
                 <Link
-                  href={`/${lang}/category/${cat.slug}`}
+                  href={`/${lang}/category/${String(categorySlug).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
                   className="group flex items-center justify-between p-2 mx-1 rounded-lg hover:bg-muted/30 transition-all duration-150"
                   onClick={(e) => {
                     e.stopPropagation()
@@ -261,19 +265,36 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
   )
 
   return (
-    <nav className="hidden lg:flex items-center gap-1">
+    <nav 
+      className="hidden lg:flex items-center gap-2"
+      role="navigation"
+      aria-label="Main navigation"
+    >
       {NAV_LINKS.map((link) => (
         <Link
           key={link.href}
           href={link.href}
-          className={`group relative px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 flex items-center gap-2 ${
+          className={`group relative px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 ${
             pathname === link.href
-              ? "bg-muted/40 text-foreground"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
+              ? "bg-primary/10 text-primary border border-primary/20 shadow-sm shadow-primary/5"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/30 hover:shadow-sm"
           }`}
+          aria-current={pathname === link.href ? "page" : undefined}
         >
-          <link.icon className="h-4 w-4" />
-          {link.label}
+          <link.icon className={`h-4 w-4 transition-all duration-300 ${
+            pathname === link.href ? "text-primary" : "group-hover:scale-110"
+          }`} 
+          aria-hidden="true"
+          />
+          <span>{link.label}</span>
+          {pathname === link.href && (
+            <motion.div
+              className="absolute inset-0 bg-primary/5 rounded-xl"
+              layoutId="activeTab"
+              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+              aria-hidden="true"
+            />
+          )}
         </Link>
       ))}
 
@@ -282,24 +303,25 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
           ref={categoriesBtnRef}
           variant="ghost"
           size="sm"
-          className={`group relative px-3 py-1.5 h-auto rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-150 ${
+          className={`group relative px-4 py-2.5 h-auto rounded-xl text-sm font-semibold flex items-center gap-2.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 ${
             uiState.isCategoriesOpen
-              ? "bg-muted/40 text-foreground"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
+              ? "bg-primary/10 text-primary border border-primary/20 shadow-sm shadow-primary/5"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/30 hover:shadow-sm"
           }`}
           onClick={() => {
             setUiState((prev) => ({ ...prev, isCategoriesOpen: !prev.isCategoriesOpen }))
           }}
           aria-haspopup="true"
           aria-expanded={uiState.isCategoriesOpen}
+          aria-label="Categories menu"
         >
-          Categories
+          <span>Categories</span>
           {state.isLoading ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
           ) : (
-            <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${
-              uiState.isCategoriesOpen ? 'rotate-180' : ''
-            }`} />
+            <ChevronDown className={`h-4 w-4 transition-all duration-300 ${
+              uiState.isCategoriesOpen ? 'rotate-180 scale-110' : 'group-hover:scale-110'
+            }`} aria-hidden="true" />
           )}
         </Button>
 
@@ -312,6 +334,8 @@ const DesktopNav = ({ lang, pathname }: DesktopNavProps) => {
 
     </nav>
   )
-}
+})
+
+DesktopNav.displayName = 'DesktopNav'
 
 export default DesktopNav

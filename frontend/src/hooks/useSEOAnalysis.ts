@@ -110,9 +110,7 @@ export const useSEOAnalysis = () => {
       const parsed = JSON.parse(jsonString);
 
       return parsed as SEOAnalysisResult;
-    } catch (e) {
-      console.error("Error analyzing SEO content:", e);
-      setError("Failed to analyze SEO content from Gemini API.");
+    } catch (e) {setError("Failed to analyze SEO content from Gemini API.");
       return null;
     } finally {
       setIsAnalyzing(false);
@@ -134,9 +132,7 @@ export const useSEOAnalysis = () => {
       const parsed = JSON.parse(jsonString);
 
       return parsed as string[];
-    } catch (e) {
-      console.error("Error getting trending keywords:", e);
-      setError("Failed to get trending keywords.");
+    } catch (e) {setError("Failed to get trending keywords.");
       return [];
     } finally {
       setIsAnalyzing(false);
@@ -172,9 +168,7 @@ export const useSEOAnalysis = () => {
       const parsed = JSON.parse(jsonString);
 
       return parsed;
-    } catch (e) {
-      console.error("Error generating advanced SEO:", e);
-      setError("Failed to generate advanced SEO content.");
+    } catch (e) {setError("Failed to generate advanced SEO content.");
       return null;
     } finally {
       setIsAnalyzing(false);

@@ -126,9 +126,7 @@ export default function SourceFinder() {
 
   const handleValidateSource = async (url: string) => {
     const validation = await validateSource(url);
-    if (validation) {
-      console.log('Source validation:', validation);
-    }
+    if (validation) {}
   };
 
   const getCredibilityColor = (credibility: string) => {

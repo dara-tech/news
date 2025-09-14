@@ -13,14 +13,13 @@ import {
   X,
   ArrowRight,
   Sparkles,
-  History,
-  SearchIcon
+  History
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useRecommendations } from '@/hooks/useRecommendations';
-import { getArticleImageUrl } from '@/hooks/useImageLoader';
+import { getArticleImage } from '@/hooks/useImageLoader';
 
 interface SearchSuggestion {
   id: string;
@@ -100,7 +99,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
           description: article.description?.[lang] || article.description?.en || '',
           href: `/${lang}/news/${article.slug}`,
           icon: FileText,
-          image: getArticleImageUrl(article) || undefined,
+          image: getArticleImage(article) || undefined,
           isTrending: article.isFeatured || article.isBreaking,
           score: 0.9
         }));
@@ -109,9 +108,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
         // Fallback to local suggestions
         setSuggestions(generateLocalSuggestions(searchQuery));
       }
-    } catch (error) {
-      console.error('Search error:', error);
-      // Fallback to local suggestions
+    } catch (error) {// Fallback to local suggestions
       setSuggestions(generateLocalSuggestions(searchQuery));
     } finally {
       setIsLoading(false);
@@ -135,7 +132,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
             description: rec.description?.[lang as keyof typeof rec.description] || rec.description?.en || '',
             href: `/${lang}/news/${rec.slug}`,
             icon: FileText,
-            image: getArticleImageUrl(rec) || undefined,
+            image: getArticleImage(rec) || undefined,
             isTrending: true,
             score: 0.9
           });
@@ -233,7 +230,9 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
     <div className={`relative ${className}`}>
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative">
-          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+          <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-all duration-200 ${
+            isOpen ? 'text-primary/80 scale-105' : 'text-muted-foreground/70 hover:text-muted-foreground'
+          }`} />
           <Input
             ref={inputRef}
             type="text"
@@ -241,7 +240,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
-            className="pl-10 pr-20 h-10 bg-background/80 backdrop-blur-sm border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 rounded-xl transition-all duration-200"
+            className="pl-10 pr-20 h-10 bg-background/80 border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 rounded-xl transition-all duration-200 placeholder:text-muted-foreground/60"
           />
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
             {isLoading && (
@@ -407,26 +406,6 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
                 )}
               </div>
             )}
-
-            {/* Footer */}
-            <div className="p-3 bg-muted/20 border-t border-border/10">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1">
-                    <ArrowRight className="h-3 w-3" />
-                    Select
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <X className="h-3 w-3" />
-                    Close
-                  </span>
-                </div>
-                <span className="flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" />
-                  AI-Powered
-                </span>
-              </div>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>

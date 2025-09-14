@@ -66,9 +66,7 @@ export default function TokenMonitoringDashboard({ settings, onRefresh }: TokenM
         
         // Removed toast notifications - status is shown in the UI instead
       }
-    } catch (error) {
-      console.error(`Error checking ${platform} token:`, error);
-      setTokenHealth(prev => ({
+    } catch (error) {setTokenHealth(prev => ({
         ...prev,
         [platform]: {
           isValid: false,
@@ -92,13 +90,11 @@ export default function TokenMonitoringDashboard({ settings, onRefresh }: TokenM
         onRefresh();
       } else if (response.data.requiresManualRefresh) {
         // Removed manual refresh toast - instructions are shown in the UI
-        console.log(`${platform} requires manual refresh:`, response.data.instructions);
       } else {
         // Removed error toast - error is shown in the UI
-        console.error(`Failed to refresh ${platform} token:`, response.data.error);
       }
     } catch (error) {
-      console.error(`Failed to refresh ${platform} token:`, error);
+      // Error handling
     } finally {
       setChecking(false);
     }

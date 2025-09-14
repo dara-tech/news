@@ -114,9 +114,7 @@ export default function RolesPage() {
       if (data.success) {
         setRoles(data.roles);
       }
-    } catch (error) {
-      console.error('Failed to fetch roles:', error);
-      toast.error('Failed to fetch roles');
+    } catch (error) {toast.error('Failed to fetch roles');
     } finally {
       setLoading(false);
     }
@@ -128,9 +126,7 @@ export default function RolesPage() {
       if (data.success) {
         setPermissions(data.permissions);
       }
-    } catch (error) {
-      console.error('Failed to fetch permissions:', error);
-    }
+    } catch (error) {}
   }, []);
 
   const fetchStats = useCallback(async () => {
@@ -139,9 +135,7 @@ export default function RolesPage() {
       if (data.success) {
         setStats(data.stats);
       }
-    } catch (error) {
-      console.error('Failed to fetch role statistics:', error);
-    }
+    } catch (error) {}
   }, []);
 
   useEffect(() => {

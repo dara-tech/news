@@ -41,9 +41,7 @@ export default function AdSenseScript({ adSenseId }: AdSenseScriptProps) {
             window.__adsenseScriptLoaded = true;
           }
         }}
-        onError={(error) => {
-          console.error('AdSense script failed to load:', error);
-        }}
+        onError={(error) => {}}
       />
     </>
   );

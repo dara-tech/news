@@ -19,6 +19,8 @@ import Endpoints from './Endpoints';
 import Events from './Events';
 import Sentinel from './Sentinel';
 import Logs from './Logs';
+import Services from './Services';
+import Alerts from './Alerts';
 
 export default function SystemMonitoring() {
   const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
@@ -133,9 +135,7 @@ export default function SystemMonitoring() {
       }
       
       setLastRefresh(new Date());
-    } catch (error) {
-      console.error('Failed to fetch system metrics:', error);
-      // Always show mock data so the page isn't blank
+    } catch (error) {// Always show mock data so the page isn't blank
       setMetrics({
         server: {
           uptime: '—',
@@ -256,6 +256,24 @@ export default function SystemMonitoring() {
               </div>
             </TabsTrigger>
             <TabsTrigger 
+              value="services" 
+              className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5"
+            >
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <Server className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Services</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="alerts" 
+              className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5"
+            >
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Alerts</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
               value="performance" 
               className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5"
             >
@@ -305,6 +323,14 @@ export default function SystemMonitoring() {
 
         <TabsContent value="overview" className="mt-4 sm:mt-6">
           <Overview metrics={metrics} />
+        </TabsContent>
+
+        <TabsContent value="services" className="mt-4 sm:mt-6">
+          <Services />
+        </TabsContent>
+
+        <TabsContent value="alerts" className="mt-4 sm:mt-6">
+          <Alerts />
         </TabsContent>
 
         <TabsContent value="performance" className="mt-4 sm:mt-6">

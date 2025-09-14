@@ -191,9 +191,7 @@ export default function RecommendationEngine({
       } else {
         throw new Error(data.message || 'Failed to fetch recommendations');
       }
-    } catch (err) {
-      console.error('Error fetching recommendations:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch recommendations');
+    } catch (err) {setError(err instanceof Error ? err.message : 'Failed to fetch recommendations');
     } finally {
       setLoading(false);
     }
@@ -219,9 +217,7 @@ export default function RecommendationEngine({
       } else if (response.status === 401) {
         // User not authenticated, skip insights
       }
-    } catch (err) {
-      console.error('Error fetching insights:', err);
-    }
+    } catch (err) {}
   }, [user, filters.language]);
 
   // Track user behavior
@@ -237,9 +233,7 @@ export default function RecommendationEngine({
         },
         body: JSON.stringify({ action, data }),
       });
-    } catch (err) {
-      console.error('Error tracking behavior:', err);
-    }
+    } catch (err) {}
   }, [user]);
 
   // Handle article interaction

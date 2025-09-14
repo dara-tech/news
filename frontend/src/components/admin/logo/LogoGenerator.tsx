@@ -39,10 +39,7 @@ export function LogoGenerator({ onLogoGenerated }: LogoGeneratorProps) {
     }
 
     try {
-      const colors = getSmartColors(selectedStyle, industry);
-      console.log('Generating logo with:', { text: logoText.trim(), style: selectedStyle, colors });
-      
-      const result = await generateLogo({
+      const colors = getSmartColors(selectedStyle, industry);const result = await generateLogo({
         text: logoText.trim(),
         style: selectedStyle,
         colors,
@@ -53,16 +50,10 @@ export function LogoGenerator({ onLogoGenerated }: LogoGeneratorProps) {
         },
       });
 
-      if (result) {
-        console.log('Logo generated successfully:', result);
-        onLogoGenerated?.(result.url);
-      } else {
-        console.error('Logo generation failed - no result returned');
-        toast.error('Failed to generate logo');
+      if (result) {onLogoGenerated?.(result.url);
+      } else {toast.error('Failed to generate logo');
       }
-    } catch (error) {
-      console.error('Error generating logo:', error);
-      toast.error('Failed to generate logo');
+    } catch (error) {toast.error('Failed to generate logo');
     }
   };
 
@@ -74,11 +65,7 @@ export function LogoGenerator({ onLogoGenerated }: LogoGeneratorProps) {
 
     try {
       const colors = getSmartColors(selectedStyle, industry);
-      const styles: LogoStyle[] = ['minimal', 'modern', 'classic', 'playful', 'corporate', 'tech'];
-      
-      console.log('Generating multiple logos with:', { text: logoText.trim(), styles, colors });
-      
-      const results = await generateMultipleLogos({
+      const styles: LogoStyle[] = ['minimal', 'modern', 'classic', 'playful', 'corporate', 'tech'];const results = await generateMultipleLogos({
         text: logoText.trim(),
         styles,
         colors,
@@ -87,12 +74,7 @@ export function LogoGenerator({ onLogoGenerated }: LogoGeneratorProps) {
         preferences: {
           industry,
         },
-      }, 6);
-      
-      console.log('Multiple logos generated:', results);
-    } catch (error) {
-      console.error('Error generating multiple logos:', error);
-      toast.error('Failed to generate multiple logos');
+      }, 6);} catch (error) {toast.error('Failed to generate multiple logos');
     }
   };
 
@@ -288,14 +270,9 @@ export function LogoGenerator({ onLogoGenerated }: LogoGeneratorProps) {
                       src={logo.url}
                       alt={`${logo.text} logo`}
                       className="max-w-full max-h-full object-contain"
-                      onError={(e) => {
-                        console.error('Failed to load logo image:', logo.url);
-                        console.error('Logo object:', logo);
-                        e.currentTarget.style.display = 'none';
+                      onError={(e) => {e.currentTarget.style.display = 'none';
                       }}
-                      onLoad={() => {
-                        console.log('Logo image loaded successfully:', logo.url);
-                      }}
+                      onLoad={() => {}}
                     />
                   </div>
                   

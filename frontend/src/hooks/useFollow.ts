@@ -27,9 +27,7 @@ export const useFollow = ({ userId, initialFollowing = false }: UseFollowProps):
       setIsLoading(true);
       const response = await checkFollowStatus(userId);
       setIsFollowing(response.isFollowing);
-    } catch (error) {
-      console.error('Error checking follow status:', error);
-    } finally {
+    } catch (error) {} finally {
       setIsLoading(false);
     }
   }, [userId, user]);
@@ -50,9 +48,7 @@ export const useFollow = ({ userId, initialFollowing = false }: UseFollowProps):
       const response: FollowResponse = await toggleFollow(userId);
       setIsFollowing(response.following || false);
       return response;
-    } catch (error: any) {
-      console.error('Error toggling follow status:', error);
-      // Let the caller decide how to display errors
+    } catch (error: any) {// Let the caller decide how to display errors
       throw error;
     } finally {
       setIsLoading(false);

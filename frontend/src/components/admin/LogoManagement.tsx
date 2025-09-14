@@ -57,9 +57,7 @@ export default function LogoManagement({ compact = false, onSettingsChange }: Lo
         setSettings(prev => ({ ...prev, ...response.data.settings }));
         onSettingsChange?.(response.data.settings);
       }
-    } catch (error: any) {
-      console.error('Error fetching logo settings:', error);
-      toast.error('Failed to load logo settings');
+    } catch (error: any) {toast.error('Failed to load logo settings');
     } finally {
       setLoading(false);
     }
@@ -72,9 +70,7 @@ export default function LogoManagement({ compact = false, onSettingsChange }: Lo
       setSettings(newSettings);
       onSettingsChange?.(newSettings);
       toast.success('Logo settings updated successfully!');
-    } catch (error: any) {
-      console.error('Error saving logo settings:', error);
-      toast.error('Failed to save logo settings');
+    } catch (error: any) {toast.error('Failed to save logo settings');
     } finally {
       setSaving(false);
     }

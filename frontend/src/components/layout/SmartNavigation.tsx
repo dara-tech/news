@@ -44,11 +44,19 @@ export default function SmartNavigation({ lang, user }: SmartNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'frequent' | 'trending' | 'recent' | 'bookmarks'>('frequent');
 
-  // Load navigation data from localStorage
+  // Load navigation data from localStorage and analytics
   useEffect(() => {
     const saved = localStorage.getItem('smartNavigation');
+    const popularPaths = JSON.parse(localStorage.getItem('popularPaths') || '{}');
+    
     if (saved) {
-      setNavigationData(JSON.parse(saved));
+      const savedData = JSON.parse(saved);
+      // Update frequency based on analytics
+      const updatedData = savedData.map((item: NavigationItem) => ({
+        ...item,
+        frequency: popularPaths[item.href] || item.frequency
+      }));
+      setNavigationData(updatedData);
     } else {
       // Initialize with default navigation items
       const defaultItems: NavigationItem[] = [
@@ -58,9 +66,19 @@ export default function SmartNavigation({ lang, user }: SmartNavigationProps) {
           href: `/${lang}`,
           icon: FileText,
           category: 'content',
-          frequency: 0,
+          frequency: popularPaths[`/${lang}`] || 0,
           lastAccessed: 0,
           description: 'Latest news and updates'
+        },
+        {
+          id: 'news',
+          label: 'News',
+          href: `/${lang}/news`,
+          icon: FileText,
+          category: 'content',
+          frequency: popularPaths[`/${lang}/news`] || 0,
+          lastAccessed: 0,
+          description: 'Latest news articles'
         },
         {
           id: 'recommendations',
@@ -68,7 +86,7 @@ export default function SmartNavigation({ lang, user }: SmartNavigationProps) {
           href: `/${lang}/recommendations`,
           icon: Star,
           category: 'personal',
-          frequency: 0,
+          frequency: popularPaths[`/${lang}/recommendations`] || 0,
           lastAccessed: 0,
           description: 'Personalized content suggestions'
         },
@@ -78,7 +96,7 @@ export default function SmartNavigation({ lang, user }: SmartNavigationProps) {
           href: `/${lang}/admin/analytics`,
           icon: BarChart3,
           category: 'analytics',
-          frequency: 0,
+          frequency: popularPaths[`/${lang}/admin/analytics`] || 0,
           lastAccessed: 0,
           description: 'Performance metrics and insights'
         },
@@ -88,7 +106,7 @@ export default function SmartNavigation({ lang, user }: SmartNavigationProps) {
           href: `/${lang}/admin/users`,
           icon: Users,
           category: 'management',
-          frequency: 0,
+          frequency: popularPaths[`/${lang}/admin/users`] || 0,
           lastAccessed: 0,
           description: 'User management and roles'
         },
@@ -98,7 +116,7 @@ export default function SmartNavigation({ lang, user }: SmartNavigationProps) {
           href: `/${lang}/admin/settings`,
           icon: Settings,
           category: 'management',
-          frequency: 0,
+          frequency: popularPaths[`/${lang}/admin/settings`] || 0,
           lastAccessed: 0,
           description: 'System configuration'
         }

@@ -43,9 +43,7 @@ export default function EnhancedSentinel() {
         const data = await res.json();
         setMetrics(data);
       }
-    } catch (error) {
-      console.error('Failed to fetch Sentinel data:', error);
-    } finally {
+    } catch (error) {} finally {
       setIsLoading(false);
     }
   };

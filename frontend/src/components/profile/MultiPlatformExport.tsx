@@ -78,9 +78,7 @@ export const MultiPlatformExport = ({
       }
 
       setExportResults(results);
-    } catch (error) {
-      console.error('Export failed:', error);
-    } finally {
+    } catch (error) {} finally {
       setIsExporting(false);
     }
   }, [selectedStyle, selectedPlatforms, customColors, onGenerateForPlatform]);

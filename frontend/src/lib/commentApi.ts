@@ -53,9 +53,7 @@ class CommentApi {
 
   // Check if API is available
   private checkApiAvailability(): boolean {
-    if (!api) {
-      console.error('API is not available');
-      return false;
+    if (!api) {return false;
     }
     return true;
   }
@@ -71,9 +69,7 @@ class CommentApi {
         params: { page, limit, sort }
       });
       return response.data;
-    } catch (error) {
-      console.error('Error getting comments:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -89,9 +85,7 @@ class CommentApi {
         parentCommentId
       });
       return response.data;
-    } catch (error) {
-      console.error('Error creating comment:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -106,9 +100,7 @@ class CommentApi {
         content
       });
       return response.data;
-    } catch (error) {
-      console.error('Error updating comment:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -121,9 +113,7 @@ class CommentApi {
     try {
       const response = await api.delete(`${this.baseUrl}/${commentId}`);
       return response.data;
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -136,9 +126,7 @@ class CommentApi {
     try {
       const response = await api.post(`${this.baseUrl}/${commentId}/like`);
       return response.data;
-    } catch (error) {
-      console.error('Error toggling comment like:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -151,9 +139,7 @@ class CommentApi {
     try {
       const response = await api.get(`${this.baseUrl}/${newsId}/stats`);
       return response.data;
-    } catch (error) {
-      console.error('Error getting comment stats:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 }

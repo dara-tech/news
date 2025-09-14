@@ -87,15 +87,11 @@ function processFile(filePath) {
     }
 
     if (modified) {
-      fs.writeFileSync(filePath, content, 'utf8');
-      console.log(`✅ Cleaned: ${path.relative(process.cwd(), filePath)}`);
-      return true;
+      fs.writeFileSync(filePath, content, 'utf8');return true;
     }
 
     return false;
-  } catch (error) {
-    console.error(`❌ Error processing ${filePath}:`, error.message);
-    return false;
+  } catch (error) {return false;
   }
 }
 
@@ -125,27 +121,10 @@ function processDirectory(dirPath) {
         }
       }
     }
-  } catch (error) {
-    console.error(`❌ Error processing directory ${dirPath}:`, error.message);
-  }
+  } catch (error) {}
 
   return { totalFiles, modifiedFiles };
 }
 
-// Main execution
-console.log('🧹 Starting console log cleanup...\n');
-
-const backendDir = path.join(__dirname, '..');
-const result = processDirectory(backendDir);
-
-console.log(`\n📊 Cleanup Summary:`);
-console.log(`   Total files processed: ${result.totalFiles}`);
-console.log(`   Files modified: ${result.modifiedFiles}`);
-console.log(`   Files unchanged: ${result.totalFiles - result.modifiedFiles}`);
-
-if (result.modifiedFiles > 0) {
-  console.log('\n✅ Console log cleanup completed successfully!');
-  console.log('💡 Remember to test your application after these changes.');
-} else {
-  console.log('\n✨ No console logs found to clean up.');
-}
+// Main executionconst backendDir = path.join(__dirname, '..');
+const result = processDirectory(backendDir);if (result.modifiedFiles > 0) {} else {}

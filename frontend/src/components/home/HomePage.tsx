@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { Article, Category } from '@/types';
 
 import { NYTimesLayout } from '@/components/news/NYTimesLayout';
@@ -16,7 +17,9 @@ interface HomePageProps {
 }
 
 export default function HomePage({ lang, newsData, categories }: HomePageProps) {
-  const locale = lang;
+  // Ensure lang is always a string
+  const safeLang = typeof lang === 'string' ? lang : 'en';
+  const locale = safeLang;
   const { breaking, featured, latest } = newsData;
 
   // Transform articles to match NY Times component interface
@@ -53,7 +56,7 @@ export default function HomePage({ lang, newsData, categories }: HomePageProps) 
   return (
     <NYTimesLayout 
       articles={allArticles}
-      lang={lang}
+      lang={safeLang}
     />
   );
 }

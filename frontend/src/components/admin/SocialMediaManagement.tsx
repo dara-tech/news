@@ -136,9 +136,7 @@ export default function SocialMediaManagement({ compact = false, onSettingsChang
         setSettings(prev => ({ ...prev, ...response.data.settings }));
         onSettingsChange?.(response.data.settings);
       }
-    } catch (error: any) {
-      console.error('Error fetching social media settings:', error);
-      // Use default settings if API fails
+    } catch (error: any) {// Use default settings if API fails
     } finally {
       setLoading(false);
     }
@@ -151,9 +149,7 @@ export default function SocialMediaManagement({ compact = false, onSettingsChang
       setSettings(newSettings);
       onSettingsChange?.(newSettings);
       toast.success('Social media settings updated successfully!');
-    } catch (error: any) {
-      console.error('Error saving social media settings:', error);
-      toast.error('Failed to save social media settings');
+    } catch (error: any) {toast.error('Failed to save social media settings');
     } finally {
       setSaving(false);
     }
@@ -233,9 +229,7 @@ export default function SocialMediaManagement({ compact = false, onSettingsChang
       } else {
         toast.error(`Connection to ${platform} failed: ${response.data.message}`);
       }
-    } catch (error: any) {
-      console.error('Test connection error:', error);
-      toast.error(`Failed to test ${platform} connection: ${error.response?.data?.message || error.message}`);
+    } catch (error: any) {toast.error(`Failed to test ${platform} connection: ${error.response?.data?.message || error.message}`);
     } finally {
       setTestingConnection(null);
     }
@@ -247,9 +241,7 @@ export default function SocialMediaManagement({ compact = false, onSettingsChang
       if (response.data.success) {
         setPostingStats(response.data.stats);
       }
-    } catch (error: any) {
-      console.error('Get stats error:', error);
-      toast.error('Failed to get posting statistics');
+    } catch (error: any) {toast.error('Failed to get posting statistics');
     }
   };
 
@@ -262,9 +254,7 @@ export default function SocialMediaManagement({ compact = false, onSettingsChang
       } else {
         toast.error(`Manual posting failed: ${response.data.message}`);
       }
-    } catch (error: any) {
-      console.error('Manual post error:', error);
-      toast.error(`Manual posting failed: ${error.response?.data?.message || error.message}`);
+    } catch (error: any) {toast.error(`Manual posting failed: ${error.response?.data?.message || error.message}`);
     }
   };
 

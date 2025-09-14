@@ -139,9 +139,7 @@ export default function ArticleAnalytics({ articleId, articleTitle, locale }: Ar
             }
           })
         });
-      } catch (error) {
-        console.error('Error sending analytics:', error);
-      }
+      } catch (error) {}
     };
 
     // Send analytics every 30 seconds
@@ -176,9 +174,7 @@ export default function ArticleAnalytics({ articleId, articleTitle, locale }: Ar
             }
           })
         });
-      } catch (error) {
-        console.error('Error tracking article view:', error);
-      }
+      } catch (error) {}
     };
 
     trackView();
@@ -207,9 +203,7 @@ export default function ArticleAnalytics({ articleId, articleTitle, locale }: Ar
               }
             })
           });
-        } catch (error) {
-          console.error('Error tracking completion:', error);
-        }
+        } catch (error) {}
       };
 
       trackCompletion();

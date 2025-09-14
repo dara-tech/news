@@ -52,9 +52,7 @@ export default function FollowButton({
           const response = await fetch(`/api/follows/${userId}/followers/count`);
           const data = await response.json();
           setFollowerCount(data.count);
-        } catch (error) {
-          console.error('Error fetching follower count:', error);
-        }
+        } catch (error) {}
       };
       fetchFollowerCount();
     }

@@ -73,7 +73,7 @@ const CategoryCard = ({ category, lang }: { category: Category; lang: string }) 
 
   return (
     <Link
-      href={`/${lang}/category/${category.slug?.[lang] || category.slug?.en || category._id}`}
+      href={`/${lang}/category/${String(category.slug?.[lang] || category.slug?.en || category._id || 'unknown').replace(/[^a-zA-Z0-9-_]/g, '-')}`}
       className="group relative flex flex-col items-center text-center p-4 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700/80 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out"
     >
       <div

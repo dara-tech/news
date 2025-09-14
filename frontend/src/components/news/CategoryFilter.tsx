@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Category, Locale } from '@/types';
+import { Button } from '@/components/ui/button';
 
 interface CategoryFilterProps {
   categories: Category[];
@@ -14,7 +15,38 @@ function getLocalizedText(text: string | { [key: string]: string | undefined } |
   if (!text) return '';
   if (typeof text === 'string') return text;
   if (typeof text === 'object') {
-    if (typeof text[locale] === 'string') return text[locale]!;
+    
+    // Handle both 'kh' and 'km' locale keys for Khmer
+    const khmerKey = locale === 'kh' ? 'kh' : 'km';
+    
+    // Try exact locale match first
+    if (typeof text[locale] === 'string' && text[locale]!.trim()) {
+      return text[locale]!;
+    }
+    
+    // Try alternative Khmer key
+    if (typeof text[khmerKey] === 'string' && text[khmerKey]!.trim()) {
+      return text[khmerKey]!;
+    }
+    
+    // Try 'km' key if locale is 'kh'
+    if (locale === 'kh' && typeof text['km'] === 'string' && text['km']!.trim()) {
+      return text['km']!;
+    }
+    
+    // Fallback to English
+    if (typeof text['en'] === 'string' && text['en']!.trim()) {
+      return text['en']!;
+    }
+    
+    // Try any available key as last resort
+    const availableKeys = Object.keys(text).filter(key => 
+      typeof text[key] === 'string' && text[key]!.trim()
+    );
+    if (availableKeys.length > 0) {
+      return text[availableKeys[0]]!;
+    }
+    
     return '';
   }
   return '';
@@ -22,7 +54,8 @@ function getLocalizedText(text: string | { [key: string]: string | undefined } |
 
 function getCategorySlug(category: Category): string {
   if (!category.slug) {
-    throw new Error(`Category ${category._id} has no slug defined`);
+    // Fallback to _id if no slug, but ensure it's a string
+    return String(category._id || 'unknown');
   }
   return category.slug;
 }
@@ -48,14 +81,16 @@ export default function CategoryFilter({ categories, currentCategory, locale, la
     // Remove search when changing category
     params.delete('search');
     
-    const newUrl = `/${lang}/news?${params.toString()}`;
+    // Ensure proper language path for Khmer
+    const langPath = lang === 'kh' ? 'kh' : lang;
+    const newUrl = `/${langPath}/news?${params.toString()}`;
     router.push(newUrl);
   };
 
   return (
     <div className="mb-8">
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
           onClick={() => handleCategoryClick('')}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
             !currentCategory
@@ -64,19 +99,15 @@ export default function CategoryFilter({ categories, currentCategory, locale, la
           }`}
         >
           All
-        </button>
-        {categories.map((cat: Category) => {
-          let categorySlug: string;
-          let categoryName: string;
-          try {
-            categorySlug = getCategorySlug(cat);
-            categoryName = getLocalizedText(cat.name, locale);
-          } catch {
-            return null;
-          }
+        </Button>
+        {categories.map((cat: Category, index: number) => {
+          const categorySlug = getCategorySlug(cat);
+          const categoryName = getLocalizedText(cat.name, locale);
+          
+          
           return (
-            <button
-              key={categorySlug}
+            <Button
+              key={`${  categorySlug}-${index}`}
               onClick={() => handleCategoryClick(categorySlug)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                 currentCategory === categorySlug
@@ -84,10 +115,10 @@ export default function CategoryFilter({ categories, currentCategory, locale, la
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
-              {categoryName || cat._id}
-            </button>
+              {categoryName || String(cat._id || 'Unknown')}
+            </Button>
           );
-        }).filter(Boolean)}
+        })}
       </div>
     </div>
   );

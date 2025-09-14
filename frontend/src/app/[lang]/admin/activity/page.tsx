@@ -126,9 +126,7 @@ export default function ActivityLogsPage() {
       if (data.success) {
         setSecurityEvents(data.events);
       }
-    } catch {
-      console.error('Failed to fetch security events');
-    }
+    } catch {}
   }, []);
 
   useEffect(() => {

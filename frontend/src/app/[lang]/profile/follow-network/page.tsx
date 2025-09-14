@@ -35,9 +35,7 @@ export default function FollowNetworkPage() {
         
         setFollowersCount(followersResponse.count);
         setFollowingCount(followingResponse.count);
-      } catch (error) {
-        console.error('Error fetching follow stats:', error);
-      } finally {
+      } catch (error) {} finally {
         setIsLoading(false);
       }
     };

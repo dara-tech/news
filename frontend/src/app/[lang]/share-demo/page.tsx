@@ -24,9 +24,7 @@ export default function ShareDemoPage() {
     setShareAnalytics(prev => ({
       ...prev,
       [platform]: (prev[platform] || 0) + 1
-    }));
-    console.log(`Shared on ${platform}`);
-  };
+    }));};
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

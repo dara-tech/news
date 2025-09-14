@@ -15,10 +15,7 @@ export default function DebugFollowPage() {
     setError(null);
     setResults({});
 
-    try {
-      console.log('🧪 Testing Follow API from frontend...');
-      
-      const testUserId = '687362dbfcd8692cef0917df';
+    try {const testUserId = '687362dbfcd8692cef0917df';
       
       const [followersResponse, followingResponse] = await Promise.all([
         getFollowersCount(testUserId),
@@ -28,12 +25,7 @@ export default function DebugFollowPage() {
       setResults({
         followers: followersResponse,
         following: followingResponse
-      });
-
-      console.log('✅ Follow API test successful:', { followersResponse, followingResponse });
-    } catch (err: any) {
-      console.error('❌ Follow API test failed:', err);
-      setError(err.message);
+      });} catch (err: any) {setError(err.message);
     } finally {
       setLoading(false);
     }

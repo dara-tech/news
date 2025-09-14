@@ -17,6 +17,15 @@ interface NewsData {
 }
 
 async function getNewsData(lang: 'en' | 'kh'): Promise<NewsData> {
+  // Don't attempt to fetch in production build if we don't have a base URL
+  if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_API_URL) {
+    return {
+      breaking: [],
+      featured: [],
+      latest: [],
+    };
+  }
+
   try {
     const [breakingRes, featuredRes, latestRes] = await Promise.all([
       api.get('/news/breaking', { params: { lang } }),
@@ -30,17 +39,27 @@ async function getNewsData(lang: 'en' | 'kh'): Promise<NewsData> {
       latest: latestRes.data?.news || latestRes.data?.data || latestRes.data || [],
     };
   } catch (error) {
-    console.error('Error fetching news data:', error);
-    throw new Error('Could not load news. Please try refreshing the page.');
+    // Return empty data instead of throwing error to prevent build failure
+    console.warn('Failed to load news data:', error);
+    return {
+      breaking: [],
+      featured: [],
+      latest: [],
+    };
   }
 }
 
 async function getCategories(): Promise<Category[]> {
+  // Don't attempt to fetch in production build if we don't have a base URL
+  if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_API_URL) {
+    return [];
+  }
+
   try {
     const response = await api.get('/categories', { timeout: 15000 });
     return response.data?.data || response.data || [];
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.warn('Failed to load categories:', error);
     return [];
   }
 }

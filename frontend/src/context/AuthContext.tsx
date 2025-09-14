@@ -87,9 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (parsedUser && parsedUser._id && parsedUser.email) {
           setUser(parsedUser);
         }
-      } catch (error) {
-        console.error('Failed to parse stored user data:', error);
-        localStorage.removeItem('userInfo');
+      } catch (error) {localStorage.removeItem('userInfo');
       }
     }
 
@@ -125,10 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (isMounted) setUser(userToStore);
             if (isMounted) setLoading(false);
             return;
-          } catch (error) {
-            console.error('❌ Failed to parse user data from OAuth callback:', error);
-            console.error('Raw userDataParam:', userDataParam);
-          }
+          } catch (error) {}
         }
 
         // Check if we're on a public route (after processing OAuth callback)

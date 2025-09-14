@@ -53,9 +53,7 @@ export const useGenerateSEO = () => {
         metaDescription: parsed.metaDescription || { en: '', kh: '' },
         keywords: parsed.keywords || '',
       };
-    } catch (e) {
-      console.error("Error generating SEO content:", e);
-      setError("Failed to generate content from Gemini API.");
+    } catch (e) {setError("Failed to generate content from Gemini API.");
       return null;
     } finally {
       setIsGenerating(false);

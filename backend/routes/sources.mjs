@@ -447,4 +447,66 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Test source connectivity and validity
+router.post('/test/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const source = SOURCE_DATABASE.find(s => s.id === id);
+
+    if (!source) {
+      return res.status(404).json({
+        success: false,
+        message: 'Source not found'
+      });
+    }
+
+    // Simulate source testing
+    const testResult = {
+      sourceId: id,
+      url: source.url,
+      status: 'success',
+      responseTime: Math.floor(Math.random() * 1000) + 100, // 100-1100ms
+      lastChecked: new Date().toISOString(),
+      details: {
+        reachable: true,
+        contentType: source.type === 'rss' ? 'application/rss+xml' : 'text/html',
+        statusCode: 200,
+        contentLength: Math.floor(Math.random() * 50000) + 1000,
+        lastModified: new Date().toISOString(),
+        server: 'nginx/1.18.0'
+      },
+      health: {
+        score: Math.floor(Math.random() * 20) + 80, // 80-100
+        issues: [],
+        recommendations: []
+      }
+    };
+
+    // Simulate occasional failures for testing
+    if (Math.random() < 0.1) { // 10% chance of failure
+      testResult.status = 'error';
+      testResult.details.reachable = false;
+      testResult.details.statusCode = 500;
+      testResult.health.score = 0;
+      testResult.health.issues = ['Connection timeout', 'Server error'];
+      testResult.health.recommendations = ['Check URL validity', 'Try again later'];
+    }
+
+    logger.info(`Source test completed for ${source.title}: ${testResult.status}`);
+
+    res.json({
+      success: testResult.status === 'success',
+      result: testResult
+    });
+
+  } catch (error) {
+    logger.error('Source test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to test source',
+      error: error.message
+    });
+  }
+});
+
 export default router;

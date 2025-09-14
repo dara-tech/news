@@ -36,19 +36,13 @@ export default function TelegramConfig({ settings, onUpdate, onTestConnection, t
   const [saving, setSaving] = useState(false);
 
   // Debug effect to log settings changes
-  useEffect(() => {
-    console.log('TelegramConfig settings changed:', settings);
-    console.log('TelegramConfig enabled:', settings.enabled);
-    console.log('TelegramConfig loading:', loading);
-  }, [settings, loading]);
+  useEffect(() => {}, [settings, loading]);
 
   const handleToggle = async (enabled: boolean) => {
     try {
       setSaving(true);
       await onUpdate({ telegramEnabled: enabled });
-    } catch (error) {
-      console.error('Error updating Telegram enabled status:', error);
-    } finally {
+    } catch (error) {} finally {
       setSaving(false);
     }
   };
@@ -57,9 +51,7 @@ export default function TelegramConfig({ settings, onUpdate, onTestConnection, t
     try {
       setSaving(true);
       await onUpdate({ [field]: value });
-    } catch (error) {
-      console.error(`Error updating ${field}:`, error);
-    } finally {
+    } catch (error) {} finally {
       setSaving(false);
     }
   };
@@ -94,9 +86,6 @@ export default function TelegramConfig({ settings, onUpdate, onTestConnection, t
   const channelUrl = getChannelUrl();
 
   // Debug logging
-  console.log('TelegramConfig settings:', settings);
-  console.log('TelegramConfig enabled:', settings.enabled);
-
   return (
     <Card>
       <CardHeader>

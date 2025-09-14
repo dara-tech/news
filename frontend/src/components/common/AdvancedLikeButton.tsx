@@ -73,9 +73,7 @@ export default function AdvancedLikeButton({
           const status = await likeApi.getLikeStatus(newsId);
           setIsLiked(status.hasLiked);
           setLikeCount(status.count || 0);
-        } catch (error) {
-          console.error('Error loading like status:', error);
-          setHasError(true);
+        } catch (error) {setHasError(true);
           // Fallback to initial values if API fails
           setIsLiked(initialLiked);
           setLikeCount(initialLikes || 0);
@@ -95,9 +93,7 @@ export default function AdvancedLikeButton({
         setIsLiked(status.hasLiked);
         setLikeCount(status.count || 0);
         setHasError(false);
-      } catch (error) {
-        console.error('Failed to refresh like status:', error);
-        // Continue with the like action anyway
+      } catch (error) {// Continue with the like action anyway
       }
     }
 
@@ -138,14 +134,10 @@ export default function AdvancedLikeButton({
     } catch (error) {
       // Revert on error
       setIsLiked(!newLiked);
-      setLikeCount(newLiked ? Math.max(0, newCount - 1) : newCount + 1);
-      console.error('Failed to update like:', error);
-      setHasError(true);
+      setLikeCount(newLiked ? Math.max(0, newCount - 1) : newCount + 1);setHasError(true);
 
       // If it's an API availability error, we can keep the optimistic update
-      if (error instanceof Error && error.message === 'API is not available') {
-        console.warn('API not available, keeping optimistic update');
-        // Don't revert for API availability issues
+      if (error instanceof Error && error.message === 'API is not available') {// Don't revert for API availability issues
         setIsLiked(newLiked);
         setLikeCount(newCount);
         setHasError(false);

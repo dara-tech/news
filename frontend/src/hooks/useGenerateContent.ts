@@ -109,10 +109,7 @@ export function useGenerateContent() {
       try {
         parsed = JSON.parse(jsonString);
       } catch (parseError) {
-        // If parsing fails, try to fix common JSON issues
-        console.warn("Initial JSON parse failed, attempting to fix:", parseError);
-        
-        // Fix common issues: unescaped quotes, newlines in strings
+        // If parsing fails, try to fix common JSON issues// Fix common issues: unescaped quotes, newlines in strings
         jsonString = jsonString
           .replace(/(?<!\\)"/g, '\\"') // Escape unescaped quotes
           .replace(/\n/g, '\\n') // Escape newlines
@@ -133,9 +130,7 @@ export function useGenerateContent() {
         description: parsed.description || { en: '', kh: '' },
         content: parsed.content || { en: '', kh: '' },
       };
-    } catch (e) {
-      console.error("Error generating content from Gemini API:", e);
-      setError(`Failed to generate content: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    } catch (e) {setError(`Failed to generate content: ${e instanceof Error ? e.message : 'Unknown error'}`);
       return null;
     } finally {
       setIsGenerating(false);
@@ -202,15 +197,11 @@ export function useGenerateContent() {
            .trim()
       ).filter(tag => tag.length > 0 && tag.length <= 20); // Filter out empty or too long tags
       
-      if (cleanedTags.length < 3) {
-        console.warn("Generated too few tags:", cleanedTags);
-        return null;
+      if (cleanedTags.length < 3) {return null;
       }
       
       return cleanedTags;
-    } catch (e) {
-      console.error("Error generating tags from Gemini API:", e);
-      setTagsError(`Failed to generate tags: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    } catch (e) {setTagsError(`Failed to generate tags: ${e instanceof Error ? e.message : 'Unknown error'}`);
       return null;
     } finally {
       setIsGeneratingTags(false);

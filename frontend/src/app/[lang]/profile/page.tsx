@@ -27,9 +27,7 @@ async function getUser(): Promise<User | null> {
 
     const userData = await response.json();
     return userData;
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    return null;
+  } catch (error) {return null;
   }
 }
 

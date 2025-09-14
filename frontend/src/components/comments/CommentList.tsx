@@ -60,9 +60,7 @@ export default function CommentList({
 
     try {
       await commentApi.toggleCommentLike(comment._id);
-    } catch (error) {
-      console.error('Error toggling comment like:', error);
-      onCommentLiked(comment._id, hasLiked);
+    } catch (error) {onCommentLiked(comment._id, hasLiked);
     } finally {
       setLikingComment(null);
     }
@@ -72,9 +70,7 @@ export default function CommentList({
     try {
       await commentApi.deleteComment(commentId);
       onCommentDeleted(commentId);
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-    }
+    } catch (error) {}
   };
 
   const handleReply = (commentId: string) => {

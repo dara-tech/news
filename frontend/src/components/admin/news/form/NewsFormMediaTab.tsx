@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { UploadCloud, X } from "lucide-react"
 import { MdOutlineSmartToy } from "react-icons/md"
+import { Input } from "@/components/ui/input"
 
 interface NewsFormMediaTabProps {
   thumbnailPreview: string | null;
@@ -83,7 +84,7 @@ const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
                 <Label htmlFor="thumbnail-upload" className="cursor-pointer text-blue-600 font-semibold hover:underline">
                   browse files
                 </Label>
-                <input
+                <Input
                   type="file"
                   name="thumbnail"
                   accept="image/*"
@@ -120,7 +121,7 @@ const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
               <Label htmlFor="images-upload" className="cursor-pointer text-green-600 font-semibold hover:underline">
                 browse files
               </Label>
-              <input
+              <Input
                 type="file"
                 name="images"
                 accept="image/*"
@@ -191,7 +192,7 @@ const NewsFormMediaTab: React.FC<NewsFormMediaTabProps> = ({
                 <Label htmlFor="meta-image-upload" className="cursor-pointer text-purple-600 font-semibold hover:underline">
                   browse files
                 </Label>
-                <input
+                <Input
                   type="file"
                   name="metaImage"
                   accept="image/*"

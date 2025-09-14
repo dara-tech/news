@@ -104,9 +104,7 @@ export default function IntegrationsSettingsPage() {
       if (data.success) {
         setSettings(data.settings);
       }
-    } catch (error) {
-      console.log('Using default integration settings');
-    } finally {
+    } catch (error) {} finally {
       setLoading(false);
     }
   };
@@ -122,9 +120,7 @@ export default function IntegrationsSettingsPage() {
       await api.put('/admin/settings/integrations', { settings });
       setHasChanges(false);
       toast.success('Integration settings saved successfully!');
-    } catch (error) {
-      console.error('Error saving integration settings:', error);
-      toast.error('Failed to save integration settings');
+    } catch (error) {toast.error('Failed to save integration settings');
     } finally {
       setSaving(false);
     }

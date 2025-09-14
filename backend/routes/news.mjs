@@ -12,7 +12,8 @@ import {
   duplicateNews,
   updateNewsStatus,
   getNewsByCategorySlug,
-  getAuthorProfile
+  getAuthorProfile,
+  getTopAuthors
 } from "../controllers/newsController.mjs";
 import { protect, admin } from "../middleware/auth.mjs";
 import upload from "../middleware/upload.mjs";
@@ -30,10 +31,11 @@ router.get('/', getNews);
 
 router.get('/featured', getFeaturedNews);
 router.get('/breaking', getBreakingNews);
-router.get('/category/:category', getNewsByCategory);
-
-
-logger.info('Registering author route: /author/:authorId');
+router.get('/top-authors', getTopAuthors);
+router.get('/category/:slug', getNewsByCategorySlug);
+router.get('/test-category/:slug', (req, res) => {
+  res.json({ message: 'Test route working', slug: req.params.slug });
+});logger.info('Registering author route: /author/:authorId');
 logger.info('getAuthorProfile function:', typeof getAuthorProfile);
 
 // Test route to see if routing works

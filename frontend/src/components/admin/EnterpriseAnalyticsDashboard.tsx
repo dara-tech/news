@@ -108,12 +108,8 @@ const EnterpriseAnalyticsDashboard: React.FC = () => {
         const data = await analyticsRes.json();
         setAnalyticsData(data.data);
         // Also set real-time data from the main dashboard response
-        if (data.data.realTime) {
-          console.log('Setting real-time data - users:', data.data.realTime.currentUsers, 'registered:', data.data.realTime.registeredUsers, 'anonymous:', data.data.realTime.anonymousUsers);
-          setRealTimeData(data.data.realTime);
-        } else {
-          console.log('No realTime data in response:', data.data);
-        }
+        if (data.data.realTime) {setRealTimeData(data.data.realTime);
+        } else {}
       }
 
       if (performanceRes.ok) {
@@ -126,9 +122,7 @@ const EnterpriseAnalyticsDashboard: React.FC = () => {
         setBusinessIntelligence(data.data);
       }
 
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
-    } finally {
+    } catch (error) {} finally {
       setLoading(false);
     }
   };
@@ -140,9 +134,7 @@ const EnterpriseAnalyticsDashboard: React.FC = () => {
         const data = await response.json();
         setRealTimeData(data.data);
       }
-    } catch (error) {
-      console.error('Failed to load real-time data:', error);
-    }
+    } catch (error) {}
   };
 
   const simulateUsers = async () => {
@@ -156,18 +148,12 @@ const EnterpriseAnalyticsDashboard: React.FC = () => {
       });
       
       if (response.ok) {
-        const data = await response.json();
-        console.log('Users simulated successfully:', data.currentStats);
-        alert(`✅ Simulated ${data.currentStats.totalActiveUsers} users (${data.currentStats.registeredUsers} registered, ${data.currentStats.anonymousUsers} anonymous)`);
+        const data = await response.json();alert(`✅ Simulated ${data.currentStats.totalActiveUsers} users (${data.currentStats.registeredUsers} registered, ${data.currentStats.anonymousUsers} anonymous)`);
         // Refresh the dashboard to show new users
         loadDashboardData();
-      } else {
-        console.error('Simulation failed:', response.status, response.statusText);
-        alert('❌ Failed to simulate users');
+      } else {alert('❌ Failed to simulate users');
       }
-    } catch (error) {
-      console.error('Failed to simulate users:', error);
-    }
+    } catch (error) {}
   };
 
   const clearUsers = async () => {
@@ -176,18 +162,12 @@ const EnterpriseAnalyticsDashboard: React.FC = () => {
         method: 'DELETE'
       });
       
-      if (response.ok) {
-        console.log('Users cleared successfully');
-        alert('🗑️ All test users cleared');
+      if (response.ok) {alert('🗑️ All test users cleared');
         // Refresh the dashboard
         loadDashboardData();
-      } else {
-        console.error('Clear failed:', response.status, response.statusText);
-        alert('❌ Failed to clear users');
+      } else {alert('❌ Failed to clear users');
       }
-    } catch (error) {
-      console.error('Failed to clear users:', error);
-    }
+    } catch (error) {}
   };
 
   const getHealthColor = (status: string) => {

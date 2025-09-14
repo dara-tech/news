@@ -32,9 +32,7 @@ export default function AdSenseAd({
         if (!adRef.current.hasAttribute('data-adsbygoogle-status')) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
         }
-      } catch (error) {
-        console.error('AdSense ad initialization error:', error);
-      }
+      } catch (error) {}
     }
   }, [adSlot]); // Add adSlot as dependency to prevent re-initialization
 

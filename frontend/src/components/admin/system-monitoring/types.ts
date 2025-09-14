@@ -76,3 +76,60 @@ export interface SystemLog {
   level: string;
   message: string;
 }
+
+// Enhanced Service Health Types
+export interface ServiceHealth {
+  id: string;
+  name: string;
+  category: 'core' | 'ai' | 'analytics' | 'social' | 'business' | 'infrastructure';
+  status: 'healthy' | 'warning' | 'error' | 'offline';
+  responseTime: number;
+  lastCheck: string;
+  uptime: number;
+  errorRate: number;
+  dependencies: string[];
+  description: string;
+  version?: string;
+  metrics?: {
+    requestsPerMinute?: number;
+    memoryUsage?: number;
+    cpuUsage?: number;
+    queueSize?: number;
+    successRate?: number;
+  };
+}
+
+export interface ServiceHealthStatus {
+  overall: 'healthy' | 'warning' | 'error';
+  services: ServiceHealth[];
+  lastUpdated: string;
+  summary: {
+    total: number;
+    healthy: number;
+    warning: number;
+    error: number;
+    offline: number;
+  };
+}
+
+export interface AlertRule {
+  id: string;
+  name: string;
+  serviceId: string;
+  condition: string;
+  threshold: number;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  enabled: boolean;
+  lastTriggered?: string;
+}
+
+export interface Alert {
+  id: string;
+  ruleId: string;
+  serviceId: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  message: string;
+  timestamp: string;
+  acknowledged: boolean;
+  resolved: boolean;
+}

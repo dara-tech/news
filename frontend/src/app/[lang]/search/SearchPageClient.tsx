@@ -96,88 +96,83 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
       try {
         const response = await api.get("/categories")
         setCategories(response.data?.data || [])
-      } catch (error) {
-        console.error("Failed to fetch categories:", error)
-      }
+      } catch (error) {}
     }
     fetchCategories()
   }, [])
 
   // Perform search
-  const performSearch = useCallback(async (
-    searchQuery: string,
-    page: number = 1,
-    isNewSearch: boolean = false
-  ) => {
-    if (!searchQuery.trim()) return
+  const performSearch = useCallback(async (searchQuery: string, page: number = 1, resetResults: boolean = false) => {
+    if (!searchQuery.trim()) {
+      setResults([])
+      setTotalResults(0)
+      return
+    }
 
     setIsLoading(true)
     try {
-      const params: Record<string, string | number | boolean> = {
-        keyword: searchQuery,
-        page,
-        limit: 20
-      }
+      const params = new URLSearchParams({
+        q: searchQuery,
+        page: page.toString(),
+        limit: '10'
+      })
 
-      // Add filters
-      if (filters.category) params.category = filters.category
-      if (filters.dateRange && filters.dateRange !== 'all') params.dateRange = filters.dateRange
-      if (filters.sortBy) params.sortBy = filters.sortBy
-      if (filters.featured) params.featured = filters.featured
-      if (filters.breaking) params.breaking = filters.breaking
+      if (filters.category) params.append('category', filters.category)
+      if (filters.dateRange && filters.dateRange !== 'all') params.append('dateRange', filters.dateRange)
+      if (filters.sortBy) params.append('sortBy', filters.sortBy)
+      if (filters.featured) params.append('featured', 'true')
+      if (filters.breaking) params.append('breaking', 'true')
 
-      const response = await api.get("/news", { params })
-      const data = response.data
+      const response = await api.get(`/news/search?${params.toString()}`)
+      const data = response.data?.data || {}
+      const newResults = data.results || []
 
-      if (isNewSearch) {
-        setResults(data.news || [])
+      if (resetResults || page === 1) {
+        setResults(newResults)
         setCurrentPage(1)
       } else {
-        setResults(prev => [...prev, ...(data.news || [])])
+        setResults(prev => [...prev, ...newResults])
       }
 
       setTotalResults(data.total || 0)
-      setHasMore(data.page < data.pages)
+      setHasMore(newResults.length === 10 && results.length + newResults.length < (data.total || 0))
+      setCurrentPage(page)
     } catch (error) {
-      console.error("Search failed:", error)
+      console.error('Search error:', error)
+      if (resetResults || page === 1) {
+        setResults([])
+        setTotalResults(0)
+      }
     } finally {
       setIsLoading(false)
     }
-  }, [filters])
-
-  // Initial search
-  useEffect(() => {
-    if (initialQuery) {
-      performSearch(initialQuery, 1, true)
-    }
-  }, [initialQuery, performSearch])
-
-  // Handle search submit
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (query.trim()) {
-      performSearch(query, 1, true)
-      updateURL()
-    }
-  }
+  }, [filters, results.length])
 
   // Update URL with search params
-  const updateURL = () => {
+  const updateURL = useCallback(() => {
     const params = new URLSearchParams()
-    if (query) params.set('q', query)
-    if (filters.category) params.set('category', filters.category)
-    if (filters.dateRange && filters.dateRange !== 'all') params.set('dateRange', filters.dateRange)
-    if (filters.sortBy) params.set('sortBy', filters.sortBy)
+    if (query) params.append('q', query)
+    if (filters.category) params.append('category', filters.category)
+    if (filters.dateRange && filters.dateRange !== 'all') params.append('dateRange', filters.dateRange)
+    if (filters.sortBy && filters.sortBy !== 'relevance') params.append('sortBy', filters.sortBy)
+    if (filters.featured) params.append('featured', 'true')
+    if (filters.breaking) params.append('breaking', 'true')
 
-    const newURL = `/${lang}/search?${params.toString()}`
-    router.push(newURL)
+    const newURL = `/${lang}/search${params.toString() ? `?${params.toString()}` : ''}`
+    router.push(newURL, { scroll: false })
+  }, [query, filters, lang, router])
+
+  // Handle search form submit
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    performSearch(query, 1, true)
+    updateURL()
   }
 
   // Load more results
   const loadMore = () => {
     if (!isLoading && hasMore) {
       performSearch(query, currentPage + 1, false)
-      setCurrentPage(prev => prev + 1)
     }
   }
 
@@ -599,4 +594,4 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
   )
 }
 
-export default SearchPageClient
+export default SearchPageClient;

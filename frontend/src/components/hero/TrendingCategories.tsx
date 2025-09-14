@@ -35,12 +35,14 @@ const TrendingCategories: React.FC<TrendingCategoriesProps> = ({ categories = []
         {categories.map((category) => {
           const articleCount = category.articlesCount ?? 0
           const categoryName = getLocalizedString(category.name as LocalizedString, locale) || "Uncategorized"
-          const categorySlug = typeof category.slug === "string" ? category.slug : category._id
+          const categorySlug = typeof category.slug === "string" ? category.slug : 
+                              typeof category._id === "string" ? category._id : 
+                              `category-${Math.random().toString(36).substr(2, 9)}`
           const categoryColor = category.color || "#3b82f6"
           return (
             <Link
               key={category._id}
-              href={`/${locale === "kh" ? "km" : "en"}/category/${categorySlug}`}
+              href={`/${locale === "kh" ? "kh" : "en"}/category/${String(categorySlug).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
               className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-colors flex items-center gap-1 text-xs sm:text-sm"
               style={{
                 backgroundColor: `${categoryColor}15`,

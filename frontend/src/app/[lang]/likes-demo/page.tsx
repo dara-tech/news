@@ -30,16 +30,12 @@ export default function LikesDemoPage() {
       setIsLoading(true);
       const response = await likeApi.getPopularArticles(5);
       setPopularArticles(response.data);
-    } catch (error) {
-      console.error('Error loading popular articles:', error);
-    } finally {
+    } catch (error) {} finally {
       setIsLoading(false);
     }
   };
 
-  const handleLikeChange = (liked: boolean, newCount: number) => {
-    console.log(`Article ${liked ? 'liked' : 'unliked'}, new count: ${newCount}`);
-    // Refresh popular articles after like change
+  const handleLikeChange = (liked: boolean, newCount: number) => {// Refresh popular articles after like change
     loadPopularArticles();
   };
 
@@ -265,7 +261,7 @@ export default function LikesDemoPage() {
                   {isLoading ? 'Loading...' : 'Load Popular Articles'}
                 </Button>
                 <Button 
-                  onClick={() => likeApi.getLikeCount(demoArticleIds[0]).then(console.log)}
+                  onClick={() => likeApi.getLikeCount(demoArticleIds[0]).then(() => {})}
                   variant="outline"
                   className="w-full"
                 >

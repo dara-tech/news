@@ -96,9 +96,7 @@ export const getFollowersCount = async (userId: string): Promise<FollowCountResp
   try {
     const response = await api.get(`/follows/${userId}/followers/count`);
     return response.data;
-  } catch (error: unknown) {
-    console.error('❌ Follow API - getFollowersCount error:', error);
-    const err = error as { response?: { data?: { message?: string } } };
+  } catch (error: unknown) {const err = error as { response?: { data?: { message?: string } } };
     throw new Error(err.response?.data?.message || 'Failed to get followers count');
   }
 };
@@ -108,9 +106,7 @@ export const getFollowingCount = async (userId: string): Promise<FollowCountResp
   try {
     const response = await api.get(`/follows/${userId}/following/count`);
     return response.data;
-  } catch (error: unknown) {
-    console.error('❌ Follow API - getFollowingCount error:', error);
-    const err = error as { response?: { data?: { message?: string } } };
+  } catch (error: unknown) {const err = error as { response?: { data?: { message?: string } } };
     throw new Error(err.response?.data?.message || 'Failed to get following count');
   }
 };
@@ -122,9 +118,7 @@ export const getFollowers = async (userId: string, page = 1, limit = 20): Promis
       params: { page, limit }
     });
     return response.data;
-  } catch (error: unknown) {
-    console.error('❌ Follow API - getFollowers error:', error);
-    const err = error as { response?: { data?: { message?: string } } };
+  } catch (error: unknown) {const err = error as { response?: { data?: { message?: string } } };
     throw new Error(err.response?.data?.message || 'Failed to get followers list');
   }
 };
@@ -136,9 +130,7 @@ export const getFollowing = async (userId: string, page = 1, limit = 20): Promis
       params: { page, limit }
     });
     return response.data;
-  } catch (error: unknown) {
-    console.error('❌ Follow API - getFollowing error:', error);
-    const err = error as { response?: { data?: { message?: string } } };
+  } catch (error: unknown) {const err = error as { response?: { data?: { message?: string } } };
     throw new Error(err.response?.data?.message || 'Failed to get following list');
   }
 }; 

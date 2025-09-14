@@ -125,7 +125,6 @@ const Footer: FC = () => {
         }
       } catch (error) {
         // Silently use default settings if API calls fail
-        console.log('Using default footer settings');
       }
     };
 

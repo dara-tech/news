@@ -75,9 +75,7 @@ export default function TokenHealthMonitor({ settings, onRefresh }: TokenHealthM
       });
 
       // Removed toast notifications - status is shown in the UI instead
-    } catch (error: any) {
-      console.error('Token health check failed:', error);
-      setTokenHealth({
+    } catch (error: any) {setTokenHealth({
         valid: false,
         error: error.response?.data?.message || 'Failed to check token health',
         lastChecked: new Date()
@@ -101,9 +99,7 @@ export default function TokenHealthMonitor({ settings, onRefresh }: TokenHealthM
       } else {
         // Removed toast notifications - status is shown in the UI instead
       }
-    } catch (error: any) {
-      console.error('Token refresh failed:', error);
-      // Removed toast notifications - status is shown in the UI instead
+    } catch (error: any) {// Removed toast notifications - status is shown in the UI instead
     }
   };
 

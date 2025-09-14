@@ -16,10 +16,7 @@ export default function MaintenanceCheck({ children }: MaintenanceCheckProps) {
   useEffect(() => {
     const checkMaintenance = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-        console.log('Checking maintenance status from:', `${apiUrl}/api/maintenance-status`);
-        
-        const controller = new AbortController();
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
         
         const response = await fetch(`${apiUrl}/api/maintenance-status`, {
@@ -30,31 +27,13 @@ export default function MaintenanceCheck({ children }: MaintenanceCheckProps) {
           signal: controller.signal
         });
         
-        clearTimeout(timeoutId);
-        
-        console.log('Response status:', response.status);
-        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Maintenance data:', data);
-          
-          // If maintenance is enabled and user cannot access, redirect to maintenance page
-          if (data.maintenance && !data.canAccess) {
-            console.log('Redirecting to maintenance page');
-            router.push('/maintenance');
+        clearTimeout(timeoutId);if (response.ok) {
+          const data = await response.json();// If maintenance is enabled and user cannot access, redirect to maintenance page
+          if (data.maintenance && !data.canAccess) {router.push('/maintenance');
             return;
           }
-        } else {
-          console.error('API response not ok:', response.status, response.statusText);
-          const errorText = await response.text();
-          console.error('Error response body:', errorText);
-        }
-      } catch (error) {
-        console.error('Error checking maintenance status:', error);
-      } finally {
-        console.log('Setting isChecking to false');
-        setIsChecking(false);
+        } else {const errorText = await response.text();}
+      } catch (error) {} finally {setIsChecking(false);
       }
     };
 

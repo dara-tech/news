@@ -122,9 +122,7 @@ export default function SentinelAutoPublishManager() {
           isRunning: false
         });
       }
-    } catch (error) {
-      console.error('Error fetching auto-publish stats:', error);
-      // Set default stats on error
+    } catch (error) {// Set default stats on error
       setStats({
         totalDrafts: 0,
         totalPublished: 0,
@@ -153,9 +151,7 @@ export default function SentinelAutoPublishManager() {
           publishSchedule: 'manual'
         });
       }
-    } catch (error) {
-      console.error('Error fetching auto-publish settings:', error);
-      // Set default settings on error
+    } catch (error) {// Set default settings on error
       setSettings({
         enabled: false,
         autoPublishEnabled: false,
@@ -178,9 +174,7 @@ export default function SentinelAutoPublishManager() {
         // Set empty logs if API returns unexpected format
         setLogs([]);
       }
-    } catch (error) {
-      console.error('Error fetching auto-publish logs:', error);
-      // Set empty logs on error
+    } catch (error) {// Set empty logs on error
       setLogs([]);
     }
   };
@@ -210,9 +204,7 @@ export default function SentinelAutoPublishManager() {
       } else {
         toast.error('Auto-publish process failed');
       }
-    } catch (error) {
-      console.error('Error triggering auto-publish:', error);
-      if (error && typeof error === 'object' && 'code' in error && error.code === 'ECONNABORTED') {
+    } catch (error) {if (error && typeof error === 'object' && 'code' in error && error.code === 'ECONNABORTED') {
         toast.error('Auto-publish request timed out. The process may still be running in the background.');
         // Start polling anyway in case it's still running
         startPollingForUpdates();
@@ -250,9 +242,7 @@ export default function SentinelAutoPublishManager() {
             toast.success('Auto-publish process completed!');
           }
         }
-      } catch (error) {
-        console.error('Error polling for updates:', error);
-      }
+      } catch (error) {}
     }, 5000);
   };
 
@@ -264,9 +254,7 @@ export default function SentinelAutoPublishManager() {
         setSettings(prev => ({ ...prev, ...newSettings }));
         toast.success('Settings updated successfully');
       }
-    } catch (error) {
-      console.error('Error updating settings:', error);
-      toast.error('Failed to update settings');
+    } catch (error) {toast.error('Failed to update settings');
     }
   };
 

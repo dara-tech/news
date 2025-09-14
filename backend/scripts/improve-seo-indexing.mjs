@@ -62,9 +62,7 @@ class SEOImprovementService {
       }
       
       return validationResults;
-    } catch (error) {
-      console.error('❌ Error validating sitemap:', error.message);
-      return [];
+    } catch (error) {return [];
     }
   }
 
@@ -113,9 +111,7 @@ class SEOImprovementService {
       }
       
       return canonicalResults;
-    } catch (error) {
-      console.error('❌ Error checking canonical URLs:', error.message);
-      return [];
+    } catch (error) {return [];
     }
   }
 

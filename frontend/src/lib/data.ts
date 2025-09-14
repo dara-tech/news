@@ -38,20 +38,21 @@ export async function getAllArticles(): Promise<Article[]> {
           url: config.url,
           baseURL: config.baseURL
         };
-      }
-      
-      console.error('Failed to fetch articles :', errorObj);
-    }
+      }}
     return [];
   }
 }
 
 export async function getAllCategories(): Promise<Category[]> {
+  // Don't attempt to fetch in production build if we don't have a base URL
+  if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_API_URL) {
+    return [];
+  }
+
   try {
     const response = await api.get('/categories');
     return response.data.categories || [];
   } catch {
-    // console.error('Failed to fetch categories');
     return [];
   }
 }

@@ -1,4 +1,4 @@
-/* Enterprise UI Patterns */
+/* Enterprise UI Patterns - Advanced */
 
 /* Line clamp utilities for text truncation */
 .line-clamp-1 {
@@ -29,11 +29,45 @@
   overflow: hidden;
 }
 
+.line-clamp-5 {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-6 {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Advanced grid patterns */
 .bg-grid-pattern {
   background-image: 
     linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
+}
+
+.bg-grid-pattern-small {
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+.bg-grid-pattern-large {
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.bg-dot-pattern {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 16px 16px;
 }
 
 .dark .bg-grid-pattern {
@@ -43,7 +77,26 @@
   background-size: 20px 20px;
 }
 
-/* Enterprise glassmorphism effects */
+.dark .bg-grid-pattern-small {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+.dark .bg-grid-pattern-large {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.dark .bg-dot-pattern {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Advanced glassmorphism effects */
 .enterprise-glass {
   background: rgba(255, 255, 255, 0.25);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
@@ -53,12 +106,43 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
+.enterprise-glass-strong {
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.enterprise-glass-subtle {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px 0 rgba(31, 38, 135, 0.2);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .dark .enterprise-glass {
   background: rgba(0, 0, 0, 0.25);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Enterprise animations */
+.dark .enterprise-glass-strong {
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dark .enterprise-glass-subtle {
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Advanced enterprise animations */
 @keyframes enterprise-fade-in {
   from {
     opacity: 0;
@@ -81,6 +165,66 @@
   }
 }
 
+@keyframes enterprise-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes enterprise-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes enterprise-rotate-in {
+  from {
+    opacity: 0;
+    transform: rotateY(-90deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0);
+  }
+}
+
+@keyframes enterprise-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes enterprise-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes enterprise-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.4);
+  }
+}
+
 .enterprise-fade-in {
   animation: enterprise-fade-in 0.5s ease-out forwards;
 }
@@ -89,7 +233,27 @@
   animation: enterprise-slide-in 0.5s ease-out forwards;
 }
 
-/* Enterprise hover effects */
+.enterprise-slide-up {
+  animation: enterprise-slide-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.enterprise-zoom-in {
+  animation: enterprise-zoom-in 0.4s ease-out forwards;
+}
+
+.enterprise-rotate-in {
+  animation: enterprise-rotate-in 0.8s ease-out forwards;
+}
+
+.enterprise-pulse {
+  animation: enterprise-pulse 2s ease-in-out infinite;
+}
+
+.enterprise-glow {
+  animation: enterprise-glow 2s ease-in-out infinite;
+}
+
+/* Advanced hover effects */
 .enterprise-hover-lift {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -99,7 +263,31 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Enterprise gradients */
+.enterprise-hover-scale {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.enterprise-hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.enterprise-hover-tilt {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.enterprise-hover-tilt:hover {
+  transform: rotate(2deg) scale(1.02);
+}
+
+.enterprise-hover-glow {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.enterprise-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);
+}
+
+/* Advanced gradients */
 .enterprise-gradient-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -116,7 +304,31 @@
   background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
-/* Enterprise text effects */
+.enterprise-gradient-danger {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.enterprise-gradient-dark {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.enterprise-gradient-blue-purple {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.enterprise-gradient-pink-orange {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+}
+
+.enterprise-gradient-green-blue {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.enterprise-gradient-sunset {
+  background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+}
+
+/* Advanced text effects */
 .enterprise-text-gradient {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
@@ -124,7 +336,29 @@
   background-clip: text;
 }
 
-/* Enterprise card effects */
+.enterprise-text-gradient-rainbow {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 400% 400%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.enterprise-text-glow {
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Advanced card effects */
 .enterprise-card {
   position: relative;
   overflow: hidden;
@@ -149,4 +383,84 @@
 
 .enterprise-card:hover::before {
   left: 100%;
+}
+
+.enterprise-card-3d {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+.enterprise-card-3d:hover {
+  transform: rotateY(5deg) rotateX(5deg);
+}
+
+.enterprise-card-floating {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.enterprise-card-floating:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Loading states */
+.enterprise-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: enterprise-shimmer 1.5s infinite;
+}
+
+.dark .enterprise-skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+}
+
+/* Utility classes */
+.enterprise-backdrop-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.enterprise-backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.enterprise-backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.enterprise-shadow-soft {
+  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+}
+
+.enterprise-shadow-medium {
+  box-shadow: 0 4px 25px -4px rgba(0, 0, 0, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+}
+
+.enterprise-shadow-strong {
+  box-shadow: 0 8px 40px -8px rgba(0, 0, 0, 0.18), 0 16px 32px -8px rgba(0, 0, 0, 0.12);
+}
+
+.enterprise-border-gradient {
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1px;
+  border-radius: 12px;
+}
+
+.enterprise-border-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: white;
+  border-radius: 11px;
+  z-index: -1;
+}
+
+.dark .enterprise-border-gradient::before {
+  background: #1f2937;
 }

@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, memo } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Home, Search, LogOut, LogIn, Loader2, AlertCircle, RefreshCw, Settings, Shield, ChevronRight, Sparkles } from "lucide-react"
+import { X, Home, Search, LogOut, LogIn, Loader2, AlertCircle, RefreshCw, Settings, Shield, ChevronRight, Sparkles, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import NewsSearch from "@/components/search/NewsSearch"
+import NewsSearch from "@/components/search/EnterpriseSearch"
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import MobileNotificationDropdown from "@/components/notifications/MobileNotificationDropdown"
@@ -14,6 +14,7 @@ import Logo from "./Logo"
 import api from "@/lib/api"
 import { User } from "@/types"
 import Image from "next/image"
+import EnterpriseSearch from "@/components/search/EnterpriseSearch"
 
 type Category = {
   _id: string
@@ -32,7 +33,7 @@ interface MobileNavProps {
   onLogout: () => void
 }
 
-const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNavProps) => {
+const MobileNav = memo(({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNavProps) => {
   // State management
   const [state, setState] = useState({
     categories: [] as Category[],
@@ -45,6 +46,7 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
   // Navigation links
   const NAV_LINKS = [
     { href: `/${lang}`, label: "Home", icon: Home },
+    { href: `/${lang}/news`, label: "News", icon: FileText },
     { href: `/${lang}/recommendations`, label: "Recommendations", icon: Sparkles }
   ]
 
@@ -145,7 +147,7 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
               ease: [0.16, 1, 0.3, 1],
               scale: { duration: 0.3 }
             }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-background/98 backdrop-blur-2xl flex flex-col overflow-hidden shadow-2xl border-l border-border/30"
+            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-sm sm:max-w-md bg-background/98 backdrop-blur-2xl flex flex-col overflow-hidden shadow-2xl border-l border-border/30"
           >
           {/* Mobile header with glassmorphism */}
           <div className="flex justify-between items-center p-6 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -166,37 +168,42 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
             {/* Mobile Search with enhanced styling */}
             <div className="lg:hidden">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl blur-xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl blur-sm overflow-hidden"></div>
                 <div className="relative">
-                  <NewsSearch />
+                  <EnterpriseSearch lang={lang} />
                 </div>
               </div>
             </div>
             
             {/* Navigation links with improved design */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Navigation</h3>
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`group flex items-center gap-3 p-3 rounded-xl text-base font-medium transition-all duration-300 ${
-                    pathname === link.href
-                      ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
-                      : "text-muted-foreground hover:text-primary hover:bg-muted/30"
-                  }`}
-                  onClick={onClose}
-                >
-                  <div className={`p-1.5 rounded-lg transition-all duration-300 ${
-                    pathname === link.href
-                      ? "bg-primary/20"
-                      : "bg-muted/60 group-hover:bg-primary/10"
-                  }`}>
-                    {link.icon && <link.icon className="h-4 w-4" />}
-                  </div>
-                  {link.label}
-                </Link>
-              ))}
+              <nav role="navigation" aria-label="Mobile navigation">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {NAV_LINKS.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`group flex flex-col items-center gap-3 p-3 sm:p-4 rounded-2xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 ${
+                      pathname === link.href
+                        ? "bg-primary/10 text-primary border border-primary/20 shadow-lg shadow-primary/5"
+                        : "text-muted-foreground hover:text-primary hover:bg-muted/30 hover:shadow-md"
+                    }`}
+                    onClick={onClose}
+                    aria-current={pathname === link.href ? "page" : undefined}
+                  >
+                    <div className={`p-2 sm:p-3 rounded-xl transition-all duration-300 ${
+                      pathname === link.href
+                        ? "bg-primary/20"
+                        : "bg-muted/60 group-hover:bg-primary/10"
+                    }`}>
+                      {link.icon && <link.icon className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />}
+                    </div>
+                    <span className="text-center text-xs sm:text-sm">{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+              </nav>
             </div>
 
             {/* User Profile Card - Enhanced design */}
@@ -206,7 +213,7 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 border border-blue-200/50 dark:border-blue-800/50 shadow-xl">
                   {/* Background decoration */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5"></div>
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full -translate-y-16 translate-x-16"></div>
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-400/5 to-purple-400/5 rounded-full -translate-y-8 translate-x-8"></div>
                   
                   <div className="relative p-6">
                     <div className="flex items-center gap-4">
@@ -291,7 +298,7 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
 
               {/* Search in mobile with enhanced styling */}
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl blur-lg"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/3 to-purple-500/3 rounded-2xl blur-sm overflow-hidden"></div>
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
                   <Input
@@ -335,10 +342,14 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {state.filteredCategories.map((cat) => (
+                    {state.filteredCategories.map((cat, index) => {
+                      const categorySlug = typeof cat.slug === 'string' ? cat.slug : 
+                                         typeof cat._id === 'string' ? cat._id : 
+                                         `category-${index}`;
+                      return (
                       <Link
-                        key={cat._id}
-                        href={`/${lang}/category/${cat.slug}`}
+                        key={`category-${index}-${String(cat._id || 'unknown')}`}
+                        href={`/${lang}/category/${String(categorySlug).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
                         className="group flex items-center justify-between p-4 rounded-2xl hover:bg-muted/40 transition-all duration-300 border border-transparent hover:border-border/50"
                         style={cat.color ? { borderLeft: `4px solid ${cat.color}` } : undefined}
                         onClick={onClose}
@@ -362,7 +373,8 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
                           <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-60 transition-opacity" />
                         </div>
                       </Link>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -400,6 +412,8 @@ const MobileNav = ({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNa
       )}
     </AnimatePresence>
   )
-}
+})
+
+MobileNav.displayName = 'MobileNav'
 
 export default MobileNav

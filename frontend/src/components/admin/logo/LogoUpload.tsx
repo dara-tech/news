@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import api from '@/lib/api';
+import { Input } from '@/components/ui/input';
 
 interface LogoUploadProps {
   onUploadSuccess?: (logoUrl: string) => void;
@@ -79,9 +80,7 @@ export function LogoUpload({ onUploadSuccess, onDeleteSuccess, currentLogo }: Lo
       } else {
         throw new Error(response.data.message || 'Upload failed');
       }
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error(error.response?.data?.message || 'Failed to upload logo');
+    } catch (error: any) {toast.error(error.response?.data?.message || 'Failed to upload logo');
     } finally {
       setIsUploading(false);
     }
@@ -99,9 +98,7 @@ export function LogoUpload({ onUploadSuccess, onDeleteSuccess, currentLogo }: Lo
       } else {
         throw new Error(response.data.message || 'Delete failed');
       }
-    } catch (error: any) {
-      console.error('Delete error:', error);
-      toast.error(error.response?.data?.message || 'Failed to delete logo');
+    } catch (error: any) {toast.error(error.response?.data?.message || 'Failed to delete logo');
     } finally {
       setIsDeleting(false);
     }
@@ -135,7 +132,7 @@ export function LogoUpload({ onUploadSuccess, onDeleteSuccess, currentLogo }: Lo
             className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
           >
-            <input
+            <Input
               ref={fileInputRef}
               type="file"
               accept="image/*"
@@ -221,21 +218,15 @@ export function LogoUpload({ onUploadSuccess, onDeleteSuccess, currentLogo }: Lo
                   src={currentLogo.url}
                   alt="Current logo"
                   className="h-16 w-auto rounded border"
-                  onError={(e) => {
-                    console.error('Failed to load current logo:', currentLogo.url);
-                    e.currentTarget.style.display = 'none';
+                  onError={(e) => {e.currentTarget.style.display = 'none';
                     // Show a placeholder instead
                     const parent = e.currentTarget.parentElement;
                     if (parent) {
                       parent.innerHTML = '<div class="h-16 w-16 bg-gray-200 rounded border flex items-center justify-center"><FileImage class="h-8 w-8 text-gray-400" /></div>';
                     }
                   }}
-                  onLoad={() => {
-                    console.log('Current logo loaded successfully:', currentLogo.url);
-                  }}
-                  onAbort={(e) => {
-                    console.error('Logo load aborted:', currentLogo.url);
-                  }}
+                  onLoad={() => {}}
+                  onAbort={(e) => {}}
                 />
               </div>
               <div className="flex-1">

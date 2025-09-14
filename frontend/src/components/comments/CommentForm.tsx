@@ -101,10 +101,7 @@ export default function CommentForm({
       setError(null);
 
       if (isEditMode) {
-        const response = await commentApi.updateComment(editCommentId!, content.trim());
-        console.log('Comment updated successfully:', response);
-        
-        onCommentUpdated?.(response.data);
+        const response = await commentApi.updateComment(editCommentId!, content.trim());onCommentUpdated?.(response.data);
       } else {
         const optimisticId = generateOptimisticId();
         const optimisticComment = createOptimisticComment(optimisticId);
@@ -115,17 +112,13 @@ export default function CommentForm({
 
         try {
           // Make actual API call
-          const response = await commentApi.createComment(newsId, content.trim(), parentCommentId);
-          console.log('Comment created successfully:', response);
-        } catch (apiError) {
+          const response = await commentApi.createComment(newsId, content.trim(), parentCommentId);} catch (apiError) {
           // Remove optimistic comment on API failure
           onCommentFailed?.(optimisticId);
           throw apiError;
         }
       }
-    } catch (err) {
-      console.error(`Error ${isEditMode ? 'updating' : 'creating'} comment:`, err);
-      // @ts-expect-error: err may be any type
+    } catch (err) {// @ts-expect-error: err may be any type
       const errorMessage = err?.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} comment`;
       setError(errorMessage);
     } finally {

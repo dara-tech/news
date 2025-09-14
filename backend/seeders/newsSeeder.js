@@ -207,7 +207,6 @@ const importData = async () => {
     await News.insertMany(sampleNews);
     process.exit();
   } catch (error) {
-    console.error('Error seeding news:', error);
     process.exit(1);
   }
 };
@@ -217,7 +216,6 @@ const destroyData = async () => {
     await News.deleteMany();
     process.exit();
   } catch (error) {
-    console.error('Error deleting news:', error);
     process.exit(1);
   }
 };

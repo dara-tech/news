@@ -100,7 +100,7 @@ export const getArticleImage = (article: any): string | null => {
       }
     }
     // If thumbnail is not a valid URL or is a description, use placeholder
-    console.warn('Invalid thumbnail URL detected, using placeholder:', article.thumbnail?.substring(0, 100));
+    return '/placeholder.jpg';
   }
   
   if (article.images && Array.isArray(article.images) && article.images.length > 0) {

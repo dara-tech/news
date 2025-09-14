@@ -28,6 +28,8 @@ import {
   ProfileImageStyle,
   GeneratedProfileImage,
 } from '@/hooks/useGenerateProfileImage';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 interface ImageUploadModalProps {
   isOpen: boolean;
@@ -178,9 +180,7 @@ export const ImageUploadModal = ({
         return result.file;
       }
       return null;
-    } catch (error) {
-      console.error(`Failed to generate for platform ${platform}:`, error);
-      return null;
+    } catch (error) {return null;
     }
   };
 
@@ -238,12 +238,12 @@ export const ImageUploadModal = ({
               Profile Picture Generator
             </h2>
           </div>
-          <button
+          <Button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         <div className="flex h-[calc(90vh-120px)]">
@@ -313,7 +313,7 @@ export const ImageUploadModal = ({
                         <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         Choose File
                       </button>
-                      <input
+                      <Input
                         ref={fileInputRef}
                         type="file"
                         accept="image/*"

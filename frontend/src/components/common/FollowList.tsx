@@ -50,9 +50,7 @@ export default function FollowList({ userId, className = '' }: FollowListProps) 
 
         setFollowers(followersResponse.data);
         setFollowing(followingResponse.data);
-      } catch (error) {
-        console.error('Error fetching follow data:', error);
-        setError('Failed to load follow data');
+      } catch (error) {setError('Failed to load follow data');
       } finally {
         setIsLoading(false);
       }

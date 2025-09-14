@@ -1,6 +1,9 @@
 import createMiddleware from 'next-intl/middleware';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export default createMiddleware({
+// Create the internationalization middleware
+const intlMiddleware = createMiddleware({
   // A list of all locales that are supported
   locales: ['en', 'kh'],
 
@@ -20,7 +23,44 @@ export default createMiddleware({
   // ]
 });
 
+export default function middleware(request: NextRequest) {
+  // Handle ads.txt file for AdSense verification
+  if (request.nextUrl.pathname === '/ads.txt') {
+    const adsContent = 'google.com, pub-8955989254579960, DIRECT, f08c47fec0942fa0';
+    
+    return new NextResponse(adsContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain',
+        'Cache-Control': 'public, max-age=86400',
+      },
+    });
+  }
+
+  // Handle robots.txt
+  if (request.nextUrl.pathname === '/robots.txt') {
+    const robotsContent = `User-agent: *
+Allow: /
+
+Sitemap: https://www.razewire.online/sitemap.xml`;
+    
+    return new NextResponse(robotsContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain',
+        'Cache-Control': 'public, max-age=86400',
+      },
+    });
+  }
+
+  // Apply internationalization middleware for all other routes
+  return intlMiddleware(request);
+}
+
 export const config = {
-  // Match only internationalized pathnames
-  matcher: ['/', '/(kh|en)/:path*']
+  matcher: [
+    '/ads.txt',
+    '/robots.txt',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
 };

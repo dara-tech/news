@@ -1,12 +1,27 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { FileText, TrendingUp } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { 
+  FileText, 
+  TrendingUp, 
+  Search, 
+  Filter, 
+  Download, 
+  RefreshCw,
+  Calendar,
+  Clock,
+  AlertTriangle,
+  Info,
+  X
+} from 'lucide-react';
 import { SystemLog } from './types';
 
 interface LogsProps {
@@ -18,7 +33,110 @@ interface LogsProps {
 }
 
 export default function Logs({ logs, logLevel, setLogLevel, autoScrollLogs, setAutoScrollLogs }: LogsProps) {
-  const filteredLogs = logs.filter(l => logLevel === 'all' || l.level === logLevel);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [dateRange, setDateRange] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [serviceFilter, setServiceFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'timestamp' | 'level' | 'message'>('timestamp');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Get unique services from logs
+  const services = useMemo(() => {
+    const serviceSet = new Set(logs.map(log => (log as any).service || 'unknown'));
+    return Array.from(serviceSet).sort();
+  }, [logs]);
+
+  // Advanced filtering logic
+  const filteredLogs = useMemo(() => {
+    let filtered = logs;
+
+    // Level filter
+    if (logLevel !== 'all') {
+      filtered = filtered.filter(l => l.level === logLevel);
+    }
+
+    // Search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(l => 
+        l.message.toLowerCase().includes(query) ||
+        ((l as any).service && (l as any).service.toLowerCase().includes(query)) ||
+        (l.level && l.level.toLowerCase().includes(query))
+      );
+    }
+
+    // Date range filter
+    if (dateRange !== 'all') {
+      const now = new Date();
+      const cutoff = new Date();
+      
+      switch (dateRange) {
+        case 'today':
+          cutoff.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          cutoff.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          cutoff.setMonth(now.getMonth() - 1);
+          break;
+      }
+      
+      filtered = filtered.filter(l => new Date(l.timestamp) >= cutoff);
+    }
+
+    // Service filter
+    if (serviceFilter !== 'all') {
+      filtered = filtered.filter(l => ((l as any).service || 'unknown') === serviceFilter);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'timestamp':
+          aValue = new Date(a.timestamp).getTime();
+          bValue = new Date(b.timestamp).getTime();
+          break;
+        case 'level':
+          aValue = a.level;
+          bValue = b.level;
+          break;
+        case 'message':
+          aValue = a.message.toLowerCase();
+          bValue = b.message.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+      
+      if (sortOrder === 'asc') {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      } else {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      }
+    });
+
+    return filtered;
+  }, [logs, logLevel, searchQuery, dateRange, serviceFilter, sortBy, sortOrder]);
+
+  const exportLogs = () => {
+    const csvContent = [
+      'Timestamp,Level,Service,Message,Count',
+      ...filteredLogs.map(log => 
+        `"${log.timestamp}","${log.level}","${(log as any).service || 'unknown'}","${log.message.replace(/"/g, '""')}","${(log as any).count || 1}"`
+      )
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `logs-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">

@@ -12,9 +12,7 @@ export default function LikeButtonDemo() {
   const [demoLikes, setDemoLikes] = useState(42);
   const [demoLiked, setDemoLiked] = useState(false);
 
-  const handleLikeChange = (liked: boolean, newCount: number) => {
-    console.log(`Demo like changed: ${liked ? 'liked' : 'unliked'}, count: ${newCount}`);
-    // Simulate API call
+  const handleLikeChange = (liked: boolean, newCount: number) => {// Simulate API call
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         setDemoLikes(newCount);
@@ -203,9 +201,7 @@ export default function LikeButtonDemo() {
   initialLikes={42}
   initialLiked={false}
   onLikeChange={(liked, newCount) => {
-    // Handle like state change
-    console.log(\`Liked: \${liked}, Count: \${newCount}\`);
-  }}
+    // Handle like state change}}
   size="md"
   variant="ghost"
 />`}

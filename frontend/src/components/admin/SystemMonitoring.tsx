@@ -8,7 +8,9 @@ import {
   Wifi,
   AlertTriangle,
   Shield,
-  FileText
+  FileText,
+  TrendingUp,
+  Network
 } from 'lucide-react';
 import api from '@/lib/api';
 import { SystemMetrics, SentinelConfig, SentinelRuntime, SystemLog } from './system-monitoring/types';
@@ -19,6 +21,10 @@ import Endpoints from './system-monitoring/Endpoints';
 import Events from './system-monitoring/Events';
 import Sentinel from './system-monitoring/Sentinel';
 import Logs from './system-monitoring/Logs';
+import Services from './system-monitoring/Services';
+import Alerts from './system-monitoring/Alerts';
+import Trends from './system-monitoring/Trends';
+import Dependencies from './system-monitoring/Dependencies';
 
 export default function SystemMonitoring() {
   const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
@@ -107,9 +113,7 @@ export default function SystemMonitoring() {
       }
       
       setLastRefresh(new Date());
-    } catch (error) {
-      console.error('Failed to fetch system metrics:', error);
-      setMetrics({
+    } catch (error) {setMetrics({
         server: {
           uptime: '—',
           status: 'warning',
@@ -194,7 +198,7 @@ export default function SystemMonitoring() {
       <div className="grid gap-3 p-3 sm:gap-4 sm:p-6">
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded animate-pulse"></div>
+            <div key={i} className="h-32 rounded animate-pulse"></div>
           ))}
         </div>
       </div>
@@ -215,12 +219,36 @@ export default function SystemMonitoring() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-lg sm:rounded-xl border border-slate-200/50 p-1.5 sm:p-2 shadow-sm mb-4 sm:mb-6">
-          <TabsList className="flex w-full justify-around bg-transparent">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-lg sm:rounded-xl border border-slate-200/50 p-1 sm:p-2 shadow-sm mb-4 sm:mb-6">
+          <TabsList className="flex w-full justify-around bg-transparent overflow-x-auto">
             <TabsTrigger value="overview" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Server className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Overview</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="services" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <Server className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Services</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="alerts" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Alerts</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="trends" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Trends</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="dependencies" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <Network className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Dependencies</span>
               </div>
             </TabsTrigger>
             <TabsTrigger value="performance" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
@@ -258,6 +286,22 @@ export default function SystemMonitoring() {
 
         <TabsContent value="overview" className="mt-4 sm:mt-6">
           <Overview metrics={metrics} />
+        </TabsContent>
+
+        <TabsContent value="services" className="mt-4 sm:mt-6">
+          <Services />
+        </TabsContent>
+
+        <TabsContent value="alerts" className="mt-4 sm:mt-6">
+          <Alerts />
+        </TabsContent>
+
+        <TabsContent value="trends" className="mt-4 sm:mt-6">
+          <Trends />
+        </TabsContent>
+
+        <TabsContent value="dependencies" className="mt-4 sm:mt-6">
+          <Dependencies />
         </TabsContent>
 
         <TabsContent value="performance" className="mt-4 sm:mt-6">

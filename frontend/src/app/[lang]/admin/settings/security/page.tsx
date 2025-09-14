@@ -73,9 +73,7 @@ export default function SecuritySettingsPage() {
       if (data.success) {
         setSettings(data.settings);
       }
-    } catch (error) {
-      console.log('Using default security settings');
-    } finally {
+    } catch (error) {} finally {
       setLoading(false);
     }
   };
@@ -87,9 +85,7 @@ export default function SecuritySettingsPage() {
         setActiveUsers(data.activeUsers || 0);
         setSecurityEvents(data.recentEvents || []);
       }
-    } catch (error) {
-      console.error('Failed to fetch security stats');
-    }
+    } catch (error) {}
   };
 
   const validateSettings = (): boolean => {
@@ -146,9 +142,7 @@ export default function SecuritySettingsPage() {
           setSettings(response.data.settings);
         }
       }
-    } catch (error: any) {
-      console.error('Error saving security settings:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to save security settings';
+    } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to save security settings';
       toast.error(errorMessage);
       
       // Show field-specific errors if available

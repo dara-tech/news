@@ -1,0 +1,6 @@
+export { default as TrendingTopics } from './TrendingTopics'
+export { default as NewsletterSignup } from './NewsletterSignup'
+export { default as VideoNews } from './VideoNews'
+export { default as WeatherWidget } from './WeatherWidget'
+export { default as AwardsSection } from './AwardsSection'
+export { default as TopAuthors } from './TopAuthors'

@@ -38,7 +38,6 @@ const Logo = ({ lang }: LogoProps) => {
         }
       } catch (error) {
         // Silently use default settings if API call fails
-        console.log('Using default logo settings');
       }
     };
 

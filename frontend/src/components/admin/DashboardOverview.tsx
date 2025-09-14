@@ -83,9 +83,7 @@ export default function DashboardOverview() {
       } else {
         throw new Error('Failed to fetch advanced stats');
       }
-    } catch (error) {
-      console.error('Failed to fetch advanced stats:', error);
-      setError('Failed to load dashboard data. Please try again.');
+    } catch (error) {setError('Failed to load dashboard data. Please try again.');
     } finally {
       setLoading(false);
     }

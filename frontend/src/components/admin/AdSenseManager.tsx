@@ -77,9 +77,7 @@ const AdSenseManager: React.FC = () => {
       };
       
       setAdsenseData(mockData);
-    } catch (error) {
-      console.error('Failed to load AdSense data:', error);
-    } finally {
+    } catch (error) {} finally {
       setLoading(false);
     }
   };
@@ -91,9 +89,7 @@ const AdSenseManager: React.FC = () => {
         const data = await response.json();
         setSettings(data.settings);
       }
-    } catch (error) {
-      console.error('Failed to load settings:', error);
-    }
+    } catch (error) {}
   };
 
   const testAdSenseConfig = async () => {

@@ -9,9 +9,7 @@ try {
   if (apiKey && apiKey.trim() !== '') {
     genAI = new GoogleGenerativeAI(apiKey);
   }
-} catch (error) {
-  console.error('❌ Failed to initialize Gemini AI:', error);
-  genAI = null;
+} catch (error) {genAI = null;
 }
 
 // Rate limiting configuration
@@ -380,10 +378,7 @@ Please provide a clear, comprehensive explanation.`;
       try {
         const result = await model.generateContent(fullPrompt);
         return result;
-      } catch (error: any) {
-        console.error('❌ Content generation failed:', error);
-        
-        // Provide more specific error messages
+      } catch (error: any) {// Provide more specific error messages
         if (error.message?.includes('API key')) {
           throw new Error('Invalid API key. Please check your Gemini API key configuration.');
         } else if (error.message?.includes('quota') || error.message?.includes('429')) {
@@ -429,9 +424,7 @@ Please provide a clear, comprehensive explanation.`;
 
     return generationResponse;
 
-  } catch (error) {
-    console.error('AI generation error:', error);
-    throw error;
+  } catch (error) {throw error;
   }
 }
 
@@ -852,10 +845,7 @@ export async function testAPIConnectivity(): Promise<{
         hasApiKey: true
       }
     };
-  } catch (error: any) {
-    console.error('API connectivity test failed:', error);
-    
-    return {
+  } catch (error: any) {return {
       success: false,
       message: `API test failed: ${error.message}`,
       details: {

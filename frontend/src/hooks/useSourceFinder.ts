@@ -109,9 +109,7 @@ export const useSourceFinder = () => {
         toast.error(data?.message || 'Failed to find sources');
         return null;
       }
-    } catch (error: any) {
-      console.error('Source finder error:', error);
-      toast.error(error?.response?.data?.message || 'Failed to find sources');
+    } catch (error: any) {toast.error(error?.response?.data?.message || 'Failed to find sources');
       return null;
     } finally {
       setIsSearching(false);
@@ -238,9 +236,7 @@ export const useSourceFinder = () => {
         toast.error(data?.message || 'Failed to analyze source');
         return null;
       }
-    } catch (error: any) {
-      console.error('Source analysis error:', error);
-      toast.error(error?.response?.data?.message || 'Failed to analyze source');
+    } catch (error: any) {toast.error(error?.response?.data?.message || 'Failed to analyze source');
       return null;
     } finally {
       setIsAnalyzing(false);
@@ -266,9 +262,7 @@ export const useSourceFinder = () => {
         toast.error(data?.message || 'Failed to validate source');
         return null;
       }
-    } catch (error: any) {
-      console.error('Source validation error:', error);
-      toast.error('Failed to validate source');
+    } catch (error: any) {toast.error('Failed to validate source');
       return null;
     }
   }, []);
@@ -294,9 +288,7 @@ export const useSourceFinder = () => {
         toast.error(data?.message || 'Failed to get recommendations');
         return null;
       }
-    } catch (error: any) {
-      console.error('Recommendations error:', error);
-      toast.error('Failed to get recommendations');
+    } catch (error: any) {toast.error('Failed to get recommendations');
       return null;
     }
   }, []);

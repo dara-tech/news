@@ -10,6 +10,71 @@ const nextConfig = {
     // Allow production builds to complete even with ESLint warnings/errors
     ignoreDuringBuilds: true,
   },
+  
+  // Optimize development server startup
+  experimental: {
+    // Enable faster refresh
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+  },
+
+  // Fix workspace root detection - use relative path to avoid hardcoded paths
+  outputFileTracingRoot: '../',
+
+  // External packages for server components
+  serverExternalPackages: ['mongoose'],
+
+  // Bundle optimization
+  compress: true,
+  
+  // Code splitting configuration
+  webpack: (config, { dev, isServer }) => {
+    // Optimize bundle splitting
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: -10,
+            chunks: 'all',
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            priority: -5,
+            reuseExistingChunk: true,
+          },
+          // Split large libraries
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'react',
+            priority: 20,
+            chunks: 'all',
+          },
+          ui: {
+            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react)[\\/]/,
+            name: 'ui',
+            priority: 15,
+            chunks: 'all',
+          },
+          utils: {
+            test: /[\\/]node_modules[\\/](lodash|date-fns|clsx)[\\/]/,
+            name: 'utils',
+            priority: 10,
+            chunks: 'all',
+          },
+        },
+      };
+    }
+    
+    return config;
+  },
 
   // Proxy API calls to backend
   async rewrites() {
@@ -97,9 +162,6 @@ const nextConfig = {
   },
   output: 'standalone',
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-  webpack(config) {
-    return config;
-  },
 };
 
 export default bundleAnalyzer(nextConfig);

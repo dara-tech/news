@@ -46,18 +46,14 @@ api.interceptors.request.use(
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
           }
-        } catch (e) {
-          console.error('Error parsing user info:', e);
-        }
+        } catch (e) {}
       }
     }
     
     
     return config;
   },
-  (error: AxiosError) => {
-    console.error('[API] Request error:', error);
-    return Promise.reject(error);
+  (error: AxiosError) => {return Promise.reject(error);
   }
 );
 
@@ -70,21 +66,11 @@ api.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     
     // Log detailed error information
-    if (error.code === 'ECONNABORTED') {
-      console.error('[API] Request timeout:', error.config?.url);
-      // You could retry the request here if needed
-    } else if (error.code === 'ECONNRESET') {
-      console.error('[API] Connection reset:', error.config?.url);
-      // You could retry the request here if needed
+    if (error.code === 'ECONNABORTED') {// You could retry the request here if needed
+    } else if (error.code === 'ECONNRESET') {// You could retry the request here if needed
     } else if (error.response) {
       // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.error(
-        `[API] Error ${error.response.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}:`,
-        error.response.data
-      );
-
-          // Handle 401 Unauthorized
+      // that falls out of the range of 2xx// Handle 401 Unauthorized
     if (error.response.status === 401) {
       // Only handle 401 if we're not already retrying
       if (!originalRequest._retry) {
@@ -113,9 +99,7 @@ api.interceptors.response.use(
             // Retry the original request
             return api(originalRequest);
           }
-        } catch (refreshError) {
-          console.error('[API] Token refresh failed:', refreshError);
-          // If refresh fails, log the user out
+        } catch (refreshError) {// If refresh fails, log the user out
           if (typeof window !== 'undefined') {
             localStorage.removeItem('userInfo');
             const currentPath = window.location.pathname;
@@ -150,20 +134,10 @@ api.interceptors.response.use(
       }
     }
     } else if (error.request) {
-      // The request was made but no response was received
-      console.error('[API] No response received:', error.request);
-      
-      // Handle network errors
-      if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        console.error('[API] You are offline. Please check your internet connection.');
-      } else {
-        console.error('[API] Network error. Please try again later.');
-      }
+      // The request was made but no response was received// Handle network errors
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {} else {}
     } else {
-      // Something happened in setting up the request that triggered an Error
-      console.error('[API] Request error:', error.message);
-      
-      // Clear user data and redirect to login on critical errors
+      // Something happened in setting up the request that triggered an Error// Clear user data and redirect to login on critical errors
       if (typeof window !== 'undefined') {
         localStorage.removeItem('userInfo');
         const currentPath = window.location.pathname;
@@ -200,8 +174,22 @@ export const getAuthorProfile = async (authorId: string, page = 1, limit = 10) =
       params: { page, limit }
     });
     return response.data;
+  } catch (error) {throw error;
+  }
+};
+
+// Trending Topics API functions
+export const getTrendingTopics = async (language = 'en', limit = 10, timeRange = '24h') => {
+  try {
+    const response = await api.get('/recommendations/trending', {
+      params: { 
+        language, 
+        limit, 
+        timeRange 
+      }
+    });
+    return response.data;
   } catch (error) {
-    console.error('Error fetching author profile:', error);
     throw error;
   }
 };

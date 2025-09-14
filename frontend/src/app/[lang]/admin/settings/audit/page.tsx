@@ -72,9 +72,7 @@ export default function SettingsAuditPage() {
         setLogs(data.logs);
         setPagination(data.pagination);
       }
-    } catch (error: any) {
-      console.error('Error fetching audit logs:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to load audit logs';
+    } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to load audit logs';
       toast.error(errorMessage);
     } finally {
       setLoading(false);

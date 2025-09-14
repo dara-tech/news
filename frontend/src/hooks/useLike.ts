@@ -40,9 +40,7 @@ export function useLike({
           const status = await likeApi.getLikeStatus(newsId);
           setIsLiked(status.hasLiked);
           setLikeCount(status.count || 0);
-        } catch (error) {
-          console.error('Error loading like status:', error);
-          // Fallback to initial values if API fails
+        } catch (error) {// Fallback to initial values if API fails
           setIsLiked(initialLiked);
           setLikeCount(initialLikes || 0);
         }
@@ -59,9 +57,7 @@ export function useLike({
       const status = await likeApi.getLikeStatus(newsId);
       setIsLiked(status.hasLiked);
       setLikeCount(status.count);
-    } catch (error) {
-      console.error('Error refreshing like status:', error);
-    }
+    } catch (error) {}
   }, [newsId]);
 
   const toggleLike = useCallback(async () => {
@@ -97,9 +93,7 @@ export function useLike({
     } catch (error) {
       // Revert on error
       setIsLiked(!newLiked);
-      setLikeCount(newLiked ? Math.max(0, newCount - 1) : newCount + 1);
-      console.error('Failed to toggle like:', error);
-      throw error;
+      setLikeCount(newLiked ? Math.max(0, newCount - 1) : newCount + 1);throw error;
     } finally {
       setIsLoading(false);
       // Reset animation after a short delay
@@ -134,9 +128,7 @@ export function useLike({
     } catch (error) {
       // Revert on error
       setIsLiked(false);
-      setLikeCount(likeCount);
-      console.error('Failed to like:', error);
-      throw error;
+      setLikeCount(likeCount);throw error;
     } finally {
       setIsLoading(false);
       // Reset animation after a short delay
@@ -171,9 +163,7 @@ export function useLike({
     } catch (error) {
       // Revert on error
       setIsLiked(true);
-      setLikeCount(likeCount);
-      console.error('Failed to unlike:', error);
-      throw error;
+      setLikeCount(likeCount);throw error;
     } finally {
       setIsLoading(false);
       // Reset animation after a short delay

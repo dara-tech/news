@@ -83,9 +83,7 @@ export default function NavbarAnalytics({ lang, user }: NavbarAnalyticsProps) {
             ]
           });
         }
-      } catch (error) {
-        console.error('Analytics error:', error);
-        // Set fallback data
+      } catch (error) {// Set fallback data
         setMetrics({
           totalClicks: 1247,
           searchQueries: 89,

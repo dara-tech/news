@@ -118,9 +118,7 @@ export default function LocationDetails({ location, formatTime, getDeviceIcon }:
                     src={user.profileImage} 
                     alt={user.username}
                     className="object-cover"
-                    onError={(e) => {
-                      console.log('Profile image failed to load:', user.profileImage);
-                      e.currentTarget.style.display = 'none';
+                    onError={(e) => {e.currentTarget.style.display = 'none';
                     }}
                   />
                   <AvatarFallback className="text-xs bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">

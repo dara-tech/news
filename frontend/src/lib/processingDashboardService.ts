@@ -166,9 +166,7 @@ export class ProcessingDashboardService {
       };
       
       return result;
-    } catch (error) {
-      console.error('Error fetching processing metrics:', error);
-      return {
+    } catch (error) {return {
         totalProcessed: 0,
         totalCreated: 0,
         averageProcessingTime: 0,
@@ -226,9 +224,7 @@ export class ProcessingDashboardService {
           { topic: 'Cultural Events', growth: 45 }
         ]
       };
-    } catch (error) {
-      console.error('Error fetching content analytics:', error);
-      return {
+    } catch (error) {return {
         contentQualityScore: 0,
         engagementPrediction: 0,
         contentDiversity: 0,
@@ -282,9 +278,7 @@ export class ProcessingDashboardService {
         },
         recentGenerations: []
       };
-    } catch (error) {
-      console.error('Error fetching image generation metrics:', error);
-      return {
+    } catch (error) {return {
         totalGenerated: 0,
         totalRequests: 0,
         successRate: 0,
@@ -387,9 +381,7 @@ export class ProcessingDashboardService {
       });
 
       return flows;
-    } catch (error) {
-      console.error('Error fetching process flows:', error);
-      return [];
+    } catch (error) {return [];
     }
   }
 
@@ -428,9 +420,7 @@ export class ProcessingDashboardService {
         activeConnections,
         lastCheck: new Date().toISOString()
       };
-    } catch (error) {
-      console.error('Error fetching system health:', error);
-      return {
+    } catch (error) {return {
         status: 'warning',
         uptime: 0,
         memoryUsage: 0,
@@ -449,9 +439,7 @@ export class ProcessingDashboardService {
         return response.data.logs.slice(-50); // Get last 50 logs
       }
       return [];
-    } catch (error) {
-      console.error('Error fetching Sentinel logs:', error);
-      return [];
+    } catch (error) {return [];
     }
   }
 
@@ -499,9 +487,7 @@ export class ProcessingDashboardService {
           lastReset: new Date().toISOString()
         }
       };
-    } catch (error) {
-      console.error('Error fetching Sentinel metrics:', error);
-      return {
+    } catch (error) {return {
         enabled: false,
         running: false,
         lastRunAt: null,

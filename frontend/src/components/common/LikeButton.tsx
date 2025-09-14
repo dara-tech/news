@@ -110,9 +110,7 @@ export default function LikeButton({
         setLikeCount(status.count || 0);
         setHasError(false);
       } catch (error) {
-        // Remove unused eslint-disable directive
-        console.error('Failed to refresh like status:', error);
-        // Continue with the like action anyway
+        // Remove unused eslint-disable directive// Continue with the like action anyway
       }
     }
 
@@ -147,18 +145,14 @@ export default function LikeButton({
       // Revert on error
       setIsLiked(!newLiked);
       setLikeCount(newLiked ? Math.max(0, newCount - 1) : newCount + 1);
-      // Remove unused eslint-disable directive
-      console.error('Failed to update like:', error);
-      setHasError(true);
+      // Remove unused eslint-disable directivesetHasError(true);
 
       // If it's an API availability error, we can keep the optimistic update
       if (
         error instanceof Error &&
         error.message === 'API is not available'
       ) {
-        // Remove unused eslint-disable directive
-        console.warn('API not available, keeping optimistic update');
-        // Don't revert for API availability issues
+        // Remove unused eslint-disable directive// Don't revert for API availability issues
         setIsLiked(newLiked);
         setLikeCount(newCount);
         setHasError(false);

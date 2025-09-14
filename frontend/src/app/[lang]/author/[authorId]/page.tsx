@@ -76,14 +76,9 @@ export default function AuthorProfilePage() {
         setLoading(true);
         setError(null);
         
-        const response = await getAuthorProfile(authorId as string);
-        console.log('🔍 Author API Response:', response);
-        console.log('🔍 Author Data:', response.author);
-        setData(response);
+        const response = await getAuthorProfile(authorId as string);setData(response);
       } catch (err) {
-        const errorObj = err as FetchError;
-        console.error('Error fetching author data:', errorObj);
-        setError(
+        const errorObj = err as FetchError;setError(
           errorObj.response?.data?.message ||
           errorObj.message ||
           'Failed to load author profile'

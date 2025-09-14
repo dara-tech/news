@@ -77,9 +77,7 @@ class LikeApi {
 
   // Check if API is available
   private checkApiAvailability(): boolean {
-    if (!api) {
-      console.error('API is not available');
-      return false;
+    if (!api) {return false;
     }
     return true;
   }
@@ -93,9 +91,7 @@ class LikeApi {
     try {
       const response = await api.get(`${this.baseUrl}/${newsId}/count`);
       return response.data.count;
-    } catch (error) {
-      console.error('Error getting like count:', error);
-      return 0;
+    } catch (error) {return 0;
     }
   }
 
@@ -108,9 +104,7 @@ class LikeApi {
     try {
       const response = await api.get(`${this.baseUrl}/${newsId}/check`);
       return response.data.hasLiked;
-    } catch (error) {
-      console.error('Error checking user like:', error);
-      return false;
+    } catch (error) {return false;
     }
   }
 
@@ -140,9 +134,7 @@ class LikeApi {
             count: countResponse.data.count || 0,
             hasLiked: false // Always false for unauthenticated users
           };
-        } catch (countError) {
-          console.error('Error getting like count:', countError);
-          return {
+        } catch (countError) {return {
             count: 0,
             hasLiked: false
           };
@@ -150,7 +142,6 @@ class LikeApi {
       }
       
       // For other errors, return default values
-      console.error('Error getting like status:', error);
       return {
         count: 0,
         hasLiked: false
@@ -167,9 +158,7 @@ class LikeApi {
     try {
       const response = await api.post(`${this.baseUrl}/${newsId}/toggle`);
       return response.data;
-    } catch (error) {
-      console.error('Error toggling like:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -182,9 +171,7 @@ class LikeApi {
     try {
       const response = await api.post(`${this.baseUrl}/${newsId}`);
       return response.data;
-    } catch (error) {
-      console.error('Error liking news:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -197,9 +184,7 @@ class LikeApi {
     try {
       const response = await api.delete(`${this.baseUrl}/${newsId}`);
       return response.data;
-    } catch (error) {
-      console.error('Error unliking news:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -212,9 +197,7 @@ class LikeApi {
     try {
       const response = await api.get(`${this.baseUrl}/user?page=${page}&limit=${limit}`);
       return response.data;
-    } catch (error) {
-      console.error('Error getting user likes:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -227,9 +210,7 @@ class LikeApi {
     try {
       const response = await api.get(`${this.baseUrl}/popular?limit=${limit}`);
       return response.data;
-    } catch (error) {
-      console.error('Error getting popular articles:', error);
-      throw error;
+    } catch (error) {throw error;
     }
   }
 
@@ -244,17 +225,13 @@ class LikeApi {
         try {
           const status = await this.getLikeStatus(newsId);
           return { [newsId]: status };
-        } catch (error) {
-          console.error(`Error getting like status for ${newsId}:`, error);
-          return { [newsId]: { count: 0, hasLiked: false } };
+        } catch (error) {return { [newsId]: { count: 0, hasLiked: false } };
         }
       });
 
       const results = await Promise.all(promises);
       return results.reduce((acc, result) => ({ ...acc, ...result }), {});
-    } catch (error) {
-      console.error('Error getting batch like status:', error);
-      return {};
+    } catch (error) {return {};
     }
   }
 }

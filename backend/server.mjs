@@ -13,6 +13,7 @@ import connectCloudinary from "./utils/cloudinary.mjs"
 import errorHandler from "./middleware/error.mjs"
 import logger from "./utils/logger.mjs"
 import { securityHeaders, apiRateLimit, authRateLimit, requestLogger } from "./middleware/security.mjs"
+import { healthCheckMiddleware, detailedHealthCheck } from "./middleware/healthCheck.mjs"
 import authRoutes from "./routes/auth.mjs"
 import userRoutes from "./routes/users.mjs"
 import newsRoutes from "./routes/news.mjs"
@@ -216,6 +217,20 @@ import { trackPageView } from './middleware/analytics.mjs';
 // Apply analytics tracking to all API routes
 app.use('/api', trackPageView);
 
+// Health check middleware
+app.use(healthCheckMiddleware);
+
+// Health check routes
+app.get('/health', (req, res) => {
+  res.json(req.healthStatus);
+});
+
+app.get('/api/health', (req, res) => {
+  res.json(req.healthStatus);
+});
+
+app.get('/api/health/detailed', detailedHealthCheck);
+
 // Test route at the very beginning
 app.get('/api/test-simple', (req, res) => {
   logger.info('🎯 SIMPLE TEST ROUTE CALLED');
@@ -400,6 +415,16 @@ app.get("/api/integration/health", async (req, res) => {
   try {
     const health = await integrationService.getHealthStatus();
     res.json(health);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Service Health Routes
+app.get("/api/services/health", async (req, res) => {
+  try {
+    const { getServiceHealth } = await import('./controllers/serviceHealthController.mjs');
+    await getServiceHealth(req, res);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
