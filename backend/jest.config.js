@@ -18,14 +18,8 @@ export default {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testTimeout: 10000,
   verbose: true,
-  extensionsToTreatAsEsm: ['.js'],
-  globals: {
-    'ts-jest': {
-      useESM: true
-    }
-  },
   transform: {
-    '^.+\\.js$': 'babel-jest'
+    '^.+\\.mjs$': 'babel-jest'
   },
   transformIgnorePatterns: [
     'node_modules/(?!(.*\\.mjs$))'

@@ -15,9 +15,12 @@ import {
   Globe,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Send
 } from 'lucide-react';
+import Logo from "@/components/layout/Logo";
 import api from "@/lib/api";
+import { useRouter } from 'next/navigation';
 
 interface LogoSettings {
   logoUrl?: string;
@@ -73,6 +76,7 @@ const platformIconMap: { [key: string]: any } = {
 
 const Footer: FC = () => {
   const currentYear = new Date().getFullYear();
+  const router = useRouter();
   const [logoSettings, setLogoSettings] = useState<LogoSettings>({
     logoDisplayMode: 'text',
     logoText: 'Razewire',
@@ -100,7 +104,6 @@ const Footer: FC = () => {
     autoPostEnabled: false,
     socialPreviewEnabled: true,
   });
-  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -109,7 +112,6 @@ const Footer: FC = () => {
         const logoResponse = await api.get('/settings/public/logo');
         if (logoResponse.data.success && logoResponse.data.settings) {
           setLogoSettings(prev => ({ ...prev, ...logoResponse.data.settings }));
-          setImageError(false);
         }
 
         // Fetch footer/company settings (public endpoint)
@@ -152,74 +154,69 @@ const Footer: FC = () => {
     { name: 'Terms of Service', href: '/terms' },
   ];
 
-  const renderLogoContent = () => {
-    // If we have an image logo and URL, and no image error, display it
-    if (logoSettings.logoDisplayMode === 'image' && logoSettings.logoUrl && !imageError) {
+  const renderSocialIcon = (link: SocialMediaLink) => {
+    const IconComponent = platformIconMap[link.platform];
+    
+    if (IconComponent) {
       return (
-        <img
-          src={logoSettings.logoUrl}
-          alt="Logo"
-          className="h-6 w-auto object-contain"
-          onError={() => {
-            setImageError(true);
-          }}
-        />
+        <div className="p-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-all duration-200 group">
+          <IconComponent className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
+        </div>
       );
     }
-
-    // Display text logo (fallback or default)
     return (
-      <span
-        style={{
-          color: logoSettings.logoTextColor,
-          fontSize: `${(logoSettings.logoFontSize || 24) * 0.75}px`, // Smaller for footer
-        }}
-        className="font-bold"
-      >
-        {logoSettings.logoText || footerSettings.companyName || 'NewsApp'}
-      </span>
+      <div className="p-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-all duration-200 group">
+        <Globe className="h-5 w-5 text-foreground transition-transform group-hover:scale-110" />
+      </div>
     );
   };
 
-  const renderSocialIcon = (link: SocialMediaLink) => {
-    const IconComponent = platformIconMap[link.platform];
-    if (IconComponent) {
-      return <IconComponent className="h-6 w-6" />;
-    }
-    return <Globe className="h-6 w-6" />;
-  };
-
   return (
-    <footer className="bg-background border-t border-border/50">
-      <div className="container mx-auto px-4 md:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-background/80 backdrop-blur-sm border-t border-border/40">
+      <div className="container mx-auto px-4 md:px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
           {/* About & Newsletter */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              {renderLogoContent()}
+          <div className="flex flex-col gap-6 lg:col-span-2">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
+              <Logo lang="en" />
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground/80 leading-relaxed max-w-md">
               {footerSettings.companyDescription}
             </p>
             {footerSettings.newsletterEnabled && (
-              <div>
-                <p className="font-medium mb-2">Subscribe to our newsletter</p>
-                <form className="flex gap-2">
-                  <Input type="email" placeholder="Enter your email" className="flex-grow" />
-                  <Button type="submit">Subscribe</Button>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-foreground">Stay Updated</h4>
+                  <p className="text-sm text-muted-foreground/70">
+                    Get the latest news and updates delivered to your inbox.
+                  </p>
+                </div>
+                <form className="flex gap-2 max-w-sm">
+                  <Input 
+                    type="email" 
+                    placeholder="Enter your email" 
+                    className="flex-1 h-10 bg-background/50 border-border/40 focus-visible:border-border transition-colors" 
+                  />
+                  <Button type="submit" size="sm" className="px-4 h-10 gap-2">
+                    <Send className="h-4 w-4" />
+                    Subscribe
+                  </Button>
                 </form>
               </div>
             )}
           </div>
 
           {/* Site Links */}
-          <div className="flex flex-col gap-4">
-            <h4 className="font-semibold text-foreground">Sitemap</h4>
-            <ul className="space-y-2">
+          <div className="flex flex-col gap-6">
+            <h4 className="font-semibold text-foreground text-sm uppercase tracking-wider">Navigation</h4>
+            <ul className="space-y-3">
               {mainLinks.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link 
+                    href={link.href} 
+                    className="text-muted-foreground/70 hover:text-foreground text-sm hover:translate-x-1 transform transition-all duration-200 inline-block"
+                  >
                     {link.name}
                   </Link>
                 </li>
@@ -227,62 +224,80 @@ const Footer: FC = () => {
             </ul>
           </div>
 
-          {/* Contact Info */}
-          <div className="flex flex-col gap-4">
-            <h4 className="font-semibold text-foreground">Contact</h4>
-            <ul className="space-y-2">
+          {/* Legal & Contact */}
+          <div className="flex flex-col gap-6">
+            <h4 className="font-semibold text-foreground text-sm uppercase tracking-wider">Company</h4>
+            <ul className="space-y-3">
               {legalLinks.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link 
+                    href={link.href} 
+                    className="text-muted-foreground/70 hover:text-foreground text-sm hover:translate-x-1 transform transition-all duration-200 inline-block"
+                  >
                     {link.name}
                   </Link>
                 </li>
               ))}
+            </ul>
+            
+            {/* Contact Info */}
+            <div className="space-y-3 pt-4">
               {socialMediaSettings.contactInfo.email && (
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <Mail className="h-4 w-4" />
+                <div className="flex items-center gap-3 text-muted-foreground/70 text-sm">
+                  <Mail className="h-4 w-4 text-muted-foreground/50" />
                   <span>{socialMediaSettings.contactInfo.email}</span>
-                </li>
+                </div>
               )}
               {socialMediaSettings.contactInfo.phone && (
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <Phone className="h-4 w-4" />
+                <div className="flex items-center gap-3 text-muted-foreground/70 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground/50" />
                   <span>{socialMediaSettings.contactInfo.phone}</span>
-                </li>
+                </div>
               )}
               {socialMediaSettings.contactInfo.address && (
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
+                <div className="flex items-center gap-3 text-muted-foreground/70 text-sm">
+                  <MapPin className="h-4 w-4 text-muted-foreground/50" />
                   <span>{socialMediaSettings.contactInfo.address}</span>
-                </li>
+                </div>
               )}
-            </ul>
-          </div>
-          
-          {/* Social Media */}
-          <div className="flex flex-col gap-4">
-            <h4 className="font-semibold text-foreground">Follow Us</h4>
-            <div className="flex items-center gap-4">
-              {activeSocialLinks.map((link, index) => (
-                <Link 
-                  href={link.url} 
-                  key={index} 
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {renderSocialIcon(link)}
-                  <span className="sr-only">{link.displayName || link.platform}</span>
-                </Link>
-              ))}
             </div>
           </div>
 
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-border/50 text-center text-muted-foreground text-sm">
-          <p>&copy; {currentYear} {footerSettings.companyName || 'Razewire'}. All rights reserved. Built with Next.js & Tailwind CSS.</p>
+        {/* Social Media & Bottom Bar */}
+        <div className="mt-16 pt-8 border-t border-border/30">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            
+            {/* Social Links */}
+            {activeSocialLinks.length > 0 && (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground/60 mr-2">Follow us:</span>
+                {activeSocialLinks.map((link, index) => (
+                  <Link 
+                    href={link.url} 
+                    key={index} 
+                    className="text-muted-foreground/60 hover:text-foreground transition-all duration-200"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {renderSocialIcon(link)}
+                    <span className="sr-only">{link.displayName || link.platform}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Copyright */}
+            <div className="text-center md:text-right">
+              <p className="text-muted-foreground/60 text-sm">
+                &copy; {currentYear} {footerSettings.companyName || 'Razewire'}. All rights reserved.
+              </p>
+              <p className="text-muted-foreground/40 text-xs mt-1">
+                Built with Next.js & Tailwind CSS
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

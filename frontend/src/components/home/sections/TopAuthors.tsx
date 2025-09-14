@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import api from "@/lib/api"
 
 interface Author {
   _id: string
@@ -53,13 +54,12 @@ export default function TopAuthors({ lang }: TopAuthorsProps) {
     const fetchTopAuthors = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/news/top-authors?limit=6&lang=${lang}`)
-        const data = await response.json()
+        const response = await api.get(`/news/top-authors?limit=6&lang=${lang}`)
         
-        if (data.success) {
-          setAuthors(data.data)
+        if (response.data.success) {
+          setAuthors(response.data.data)
         } else {
-          setError(data.message || 'Failed to fetch top authors')
+          setError(response.data.message || 'Failed to fetch top authors')
         }
       } catch (err) {
         setError('Failed to fetch top authors')

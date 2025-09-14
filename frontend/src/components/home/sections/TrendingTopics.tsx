@@ -158,14 +158,16 @@ export default function TrendingTopics({ lang, realData }: TrendingTopicsProps) 
       transition={{ duration: 0.6 }}
       className="mb-12"
     >
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500">
-          <TrendingUp className="h-5 w-5 text-white" />
+      <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-md bg-gradient-to-r from-orange-500 to-red-500">
+            <TrendingUp className="h-4 w-4 text-white" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            {lang === 'kh' ? 'ប្រធានបទពេញនិយម' : 'Trending Topics'}
+          </h2>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {lang === 'kh' ? 'ប្រធានបទពេញនិយម' : 'Trending Topics'}
-        </h2>
-        <Badge variant="secondary" className="ml-auto">
+        <Badge variant="secondary" className="ml-auto text-xs px-2 py-1">
           <Clock className="h-3 w-3 mr-1" />
           Live
         </Badge>
@@ -173,26 +175,22 @@ export default function TrendingTopics({ lang, realData }: TrendingTopicsProps) 
 
       {/* Loading State */}
       {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, index) => (
-            <Card key={index} className="border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-              <CardContent className="p-6">
-                <div className="animate-pulse">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-gray-300" />
-                      <div className="h-4 w-4 bg-gray-300 rounded" />
-                    </div>
-                    <div className="h-4 w-12 bg-gray-300 rounded" />
-                  </div>
-                  <div className="h-6 bg-gray-300 rounded mb-2" />
-                  <div className="flex items-center justify-between">
-                    <div className="h-5 w-16 bg-gray-300 rounded" />
-                    <div className="h-4 w-20 bg-gray-300 rounded" />
-                  </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          {[...Array(10)].map((_, index) => (
+            <div key={index} className="p-4 rounded-xl border border-gray-200/50 dark:border-gray-800/50 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+              <div className="animate-pulse">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-gray-300" />
+                  <div className="h-3 w-16 bg-gray-300 rounded" />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="h-4 bg-gray-300 rounded mb-2" />
+                <div className="h-3 bg-gray-300 rounded mb-3" />
+                <div className="flex items-center justify-between">
+                  <div className="h-3 w-12 bg-gray-300 rounded" />
+                  <div className="h-3 w-3 bg-gray-300 rounded" />
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -214,57 +212,67 @@ export default function TrendingTopics({ lang, realData }: TrendingTopicsProps) 
       {/* Content */}
       {!isLoading && !error && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {trendingTopics.map((topic, index) => (
               <motion.div
                 key={topic.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
               >
-                <Card className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                  <CardContent className="p-6">
-                    <Link href={`/${lang}${topic.href}`} className="block">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full ${topic.color}`} />
-                          <Hash className="h-4 w-4 text-gray-500" />
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {getTrendIcon(topic.trend)}
-                          <span className={`text-sm font-medium ${getTrendColor(topic.trend)}`}>
-                            {topic.change > 0 ? '+' : ''}{topic.change}%
-                          </span>
-                        </div>
+                <Link href={`/${lang}${topic.href}`} className="block group">
+                  <div className="relative p-4 rounded-xl border border-gray-200/50 dark:border-gray-800/50 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm hover:bg-white/80 dark:hover:bg-gray-900/80 hover:border-gray-300/50 dark:hover:border-gray-700/50 hover:shadow-md transition-all duration-200 group-hover:scale-[1.02]">
+                    {/* Trend indicator */}
+                    <div className="absolute top-3 right-3">
+                      <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        topic.trend === 'up' 
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                          : topic.trend === 'down'
+                          ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                          : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                      }`}>
+                        {getTrendIcon(topic.trend)}
+                        <span>{topic.change > 0 ? '+' : ''}{topic.change}%</span>
                       </div>
+                    </div>
 
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {topic.title}
-                      </h3>
+                    {/* Category dot */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className={`w-2 h-2 rounded-full ${topic.color}`} />
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                        {topic.category}
+                      </span>
+                    </div>
 
-                      <div className="flex items-center justify-between text-sm text-gray-500">
-                        <Badge variant="outline" className="text-xs">
-                          {topic.category}
-                        </Badge>
-                        <span className="flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
-                          {topic.posts.toLocaleString()} posts
-                        </span>
-                      </div>
-                    </Link>
-                  </CardContent>
-                </Card>
+                    {/* Title */}
+                    <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-tight">
+                      {topic.title}
+                    </h3>
+
+                    {/* Stats */}
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <TrendingUp className="h-3 w-3" />
+                        {topic.posts.toLocaleString()}
+                      </span>
+                      <Hash className="h-3 w-3 opacity-50" />
+                    </div>
+
+                    {/* Hover effect */}
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/0 via-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:via-blue-500/10 group-hover:to-blue-500/5 transition-all duration-200 pointer-events-none" />
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </div>
 
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center">
             <Link 
               href={`/${lang}/trending`}
-              className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors group"
             >
-              View All Trending Topics
-              <ArrowUpRight className="h-4 w-4" />
+              View all trending topics
+              <ArrowUpRight className="h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </Link>
           </div>
         </>

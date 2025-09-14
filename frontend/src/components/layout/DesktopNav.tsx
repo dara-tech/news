@@ -56,7 +56,7 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
       try {
         setState((prev) => ({ ...prev, isLoading: true, error: null }))
 
-        const res = await api.get(`/categories?lang=${lang}`)
+        const res = await api.get(`/categories`)
         const categories = res.data?.data || []
 
         setState((prev) => ({
@@ -157,15 +157,12 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
   }, [uiState.isCategoriesOpen])
 
   // Categories dropdown content
-  const CategoriesDropdown = () => (
-    <motion.div
-      data-dropdown-content
-      initial={{ opacity: 0, y: 8, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.96 }}
-      transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-      className="absolute left-0 mt-2 w-80 bg-background/98 backdrop-blur-xl border border-border/20 rounded-xl shadow-xl z-50 overflow-hidden"
-    >
+  const CategoriesDropdown = () => {
+    return (
+      <div
+        data-dropdown-content
+        className="fixed left-1/2 transform -translate-x-1/2 top-24 w-80 bg-background/98 backdrop-blur-xl border border-border/20 rounded-xl shadow-xl z-[9999] overflow-hidden"
+      >
       {/* Minimalistic search bar */}
       <div className="p-3 border-b border-border/10">
         <div className="relative">
@@ -261,12 +258,13 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
           </div>
         )}
       </div>
-    </motion.div>
-  )
+    </div>
+    )
+  }
 
   return (
     <nav 
-      className="hidden lg:flex items-center gap-2"
+      className="hidden lg:flex items-center gap-2 relative z-50"
       role="navigation"
       aria-label="Main navigation"
     >
@@ -325,11 +323,13 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
           )}
         </Button>
 
-        <AnimatePresence>
-          {uiState.isCategoriesOpen && (
+        {uiState.isCategoriesOpen && (
+          <>
+            {/* Backdrop */}
+            <div className="fixed inset-0 z-[9998] bg-black/20" onClick={() => setUiState((prev) => ({ ...prev, isCategoriesOpen: false }))} />
             <CategoriesDropdown />
-          )}
-        </AnimatePresence>
+          </>
+        )}
       </div>
 
     </nav>

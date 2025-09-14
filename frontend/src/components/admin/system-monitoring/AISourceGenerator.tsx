@@ -246,12 +246,12 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
         <div className="space-y-5">
           <div>
             <Label className="text-sm font-medium mb-2 block">Context *</Label>
-            <Textarea
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-              placeholder="Describe what type of content you're looking for (e.g., 'Technology news about AI and machine learning')"
-              className="h-24 text-sm resize-none"
-            />
+              <Textarea
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+                placeholder="Describe what type of content you're looking for (e.g., 'Technology news about AI and machine learning')"
+                className="h-24 text-sm resize-none border border-input bg-background"
+              />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -261,7 +261,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
                 value={keywords}
                 onChange={(e) => setKeywords(e.target.value)}
                 placeholder="AI, machine learning, technology"
-                className="h-10 text-sm"
+                className="h-10 text-sm border border-input bg-background"
               />
             </div>
             <div>
@@ -270,7 +270,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
                 value={topics}
                 onChange={(e) => setTopics(e.target.value)}
                 placeholder="artificial intelligence, robotics, innovation"
-                className="h-10 text-sm"
+                className="h-10 text-sm border border-input bg-background"
               />
             </div>
           </div>
@@ -281,7 +281,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
               value={requirements}
               onChange={(e) => setRequirements(e.target.value)}
               placeholder="real-time updates, high credibility, free access"
-              className="h-10 text-sm"
+              className="h-10 text-sm border border-input bg-background"
             />
           </div>
 
@@ -289,7 +289,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
             <div>
               <Label className="text-sm font-medium mb-2 block">Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="h-10 text-sm">
+                <SelectTrigger className="h-10 text-sm border border-input bg-background">
                   <SelectValue placeholder="Any category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -304,7 +304,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
             <div>
               <Label className="text-sm font-medium mb-2 block">Credibility</Label>
               <Select value={credibility} onValueChange={setCredibility}>
-                <SelectTrigger className="h-10 text-sm">
+                <SelectTrigger className="h-10 text-sm border border-input bg-background">
                   <SelectValue placeholder="Any credibility" />
                 </SelectTrigger>
                 <SelectContent>
@@ -322,7 +322,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
                 onChange={(e) => setMaxResults(Number(e.target.value))}
                 min="1"
                 max="50"
-                className="h-10 text-sm"
+                className="h-10 text-sm border border-input bg-background"
               />
             </div>
           </div>
@@ -330,7 +330,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
           <Button
             onClick={generateSources}
             disabled={isGenerating || !context.trim()}
-            className="w-full h-12 border-0 font-medium"
+            className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
           >
             {isGenerating ? (
               <>
@@ -369,7 +369,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
                     variant="outline"
                     onClick={selectAllSources}
                     disabled={suggestions.length === 0 || selectedSources.length === suggestions.length}
-                    className="text-sm"
+                    className="text-sm border border-input"
                     title="Select all sources (Ctrl+A)"
                   >
                     Select All
@@ -379,7 +379,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
                     variant="outline"
                     onClick={deselectAllSources}
                     disabled={selectedSources.length === 0}
-                    className="text-sm"
+                    className="text-sm border border-input"
                   >
                     Deselect All
                   </Button>
@@ -388,7 +388,7 @@ export default function AISourceGenerator({ onSourceGenerated, onClose }: AISour
                   size="sm"
                   onClick={addSelectedSources}
                   disabled={selectedSources.length === 0}
-                  className="border-0"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Selected

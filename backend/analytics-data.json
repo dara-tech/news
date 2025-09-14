@@ -1,12 +1,12 @@
 {
   "pageViews": {
-    "/news/breaking": 2206,
-    "/news": 2637,
-    "/news/featured": 2208,
-    "/categories": 4396,
+    "/news/breaking": 2302,
+    "/news": 2735,
+    "/news/featured": 2304,
+    "/categories": 4532,
     "/notifications/count": 8592,
     "/dashboard/advanced-stats": 1000,
-    "/maintenance-status": 1201,
+    "/maintenance-status": 1211,
     "/auth/login": 85,
     "/auth/profile": 1810,
     "/notifications": 1834,
@@ -113,7 +113,7 @@
     "/admin/settings/social-media": 1002,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
-    "/settings/public/social-media": 634,
+    "/settings/public/social-media": 646,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -279,8 +279,8 @@
     "/likes/689c3dd12a53bb052e7e30c6/status": 1,
     "/comments/689c3dd12a53bb052e7e30c6": 1,
     "/comments/689c3dd12a53bb052e7e30c6/stats": 1,
-    "/settings/public/logo": 765,
-    "/settings/public/footer": 515,
+    "/settings/public/logo": 786,
+    "/settings/public/footer": 527,
     "/users/688e46a0b9e9e59928015fdf": 1,
     "/auth/data-deletion-callback": 7,
     "/auth/data-deletion-status/123456789": 2,
@@ -451,7 +451,7 @@
     "/admin/frontend-settings": 13,
     "/admin/frontend-settings/status": 1,
     "/admin/frontend-settings/test-adsense": 1,
-    "/admin/analytics/overview": 1611,
+    "/admin/analytics/overview": 1671,
     "/news/ukraine-defiant-as-trump-s-peace-deadline-passes": 2,
     "/likes/68b579dbcee2a9b63b86cfe9/status": 1,
     "/comments/68b579dbcee2a9b63b86cfe9": 1,
@@ -500,7 +500,7 @@
     "/comments/68ad810425ff6fe6a87b5025/stats": 1,
     "/articles": 9,
     "/news/68ad768825ff6fe6a87b4f60": 4,
-    "/recommendations/trending": 766,
+    "/recommendations/trending": 776,
     "/news/68bfe5bac47775c67b0a2dea": 1,
     "/recommendations/for-you": 92,
     "/recommendations/ai-insights": 86,
@@ -573,7 +573,7 @@
     "/api/ai/sources/test/bbc-news": 1,
     "/api/ai/sources/test/techcrunch": 1,
     "/api/ai/sources/test/arxiv": 1,
-    "/news/top-authors": 28
+    "/news/top-authors": 46
   },
   "userActions": {},
   "dailyStats": {
@@ -1005,27 +1005,27 @@
       }
     },
     "2025-09-14": {
-      "pageViews": 10351,
+      "pageViews": 10920,
       "uniqueVisitors": [
         "::1",
         "::ffff:127.0.0.1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Direct": 1012,
-        "Referral": 9339
+        "Direct": 1403,
+        "Referral": 9517
       },
       "deviceTypes": {
-        "Desktop": 10351
+        "Desktop": 10920
       }
     }
   },
   "trafficSources": {
-    "Direct": 11543,
-    "Referral": 62109
+    "Direct": 11934,
+    "Referral": 62287
   },
   "deviceTypes": {
-    "Desktop": 72928,
+    "Desktop": 73497,
     "Mobile": 724
   }
 }

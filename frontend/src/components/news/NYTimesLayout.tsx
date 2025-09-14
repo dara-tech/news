@@ -7,7 +7,6 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { 
   TrendingTopics, 
-  NewsletterSignup, 
   WeatherWidget, 
   AwardsSection,
   TopAuthors 
@@ -439,9 +438,6 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
         <div className="container mx-auto px-4 py-8">
           {/* Trending Topics Section */}
           <TrendingTopics lang={safeLang} realData={getTrendingTopics()} />
-          
-          {/* Newsletter Signup Section */}
-          <NewsletterSignup lang={safeLang} />
         </div>
       )}
 
