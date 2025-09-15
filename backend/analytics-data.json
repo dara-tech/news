@@ -1,9 +1,9 @@
 {
   "pageViews": {
-    "/news/breaking": 2333,
-    "/news": 2770,
-    "/news/featured": 2335,
-    "/categories": 4581,
+    "/news/breaking": 2334,
+    "/news": 2772,
+    "/news/featured": 2336,
+    "/categories": 4583,
     "/notifications/count": 8592,
     "/dashboard/advanced-stats": 1000,
     "/maintenance-status": 1223,
@@ -451,7 +451,7 @@
     "/admin/frontend-settings": 13,
     "/admin/frontend-settings/status": 1,
     "/admin/frontend-settings/test-adsense": 1,
-    "/admin/analytics/overview": 1693,
+    "/admin/analytics/overview": 1703,
     "/news/ukraine-defiant-as-trump-s-peace-deadline-passes": 2,
     "/likes/68b579dbcee2a9b63b86cfe9/status": 1,
     "/comments/68b579dbcee2a9b63b86cfe9": 1,
@@ -1021,26 +1021,26 @@
       }
     },
     "2025-09-15": {
-      "pageViews": 202,
+      "pageViews": 218,
       "uniqueVisitors": [
         "::1"
       ],
       "userActions": 0,
       "trafficSources": {
-        "Direct": 125,
-        "Referral": 77
+        "Direct": 131,
+        "Referral": 87
       },
       "deviceTypes": {
-        "Desktop": 202
+        "Desktop": 218
       }
     }
   },
   "trafficSources": {
-    "Direct": 12089,
-    "Referral": 62374
+    "Direct": 12095,
+    "Referral": 62384
   },
   "deviceTypes": {
-    "Desktop": 73739,
+    "Desktop": 73755,
     "Mobile": 724
   }
 }

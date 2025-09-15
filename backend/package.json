@@ -13,9 +13,9 @@
     "seed:destroy": "node seeders/newsSeeder.js -d",
     "data:import": "node seeder.js",
     "data:destroy": "node seeder.js -d",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
   },
   "dependencies": {
     "@google/genai": "^1.15.0",

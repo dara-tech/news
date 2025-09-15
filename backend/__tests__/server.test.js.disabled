@@ -1,5 +1,5 @@
-const request = require('supertest');
-const mongoose = require('mongoose');
+import request from 'supertest';
+import mongoose from 'mongoose';
 
 // Import your app (adjust path as needed)
 let app;

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   presets: [
     [
       '@babel/preset-env',
@@ -6,7 +6,7 @@ module.exports = {
         targets: {
           node: 'current'
         },
-        modules: 'commonjs'
+        modules: 'auto'
       }
     ]
   ],
