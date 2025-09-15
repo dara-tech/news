@@ -27,12 +27,20 @@ function getLocalizedText(text: string | { [key: string]: string | undefined } |
   return '';
 }
 
-function getCategorySlug(category: Category): string {
+function getCategorySlug(category: Category, lang: string = 'en'): string {
   // Use slug if available, fallback to _id
   if (!category.slug) {
     return String(category._id || 'unknown');
   }
-  return category.slug;
+  
+  // Handle localized slug
+  if (typeof category.slug === 'string') {
+    return category.slug;
+  }
+  
+  // Use the appropriate language slug, fallback to English
+  const safeLang = lang === 'km' ? 'kh' : lang;
+  return category.slug[safeLang as keyof typeof category.slug] || category.slug.en || String(category._id || 'unknown');
 }
 
 async function getCategories() {
@@ -128,7 +136,7 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
     
     // Find the current category for display
     const currentCategory = category ? categories.find((c: Category) => {
-      const categorySlug = getCategorySlug(c);
+      const categorySlug = getCategorySlug(c, lang);
       return categorySlug === category;
     }) : null;
 

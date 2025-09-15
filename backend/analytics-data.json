@@ -1,12 +1,12 @@
 {
   "pageViews": {
-    "/news/breaking": 2308,
-    "/news": 2742,
-    "/news/featured": 2310,
-    "/categories": 4544,
+    "/news/breaking": 2309,
+    "/news": 2743,
+    "/news/featured": 2311,
+    "/categories": 4546,
     "/notifications/count": 8592,
     "/dashboard/advanced-stats": 1000,
-    "/maintenance-status": 1212,
+    "/maintenance-status": 1213,
     "/auth/login": 85,
     "/auth/profile": 1810,
     "/notifications": 1834,
@@ -65,12 +65,12 @@
     "/news/author/undefined": 1,
     "/follows/6883582d3572b0a8c26cca57/toggle": 2,
     "/categories/slug/education": 5,
-    "/news/category/education": 11,
+    "/news/category/education": 12,
     "/admin/follows": 12,
     "/admin/follows/6891565b652d8cab7571bc60": 3,
     "/user/activity": 9,
     "/user/activity/stats": 5,
-    "/news/category/business": 11,
+    "/news/category/business": 12,
     "/news/category/entertainment": 17,
     "/categories/slug/business": 8,
     "/admin/settings/logo": 1817,
@@ -113,7 +113,7 @@
     "/admin/settings/social-media": 1002,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
-    "/settings/public/social-media": 647,
+    "/settings/public/social-media": 648,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -192,7 +192,7 @@
     "/follows/6886733416315db847ca5e74/toggle": 1,
     "/categories/slug/sports": 1,
     "/categories/slug/politics": 4,
-    "/news/category/politics": 18,
+    "/news/category/politics": 19,
     "/admin/likes/688932dc99ba400cccad4edc": 1,
     "/admin/likes/bulk-delete": 1,
     "/admin/likes/68899be1aea2fc35f6d53a29": 1,
@@ -279,8 +279,8 @@
     "/likes/689c3dd12a53bb052e7e30c6/status": 1,
     "/comments/689c3dd12a53bb052e7e30c6": 1,
     "/comments/689c3dd12a53bb052e7e30c6/stats": 1,
-    "/settings/public/logo": 787,
-    "/settings/public/footer": 528,
+    "/settings/public/logo": 788,
+    "/settings/public/footer": 529,
     "/users/688e46a0b9e9e59928015fdf": 1,
     "/auth/data-deletion-callback": 7,
     "/auth/data-deletion-status/123456789": 2,
@@ -451,7 +451,7 @@
     "/admin/frontend-settings": 13,
     "/admin/frontend-settings/status": 1,
     "/admin/frontend-settings/test-adsense": 1,
-    "/admin/analytics/overview": 1674,
+    "/admin/analytics/overview": 1676,
     "/news/ukraine-defiant-as-trump-s-peace-deadline-passes": 2,
     "/likes/68b579dbcee2a9b63b86cfe9/status": 1,
     "/comments/68b579dbcee2a9b63b86cfe9": 1,
@@ -500,7 +500,7 @@
     "/comments/68ad810425ff6fe6a87b5025/stats": 1,
     "/articles": 9,
     "/news/68ad768825ff6fe6a87b4f60": 4,
-    "/recommendations/trending": 777,
+    "/recommendations/trending": 778,
     "/news/68bfe5bac47775c67b0a2dea": 1,
     "/recommendations/for-you": 92,
     "/recommendations/ai-insights": 86,
@@ -573,7 +573,7 @@
     "/api/ai/sources/test/bbc-news": 1,
     "/api/ai/sources/test/techcrunch": 1,
     "/api/ai/sources/test/arxiv": 1,
-    "/news/top-authors": 47
+    "/news/top-authors": 49
   },
   "userActions": {},
   "dailyStats": {
@@ -1018,14 +1018,28 @@
       "deviceTypes": {
         "Desktop": 10960
       }
+    },
+    "2025-09-15": {
+      "pageViews": 17,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 8,
+        "Referral": 9
+      },
+      "deviceTypes": {
+        "Desktop": 17
+      }
     }
   },
   "trafficSources": {
-    "Direct": 11964,
-    "Referral": 62297
+    "Direct": 11972,
+    "Referral": 62306
   },
   "deviceTypes": {
-    "Desktop": 73537,
+    "Desktop": 73554,
     "Mobile": 724
   }
 }

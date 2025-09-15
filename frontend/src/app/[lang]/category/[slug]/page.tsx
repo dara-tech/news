@@ -97,6 +97,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (!category) {
     return <div>Category not found</div>;
   }
-  const articles = await getLatestNewsByCategory(category.slug);
+  // Get the appropriate slug for the current language
+  const categorySlug = typeof category.slug === 'string' 
+    ? category.slug 
+    : category.slug?.en || category.slug?.kh || slug;
+  const articles = await getLatestNewsByCategory(categorySlug);
   return <CategoryPageClient params={resolvedParams} category={{ category, articles }} />;
 }
