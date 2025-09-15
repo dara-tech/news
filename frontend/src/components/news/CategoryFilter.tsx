@@ -52,12 +52,20 @@ function getLocalizedText(text: string | { [key: string]: string | undefined } |
   return '';
 }
 
-function getCategorySlug(category: Category): string {
+function getCategorySlug(category: Category, lang: string = 'en'): string {
   if (!category.slug) {
     // Fallback to _id if no slug, but ensure it's a string
     return String(category._id || 'unknown');
   }
-  return category.slug;
+  
+  // Handle localized slug
+  if (typeof category.slug === 'string') {
+    return category.slug;
+  }
+  
+  // Use the appropriate language slug, fallback to English
+  const safeLang = lang === 'km' ? 'kh' : lang;
+  return category.slug[safeLang as keyof typeof category.slug] || category.slug.en || String(category._id || 'unknown');
 }
 
 export default function CategoryFilter({ categories, currentCategory, locale, lang }: CategoryFilterProps) {
@@ -101,7 +109,7 @@ export default function CategoryFilter({ categories, currentCategory, locale, la
           All
         </Button>
         {categories.map((cat: Category, index: number) => {
-          const categorySlug = getCategorySlug(cat);
+          const categorySlug = getCategorySlug(cat, lang);
           const categoryName = getLocalizedText(cat.name, locale);
           
           

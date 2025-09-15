@@ -215,9 +215,10 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
         ) : (
           <div className="p-1">
             {state.filteredCategories.map((cat, index) => {
-              const categorySlug = typeof cat.slug === 'string' ? cat.slug : 
-                                 typeof cat._id === 'string' ? cat._id : 
-                                 `category-${index}`;
+              // Get localized slug properly
+              const categorySlug = typeof cat.slug === 'string' 
+                ? cat.slug 
+                : (cat.slug as any)?.[lang === 'kh' ? 'kh' : 'en'] || (cat.slug as any)?.en || cat._id;
               return (
               <motion.div
                 key={`category-${index}-${String(cat._id || 'unknown')}`}

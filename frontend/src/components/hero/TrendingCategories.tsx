@@ -35,9 +35,10 @@ const TrendingCategories: React.FC<TrendingCategoriesProps> = ({ categories = []
         {categories.map((category) => {
           const articleCount = category.articlesCount ?? 0
           const categoryName = getLocalizedString(category.name as LocalizedString, locale) || "Uncategorized"
-          const categorySlug = typeof category.slug === "string" ? category.slug : 
-                              typeof category._id === "string" ? category._id : 
-                              `category-${Math.random().toString(36).substr(2, 9)}`
+          // Get localized slug properly
+          const categorySlug = typeof category.slug === "string" 
+            ? category.slug 
+            : category.slug?.[locale === 'kh' ? 'kh' : 'en'] || category.slug?.en || category._id
           const categoryColor = category.color || "#3b82f6"
           return (
             <Link

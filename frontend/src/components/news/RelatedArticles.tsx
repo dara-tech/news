@@ -52,7 +52,7 @@ export default function RelatedArticles({ currentArticle, locale, limit = 6 }: R
         category: {
           _id: rec.category._id,
           name: { en: rec.category.name, kh: rec.category.name },
-          slug: rec.slug
+          slug: { en: rec.slug, kh: rec.slug }
         },
         thumbnail: rec.thumbnail,
         createdAt: rec.publishedAt,
@@ -134,6 +134,7 @@ export default function RelatedArticles({ currentArticle, locale, limit = 6 }: R
         {relatedArticles.map((article) => {
           const title = getLocalizedString(article.title, locale);
           const description = getLocalizedString(article.description, locale);
+          const articleSlug = getLocalizedString(article.slug, locale);
           const publishDate = new Date(article.publishedAt || article.createdAt);
           const timeAgo = formatDistanceToNow(publishDate, { addSuffix: true });
           const authorName = article.author?.name || article.author?.username || 
@@ -142,7 +143,7 @@ export default function RelatedArticles({ currentArticle, locale, limit = 6 }: R
           return (
             <Link
               key={article._id}
-              href={`/${locale}/news/${article.slug}`}
+              href={`/${locale}/news/${articleSlug}`}
               className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 overflow-hidden"
             >
               <div className="relative h-48 overflow-hidden">
