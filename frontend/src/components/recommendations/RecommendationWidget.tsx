@@ -78,7 +78,7 @@ export default function RecommendationWidget({
 
     try {
       let endpoint = '';
-      let params = new URLSearchParams();
+      const params = new URLSearchParams();
 
       switch (type) {
         case 'for-you':

@@ -135,7 +135,7 @@ export default function RecommendationEngine({
 
     try {
       let endpoint = '';
-      let params = new URLSearchParams();
+      const params = new URLSearchParams();
 
       switch (activeTab) {
         case 'for-you':

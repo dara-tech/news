@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
 "use client"
+import React, { memo } from 'react';
 
 import { useState } from "react"
 import { useTheme } from "next-themes"

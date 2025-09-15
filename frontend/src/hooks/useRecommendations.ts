@@ -105,8 +105,8 @@ export function useRecommendations({
     setError(null);
 
     try {
+      const params = new URLSearchParams();
       let endpoint = '';
-      let params = new URLSearchParams();
 
       switch (type) {
         case 'for-you':
