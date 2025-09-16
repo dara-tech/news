@@ -24,9 +24,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Clock,
-  Sparkles,
-  Database,
-  RefreshCw
+  Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
@@ -54,22 +52,6 @@ interface Source {
   };
 }
 
-interface DatabaseSource {
-  id: string;
-  title: string;
-  url: string;
-  description: string;
-  type: 'rss' | 'api' | 'scraper' | 'manual';
-  category: 'local' | 'international' | 'tech' | 'development' | 'academic';
-  credibility: 'high' | 'medium' | 'low';
-  language: string;
-  region: string;
-  lastUpdated: string;
-  frequency: string;
-  tags: string[];
-  relevanceScore: number;
-  metadata?: any;
-}
 
 interface SourceManagerProps {
   sentinel: SentinelConfig | null;
@@ -78,11 +60,9 @@ interface SourceManagerProps {
 
 export default function SourceManager({ sentinel, onUpdate }: SourceManagerProps) {
   const [sources, setSources] = useState<Source[]>(sentinel?.sources || []);
-  const [databaseSources, setDatabaseSources] = useState<DatabaseSource[]>([]);
   const [editingSource, setEditingSource] = useState<Source | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
-  const [loadingDatabase, setLoadingDatabase] = useState(false);
   const [newSource, setNewSource] = useState<Partial<Source>>({
     type: 'rss',
     category: 'international',
@@ -90,46 +70,7 @@ export default function SourceManager({ sentinel, onUpdate }: SourceManagerProps
     enabled: true
   });
 
-  // Load database sources on component mount
-  useEffect(() => {
-    loadDatabaseSources();
-  }, []);
 
-  const loadDatabaseSources = async () => {
-    setLoadingDatabase(true);
-    try {
-      console.log('🔄 [SourceManager] Loading database sources...');
-      console.log('🔄 [SourceManager] API base URL:', api.defaults.baseURL);
-      console.log('🔄 [SourceManager] Full URL:', `${api.defaults.baseURL}/ai/sources/all`);
-      
-      const response = await api.get('/ai/sources/all');
-      console.log('📊 [SourceManager] Full Response:', response);
-      console.log('📊 [SourceManager] Response Data:', response.data);
-      
-      const data = response.data;
-      if (data?.success && data?.sources) {
-        console.log('✅ [SourceManager] Loaded', data.sources.length, 'database sources');
-        setDatabaseSources(data.sources);
-        toast.success(`Loaded ${data.sources.length} database sources`);
-      } else {
-        console.warn('⚠️ [SourceManager] No sources in response or success=false');
-        console.warn('⚠️ [SourceManager] Response structure:', { success: data?.success, sources: data?.sources });
-        setDatabaseSources([]);
-      }
-    } catch (error: any) {
-      console.error('❌ [SourceManager] Failed to load database sources:', error);
-      console.error('❌ [SourceManager] Error details:', {
-        message: error?.message,
-        response: error?.response?.data,
-        status: error?.response?.status,
-        config: error?.config
-      });
-      toast.error(`Failed to load database sources: ${error?.message || 'Unknown error'}`);
-      setDatabaseSources([]);
-    } finally {
-      setLoadingDatabase(false);
-    }
-  };
 
   const addSource = async () => {
     if (!newSource.name || !newSource.url) {
@@ -334,52 +275,6 @@ export default function SourceManager({ sentinel, onUpdate }: SourceManagerProps
     }
   };
 
-  const addDatabaseSource = async (dbSource: DatabaseSource) => {
-    try {
-      const newSource: Source = {
-        id: Date.now().toString(),
-        name: dbSource.title,
-        url: dbSource.url,
-        type: dbSource.type,
-        category: dbSource.category === 'academic' ? 'development' : dbSource.category as any,
-        priority: dbSource.credibility === 'high' ? 'high' : dbSource.credibility === 'medium' ? 'medium' : 'low',
-        enabled: true,
-        keywords: dbSource.tags || [],
-        filters: {
-          language: dbSource.language || 'en',
-          region: dbSource.region || 'global'
-        }
-      };
-
-      const updatedSources = [...sources, newSource];
-      const { data } = await api.put('/admin/system/sentinel', { sources: updatedSources });
-      
-      if (data?.success) {
-        setSources(updatedSources);
-        toast.success(`Added "${dbSource.title}" to Sentinel sources`);
-        onUpdate();
-      } else {
-        toast.error('Failed to add source to Sentinel');
-      }
-    } catch (e: any) {
-      console.error('Error adding database source:', e);
-      toast.error(e?.response?.data?.message || 'Failed to add source to Sentinel');
-    }
-  };
-
-  const testDatabaseSource = async (sourceId: string) => {
-    try {
-      const { data } = await api.post(`/api/ai/sources/test/${sourceId}`);
-      if (data?.success) {
-        toast.success(`Database source test successful - Response time: ${data.result.responseTime}ms`);
-      } else {
-        toast.error(`Database source test failed: ${data?.message || 'Unknown error'}`);
-      }
-    } catch (e: any) {
-      console.error('Database source test error:', e);
-      toast.error(e?.response?.data?.message || 'Database source test failed');
-    }
-  };
 
 
   const getSourceIcon = (type: string) => {
@@ -411,14 +306,6 @@ export default function SourceManager({ sentinel, onUpdate }: SourceManagerProps
     }
   };
 
-  const getCredibilityColor = (credibility: string) => {
-    switch (credibility) {
-      case 'high': return 'text-green-600 bg-green-50';
-      case 'medium': return 'text-yellow-600 bg-yellow-50';
-      case 'low': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -570,18 +457,12 @@ export default function SourceManager({ sentinel, onUpdate }: SourceManagerProps
 
       {/* Tabbed Sources Interface */}
       <Tabs defaultValue="current" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="current" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
             <span className="hidden sm:inline">Current Sources</span>
             <span className="sm:hidden">Current</span>
             <Badge variant="secondary" className="ml-1">{sources.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="database" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            <span className="hidden sm:inline">Database Sources</span>
-            <span className="sm:hidden">Database</span>
-            <Badge variant="secondary" className="ml-1">{databaseSources.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="ai-generate" className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
@@ -722,131 +603,6 @@ export default function SourceManager({ sentinel, onUpdate }: SourceManagerProps
           </div>
         </TabsContent>
 
-        {/* Database Sources Tab */}
-        <TabsContent value="database" className="mt-4">
-          <div className="space-y-3">
-            {/* Database Sources Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-blue-500" />
-                <span className="text-sm font-medium">Database Sources ({databaseSources.length})</span>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={loadDatabaseSources}
-                  disabled={loadingDatabase}
-                  className="h-8"
-                >
-                  <RefreshCw className={`h-3 w-3 mr-2 ${loadingDatabase ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={async () => {
-                    console.log('🧪 [SourceManager] Testing API call...');
-                    try {
-                      const response = await fetch('/api/ai/sources/all');
-                      const data = await response.json();
-                      console.log('🧪 [SourceManager] Direct fetch result:', data);
-                      toast.success(`Direct API test: ${data.sources?.length || 0} sources`);
-                    } catch (error) {
-                      console.error('🧪 [SourceManager] Direct fetch error:', error);
-                      toast.error('Direct API test failed');
-                    }
-                  }}
-                  className="h-8"
-                >
-                  Test API
-                </Button>
-              </div>
-            </div>
-
-            {loadingDatabase ? (
-              <Card className="border-slate-200/50 shadow-sm">
-                <CardContent className="p-8 text-center">
-                  <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
-                  <p className="text-sm text-slate-600">Loading database sources...</p>
-                </CardContent>
-              </Card>
-            ) : databaseSources.length > 0 ? (
-              databaseSources.map((dbSource) => (
-                <Card key={dbSource.id} className="border-slate-200/50 shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          {getSourceIcon(dbSource.type)}
-                          <div className="min-w-0 flex-1">
-                            <div className="font-medium text-sm truncate">{dbSource.title}</div>
-                            <div className="text-xs text-slate-500 truncate">{dbSource.url}</div>
-                            <div className="text-xs text-slate-400 mt-1">{dbSource.description}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Badge className={`text-xs ${getCategoryColor(dbSource.category)}`}>
-                            {dbSource.category}
-                          </Badge>
-                          <Badge className={`text-xs ${getCredibilityColor(dbSource.credibility)}`}>
-                            {dbSource.credibility}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {Math.round(dbSource.relevanceScore * 100)}% match
-                          </Badge>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => addDatabaseSource(dbSource)}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          <Plus className="h-3 w-3 mr-2" />
-                          Add to Sentinel
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => testDatabaseSource(dbSource.id)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Activity className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {dbSource.tags && dbSource.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-3">
-                        {dbSource.tags.slice(0, 5).map((tag, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                        {dbSource.tags.length > 5 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{dbSource.tags.length - 5} more
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card className="border-slate-200/50 shadow-sm">
-                <CardContent className="p-8 text-center">
-                  <Database className="h-8 w-8 mx-auto mb-4 text-slate-400" />
-                  <p className="text-sm text-slate-600">No database sources available</p>
-                  <p className="text-xs text-slate-500 mt-1">Try refreshing or check your connection</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
 
         {/* AI Generate Tab */}
         <TabsContent value="ai-generate" className="mt-4">

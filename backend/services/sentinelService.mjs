@@ -32,38 +32,8 @@ class SentinelService {
       }
     });
     
-    // Enhanced source configuration with reliability scoring
-    this.sources = [
-      // Local & Regional (Khmer/Cambodia/ASEAN) - High Priority
-      { name: 'Khmer Times', url: 'https://www.khmertimeskh.com/feed/', reliability: 0.9, priority: 'high' },
-      { name: 'Phnom Penh Post', url: 'https://www.phnompenhpost.com/rss', enabled: false, reliability: 0.9, priority: 'high' },
-      { name: 'VOA Khmer', url: 'https://www.voacambodia.com/rss/', enabled: false, reliability: 0.8, priority: 'high' },
-      { name: 'Nikkei Asia', url: 'https://asia.nikkei.com/rss.xml', enabled: true, reliability: 0.9, priority: 'high' },
-      
-      // International general - High Reliability
-      { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml', enabled: true, reliability: 0.95, priority: 'high' },
-      { name: 'Reuters World', url: 'https://www.reuters.com/world/rss', enabled: true, reliability: 0.95, priority: 'high' },
-      { name: 'Associated Press', url: 'https://apnews.com/hub/ap-top-news.rss', enabled: true, reliability: 0.95, priority: 'high' },
-      { name: 'CNN World', url: 'http://rss.cnn.com/rss/edition_world.rss', enabled: true, reliability: 0.85, priority: 'medium' },
-      { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', enabled: true, reliability: 0.85, priority: 'medium' },
-      
-      // Major International News
-      { name: 'The Economist', url: 'https://www.economist.com/international/rss.xml', enabled: true, reliability: 0.9, priority: 'high' },
-      { name: 'The New York Times', url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', enabled: true, reliability: 0.9, priority: 'high' },
-      { name: 'The Washington Post', url: 'https://feeds.washingtonpost.com/rss/world', enabled: true, reliability: 0.9, priority: 'high' },
-      { name: 'The Guardian', url: 'https://www.theguardian.com/world/rss', enabled: true, reliability: 0.9, priority: 'high' },
-      
-      // Business/Tech - Specialized
-      { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', enabled: true, reliability: 0.8, priority: 'medium' },
-      { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', enabled: true, reliability: 0.85, priority: 'medium' },
-      { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', enabled: true, reliability: 0.8, priority: 'medium' },
-      
-      // Multilateral/Development
-      { name: 'World Bank', url: 'https://www.worldbank.org/en/news/all?format=rss', enabled: true, reliability: 0.95, priority: 'medium' },
-      { name: 'Asian Development Bank', url: 'https://www.adb.org/news/rss', enabled: true, reliability: 0.95, priority: 'medium' },
-      { name: 'ASEAN Secretariat', url: 'https://asean.org/news-events/', enabled: false, reliability: 0.95, priority: 'medium' },
-
-    ];
+    // Sources will be loaded from database configuration
+    this.sources = [];
 
     // Enhanced state management
     this.intervalHandle = null;
@@ -73,6 +43,9 @@ class SentinelService {
     this.cooldownUntilMs = 0;
     this.frequencyMs = null;
     this.nextRunAt = null;
+    this.dailyRequestCount = 0;
+    this.lastResetDate = new Date().toDateString();
+    this.maxDailyRequests = 40; // Leave some buffer for the 50/day limit
     this.lastRunAt = null;
     this.lastCreated = 0;
     this.lastProcessed = 0;
@@ -128,6 +101,32 @@ class SentinelService {
     return entry;
   }
 
+  // Check daily rate limits for AI API calls
+  checkDailyRateLimit() {
+    const today = new Date().toDateString();
+    
+    // Reset counter if it's a new day
+    if (this.lastResetDate !== today) {
+      this.dailyRequestCount = 0;
+      this.lastResetDate = today;
+      this.pushLog('info', '[Sentinel-PP-01] Daily rate limit reset');
+    }
+    
+    // Check if we've exceeded daily limit
+    if (this.dailyRequestCount >= this.maxDailyRequests) {
+      this.pushLog('warning', `[Sentinel-PP-01] Daily rate limit reached (${this.dailyRequestCount}/${this.maxDailyRequests}). Waiting until tomorrow.`);
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Increment daily request counter
+  incrementDailyRequestCount() {
+    this.dailyRequestCount++;
+    this.pushLog('info', `[Sentinel-PP-01] Daily requests: ${this.dailyRequestCount}/${this.maxDailyRequests}`);
+  }
+
   // Content safety check
   checkContentSafety(content) {
     const text = `${content.title || ''} ${content.description || ''} ${content.content || ''}`.toLowerCase();
@@ -171,6 +170,11 @@ class SentinelService {
         return null;
       }
 
+      // Check daily rate limit before making AI calls
+      if (!this.checkDailyRateLimit()) {
+        return null;
+      }
+
       const analysisPrompt = `
 You are a content analyst for Sentinel-PP-01. Analyze the following news content and provide enhanced, meaningful insights.
 
@@ -209,6 +213,9 @@ Return ONLY the JSON object.`;
       const text = (await result.response).text().trim();
       const jsonString = this.extractJson(text);
       const analysis = JSON.parse(jsonString);
+      
+      // Increment daily request counter after successful API call
+      this.incrementDailyRequestCount();
 
       // Validate analysis results
       if (!analysis.enhancedTitle || !analysis.enhancedContent || !analysis.enhancedDescription) {
@@ -261,6 +268,11 @@ Return ONLY the JSON object.`;
         return null;
       }
 
+      // Check daily rate limit before making AI calls
+      if (!this.checkDailyRateLimit()) {
+        return null;
+      }
+
       const translationPrompt = `
 You are a professional translator specializing in English to Khmer (Cambodian) translation for news content.
 
@@ -294,6 +306,9 @@ Return ONLY the JSON object.`;
       const text = (await result.response).text().trim();
       const jsonString = this.extractJson(text);
       const translation = JSON.parse(jsonString);
+      
+      // Increment daily request counter after successful API call
+      this.incrementDailyRequestCount();
 
       // Validate translation results
       if (!translation.khmerTitle || !translation.khmerContent || !translation.khmerDescription) {
@@ -1323,14 +1338,14 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
         enabled: integrations.sentinelEnabled ?? (process.env.SENTINEL_ENABLED === 'true'),
         autoPersist: integrations.sentinelAutoPersist ?? false,
         frequencyMs: integrations.sentinelFrequencyMs ?? Number(process.env.SENTINEL_FREQUENCY_MS || 300000),
-        sources: integrations.sentinelSources?.length ? integrations.sentinelSources : this.sources,
+        sources: integrations.sentinelSources || [], // Always use database sources, empty array if none
       };
     } catch {
       return {
         enabled: process.env.SENTINEL_ENABLED === 'true',
         autoPersist: false,
         frequencyMs: Number(process.env.SENTINEL_FREQUENCY_MS || 300000),
-        sources: this.sources,
+        sources: [], // Always use database sources, empty array if none
       };
     }
   }
@@ -1702,6 +1717,11 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
     try {
       if (!this.model) return '';
 
+      // Check daily rate limit before making AI calls
+      if (!this.checkDailyRateLimit()) {
+        return '';
+      }
+
       const prompt = `
         Translate the following English news article to Khmer (Cambodian language). 
         
@@ -1722,6 +1742,10 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
+      
+      // Increment daily request counter after successful API call
+      this.incrementDailyRequestCount();
+      
       return response.text().trim();
     } catch (error) {
       this.pushLog('error', '[Sentinel-PP-01] Auto-translate error:', error);
@@ -1733,6 +1757,11 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
   async autoTranslateTitle(englishTitle) {
     try {
       if (!this.model || !englishTitle) return '';
+
+      // Check daily rate limit before making AI calls
+      if (!this.checkDailyRateLimit()) {
+        return '';
+      }
 
       const prompt = `
         Translate the following English news title to Khmer (Cambodian language).
@@ -1752,6 +1781,10 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
+      
+      // Increment daily request counter after successful API call
+      this.incrementDailyRequestCount();
+      
       return response.text().trim();
     } catch (error) {
       this.pushLog('error', '[Sentinel-PP-01] Auto-translate title error:', error);
@@ -1763,6 +1796,11 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
   async autoTranslateDescription(englishContent) {
     try {
       if (!this.model || !englishContent) return '';
+
+      // Check daily rate limit before making AI calls
+      if (!this.checkDailyRateLimit()) {
+        return '';
+      }
 
       // Extract first few sentences for description
       const sentences = englishContent.replace(/<[^>]*>/g, '').split(/[.!?]+/).filter(s => s.trim().length > 10);
@@ -1786,6 +1824,10 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
+      
+      // Increment daily request counter after successful API call
+      this.incrementDailyRequestCount();
+      
       return response.text().trim();
     } catch (error) {
       this.pushLog('error', '[Sentinel-PP-01] Auto-translate description error:', error);
@@ -1797,6 +1839,11 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
   async autoAnalyzeContent(content) {
     try {
       if (!this.model) return null;
+
+      // Check daily rate limit before making AI calls
+      if (!this.checkDailyRateLimit()) {
+        return null;
+      }
 
       const prompt = `
         Analyze the following news article content and provide a JSON response with quality metrics:
@@ -1827,6 +1874,9 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text().trim();
+      
+      // Increment daily request counter after successful API call
+      this.incrementDailyRequestCount();
       
       // Try to extract JSON from the response
       const jsonMatch = text.match(/\{[\s\S]*\}/);

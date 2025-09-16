@@ -22,6 +22,7 @@ import api from '@/lib/api';
 import { LogoUpload } from './LogoUpload';
 import { LogoGenerator } from './LogoGenerator';
 import { EnhancedLogoSettings } from './EnhancedLogoSettings';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface LogoVersion {
   id: string;
@@ -168,16 +169,17 @@ export function AdvancedLogoManager({ onLogoChange }: AdvancedLogoManagerProps) 
             Optimize
           </Button>
           
-          <select 
-            onChange={(e) => handleLogoExport(e.target.value as any)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            <option value="">Export</option>
-            <option value="svg">SVG</option>
-            <option value="png">PNG</option>
-            <option value="jpg">JPG</option>
-            <option value="webp">WebP</option>
-          </select>
+          <Select onValueChange={(value) => handleLogoExport(value as 'svg' | 'png' | 'jpg' | 'webp')}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Export" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="svg">SVG</SelectItem>
+              <SelectItem value="png">PNG</SelectItem>
+              <SelectItem value="jpg">JPG</SelectItem>
+              <SelectItem value="webp">WebP</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

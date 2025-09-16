@@ -2,6 +2,8 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { Palette, Eye, EyeOff, RotateCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface ColorCustomizerProps {
   onColorsChange: (colors: string[]) => void;
@@ -111,14 +113,14 @@ export const ColorCustomizer = ({ onColorsChange, initialColors = ['#3B82F6', '#
   const colorInputs = useMemo(() => 
     state.colors.map((color, index) => (
       <div key={index} className="flex items-center gap-3">
-        <input
+        <Input
           type="color"
           value={color}
           onChange={(e) => handleColorChange(index, e.target.value)}
           className="w-10 h-10 rounded border border-gray-200 dark:border-gray-700 cursor-pointer"
         />
         <div className="flex-1">
-          <input
+          <Input
             type="text"
             value={color}
             onChange={(e) => handleColorChange(index, e.target.value)}
@@ -127,13 +129,13 @@ export const ColorCustomizer = ({ onColorsChange, initialColors = ['#3B82F6', '#
           />
         </div>
         {state.colors.length > 1 && (
-          <button
+          <Button
             onClick={() => removeColor(index)}
             className="p-1 text-red-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             title="Remove color"
           >
             ×
-          </button>
+          </Button>
         )}
       </div>
     )), [state.colors, handleColorChange, removeColor]);
@@ -141,7 +143,7 @@ export const ColorCustomizer = ({ onColorsChange, initialColors = ['#3B82F6', '#
   // Memoize preset scheme buttons
   const presetButtons = useMemo(() => 
     Object.entries(presetColorSchemes).map(([name, scheme]) => (
-      <button
+      <Button
         key={name}
         onClick={() => applyPreset(name)}
         className={`p-3 rounded-lg border-2 transition-all duration-200 ${
@@ -162,7 +164,7 @@ export const ColorCustomizer = ({ onColorsChange, initialColors = ['#3B82F6', '#
         <span className="text-xs font-medium text-gray-900 dark:text-white capitalize">
           {name}
         </span>
-      </button>
+      </Button>
     )), [state.activeScheme, applyPreset]);
 
   return (
@@ -175,20 +177,20 @@ export const ColorCustomizer = ({ onColorsChange, initialColors = ['#3B82F6', '#
           </h4>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             onClick={togglePreview}
             className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             title={state.showPreview ? 'Hide preview' : 'Show preview'}
           >
             {state.showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={resetColors}
             className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             title="Reset colors"
           >
             <RotateCcw className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -227,13 +229,13 @@ export const ColorCustomizer = ({ onColorsChange, initialColors = ['#3B82F6', '#
           <span className="text-sm font-medium text-gray-900 dark:text-white">
             Color Palette
           </span>
-          <button
+          <Button
             onClick={addColor}
             disabled={state.colors.length >= 5}
             className="text-xs px-2 py-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             + Add Color
-          </button>
+          </Button>
         </div>
 
         <div className="space-y-2">
