@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, memo } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Home, Search, LogOut, LogIn, Loader2, AlertCircle, RefreshCw, Settings, Shield, ChevronRight, Sparkles, FileText } from "lucide-react"
+import { useMobileOptimizations } from "@/hooks/useMobileOptimizations"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -34,6 +35,8 @@ interface MobileNavProps {
 }
 
 const MobileNav = memo(({ isOpen, onClose, user, lang, pathname, onLogout }: MobileNavProps) => {
+  const { triggerHapticFeedback, triggerTouchFeedback } = useMobileOptimizations()
+  
   // State management
   const [state, setState] = useState({
     categories: [] as Category[],
@@ -155,9 +158,13 @@ const MobileNav = memo(({ isOpen, onClose, user, lang, pathname, onLogout }: Mob
             <Button
               variant="ghost"
               size="icon"
-              onClick={onClose}
+              onClick={() => {
+                triggerHapticFeedback('light')
+                triggerTouchFeedback(document.activeElement as HTMLElement)
+                onClose()
+              }}
               aria-label="Close menu"
-              className="hover:bg-muted/60 transition-all duration-200"
+              className="hover:bg-muted/60 transition-all duration-200 touchable"
             >
               <X className="h-6 w-6" />
             </Button>

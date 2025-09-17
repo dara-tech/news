@@ -7,7 +7,6 @@ import { motion, useScroll, useMotionValueEvent } from "framer-motion"
 import { Menu, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher"
-import NewsSearch from "@/components/search/NewsSearch"
 import EnterpriseSearch from "@/components/search/EnterpriseSearch"
 import { useAuth } from "@/context/AuthContext"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
@@ -19,12 +18,14 @@ import Logo from "@/components/layout/Logo"
 import LiveStatsBar from "./LiveStatsBar"
 import EnhancedLoginButton from "./EnhancedLoginButton"
 import NavigationProgress from "./NavigationProgress"
+import { useMobileOptimizations } from "@/hooks/useMobileOptimizations"
 
 const Header = () => {
   const { user, logout } = useAuth()
   const pathname = usePathname()
   const router = useRouter()
   const { scrollY } = useScroll()
+  const { isMobile, triggerHapticFeedback, triggerTouchFeedback } = useMobileOptimizations()
 
   // State management
   const [uiState, setUiState] = useState({
@@ -191,8 +192,12 @@ const Header = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative overflow-hidden bg-gradient-to-r from-blue-500/5 to-purple-500/5 hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-300"
-                onClick={() => setUiState((prev) => ({ ...prev, isMobileMenuOpen: true }))}
+                className="relative overflow-hidden bg-gradient-to-r from-blue-500/5 to-purple-500/5 hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-300 touchable"
+                onClick={() => {
+                  triggerHapticFeedback('light')
+                  triggerTouchFeedback(document.activeElement as HTMLElement)
+                  setUiState((prev) => ({ ...prev, isMobileMenuOpen: true }))
+                }}
                 aria-label="Open menu"
               >
                 <motion.div

@@ -149,3 +149,177 @@
   overflow: hidden;
 }
 
+/* Mobile-specific optimizations */
+.mobile-optimized {
+  /* Improve touch targets */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* Smooth scrolling */
+  scroll-behavior: var(--mobile-scroll-behavior, smooth);
+  
+  /* Safe area support */
+  padding-top: var(--mobile-safe-area-inset-top, 0px);
+  padding-bottom: var(--mobile-safe-area-inset-bottom, 0px);
+  padding-left: var(--mobile-safe-area-inset-left, 0px);
+  padding-right: var(--mobile-safe-area-inset-right, 0px);
+}
+
+/* Touch feedback */
+.touch-feedback-enabled * {
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+.touch-active {
+  transform: scale(0.98);
+  opacity: 0.8;
+}
+
+/* Keyboard avoidance */
+.keyboard-open {
+  padding-bottom: 0;
+}
+
+.keyboard-open .mobile-content {
+  padding-bottom: env(keyboard-inset-height, 0px);
+}
+
+/* Mobile-specific animations */
+@media (max-width: 640px) {
+  .mobile-optimized {
+    /* Reduce motion for better performance */
+    animation-duration: 0.2s;
+    transition-duration: 0.2s;
+  }
+  
+  /* Improve button touch targets */
+  button, .btn, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better form inputs */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    border-radius: 8px;
+  }
+  
+  /* Improved scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Better focus states */
+  *:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Haptic feedback styles */
+.haptic-feedback-enabled .touchable {
+  position: relative;
+  overflow: hidden;
+}
+
+.haptic-feedback-enabled .touchable::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+  pointer-events: none;
+}
+
+.haptic-feedback-enabled .touchable:active::before {
+  width: 200px;
+  height: 200px;
+}
+
+/* Mobile-specific utilities */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mobile-only {
+    display: block;
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+}
+
+/* Improved mobile navigation */
+@media (max-width: 640px) {
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--background);
+    border-top: 1px solid var(--border);
+    padding: env(safe-area-inset-bottom, 0px) 0 0;
+  }
+  
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    text-decoration: none;
+    color: var(--muted-foreground);
+    transition: color 0.2s ease;
+  }
+  
+  .mobile-nav-item.active {
+    color: var(--primary);
+  }
+  
+  .mobile-nav-item:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Pull-to-refresh indicator */
+.pull-to-refresh {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  border-radius: 50%;
+  color: var(--primary-foreground);
+  transition: all 0.3s ease;
+}
+
+.pull-to-refresh.visible {
+  top: 10px;
+}
+
+.pull-to-refresh.refreshing {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: translateX(-50%) rotate(0deg); }
+  to { transform: translateX(-50%) rotate(360deg); }
+}
+

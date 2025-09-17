@@ -69,8 +69,6 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
       }));
   };
 
-
-
   // Get real weather data (simulated)
   const getWeatherData = () => {
     const conditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Rain', 'Thunderstorm'];
@@ -137,23 +135,25 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
       return (b.views || 0) - (a.views || 0)
     })
     .slice(0, 6)
-  
 
   return (
-    <div className=" min-h-screen">
+    <div className="min-h-screen0">
       {/* Header Date Bar */}
-      <div className="border-b border-gray-200 dark:border-gray-700 py-2">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
-            <div className="font-medium">
+      <div className="border-b border-gray-200 dark:border-gray-700 py-2 lg:py-3">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="flex justify-between items-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            <div className="font-medium truncate">
               {formatDate(new Date().toISOString())}
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-xs">Today's Paper</span>
+            <div className="hidden sm:flex items-center gap-2 lg:gap-4">
+              <span className="text-xs whitespace-nowrap">Today's Paper</span>
               <span className="text-xs">|</span>
-              <span className="text-xs">Video</span>
+              <span className="text-xs whitespace-nowrap">Video</span>
               <span className="text-xs">|</span>
-              <span className="text-xs">Podcasts</span>
+              <span className="text-xs whitespace-nowrap">Podcasts</span>
+            </div>
+            <div className="sm:hidden">
+              <span className="text-xs">News</span>
             </div>
           </div>
         </div>
@@ -164,81 +164,83 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-600 text-white py-3"
+          className="bg-red-600 text-white py-2 sm:py-3"
         >
-          <div className="container mx-auto px-4">
-            <div className="flex items-center gap-4">
-              <Badge className="bg-white text-red-600 font-bold px-3 py-1">
-                BREAKING
-              </Badge>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <div className="flex items-start sm:items-center gap-2 sm:gap-4 flex-col sm:flex-row">
+              <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                <Badge className="bg-white text-red-600 font-bold px-2 py-1 text-xs sm:px-3 sm:text-sm">
+                  BREAKING
+                </Badge>
+                <span className="text-xs sm:text-sm opacity-90 sm:hidden">
+                  {formatTime(breakingNews[0].publishedAt)}
+                </span>
+              </div>
               <Link 
                 href={`/${safeLang}/news/${breakingNews[0].slug}`}
-                className="font-semibold hover:underline flex-1"
+                className="font-semibold hover:underline flex-1 text-sm sm:text-base leading-tight"
               >
                 {renderText(breakingNews[0].title)}
               </Link>
-              <span className="text-sm opacity-90">
+              <span className="text-sm opacity-90 hidden sm:block">
                 {formatTime(breakingNews[0].publishedAt)}
               </span>
             </div>
           </div>
-
-        
-   
         </motion.div>
       )}
 
-      {/* Main NY Times Layout - TOP PRIORITY */}
-      <div className="container mx-auto px-4 py-8">
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      {/* Main NY Times Layout */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6 sm:py-8 lg:py-12">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 xl:gap-12">
           {/* Main Content Area */}
-          <div className="lg:col-span-3">
+          <div className="xl:col-span-8">
             {/* Main Story */}
             {mainStory && (
               <motion.article
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-12 pb-8 border-b border-gray-200 dark:border-gray-700"
+                className="mb-8 lg:mb-12 pb-6 lg:pb-8 border-b border-gray-200 dark:border-gray-700"
               >
                 <Link href={`/${safeLang}/news/${mainStory.slug}`} className="group">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                     {/* Image */}
                     {mainStory.thumbnail && (
-                      <div className="relative aspect-[4/3] overflow-hidden">
+                      <div className="relative aspect-[16/10] lg:aspect-[4/3] overflow-hidden rounded-lg">
                         <Image
                           src={mainStory.thumbnail}
                           alt={renderText(mainStory.title)}
                           fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          priority
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                     )}
                     
                     {/* Content */}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-3 lg:space-y-4">
+                      <div className="flex items-center gap-3">
                         <Badge 
                           variant="outline" 
-                          className="text-xs font-medium border-gray-300"
+                          className="text-xs font-medium border-gray-300 dark:border-gray-600"
                         >
                           {renderText(mainStory.category.name)}
                         </Badge>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {formatTime(mainStory.publishedAt)}
                         </span>
                       </div>
                       
-                      <h1 className="text-3xl lg:text-4xl font-bold leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                      <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-300">
                         {renderText(mainStory.title)}
                       </h1>
                       
-                      <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                      <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                         {renderText(mainStory.description)}
                       </p>
                       
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                         {mainStory.author && (
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4" />
@@ -253,13 +255,11 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                     </div>
                   </div>
                 </Link>
-                 {/* Top Authors Section */}
-   <TopAuthors lang={safeLang} />
               </motion.article>
             )}
 
             {/* Top Stories Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 mb-8 lg:mb-12">
               {topStories.map((article, index) => (
                 <motion.article
                   key={article.id}
@@ -270,31 +270,31 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                 >
                   <Link href={`/${safeLang}/news/${article.slug}`}>
                     {article.thumbnail && (
-                      <div className="relative aspect-[16/9] mb-4 overflow-hidden">
+                      <div className="relative aspect-[16/9] mb-4 overflow-hidden rounded-lg">
                         <Image
                           src={article.thumbnail}
                           alt={renderText(article.title)}
                           fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                     )}
                     
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 text-xs">
                         <Badge 
                           variant="outline" 
-                          className="text-xs border-gray-300"
+                          className="text-xs border-gray-300 dark:border-gray-600"
                         >
                           {renderText(article.category.name)}
                         </Badge>
-                        <span className="text-gray-500">
+                        <span className="text-gray-500 dark:text-gray-400">
                           {formatTime(article.publishedAt)}
                         </span>
                       </div>
                       
-                      <h2 className="text-xl font-bold leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                      <h2 className="text-lg sm:text-xl font-bold leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-300">
                         {renderText(article.title)}
                       </h2>
                       
@@ -302,7 +302,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                         {renderText(article.description)}
                       </p>
                       
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                         {article.author && (
                           <span>By {article.author.name}</span>
                         )}
@@ -317,14 +317,18 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
               ))}
             </div>
 
+            {/* Top Authors Section - Mobile/Tablet */}
+            <div className=" mb-8">
+              <TopAuthors lang={safeLang} />
+            </div>
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 space-y-8">
+          <div className="xl:col-span-4">
+            <div className="sticky top-6 space-y-8">
               {/* Most Popular Section */}
-              <div>
-                <h3 className="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h3 className="text-lg font-bold mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
                   Most Popular
                 </h3>
                 <div className="space-y-4">
@@ -337,17 +341,17 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                     >
                       <Link 
                         href={`/${safeLang}/news/${article.slug}`}
-                        className="group block"
+                        className="group block hover:bg-gray-50 dark:hover:bg-gray-700 p-3 -m-3 rounded-lg transition-colors"
                       >
-                        <div className="flex items-start gap-3">
-                          <span className="text-lg font-bold text-gray-400 mt-1 min-w-[24px]">
+                        <div className="flex items-start gap-4">
+                          <span className="text-lg font-bold text-gray-400 mt-1 min-w-[28px] text-center">
                             {index + 1}
                           </span>
-                          <div className="space-y-1">
+                          <div className="space-y-2 flex-1">
                             <h4 className="font-semibold text-sm leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors line-clamp-3">
                               {renderText(article.title)}
                             </h4>
-                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                               <span>{renderText(article.category.name)}</span>
                               <span>•</span>
                               <div className="flex items-center gap-1">
@@ -361,11 +365,12 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                     </motion.div>
                   ))}
                 </div>
+                
               </div>
 
               {/* Editor's Picks */}
-              <div>
-                <h3 className="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+              <div className=" rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h3 className="text-lg font-bold mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
                   Editor's Picks
                 </h3>
                 <div className="space-y-6">
@@ -378,31 +383,31 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                     >
                       <Link 
                         href={`/${safeLang}/news/${article.slug}`}
-                        className="group block"
+                        className="group block hover:bg-gray-50 dark:hover:bg-gray-700 p-3 -m-3 rounded-lg transition-colors"
                       >
                         <div className="space-y-3">
                           {article.thumbnail && (
-                            <div className="relative aspect-[16/9] overflow-hidden">
+                            <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
                               <Image
                                 src={article.thumbnail}
                                 alt={renderText(article.title)}
                                 fill
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 20vw"
-                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                sizes="(max-width: 768px) 100vw, 25vw"
+                                className="object-cover transition-transform duration-500 group-hover:scale-105"
                               />
                             </div>
                           )}
                           <div className="space-y-2">
                             <Badge 
                               variant="outline" 
-                              className="text-xs border-gray-300"
+                              className="text-xs border-gray-300 dark:border-gray-600"
                             >
                               {renderText(article.category.name)}
                             </Badge>
                             <h4 className="font-semibold text-sm leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
                               {renderText(article.title)}
                             </h4>
-                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                               <Clock className="h-3 w-3" />
                               <span>{formatTime(article.publishedAt)}</span>
                             </div>
@@ -412,17 +417,24 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                     </motion.div>
                   ))}
                 </div>
+                  {/* Top Authors Section - Desktop Only */}
+              
               </div>
 
               {/* Weather Widget */}
-              {safeLang && <WeatherWidget lang={safeLang} realData={getWeatherData()} />}
+              {safeLang && (
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                  <WeatherWidget lang={safeLang} realData={getWeatherData()} />
+                </div>
+              )}
 
+            
 
               {/* More News Link */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
                 <Link 
                   href={`/${safeLang}/news`}
-                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
+                  className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm transition-colors duration-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg py-3 px-4"
                 >
                   <span>View All News</span>
                   <ArrowRight className="h-4 w-4" />
@@ -435,13 +447,13 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
      
       {/* Additional Home Page Sections - Below Main News */}
       {safeLang && (
-        <div className="container mx-auto px-4 py-8">
-          {/* Trending Topics Section */}
-          <TrendingTopics lang={safeLang} realData={getTrendingTopics()} />
+        <div className="">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-8 lg:py-12">
+            {/* Trending Topics Section */}
+            <TrendingTopics lang={safeLang} realData={getTrendingTopics()} />
+          </div>
         </div>
       )}
-
-     
 
       {/* Awards Section */}
       {/* <AwardsSection lang={safeLang} /> */}
