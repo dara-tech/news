@@ -270,7 +270,9 @@ export function LogoGenerator({ onLogoGenerated }: LogoGeneratorProps) {
                       src={logo.url}
                       alt={`${logo.text} logo`}
                       className="max-w-full max-h-full object-contain"
-                      onError={(e) => {e.currentTarget.style.display = 'none';
+                      onError={(e) => {
+                        console.warn('Generated logo failed to load:', logo.url);
+                        e.currentTarget.style.display = 'none';
                       }}
                       onLoad={() => {}}
                     />

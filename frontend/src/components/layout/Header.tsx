@@ -18,6 +18,7 @@ import UserDropdown from "@/components/layout/UserDropdown"
 import Logo from "@/components/layout/Logo"
 import LiveStatsBar from "./LiveStatsBar"
 import EnhancedLoginButton from "./EnhancedLoginButton"
+import NavigationProgress from "./NavigationProgress"
 
 const Header = () => {
   const { user, logout } = useAuth()
@@ -86,6 +87,9 @@ const Header = () => {
 
   return (
     <>
+      {/* Navigation Progress Bar */}
+      <NavigationProgress />
+      
       {/* Live Stats Bar */}
       <LiveStatsBar />
       

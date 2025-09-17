@@ -182,6 +182,14 @@ const data = {
           url: '/admin/seo',
         },
         {
+          title: 'OpenGraph Demo',
+          url: '/admin/opengraph-demo',
+        },
+        {
+          title: 'Link Preview',
+          url: '/admin/link-preview',
+        },
+        {
           title: 'Process Mining',
           url: '/admin/processing-dashboard',
         },

@@ -1,15 +1,15 @@
 {
   "pageViews": {
-    "/news/breaking": 2341,
-    "/news": 2783,
-    "/news/featured": 2343,
-    "/categories": 4596,
-    "/notifications/count": 8652,
+    "/news/breaking": 2352,
+    "/news": 2800,
+    "/news/featured": 2354,
+    "/categories": 4617,
+    "/notifications/count": 8667,
     "/dashboard/advanced-stats": 1001,
-    "/maintenance-status": 1225,
+    "/maintenance-status": 1232,
     "/auth/login": 86,
-    "/auth/profile": 1825,
-    "/notifications": 1851,
+    "/auth/profile": 1828,
+    "/notifications": 1854,
     "/dashboard/stats": 1617,
     "/admin/settings/audit": 26,
     "/admin/settings/integrations": 6,
@@ -113,7 +113,7 @@
     "/admin/settings/social-media": 1003,
     "/admin/settings/social-media/stats": 8,
     "/admin/settings/social-media/test": 33,
-    "/settings/public/social-media": 654,
+    "/settings/public/social-media": 657,
     "/news/689391b7bf6ff7d70d4edfd9": 8,
     "/news/68940700b4cf5ac48729df9d": 2,
     "/news/cambodia-s-hiv-fight-progress-and-challenges-beyond-2025": 24,
@@ -261,7 +261,7 @@
     "/news/author/688890b02c1b677dc769ad33": 18,
     "/news/author/688e46a0b9e9e59928015fdf": 4,
     "/news/author/688f30f71eee3e243453ed2c": 13,
-    "/news/author/689581b3ed4da10e3ffc90eb": 18,
+    "/news/author/689581b3ed4da10e3ffc90eb": 19,
     "/api/ai/assistant/research": 9,
     "/ai/gemini/status": 14,
     "/ai/assistant/research": 15,
@@ -279,8 +279,8 @@
     "/likes/689c3dd12a53bb052e7e30c6/status": 1,
     "/comments/689c3dd12a53bb052e7e30c6": 1,
     "/comments/689c3dd12a53bb052e7e30c6/stats": 1,
-    "/settings/public/logo": 795,
-    "/settings/public/footer": 535,
+    "/settings/public/logo": 798,
+    "/settings/public/footer": 538,
     "/users/688e46a0b9e9e59928015fdf": 1,
     "/auth/data-deletion-callback": 7,
     "/auth/data-deletion-status/123456789": 2,
@@ -451,7 +451,7 @@
     "/admin/frontend-settings": 13,
     "/admin/frontend-settings/status": 1,
     "/admin/frontend-settings/test-adsense": 1,
-    "/admin/analytics/overview": 1712,
+    "/admin/analytics/overview": 1730,
     "/news/ukraine-defiant-as-trump-s-peace-deadline-passes": 2,
     "/likes/68b579dbcee2a9b63b86cfe9/status": 1,
     "/comments/68b579dbcee2a9b63b86cfe9": 1,
@@ -500,16 +500,16 @@
     "/comments/68ad810425ff6fe6a87b5025/stats": 1,
     "/articles": 9,
     "/news/68ad768825ff6fe6a87b4f60": 4,
-    "/recommendations/trending": 788,
+    "/recommendations/trending": 799,
     "/news/68bfe5bac47775c67b0a2dea": 1,
-    "/recommendations/for-you": 92,
-    "/recommendations/ai-insights": 86,
-    "/recommendations/explore": 32,
+    "/recommendations/for-you": 94,
+    "/recommendations/ai-insights": 88,
+    "/recommendations/explore": 33,
     "/news/poland-drone-incident-nato-on-high-alert-war-fears-rise": 6,
     "/likes/68c1457801456fcd9d57b4fe/status": 5,
     "/comments/68c1457801456fcd9d57b4fe": 5,
     "/comments/68c1457801456fcd9d57b4fe/stats": 5,
-    "/recommendations/track-behavior": 13272,
+    "/recommendations/track-behavior": 15589,
     "/news/anglo-american-teck-merge-53b-mining-giant-forged": 12,
     "/comments/68bfddccc47775c67b0a2d97": 5,
     "/likes/68bfddccc47775c67b0a2d97/status": 5,
@@ -573,14 +573,24 @@
     "/api/ai/sources/test/bbc-news": 1,
     "/api/ai/sources/test/techcrunch": 1,
     "/api/ai/sources/test/arxiv": 1,
-    "/news/top-authors": 61,
+    "/news/top-authors": 67,
     "/categories/slug/688f3509c0864ae2b9aa4996": 6,
     "/ai/sources": 3,
     "/ai": 1,
     "/ai/sources/test/": 1,
     "/ai/sources/test/all": 1,
     "/ai/sources/test": 1,
-    "/news/author/68c8ceb4465b6e17d5b3d590": 1
+    "/news/author/68c8ceb4465b6e17d5b3d590": 1,
+    "/news/nearysocheata-thai-cambodia-s-new-miss-universe-hope": 18,
+    "/recommendations/similar/68c6842414441975b0032350": 8,
+    "/likes/68c6842414441975b0032350/status": 5,
+    "/comments/68c6842414441975b0032350": 6,
+    "/comments/68c6842414441975b0032350/stats": 6,
+    "/images/placeholder.jpg": 4,
+    "/images/placeholder/300/200": 1,
+    "/follows/689581b3ed4da10e3ffc90eb/check": 1,
+    "/follows/689581b3ed4da10e3ffc90eb/followers/count": 1,
+    "/follows/689581b3ed4da10e3ffc90eb/following/count": 1
   },
   "userActions": {},
   "dailyStats": {
@@ -1053,14 +1063,28 @@
       "deviceTypes": {
         "Desktop": 528
       }
+    },
+    "2025-09-17": {
+      "pageViews": 2506,
+      "uniqueVisitors": [
+        "::1"
+      ],
+      "userActions": 0,
+      "trafficSources": {
+        "Direct": 79,
+        "Referral": 2427
+      },
+      "deviceTypes": {
+        "Desktop": 2506
+      }
     }
   },
   "trafficSources": {
-    "Direct": 12166,
-    "Referral": 62878
+    "Direct": 12245,
+    "Referral": 65305
   },
   "deviceTypes": {
-    "Desktop": 74320,
+    "Desktop": 76826,
     "Mobile": 724
   }
 }

@@ -7,7 +7,13 @@
     "test:health": "node test-backend-health.mjs",
     "test:manual": "node test-manual-features.mjs",
     "test:full": "node test-site-features.mjs",
-    "test:all": "npm run test:health && npm run test:manual"
+    "test:all": "npm run test:health && npm run test:manual",
+    "perf:analyze": "cd frontend && ANALYZE=true npm run build",
+    "perf:monitor": "node monitor-performance.mjs",
+    "perf:optimize": "node scripts/optimize-performance.mjs",
+    "perf:db": "cd backend && node scripts/optimize-database.mjs",
+    "build:optimized": "npm run perf:db && cd frontend && npm run build",
+    "start:optimized": "npm run build:optimized && npm start"
   },
   "dependencies": {
     "@tiptap/extension-blockquote": "^3.0.7",

@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { getArticle } from '@/lib/articles';
 import { notFound } from 'next/navigation';
 import NewsArticleLoader from './NewsArticleLoader';
+import { generateOpenGraphMeta, openGraphToMetadata, loadOpenGraphSettings, defaultOpenGraphSettings } from '@/lib/opengraph';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL?.trim() || 'http://localhost:3000';
 
@@ -18,47 +19,60 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const { title, description, thumbnail, tags, createdAt, updatedAt, author, category } = article;
-
+  // Load OpenGraph settings
+  const opengraphSettings = await loadOpenGraphSettings() || defaultOpenGraphSettings;
+  
   // Determine language settings
   const isKhmer = lang === 'kh';
   const locale = isKhmer ? 'kh' : 'en';
   const alternateLocale = isKhmer ? 'en' : 'kh';
   
-  // Get localized content with fallbacks
-  const localizedTitle = title[locale] || title[alternateLocale] || 'Untitled';
-  const localizedDescription = description[locale] || description[alternateLocale] || '';
-  const categoryName = category?.name?.[locale] || category?.name?.[alternateLocale] || 'News';
+  // Generate OpenGraph meta using the utility function
+  const ogMeta = generateOpenGraphMeta(article, locale, BASE_URL, opengraphSettings);
   
-  // Create URLs
-  const canonicalUrl = `${BASE_URL}/${lang}/news/${article.slug}`;
-  // const alternateUrl = `${BASE_URL}/${isKhmer ? 'en' : 'km'}/news/${article.slug}`;
-  const imageUrl = thumbnail ? (thumbnail.startsWith('http') ? thumbnail : `${BASE_URL}${thumbnail}`) : `${BASE_URL}/placeholder.jpg`;
+  // Convert to Next.js Metadata format
+  const metadata = openGraphToMetadata(ogMeta);
 
+  // Add additional metadata
+  const { title, description, tags, category } = article;
+  const localizedTitle = typeof title === 'string' ? title : (title[locale] || title[alternateLocale] || 'Untitled');
+  const localizedDescription = typeof description === 'string' ? description : (description[locale] || description[alternateLocale] || '');
+  const categoryName = typeof category?.name === 'string' ? category.name : (category?.name?.[locale] || category?.name?.[alternateLocale] || 'News');
+  
   // Prepare keywords
   const defaultKeywords = [categoryName, 'news', isKhmer ? 'ព័ត៌មាន' : 'ព័ត៌មាន'];
   const articleKeywords = tags || [];
   const keywords = [...new Set([...defaultKeywords, ...articleKeywords])];
 
-  // Generate author name
-  const authorName = author?.name || author?.username || 
-                    (author?.email ? author.email.split('@')[0] : 'Razewire Author');
+  // Add canonical URL and language alternates
+  metadata.metadataBase = new URL(BASE_URL);
+  metadata.alternates = {
+    canonical: ogMeta.url,
+    languages: {
+      'en': isKhmer ? `/en/news/${article.slug}` : undefined,
+      'km': !isKhmer ? `/kh/news/${article.slug}` : undefined,
+    },
+  };
 
+  // Add keywords
+  metadata.keywords = keywords.join(', ');
+
+  // Add structured data
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: localizedTitle,
     description: localizedDescription,
-    image: imageUrl,
-    datePublished: createdAt,
-    dateModified: updatedAt,
+    image: ogMeta.image,
+    datePublished: article.createdAt,
+    dateModified: article.updatedAt,
     author: {
       '@type': 'Person',
-      name: authorName,
+      name: article.author?.name || article.author?.username || 'Razewire Author',
     },
     publisher: {
       '@type': 'Organization',
-              name: 'Razewire',
+      name: 'Razewire',
       logo: {
         '@type': 'ImageObject',
         url: `${BASE_URL}/logo.png`,
@@ -66,68 +80,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': canonicalUrl,
+      '@id': ogMeta.url,
     },
   };
 
-  // Prepare metadata
-  const metadata: Metadata = {
-    title: localizedTitle,
-    description: localizedDescription,
-    keywords: keywords.join(', '),
-    metadataBase: new URL(BASE_URL),
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        'en': isKhmer ? `/en/news/${article.slug}` : undefined,
-        'km': !isKhmer ? `/kh/news/${article.slug}` : undefined,
-      },
-    },
-    openGraph: {
-      title: localizedTitle,
-      description: localizedDescription,
-      url: canonicalUrl,
-              siteName: 'Razewire',
-      locale: isKhmer ? 'km_KH' : 'en_US',
-      type: 'article',
-      publishedTime: createdAt,
-      modifiedTime: updatedAt,
-      authors: [authorName],
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: localizedTitle,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: localizedTitle,
-      description: localizedDescription,
-      images: [imageUrl],
-      creator: authorName,
-              site: '@razewire',
-    },
-    other: {
-      'article:published_time': createdAt,
-      'article:modified_time': updatedAt,
-      'article:section': categoryName,
-      'article:tag': keywords.join(', '),
-    },
-  };
-
-  // Add structured data as JSON-LD
-  const otherMetadata: Record<string, string | number | (string | number)[]> = {
-    'article:published_time': createdAt,
-    'article:modified_time': updatedAt,
+  // Add structured data and additional metadata
+  metadata.other = {
+    ...metadata.other,
+    'article:published_time': article.createdAt,
+    'article:modified_time': article.updatedAt,
     'article:section': categoryName,
     'article:tag': keywords.join(', '),
     'application/ld+json': JSON.stringify(structuredData),
   };
-  
-  metadata.other = otherMetadata;
 
   return metadata;
 }
@@ -145,3 +110,6 @@ export default async function Page({ params }: { params: Promise<{ slug: string;
 
   return <NewsArticleLoader article={article} locale={locale} />;
 }
+
+// Enable caching for better performance
+export const revalidate = 300; // 5 minutes

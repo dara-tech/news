@@ -141,7 +141,10 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
               className="object-cover transition-transform duration-700 hover:scale-105"
               priority
               sizes="(max-width: 768px) 100vw, 75vw"
-              onError={() => setImageError(true)}
+              onError={() => {
+                console.warn('Image failed to load:', thumbnail);
+                setImageError(true);
+              }}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
@@ -277,16 +280,10 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
                   variant="outline"
                   className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
                   onLikeChange={(liked, newCount) => {
-                    // Track like behavior
-                    fetch('/api/recommendations/track-behavior', {
-                      method: 'POST',
-                      credentials: 'include',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        action: 'article_like',
-                        data: { articleId: article._id, liked, count: newCount }
-                      })
-                    }).catch(() => {});
+                    // Track like behavior - DISABLED to prevent network errors
+                    // fetch('/api/recommendations/track-behavior', {
+                    //   // ... tracking code disabled
+                    // }).catch(() => {});
                   }}
                 />
                 <Button 
@@ -294,16 +291,10 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
                   size="sm" 
                   className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
                   onClick={() => {
-                    // Track save behavior
-                    fetch('/api/recommendations/track-behavior', {
-                      method: 'POST',
-                      credentials: 'include',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        action: 'article_save',
-                        data: { articleId: article._id, timestamp: new Date().toISOString() }
-                      })
-                    }).catch(() => {});
+                    // Track save behavior - DISABLED to prevent network errors
+                    // fetch('/api/recommendations/track-behavior', {
+                    //   // ... tracking code disabled
+                    // }).catch(() => {});
                   }}
                 >
                   <Bookmark className="w-4 h-4 mr-2" />

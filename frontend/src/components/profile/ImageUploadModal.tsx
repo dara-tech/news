@@ -463,6 +463,12 @@ export const ImageUploadModal = ({
                               width={150}
                               height={150}
                               className="rounded-lg w-full"
+                              unoptimized={image.previewUrl.startsWith('blob:')}
+                              onError={(e) => {
+                                console.warn('Generated image failed to load:', image.previewUrl);
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                              }}
                             />
                             <div className="p-3">
                               <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">

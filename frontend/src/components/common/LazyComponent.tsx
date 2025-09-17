@@ -1,81 +1,75 @@
-"use client"
-
-import React, { Suspense, lazy, ComponentType } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Suspense, lazy, ComponentType } from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface LazyComponentProps {
-  fallback?: React.ReactNode
-  [key: string]: any
+  fallback?: React.ReactNode;
+  [key: string]: any;
 }
 
-// Default loading component
+// Default loading fallback
 const DefaultFallback = () => (
   <div className="flex items-center justify-center p-8">
-    <Loader2 className="h-8 w-8 animate-spin" />
-    <span className="ml-2">Loading...</span>
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
   </div>
-)
+);
 
 // Higher-order component for lazy loading
-export function withLazyLoading<T extends ComponentType<any>>(
-  importFunc: () => Promise<{ default: T }>,
+export function withLazyLoading<T extends object>(
+  importFunc: () => Promise<{ default: ComponentType<T> }>,
   fallback?: React.ReactNode
 ) {
-  const LazyComponent = lazy(importFunc)
-
-  return function WrappedComponent(props: any) {
+  const LazyComponent = lazy(importFunc);
+  
+  return function LazyWrapper(props: T) {
     return (
       <Suspense fallback={fallback || <DefaultFallback />}>
         <LazyComponent {...props} />
       </Suspense>
-    )
-  }
+    );
+  };
 }
 
-// Lazy component wrapper
-export function LazyWrapper({ 
+// Pre-configured lazy components for heavy admin components
+export const LazyEnterpriseAnalytics = withLazyLoading(
+  () => import('../admin/EnterpriseAnalyticsDashboard'),
+  <div className="flex items-center justify-center h-64">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <span className="ml-2">Loading analytics...</span>
+  </div>
+);
+
+export const LazyUserLoginMap = withLazyLoading(
+  () => import('../admin/UserLoginMap'),
+  <div className="flex items-center justify-center h-96">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <span className="ml-2">Loading map...</span>
+  </div>
+);
+
+// export const LazyProcessingDashboard = withLazyLoading(
+//   () => import('../admin/processing-dashboard/ProcessingDashboard'),
+//   <div className="flex items-center justify-center h-64">
+//     <Loader2 className="h-8 w-8 animate-spin text-primary" />
+//     <span className="ml-2">Loading dashboard...</span>
+//   </div>
+// );
+
+export const LazyRecommendationEngine = withLazyLoading(
+  () => import('../recommendations/RecommendationEngine'),
+  <div className="flex items-center justify-center h-32">
+    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+  </div>
+);
+
+// Generic lazy component wrapper
+export default function LazyComponent({ 
   children, 
-  fallback = <DefaultFallback /> 
-}: { 
-  children: React.ReactNode
-  fallback?: React.ReactNode 
-}) {
+  fallback = <DefaultFallback />,
+  ...props 
+}: LazyComponentProps & { children: React.ReactNode }) {
   return (
     <Suspense fallback={fallback}>
       {children}
     </Suspense>
-  )
+  );
 }
-
-// Predefined lazy components for common use cases
-export const LazyAdminDashboard = withLazyLoading(
-  () => import('@/components/admin/DashboardOverview'),
-  <div className="p-4">Loading admin dashboard...</div>
-)
-
-export const LazyNewsForm = withLazyLoading(
-  () => import('@/components/admin/news/NewsForm'),
-  <div className="p-4">Loading news form...</div>
-)
-
-export const LazyAnalytics = withLazyLoading(
-  () => import('@/components/admin/EnterpriseAnalyticsDashboard'),
-  <div className="p-4">Loading analytics...</div>
-)
-
-export const LazyUserProfile = withLazyLoading(
-  () => import('@/components/profile/ProfilePageClient'),
-  <div className="p-4">Loading profile...</div>
-)
-
-export const LazyComments = withLazyLoading(
-  () => import('@/components/comments/CommentSection'),
-  <div className="p-4">Loading comments...</div>
-)
-
-export const LazySearch = withLazyLoading(
-  () => import('@/components/search/EnterpriseSearch'),
-  <div className="p-4">Loading search...</div>
-)
-
-export default LazyWrapper

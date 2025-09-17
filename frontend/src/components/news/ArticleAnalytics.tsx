@@ -113,101 +113,29 @@ export default function ArticleAnalytics({ articleId, articleTitle, locale }: Ar
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  // Send analytics data
+  // Send analytics data - DISABLED to prevent network errors
   useEffect(() => {
-    const sendAnalytics = async () => {
-      if (!user) return;
-
-      try {
-        await fetch('/api/recommendations/track-behavior', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            action: 'article_reading',
-            data: {
-              articleId,
-              articleTitle,
-              locale,
-              session: {
-                ...session,
-                timeSpent: Math.floor(session.timeSpent / 1000), // Convert to seconds
-                timestamp: new Date().toISOString()
-              }
-            }
-          })
-        });
-      } catch (error) {}
-    };
-
-    // Send analytics every 30 seconds
-    const analyticsInterval = setInterval(sendAnalytics, 30000);
-    
-    // Send final analytics on unmount
-    return () => {
-      clearInterval(analyticsInterval);
-      sendAnalytics(); // Send final data
-    };
+    // Tracking disabled to prevent network connection errors
+    // const sendAnalytics = async () => {
+    //   if (!user) return;
+    //   // ... tracking code disabled
+    // };
   }, [user, articleId, articleTitle, locale, session]);
 
-  // Track article view
+  // Track article view - DISABLED to prevent network errors
   useEffect(() => {
-    const trackView = async () => {
-      try {
-        await fetch('/api/recommendations/track-behavior', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            action: 'article_view',
-            data: {
-              articleId,
-              articleTitle,
-              locale,
-              timestamp: new Date().toISOString(),
-              referrer: document.referrer,
-              userAgent: navigator.userAgent
-            }
-          })
-        });
-      } catch (error) {}
-    };
-
-    trackView();
+    // Tracking disabled to prevent network connection errors
+    // const trackView = async () => {
+    //   // ... tracking code disabled
+    // };
   }, [articleId, articleTitle, locale]);
 
-  // Track reading completion
+  // Track reading completion - DISABLED to prevent network errors
   useEffect(() => {
-    if (session.scrollDepth >= 90 && session.timeSpent > 30000) { // 90% scroll and 30+ seconds
-      const trackCompletion = async () => {
-        try {
-          await fetch('/api/recommendations/track-behavior', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              action: 'article_completion',
-              data: {
-                articleId,
-                articleTitle,
-                locale,
-                completionTime: session.timeSpent,
-                scrollDepth: session.scrollDepth,
-                timestamp: new Date().toISOString()
-              }
-            })
-          });
-        } catch (error) {}
-      };
-
-      trackCompletion();
-    }
+    // Tracking disabled to prevent network connection errors
+    // if (session.scrollDepth >= 90 && session.timeSpent > 30000) {
+    //   // ... tracking code disabled
+    // }
   }, [session.scrollDepth, session.timeSpent, articleId, articleTitle, locale]);
 
   return null; // This component doesn't render anything

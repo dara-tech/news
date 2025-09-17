@@ -169,11 +169,18 @@ export const getFullImageUrl = (path: string, baseUrl?: string): string => {
     return path;
   }
   
-  // If it's a relative path, prepend base URL
+  // If it's a Cloudinary URL, return as is
+  if (path.includes('res.cloudinary.com')) {
+    return path;
+  }
+  
+  // If it's a relative path, use the image API endpoint
   if (path.startsWith('/')) {
-    return `${baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${path}`;
+    const apiUrl = baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+    return `${apiUrl}/api/images${path}`;
   }
   
   // If it's a relative path without leading slash
-  return `${baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/${path}`;
+  const apiUrl = baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+  return `${apiUrl}/api/images/${path}`;
 };

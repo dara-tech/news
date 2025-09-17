@@ -11,6 +11,7 @@ export async function getArticle(slug: string): Promise<Article | null> {
     }
     
     return null;
-  } catch (error) {return null;
+  } catch (error) {
+    return null;
   }
 }

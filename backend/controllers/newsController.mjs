@@ -9,6 +9,7 @@ import socialMediaService from "../services/socialMediaService.mjs";
 import sentinelService from "../services/sentinelService.mjs";
 import { cleanContentObject } from "../utils/contentCleaner.mjs";
 import logger from '../utils/logger.mjs';
+import { cacheNews, cacheNewsById, cacheNewsBySlug, invalidateNewsCache, invalidateNewsById } from '../middleware/cache.mjs';
 
 // @desc    Get all news articles for admin (including drafts)
 // @route   GET /api/admin/news
@@ -183,6 +184,10 @@ export const createNews = asyncHandler(async (req, res) => {
     }
 
     const createdNews = await news.save();
+    
+    // Invalidate news cache
+    invalidateNewsCache();
+    
     res.status(201).json(createdNews);
   } catch (error) {
     res.status(500).json({
@@ -195,7 +200,7 @@ export const createNews = asyncHandler(async (req, res) => {
 // @desc    Get all news articles
 // @route   GET /api/news
 // @access  Public
-export const getNews = asyncHandler(async (req, res) => {
+export const getNews = [cacheNews, asyncHandler(async (req, res) => {
 
   // --- Pagination Parameters ---
   const pageSize = Number(req.query.limit) || 10;
@@ -329,12 +334,12 @@ export const getNews = asyncHandler(async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error fetching news data.' });
   }
-});
+})];
 
 // @desc    Get single news article by slug or ID
 // @route   GET /api/news/:identifier
 // @access  Public
-export const getNewsByIdentifier = asyncHandler(async (req, res) => {
+export const getNewsByIdentifier = [cacheNewsById, asyncHandler(async (req, res) => {
   try {
     const { identifier } = req.params;
     let query;
@@ -378,7 +383,7 @@ export const getNewsByIdentifier = asyncHandler(async (req, res) => {
       message: error.message || 'Internal server error'
     });
   }
-});
+})];
 
 // @desc    Update a news article
 // @route   PUT /api/news/:id

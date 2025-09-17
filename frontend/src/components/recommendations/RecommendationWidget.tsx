@@ -121,18 +121,9 @@ export default function RecommendationWidget({
   };
 
   const trackBehavior = async (action: string, data: any) => {
-    if (!user) return;
-
-    try {
-      await fetch('/api/recommendations/track-behavior', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action, data }),
-      });
-    } catch (err) {}
+    // Tracking disabled to prevent network connection errors
+    // if (!user) return;
+    // ... tracking code disabled
   };
 
   const handleArticleClick = async (article: RecommendationItem) => {

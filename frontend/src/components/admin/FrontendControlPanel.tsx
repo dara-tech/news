@@ -22,6 +22,8 @@ import {
   Save, Upload, Download, TestTube, 
   DollarSign, BarChart3, Shield, Bell
 } from 'lucide-react';
+import OpenGraphPreview from './OpenGraphPreview';
+import LinkPreview from './LinkPreview';
 
 interface FrontendSettings {
   adsense: {
@@ -61,6 +63,22 @@ interface FrontendSettings {
     twitterHandle: string;
     googleAnalyticsId: string;
     googleSearchConsoleId: string;
+  };
+  opengraph: {
+    enabled: boolean;
+    defaultTitle: string;
+    defaultDescription: string;
+    defaultImage: string;
+    imageWidth: number;
+    imageHeight: number;
+    siteName: string;
+    locale: string;
+    type: string;
+    twitterCard: string;
+    twitterSite: string;
+    twitterCreator: string;
+    facebookAppId: string;
+    customTags: string;
   };
   performance: {
     cachingEnabled: boolean;
@@ -218,6 +236,22 @@ const FrontendControlPanel: React.FC = () => {
       googleAnalyticsId: '',
       googleSearchConsoleId: 'google28105ddce768934a'
     },
+    opengraph: {
+      enabled: true,
+      defaultTitle: 'Razewire - Latest News & Updates',
+      defaultDescription: 'Stay informed with the latest news in technology, business, and sports from Cambodia and around the world.',
+      defaultImage: 'https://www.razewire.online/og-image.svg',
+      imageWidth: 1200,
+      imageHeight: 630,
+      siteName: 'Razewire',
+      locale: 'en_US',
+      type: 'website',
+      twitterCard: 'summary_large_image',
+      twitterSite: '@razewire',
+      twitterCreator: '@razewire',
+      facebookAppId: '',
+      customTags: ''
+    },
     performance: {
       cachingEnabled: true,
       imageOptimization: true,
@@ -241,7 +275,30 @@ const FrontendControlPanel: React.FC = () => {
     const newSettings = { ...settings };
     let current: any = newSettings;
     
+    // Ensure opengraph object exists
+    if (pathArray[0] === 'opengraph' && !newSettings.opengraph) {
+      newSettings.opengraph = {
+        enabled: false,
+        defaultTitle: 'Razewire - Latest News & Updates',
+        defaultDescription: 'Stay informed with the latest news in technology, business, and sports from Cambodia and around the world.',
+        defaultImage: 'https://www.razewire.online/og-image.svg',
+        imageWidth: 1200,
+        imageHeight: 630,
+        siteName: 'Razewire',
+        locale: 'en_US',
+        type: 'website',
+        twitterCard: 'summary_large_image',
+        twitterSite: '@razewire',
+        twitterCreator: '@razewire',
+        facebookAppId: '',
+        customTags: '',
+      };
+    }
+    
     for (let i = 0; i < pathArray.length - 1; i++) {
+      if (!current[pathArray[i]]) {
+        current[pathArray[i]] = {};
+      }
       current = current[pathArray[i]];
     }
     
@@ -326,11 +383,12 @@ const FrontendControlPanel: React.FC = () => {
 
       {/* Control Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="adsense">AdSense</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="features">Features</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
+          <TabsTrigger value="opengraph">OpenGraph</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
@@ -636,6 +694,249 @@ const FrontendControlPanel: React.FC = () => {
                   />
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* OpenGraph Tab */}
+        <TabsContent value="opengraph" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Globe className="h-5 w-5 mr-2" />
+                OpenGraph & Social Media
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="opengraph-enabled">Enable OpenGraph</Label>
+                  <p className="text-sm text-gray-600">Enable OpenGraph meta tags for social media sharing</p>
+                </div>
+                <Switch
+                  id="opengraph-enabled"
+                  checked={settings.opengraph?.enabled || false}
+                  onCheckedChange={(checked) => updateSetting('opengraph.enabled', checked)}
+                />
+              </div>
+
+              {settings.opengraph?.enabled && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="og-default-title">Default Title</Label>
+                      <Input
+                        id="og-default-title"
+                        value={settings.opengraph?.defaultTitle || ''}
+                        onChange={(e) => updateSetting('opengraph.defaultTitle', e.target.value)}
+                        placeholder="Razewire - Latest News & Updates"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="og-site-name">Site Name</Label>
+                      <Input
+                        id="og-site-name"
+                        value={settings.opengraph?.siteName || ''}
+                        onChange={(e) => updateSetting('opengraph.siteName', e.target.value)}
+                        placeholder="Razewire"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="og-default-description">Default Description</Label>
+                    <Textarea
+                      id="og-default-description"
+                      value={settings.opengraph?.defaultDescription || ''}
+                      onChange={(e) => updateSetting('opengraph.defaultDescription', e.target.value)}
+                      rows={3}
+                      placeholder="Stay informed with the latest news..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="og-default-image">Default Image URL</Label>
+                      <div className="space-y-2">
+                        <Input
+                          id="og-default-image"
+                          value={settings.opengraph?.defaultImage || ''}
+                          onChange={(e) => updateSetting('opengraph.defaultImage', e.target.value)}
+                          placeholder="https://www.razewire.online/og-image.svg"
+                        />
+                        <LinkPreview
+                          onLinkSelect={(linkData) => {
+                            updateSetting('opengraph.defaultImage', linkData.image);
+                            updateSetting('opengraph.defaultTitle', linkData.title);
+                            updateSetting('opengraph.defaultDescription', linkData.description);
+                          }}
+                          className="text-xs"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="og-locale">Locale</Label>
+                      <Select
+                        value={settings.opengraph?.locale || 'en_US'}
+                        onValueChange={(value) => updateSetting('opengraph.locale', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en_US">English (US)</SelectItem>
+                          <SelectItem value="km_KH">Khmer (Cambodia)</SelectItem>
+                          <SelectItem value="en_GB">English (UK)</SelectItem>
+                          <SelectItem value="fr_FR">French</SelectItem>
+                          <SelectItem value="de_DE">German</SelectItem>
+                          <SelectItem value="es_ES">Spanish</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="og-type">Content Type</Label>
+                      <Select
+                        value={settings.opengraph?.type || 'website'}
+                        onValueChange={(value) => updateSetting('opengraph.type', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="website">Website</SelectItem>
+                          <SelectItem value="article">Article</SelectItem>
+                          <SelectItem value="blog">Blog</SelectItem>
+                          <SelectItem value="news">News</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="og-facebook-app-id">Facebook App ID</Label>
+                      <Input
+                        id="og-facebook-app-id"
+                        value={settings.opengraph?.facebookAppId || ''}
+                        onChange={(e) => updateSetting('opengraph.facebookAppId', e.target.value)}
+                        placeholder="123456789012345"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="og-image-width">Image Width</Label>
+                      <Input
+                        id="og-image-width"
+                        type="number"
+                        value={settings.opengraph?.imageWidth || 1200}
+                        onChange={(e) => updateSetting('opengraph.imageWidth', parseInt(e.target.value) || 1200)}
+                        placeholder="1200"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="og-image-height">Image Height</Label>
+                      <Input
+                        id="og-image-height"
+                        type="number"
+                        value={settings.opengraph?.imageHeight || 630}
+                        onChange={(e) => updateSetting('opengraph.imageHeight', parseInt(e.target.value) || 630)}
+                        placeholder="630"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="og-twitter-card">Twitter Card Type</Label>
+                      <Select
+                        value={settings.opengraph?.twitterCard || 'summary_large_image'}
+                        onValueChange={(value) => updateSetting('opengraph.twitterCard', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="summary">Summary</SelectItem>
+                          <SelectItem value="summary_large_image">Summary Large Image</SelectItem>
+                          <SelectItem value="app">App</SelectItem>
+                          <SelectItem value="player">Player</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="og-twitter-site">Twitter Site Handle</Label>
+                      <Input
+                        id="og-twitter-site"
+                        value={settings.opengraph?.twitterSite || ''}
+                        onChange={(e) => updateSetting('opengraph.twitterSite', e.target.value)}
+                        placeholder="@razewire"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="og-twitter-creator">Twitter Creator Handle</Label>
+                      <Input
+                        id="og-twitter-creator"
+                        value={settings.opengraph?.twitterCreator || ''}
+                        onChange={(e) => updateSetting('opengraph.twitterCreator', e.target.value)}
+                        placeholder="@razewire"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="og-custom-tags">Custom Meta Tags</Label>
+                    <Textarea
+                      id="og-custom-tags"
+                      value={settings.opengraph?.customTags || ''}
+                      onChange={(e) => updateSetting('opengraph.customTags', e.target.value)}
+                      rows={3}
+                      placeholder="<!-- Custom meta tags here -->"
+                    />
+                    <p className="text-xs text-gray-600 mt-1">
+                      Add custom HTML meta tags (one per line)
+                    </p>
+                  </div>
+
+                  {/* OpenGraph Preview */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold">Social Media Preview</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <OpenGraphPreview
+                        title={settings.opengraph?.defaultTitle || 'Razewire - Latest News & Updates'}
+                        description={settings.opengraph?.defaultDescription || 'Stay informed with the latest news...'}
+                        image={settings.opengraph?.defaultImage || 'https://www.razewire.online/og-image.svg'}
+                        siteName={settings.opengraph?.siteName || 'Razewire'}
+                        url="https://www.razewire.online/news/sample-article"
+                        type="facebook"
+                      />
+                      <OpenGraphPreview
+                        title={settings.opengraph?.defaultTitle || 'Razewire - Latest News & Updates'}
+                        description={settings.opengraph?.defaultDescription || 'Stay informed with the latest news...'}
+                        image={settings.opengraph?.defaultImage || 'https://www.razewire.online/og-image.svg'}
+                        siteName={settings.opengraph?.siteName || 'Razewire'}
+                        url="https://www.razewire.online/news/sample-article"
+                        type="twitter"
+                      />
+                      <OpenGraphPreview
+                        title={settings.opengraph?.defaultTitle || 'Razewire - Latest News & Updates'}
+                        description={settings.opengraph?.defaultDescription || 'Stay informed with the latest news...'}
+                        image={settings.opengraph?.defaultImage || 'https://www.razewire.online/og-image.svg'}
+                        siteName={settings.opengraph?.siteName || 'Razewire'}
+                        url="https://www.razewire.online/news/sample-article"
+                        type="linkedin"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

@@ -45,6 +45,7 @@ import enterpriseAnalyticsRoutes from "./routes/enterpriseAnalyticsTest.mjs"
 import frontendSettingsRoutes from "./routes/frontendSettingsTest.mjs"
 // AI routes removed - now frontend-only
 import sourcesRoutes from "./routes/sources.mjs"
+import imageRoutes from "./routes/images.mjs"
 import http from 'http';
 import https from 'https';
 import CommentWebSocket from './websocket.mjs';
@@ -215,7 +216,7 @@ import { maintenanceModeMiddleware } from './middleware/settings.mjs';
 import { trackPageView } from './middleware/analytics.mjs';
 
 // Apply analytics tracking to all API routes
-app.use('/api', trackPageView);
+// app.use('/api', trackPageView); // Disabled to prevent tracking errors
 
 // Health check middleware
 app.use(healthCheckMiddleware);
@@ -409,6 +410,9 @@ app.use("/api/analytics", analyticsRoutes)
 
 // Sources routes
 app.use("/api/ai/sources", sourcesRoutes)
+
+// Image routes
+app.use("/api/images", imageRoutes)
 
 // Enhanced Integration API Routes
 app.get("/api/integration/health", async (req, res) => {

@@ -66,6 +66,12 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
             alt={title || 'News article thumbnail'}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-in-out"
+            onError={(e) => {
+              console.warn('NewsCard image failed to load:', getArticleImageUrl(article));
+              // Hide the image element on error
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
           />
         )}
       </Link>

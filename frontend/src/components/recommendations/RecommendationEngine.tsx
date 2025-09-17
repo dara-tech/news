@@ -220,20 +220,11 @@ export default function RecommendationEngine({
     } catch (err) {}
   }, [user, filters.language]);
 
-  // Track user behavior
+  // Track user behavior - DISABLED to prevent network errors
   const trackBehavior = useCallback(async (action: string, data: any) => {
-    if (!user) return;
-
-    try {
-      await fetch('/api/recommendations/track-behavior', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action, data }),
-      });
-    } catch (err) {}
+    // Tracking disabled to prevent network connection errors
+    // if (!user) return;
+    // ... tracking code disabled
   }, [user]);
 
   // Handle article interaction
