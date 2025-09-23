@@ -145,26 +145,30 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
     const { news, pagination } = await getNewsData(lang, currentPage, category, search);
 
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            {search ? `Search Results for "${search}"` :
-             category ? `${getLocalizedText(currentCategory?.name, locale) || category} News` :
-             'All News'}
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            {pagination.total > 0
-              ? `Showing ${pagination.total} article${pagination.total !== 1 ? 's' : ''}`
-              : category 
-                ? `No articles found in ${getLocalizedText(currentCategory?.name, locale) || category} category`
-                : search
-                ? `No articles found for "${search}"`
-                : 'No articles found'
-            }
-          </p>
-        </div>
+      <div className="min-h-screen">
+        <div className="container mx-auto py-6">
+          {/* BBC-style Page Header */}
+          <div className="mb-8">
+            <div className="border-b-4 border-red-600 mb-4">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                {search ? `Search Results for "${search}"` :
+                 category ? `${getLocalizedText(currentCategory?.name, locale) || category} News` :
+                 'News'}
+              </h1>
+            </div>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
+              {pagination.total > 0
+                ? `${pagination.total} article${pagination.total !== 1 ? 's' : ''} found`
+                : category 
+                  ? `No articles found in ${getLocalizedText(currentCategory?.name, locale) || category} category`
+                  : search
+                  ? `No articles found for "${search}"`
+                  : 'No articles found'
+              }
+            </p>
+          </div>
 
-        {/* Search Bar */}
+        {/* BBC-style Search Bar */}
         <div className="mb-8">
           <div className="max-w-md">
             <form method="GET" className="flex gap-2">
@@ -172,12 +176,12 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
                 type="text"
                 name="search"
                 defaultValue={search}
-                placeholder="Search articles..."
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+                placeholder="Search news..."
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white"
               />
               <button
                 type="submit"
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                className="px-4 py-2 bg-red-600 text-white rounded font-medium"
               >
                 Search
               </button>
@@ -185,21 +189,23 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
           </div>
         </div>
 
-        {/* Smart Category Filter */}
-        <CategoryFilter 
-          categories={categories}
-          currentCategory={category}
-          locale={locale}
-          lang={lang}
-        />
+        {/* BBC-style Category Filter */}
+        <div className="mb-8">
+          <CategoryFilter 
+            categories={categories}
+            currentCategory={category}
+            locale={locale}
+            lang={lang}
+          />
+        </div>
 
-        {/* News Grid */}
+        {/* BBC-style News Grid */}
         {news.length > 0 ? (
           <>
             <NewsGrid articles={news} locale={locale} />
-            {/* Pagination */}
+            {/* BBC-style Pagination */}
             {pagination.pages > 1 && (
-              <div className="mt-12">
+              <div className="mt-8">
                 <Pagination
                   currentPage={pagination.page}
                   totalPages={pagination.pages}
@@ -210,7 +216,7 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
           </>
         ) : (
           <div className="text-center py-12">
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded p-8">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                 No Articles Found
               </h2>
@@ -225,13 +231,13 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
               <div className="flex gap-4 justify-center">
                 <a
                   href={`/${lang}/news`}
-                  className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                  className="px-6 py-3 bg-red-600 text-white rounded"
                 >
                   View All News
                 </a>
                 <a
                   href={`/${lang}`}
-                  className="inline-block px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
+                  className="px-6 py-3 bg-gray-600 text-white rounded"
                 >
                   Back to Home
                 </a>
@@ -239,32 +245,42 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
             </div>
           </div>
         )}
+        </div>
       </div>
     );
   } catch {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-8">
-            <h2 className="text-2xl font-semibold text-red-900 dark:text-red-200 mb-4">
-              Error Loading News
-            </h2>
-            <p className="text-red-700 dark:text-red-300 mb-6">
-              An unexpected error occurred while loading the news.
-            </p>
-            <div className="flex gap-4 justify-center">
-              <a
-                href={`/${lang}/news`}
-                className="inline-block px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
-              >
-                Try Again
-              </a>
-              <a
-                href={`/${lang}`}
-                className="inline-block px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
-              >
-                Back to Home
-              </a>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-20">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 shadow-xl border border-gray-200 dark:border-gray-700 max-w-2xl mx-auto">
+              <div className="text-8xl mb-6">⚠️</div>
+              <h2 className="text-3xl font-bold text-red-900 dark:text-red-200 mb-4">
+                Error Loading News
+              </h2>
+              <p className="text-lg text-red-700 dark:text-red-300 mb-8 leading-relaxed">
+                An unexpected error occurred while loading the news. Please try again.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href={`/${lang}/news`}
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Try Again
+                </a>
+                <a
+                  href={`/${lang}`}
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl transition-all duration-200 font-semibold"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  Back to Home
+                </a>
+              </div>
             </div>
           </div>
         </div>

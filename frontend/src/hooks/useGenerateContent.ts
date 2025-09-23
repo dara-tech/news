@@ -30,52 +30,97 @@ export function useGenerateContent() {
     setIsGenerating(true);
     setError(null);
     const contentPrompt = `
-      Based on the following news article topic, generate comprehensive content suitable for a professional news website. Create detailed, well-structured content in both English and Khmer languages:
+      You are an expert journalist and content strategist with 15+ years of experience in professional news media. Generate comprehensive, publication-ready content that meets the highest editorial standards.
 
-      REQUIREMENTS:
-      - Title: Create engaging, informative headlines (30-70 characters) that are SEO-friendly and capture reader attention
-      - Description: Write compelling meta descriptions (120-160 characters) that summarize the article effectively for search engines and social media
-      - Content: Generate comprehensive, well-researched articles (800-1500 words) with proper structure including:
-        * Opening paragraph that hooks the reader and provides context
-        * Multiple detailed paragraphs covering different aspects of the topic
-        * Quotes or expert opinions when relevant
-        * Background information and context
-        * Current implications and future outlook
-        * Proper journalistic structure with who, what, when, where, why, and how
-        * Professional tone appropriate for news media
-        * Fact-based information with logical flow
+      TOPIC: "${prompt}"
 
-      LANGUAGE REQUIREMENTS:
-      - English: Use professional journalistic style, active voice, clear and concise language
-      - Khmer: Use appropriate formal Khmer language suitable for news media, proper grammar and vocabulary
+      EXPERT JOURNALISM REQUIREMENTS:
 
-      FORMATTING:
-      - Use proper paragraph breaks for readability
-      - Include transitional phrases between sections
-      - Maintain consistency in tone and style throughout
-      - Ensure cultural sensitivity and accuracy in both languages
+      TITLE CREATION (30-70 characters each):
+      - English: Create compelling, SEO-optimized headlines that follow AP Style guidelines
+      - Khmer: Write culturally appropriate, engaging headlines in formal Khmer
+      - Use active voice, present tense, and strong action verbs
+      - Include key facts, numbers, or impact when relevant
+      - Avoid clickbait while maintaining reader interest
 
-      IMPORTANT: You must respond with ONLY a valid JSON object. Do not include any additional text, explanations, or markdown formatting. The JSON must be properly formatted with all strings properly escaped.
+      META DESCRIPTIONS (120-160 characters each):
+      - English: Write compelling summaries that drive clicks and engagement
+      - Khmer: Create culturally sensitive descriptions that resonate with Khmer readers
+      - Include primary keywords naturally
+      - End with a call-to-action or compelling detail
+      - Optimize for social media sharing
 
-      The output must be a valid JSON object with this exact structure: 
-      { 
-        "title": { 
-          "en": "English headline here", 
-          "kh": "Khmer headline here" 
-        }, 
-        "description": { 
-          "en": "English description here", 
-          "kh": "Khmer description here" 
-        }, 
-        "content": { 
-          "en": "Comprehensive English article content here with multiple paragraphs", 
-          "kh": "Comprehensive Khmer article content here with multiple paragraphs" 
-        } 
+      ARTICLE CONTENT (1000-2000 words each):
+      - Lead paragraph: Hook readers with the most important information (5W+H)
+      - Nut graph: Explain why this story matters and its significance
+      - Body paragraphs: Develop the story with multiple perspectives and sources
+      - Expert quotes: Include relevant quotes from authorities or stakeholders
+      - Background context: Provide necessary historical or contextual information
+      - Current developments: Detail recent events and their implications
+      - Future outlook: Discuss potential consequences and next steps
+      - Conclusion: Summarize key points and provide forward-looking perspective
+
+      CRITICAL FORMATTING REQUIREMENTS:
+      - Generate content in HTML format with proper tags
+      - Use <h2> tags for section headings (e.g., "Background", "Current Situation", "Implications")
+      - Use <p> tags for all paragraphs
+      - Use <blockquote> tags for quotes with proper attribution
+      - Use <ul> and <li> tags for lists when appropriate
+      - Use <strong> tags for emphasis on key points
+      - Use <em> tags for subtle emphasis
+      - Structure content with 3-5 section headings to break up the content
+      - Make content visually appealing and easy to read
+
+      PROFESSIONAL WRITING STANDARDS:
+      - Use inverted pyramid structure (most important info first)
+      - Write in active voice with clear, concise sentences
+      - Include specific details, numbers, and concrete examples
+      - Maintain objective, authoritative tone throughout
+      - Use transitional phrases to connect ideas smoothly
+      - Apply proper journalistic attribution and sourcing
+      - Ensure factual accuracy and balanced reporting
+
+      EXPERT FORMATTING:
+      - Structure content with clear section breaks
+      - Use subheadings to organize complex information
+      - Include bullet points or numbered lists for key information
+      - Format quotes as blockquotes with proper attribution
+      - Add emphasis to important statistics and key facts
+      - Create scannable content with varied paragraph lengths
+
+      CULTURAL SENSITIVITY:
+      - English: Use international journalistic standards and terminology
+      - Khmer: Employ formal, respectful language appropriate for news media
+      - Consider cultural context and local perspectives
+      - Ensure translations maintain original meaning and impact
+      - Use appropriate honorifics and formal address in Khmer
+
+      SEO AND ENGAGEMENT OPTIMIZATION:
+      - Include relevant keywords naturally throughout content
+      - Use power words that drive engagement and sharing
+      - Structure content for easy scanning and mobile reading
+      - Include social media-friendly elements and quotable passages
+      - Optimize for featured snippets and search visibility
+
+      CRITICAL: Respond with ONLY a valid JSON object. No additional text, explanations, or markdown formatting.
+
+      REQUIRED JSON STRUCTURE:
+      {
+        "title": {
+          "en": "Expert-crafted English headline here",
+          "kh": "Expert-crafted Khmer headline here"
+        },
+        "description": {
+          "en": "Compelling English meta description here",
+          "kh": "Compelling Khmer meta description here"
+        },
+        "content": {
+          "en": "Comprehensive, expert-level English article in HTML format with <h2> section headings, <p> paragraphs, <blockquote> quotes, <ul> lists, and <strong>/<em> emphasis tags for professional structure, quotes, analysis, and forward-looking perspective",
+          "kh": "Comprehensive, expert-level Khmer article in HTML format with <h2> section headings, <p> paragraphs, <blockquote> quotes, <ul> lists, and <strong>/<em> emphasis tags for professional structure, quotes, analysis, and forward-looking perspective"
+        }
       }
 
-      Topic: "${prompt}"
-      
-      Generate detailed, professional news content:
+      Generate expert-level, publication-ready content:
     `;
     try {
       const result = await model.generateContent(contentPrompt);
@@ -87,11 +132,14 @@ export function useGenerateContent() {
       
       // Remove markdown code blocks if present
       jsonString = jsonString.replace(/```json\s*|\s*```/g, '');
+      jsonString = jsonString.replace(/```html\s*|\s*```/g, '');
+      jsonString = jsonString.replace(/```\s*|\s*```/g, '');
       
       // Clean up any remaining markdown artifacts
-      jsonString = jsonString.replace(/```html\s*|\s*```/g, '');
       jsonString = jsonString.replace(/Background\s*/gi, '');
       jsonString = jsonString.replace(/ផ្ទៃខាងក្រោយ\s*/gi, '');
+      jsonString = jsonString.replace(/Here's the formatted content:\s*/gi, '');
+      jsonString = jsonString.replace(/Here is the formatted content:\s*/gi, '');
       
       // Find JSON object boundaries
       const jsonStart = jsonString.indexOf('{');
@@ -109,15 +157,26 @@ export function useGenerateContent() {
       try {
         parsed = JSON.parse(jsonString);
       } catch (parseError) {
-        // If parsing fails, try to fix common JSON issues// Fix common issues: unescaped quotes, newlines in strings
+        console.log('JSON Parse Error:', parseError);
+        console.log('Raw JSON String:', jsonString);
+        
+        // If parsing fails, try to fix common JSON issues
+        // Fix common issues: unescaped quotes, newlines in strings
         jsonString = jsonString
           .replace(/(?<!\\)"/g, '\\"') // Escape unescaped quotes
           .replace(/\n/g, '\\n') // Escape newlines
           .replace(/\r/g, '\\r') // Escape carriage returns
           .replace(/\t/g, '\\t'); // Escape tabs
         
+        console.log('Fixed JSON String:', jsonString);
+        
         // Try parsing again
-        parsed = JSON.parse(jsonString);
+        try {
+          parsed = JSON.parse(jsonString);
+        } catch (secondError) {
+          console.log('Second Parse Error:', secondError);
+          throw new Error(`Failed to parse JSON response: ${secondError instanceof Error ? secondError.message : 'Unknown error'}`);
+        }
       }
       
       // Validate the structure

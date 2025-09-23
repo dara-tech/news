@@ -36,7 +36,6 @@ export default function AuthorMiniCard({
   variant = 'default'
 }: AuthorMiniCardProps) {
   const [imageError, setImageError] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
   
   const authorName =
@@ -105,18 +104,9 @@ export default function AuthorMiniCard({
 
   return (
     <motion.div 
-      className={`group relative overflow-hidden border border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 ${cardVariants[variant]} hover:shadow-lg transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-600 backdrop-blur-sm shadow-none`}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-
+      className={`group relative overflow-hidden border border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 ${cardVariants[variant]} backdrop-blur-sm shadow-none`}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      {/* Simplified Background */}
-      <motion.div 
-        className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-purple-50/30 dark:from-blue-950/20 dark:to-purple-950/20 opacity-0"
-        animate={{ opacity: isHovered ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
-      />
       
       <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4">
         {/* Simplified Avatar */}
@@ -264,15 +254,15 @@ export default function AuthorMiniCard({
             <Button 
               variant="outline" 
               size="sm"
-              className="group/btn border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 bg-white/50 dark:bg-gray-800/50 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-all duration-300 w-full sm:w-auto"
+              className="group/btn border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 w-full sm:w-auto"
             >
-              <span className="flex items-center justify-center gap-2 text-gray-700 dark:text-gray-300 group-hover/btn:text-blue-700 dark:group-hover/btn:text-blue-300">
+              <span className="flex items-center justify-center gap-2 text-gray-700 dark:text-gray-300">
                 <span className="font-semibold text-xs sm:text-sm">
                   <span className="hidden sm:inline">View Profile</span>
                   <span className="sm:hidden">Profile</span>
                 </span>
                 <motion.div
-                  animate={{ x: isHovered ? 4 : 0 }}
+                  animate={{ x: 0 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
                   <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />

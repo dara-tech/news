@@ -144,7 +144,7 @@ export default function RelatedArticles({ currentArticle, locale, limit = 6 }: R
             <Link
               key={article._id}
               href={`/${locale}/news/${articleSlug}`}
-              className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 overflow-hidden"
+              className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
             >
               <div className="relative h-48 overflow-hidden">
                 {article.thumbnail ? (
@@ -152,7 +152,7 @@ export default function RelatedArticles({ currentArticle, locale, limit = 6 }: R
                     src={article.thumbnail}
                     alt={title}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 ) : (
@@ -190,7 +190,7 @@ export default function RelatedArticles({ currentArticle, locale, limit = 6 }: R
               </div>
 
               <div className="p-6">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2">
                   {title}
                 </h4>
                 

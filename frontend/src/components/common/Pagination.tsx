@@ -36,7 +36,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
         <Link
           key={1}
           href={getPageUrl(1)}
-          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"
         >
           1
         </Link>
@@ -62,8 +62,8 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
           href={getPageUrl(i)}
           className={`px-3 py-2 text-sm font-medium border ${
             i === currentPage
-              ? 'z-10 bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-900/20 dark:border-blue-500 dark:text-blue-400'
-              : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+              ? 'z-10 bg-red-50 border-red-500 text-red-600 dark:bg-red-900/20 dark:border-red-500 dark:text-red-400'
+              : 'text-gray-500 bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400'
           }`}
         >
           {i}
@@ -88,7 +88,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
         <Link
           key={totalPages}
           href={getPageUrl(totalPages)}
-          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"
         >
           {totalPages}
         </Link>
@@ -99,13 +99,13 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
   };
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6 rounded-lg">
+    <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6">
       <div className="flex flex-1 justify-between sm:hidden">
         {/* Mobile pagination */}
         {currentPage > 1 ? (
           <Link
             href={getPageUrl(currentPage - 1)}
-            className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
           >
             Previous
           </Link>
@@ -118,7 +118,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
         {currentPage < totalPages ? (
           <Link
             href={getPageUrl(currentPage + 1)}
-            className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
           >
             Next
           </Link>
@@ -143,7 +143,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
             {currentPage > 1 ? (
               <Link
                 href={getPageUrl(currentPage - 1)}
-                className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 dark:ring-gray-700 dark:hover:bg-gray-700"
+                className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 focus:z-20 focus:outline-offset-0 dark:ring-gray-700"
               >
                 <span className="sr-only">Previous</span>
                 <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -166,7 +166,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
             {currentPage < totalPages ? (
               <Link
                 href={getPageUrl(currentPage + 1)}
-                className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 dark:ring-gray-700 dark:hover:bg-gray-700"
+                className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 focus:z-20 focus:outline-offset-0 dark:ring-gray-700"
               >
                 <span className="sr-only">Next</span>
                 <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

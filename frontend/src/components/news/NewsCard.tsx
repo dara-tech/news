@@ -51,66 +51,45 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
   return (
     <motion.div
       variants={cardVariants}
-      className="group relative overflow-hidden rounded-2xl aspect-video bg-slate-800"
+      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
     >
       <Link
         href={`/${langPath}/news/${articleSlug}`}
-        className="absolute inset-0 z-0"
+        className="block"
         prefetch={false}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
         {getArticleImageUrl(article) && (
-          <Image
-            fill
-            src={getArticleImageUrl(article) || ''}
-            alt={title || 'News article thumbnail'}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-in-out"
-            onError={(e) => {
-              console.warn('NewsCard image failed to load:', getArticleImageUrl(article));
-              // Hide the image element on error
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
-          />
+          <div className="relative aspect-video overflow-hidden">
+            <Image
+              fill
+              src={getArticleImageUrl(article) || ''}
+              alt={title || 'News article thumbnail'}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                console.warn('NewsCard image failed to load:', getArticleImageUrl(article));
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
+            />
+          </div>
         )}
-      </Link>
-
-      <div className="relative z-20 flex flex-col justify-end h-full p-6">
-        {article.category && categorySlug && (
-          <Link
-            href={`/${langPath}/category/${String(categorySlug).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
-            className="inline-flex items-center gap-2 self-start bg-white/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 border border-white/30 capitalize hover:bg-white/30 transition-colors"
-          >
-            {/* Category color badge */}
-            {article.category.color && (
-              <span
-                className="inline-block w-3 h-3 rounded-full border border-white/50"
-                style={{ backgroundColor: article.category.color }}
-                aria-label="Category color"
-              />
-            )}
-            {categoryName}
-          </Link>
-        )}
-        <h3 className="text-xl font-bold text-white leading-tight line-clamp-2">
-          <Link
-            href={`/${langPath}/news/${articleSlug}`}
-            className="hover:underline"
-            prefetch={false}
-          >
+        
+        <div className="p-4">
+          {article.category && categorySlug && (
+            <div className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wide mb-2">
+              {categoryName}
+            </div>
+          )}
+          
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight mb-2">
             {title}
-          </Link>
-        </h3>
-      </div>
-
-      <Link
-        href={`/${langPath}/news/${articleSlug}`}
-        className="absolute top-4 right-4 z-20 p-2 bg-white/20 backdrop-blur-md rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-300 ease-in-out"
-        prefetch={false}
-        aria-label={title}
-      >
-        <FiArrowUpRight className="text-white h-5 w-5" />
+          </h3>
+          
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {new Date(article.createdAt).toLocaleDateString()}
+          </div>
+        </div>
       </Link>
     </motion.div>
   );

@@ -34,8 +34,9 @@ export function formatArticleContent(content: string): FormattedContent {
   // Clean the content first
   let formattedContent = content.trim();
 
-  // If content already has HTML tags, clean and enhance them
-  if (formattedContent.includes('<')) {
+  // Check if content already has HTML tags
+  if (formattedContent.includes('<') && formattedContent.match(/<[^>]+>/)) {
+    // Content has HTML tags, enhance them
     formattedContent = enhanceExistingHTML(formattedContent);
   } else {
     // Convert plain text to structured HTML
@@ -58,7 +59,7 @@ export function formatArticleContent(content: string): FormattedContent {
 }
 
 /**
- * Convert plain text to well-structured HTML
+ * Convert plain text to well-structured HTML with expert-level formatting
  */
 function convertPlainTextToHTML(text: string): string {
   // Split into paragraphs
@@ -98,21 +99,26 @@ function convertPlainTextToHTML(text: string): string {
     return '<p class="text-gray-500 italic">No content available.</p>';
   }
 
-  // Process each paragraph
+  // Process each paragraph with expert-level formatting
   const formattedParagraphs = paragraphs.map((paragraph, index) => {
     // Check if this looks like a heading (short, ends with colon, or is the first paragraph)
     if (isHeading(paragraph, index)) {
-      return `<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8 first:mt-0">${paragraph}</h2>`;
+      return `<h2 class="text-3xl font-bold mb-6 mt-12 first:mt-0 leading-tight tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">${paragraph}</h2>`;
     }
 
     // Check if this looks like a quote
     if (isQuote(paragraph)) {
-      return `<blockquote class="border-l-4 border-blue-500 pl-6 py-4 my-6 bg-blue-50 dark:bg-blue-900/20 italic text-gray-700 dark:text-gray-300">${paragraph}</blockquote>`;
+      return `<blockquote class="border-l-4 border-blue-600 pl-8 py-6 my-8 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 italic text-gray-800 dark:text-gray-200 text-lg leading-relaxed rounded-r-lg shadow-sm">${paragraph}</blockquote>`;
     }
 
     // Check if this looks like a list
     if (isList(paragraph)) {
       return formatList(paragraph);
+    }
+
+    // Check if this is the lead paragraph (first substantial paragraph)
+    if (index === 0 && paragraph.length > 100) {
+      return `<p class="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 font-medium tracking-wide">${enhanceParagraphText(paragraph)}</p>`;
     }
 
     // Regular paragraph with enhanced formatting
@@ -124,18 +130,22 @@ function convertPlainTextToHTML(text: string): string {
 }
 
 /**
- * Enhance existing HTML content
+ * Enhance existing HTML content with expert-level styling
  */
 function enhanceExistingHTML(html: string): string {
-  // Clean up existing HTML
+  // Clean up existing HTML and apply expert styling
   let enhanced = html
     .replace(/<p>\s*<\/p>/g, '') // Remove empty paragraphs
     .replace(/<p>/g, '<p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 text-lg">')
-    .replace(/<h1>/g, '<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6 mt-8 first:mt-0">')
-    .replace(/<h2>/g, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8 first:mt-0">')
-    .replace(/<h3>/g, '<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3 mt-6 first:mt-0">')
-    .replace(/<strong>/g, '<strong class="font-semibold text-gray-900 dark:text-white">')
-    .replace(/<em>/g, '<em class="italic text-gray-600 dark:text-gray-400">');
+    .replace(/<h1>/g, '<h1 class="text-4xl font-bold mb-8 mt-12 first:mt-0 leading-tight tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">')
+    .replace(/<h2>/g, '<h2 class="text-3xl font-bold mb-6 mt-12 first:mt-0 leading-tight tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">')
+    .replace(/<h3>/g, '<h3 class="text-2xl font-bold mb-4 mt-8 first:mt-0 leading-tight text-gray-800 dark:text-gray-200">')
+    .replace(/<strong>/g, '<strong class="font-bold text-gray-900 dark:text-white bg-yellow-100 dark:bg-yellow-900/30 px-1 rounded">')
+    .replace(/<em>/g, '<em class="italic text-gray-600 dark:text-gray-400 font-medium">')
+    .replace(/<blockquote>/g, '<blockquote class="border-l-4 border-blue-600 pl-8 py-6 my-8 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 italic text-gray-800 dark:text-gray-200 text-lg leading-relaxed rounded-r-lg shadow-sm">')
+    .replace(/<ul>/g, '<ul class="list-disc list-inside space-y-2 mb-6 text-lg text-gray-700 dark:text-gray-300">')
+    .replace(/<ol>/g, '<ol class="list-decimal list-inside space-y-2 mb-6 text-lg text-gray-700 dark:text-gray-300">')
+    .replace(/<li>/g, '<li class="text-gray-700 dark:text-gray-300 mb-2">');
 
   // Add visual elements
   enhanced = addVisualElements(enhanced);
@@ -209,7 +219,7 @@ function formatList(text: string): string {
 }
 
 /**
- * Enhance paragraph text with better formatting
+ * Enhance paragraph text with expert-level formatting
  */
 function enhanceParagraphText(text: string): string {
   let enhanced = text;
@@ -228,37 +238,73 @@ function enhanceParagraphText(text: string): string {
   // First, identify all the patterns we want to highlight
   const patterns: Pattern[] = [];
   
-  // Find important terms
-  const importantMatches = enhanced.match(/\b(breaking|urgent|important|latest|update|confirmed|announced)\b/gi);
+  // Find important terms with more comprehensive matching
+  const importantMatches = enhanced.match(/\b(breaking|urgent|important|latest|update|confirmed|announced|exclusive|report|analysis|investigation|developing|emerging|critical|significant|major|unprecedented|historic|landmark)\b/gi);
   if (importantMatches) {
     importantMatches.forEach(match => {
       patterns.push({
         text: match,
-        replacement: `<strong class="font-semibold text-gray-900 dark:text-white">${match}</strong>`,
+        replacement: `<strong class="font-bold text-gray-900 dark:text-white bg-yellow-100 dark:bg-yellow-900/30 px-1 rounded">${match}</strong>`,
         index: enhanced.indexOf(match)
       });
     });
   }
   
-  // Find numbers
-  const numberMatches = enhanced.match(/(\d+(?:\.\d+)?%?)/g);
+  // Find numbers and statistics with enhanced styling
+  const numberMatches = enhanced.match(/(\d+(?:\.\d+)?%?|billion|million|thousand|hundred)/gi);
   if (numberMatches) {
     numberMatches.forEach(match => {
       patterns.push({
         text: match,
-        replacement: `<span class="font-semibold text-blue-600 dark:text-blue-400">${match}</span>`,
+        replacement: `<span class="font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded-md">${match}</span>`,
         index: enhanced.indexOf(match)
       });
     });
   }
   
-  // Find dates
-  const dateMatches = enhanced.match(/(\d{1,2}\/\d{1,2}\/\d{4}|\d{4}-\d{2}-\d{2})/g);
+  // Find dates with enhanced styling
+  const dateMatches = enhanced.match(/(\d{1,2}\/\d{1,2}\/\d{4}|\d{4}-\d{2}-\d{2}|today|yesterday|tomorrow|this week|last week|next week|this month|last month|next month|this year|last year|next year)/gi);
   if (dateMatches) {
     dateMatches.forEach(match => {
       patterns.push({
         text: match,
-        replacement: `<time class="font-medium text-gray-600 dark:text-gray-400">${match}</time>`,
+        replacement: `<time class="font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-md">${match}</time>`,
+        index: enhanced.indexOf(match)
+      });
+    });
+  }
+
+  // Find names and organizations
+  const nameMatches = enhanced.match(/\b(Dr\.|Professor|Mr\.|Ms\.|Mrs\.|President|Prime Minister|Minister|CEO|Director|Spokesperson|Official|Expert|Analyst|Researcher|Author|Reporter|Journalist)\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*/g);
+  if (nameMatches) {
+    nameMatches.forEach(match => {
+      patterns.push({
+        text: match,
+        replacement: `<span class="font-semibold text-gray-800 dark:text-gray-200 italic">${match}</span>`,
+        index: enhanced.indexOf(match)
+      });
+    });
+  }
+
+  // Find locations and places
+  const locationMatches = enhanced.match(/\b(United States|USA|US|United Kingdom|UK|China|Japan|Germany|France|Italy|Spain|Canada|Australia|India|Brazil|Russia|Cambodia|Phnom Penh|Siem Reap|Battambang|Kampong Cham|Kampong Thom|Kampot|Kep|Koh Kong|Mondulkiri|Ratanakiri|Stung Treng|Preah Vihear|Oddar Meanchey|Banteay Meanchey|Pailin|Pursat|Kampong Speu|Takeo|Kandal|Prey Veng|Svay Rieng|Tboung Khmum|Kampong Chhnang|Kampong Thom|Kratie|Mondulkiri|Ratanakiri|Stung Treng|Preah Vihear|Oddar Meanchey|Banteay Meanchey|Pailin|Pursat|Kampong Speu|Takeo|Kandal|Prey Veng|Svay Rieng|Tboung Khmum|Kampong Chhnang)\b/gi);
+  if (locationMatches) {
+    locationMatches.forEach(match => {
+      patterns.push({
+        text: match,
+        replacement: `<span class="font-medium text-green-700 dark:text-green-300">${match}</span>`,
+        index: enhanced.indexOf(match)
+      });
+    });
+  }
+
+  // Find technical terms and acronyms
+  const techMatches = enhanced.match(/\b(AI|API|GDP|GDPR|COVID-19|WHO|UN|UNESCO|UNICEF|WTO|IMF|World Bank|EU|NATO|ASEAN|WTO|IMF|World Bank|EU|NATO|ASEAN|GDP|GDPR|COVID-19|WHO|UN|UNESCO|UNICEF|WTO|IMF|World Bank|EU|NATO|ASEAN)\b/gi);
+  if (techMatches) {
+    techMatches.forEach(match => {
+      patterns.push({
+        text: match,
+        replacement: `<span class="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-purple-700 dark:text-purple-300">${match}</span>`,
         index: enhanced.indexOf(match)
       });
     });
@@ -278,20 +324,34 @@ function enhanceParagraphText(text: string): string {
 }
 
 /**
- * Add visual elements to improve readability
+ * Add visual elements to improve readability with expert-level styling
  */
 function addVisualElements(html: string): string {
-  // Add section breaks every few paragraphs
+  // Add section breaks every few paragraphs with enhanced styling
   const paragraphs = html.split('</p>');
   const enhancedParagraphs = paragraphs.map((p, index) => {
     // Add section break every 4-5 paragraphs
     if (index > 0 && index % 4 === 0 && index < paragraphs.length - 1) {
-      return p + '</p><hr class="my-8 border-gray-200 dark:border-gray-700" />';
+      return p + '</p><div class="my-12 flex items-center justify-center"><div class="w-24 h-0.5 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div><div class="mx-4 w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full"></div><div class="w-24 h-0.5 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div></div>';
     }
     return p + '</p>';
   });
 
-  return enhancedParagraphs.join('');
+  let result = enhancedParagraphs.join('');
+
+  // Add drop cap to first paragraph
+  result = result.replace(
+    /<p class="text-xl[^"]*">([A-Z])/,
+    '<p class="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 font-medium tracking-wide"><span class="float-left text-6xl font-bold text-gray-400 dark:text-gray-500 leading-none mr-2 mt-1">$1</span>'
+  );
+
+  // Remove any remaining hover effects
+  result = result.replace(
+    /<h2 class="[^"]*">/g,
+    '<h2 class="text-3xl font-bold mb-6 mt-12 first:mt-0 leading-tight tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">'
+  );
+
+  return result;
 }
 
 /**

@@ -78,24 +78,26 @@ export function useFormatContent() {
           const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
           
           const formatPrompt = `
-            Convert the following plain text news article into properly formatted HTML content suitable for a professional news website.
+            You are an expert web developer and content formatter. Convert the following plain text news article into professionally formatted HTML content suitable for a premium news website.
 
-            Content to format:
+            CONTENT TO FORMAT:
             ${content.en}
 
-            Requirements:
-            - Use <h2> tags for section headings (e.g., "Background", "Current Situation", "Implications")
-            - Use <p> tags for all paragraphs
-            - Use <blockquote> tags for quotes and important statements
-            - Use <ul> and <li> tags for lists when appropriate
-            - Use <strong> tags for emphasis on key points
-            - Use <em> tags for subtle emphasis
-            - Structure content with proper headings and subheadings
-            - Include 3-5 section headings to break up the content
-            - Make content visually appealing and easy to read
-            - Maintain professional journalistic style
+            EXPERT FORMATTING REQUIREMENTS:
+            - Use <h2> tags for main section headings (e.g., "Breaking News", "Background", "Current Situation", "Implications", "What's Next")
+            - Use <h3> tags for subheadings within sections
+            - Use <p> tags for all paragraphs with proper spacing
+            - Use <blockquote> tags for quotes with attribution
+            - Use <ul> and <li> tags for bullet point lists
+            - Use <ol> and <li> tags for numbered lists
+            - Use <strong> tags for emphasis on key points and important terms
+            - Use <em> tags for subtle emphasis and italics
+            - Structure content with 4-6 section headings to break up long content
+            - Make content scannable and visually appealing
+            - Maintain professional journalistic style and tone
+            - Ensure proper HTML structure and semantic markup
 
-            Return only the formatted HTML content without any additional text or explanations.
+            CRITICAL: Return ONLY the formatted HTML content. No explanations, no markdown, no additional text.
           `;
 
           const result = await model.generateContent(formatPrompt);
