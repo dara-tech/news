@@ -1,7 +1,6 @@
 "use client"
 
-import { useRouter, usePathname, useParams } from "next/navigation"
-import { useCallback } from "react"
+import { useLanguage } from "@/context/LanguageContext"
 import { Button } from "@/components/ui/button"
 
 const LANGUAGES = [
@@ -10,25 +9,13 @@ const LANGUAGES = [
 ]
 
 export default function LanguageSwitcher() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const params = useParams()
-  const currentLang = (params.lang as string) || "en"
+  const { language, toggleLanguage } = useLanguage()
 
-  const currentLabel = LANGUAGES.find(l => l.code === currentLang)?.label || "EN"
-
-  const switchLanguage = useCallback(async () => {
-    const nextLang = currentLang === "en" ? "kh" : "en"
-    let newPath = pathname.replace(`/${currentLang}`, `/${nextLang}`)
-    if (!newPath.startsWith(`/${nextLang}`)) {
-      newPath = `/${nextLang}${pathname}`
-    }
-    await router.push(newPath)
-  }, [router, pathname, currentLang])
+  const currentLabel = LANGUAGES.find(l => l.code === language)?.label || "EN"
 
   return (
     <Button
-      onClick={switchLanguage}
+      onClick={toggleLanguage}
       className="px-3 py-1 text-sm font-medium bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md transition-colors"
       variant="outline"
       size="sm"

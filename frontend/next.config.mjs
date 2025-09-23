@@ -1,6 +1,9 @@
 import withBundleAnalyzer from '@next/bundle-analyzer';
+import createNextIntlPlugin from 'next-intl/plugin';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -211,4 +214,4 @@ const nextConfig = {
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 };
 
-export default bundleAnalyzer(nextConfig);
+export default withNextIntl(bundleAnalyzer(nextConfig));

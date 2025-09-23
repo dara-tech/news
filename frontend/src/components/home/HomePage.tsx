@@ -1,7 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { useEffect } from 'react';
 import { Article, Category } from '@/types';
 
 import { NYTimesLayout } from '@/components/news/NYTimesLayout';

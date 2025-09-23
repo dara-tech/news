@@ -75,7 +75,10 @@ const EditUserPage = () => {
         role: formData.role,
       });
       toast.success('User updated successfully!');
-      router.push('/admin/users');
+      // Get current language from params
+      const params = useParams();
+      const lang = params?.lang || 'en';
+      router.push(`/${lang}/admin/users`);
     } catch (error) {
       if (error instanceof AxiosError) {
         toast.error(error.response?.data?.message || 'Failed to update user.');

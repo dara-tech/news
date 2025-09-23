@@ -29,7 +29,6 @@ export const metadata: Metadata = {
     ],
     apple: '/favicon-modern.svg',
   },
-  manifest: '/manifest.json',
   verification: {
     google: 'google28105ddce768934a',
   },
@@ -88,6 +87,13 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#000000" />
+      </head>
       <body className={`${fontVariables} antialiased`}>
         <AdSenseScript />
         <AppProviders>{children}</AppProviders>

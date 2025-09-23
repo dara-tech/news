@@ -140,7 +140,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
     <div className="min-h-screen0">
       {/* Header Date Bar */}
       <div className="border-b border-gray-200 dark:border-gray-700 py-2 lg:py-3">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div className="container mx-auto px-0 sm:px-0 lg:px-8 max-w-7xl">
           <div className="flex justify-between items-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             <div className="font-medium truncate">
               {formatDate(new Date().toISOString())}
@@ -164,34 +164,31 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-600 text-white py-2 sm:py-3"
+          className="bg-red-600 text-white py-4 px-4"
         >
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <div className="flex items-start sm:items-center gap-2 sm:gap-4 flex-col sm:flex-row">
-              <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                <Badge className="bg-white text-red-600 font-bold px-2 py-1 text-xs sm:px-3 sm:text-sm">
-                  BREAKING
+          <div className="max-w-full">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Badge className="bg-white text-red-600 font-bold px-3 py-1 text-sm rounded-full shadow-lg">
+                  🚨 BREAKING
                 </Badge>
-                <span className="text-xs sm:text-sm opacity-90 sm:hidden">
+                <span className="text-sm opacity-90 font-medium">
                   {formatTime(breakingNews[0].publishedAt)}
                 </span>
               </div>
               <Link 
                 href={`/${safeLang}/news/${breakingNews[0].slug}`}
-                className="font-semibold hover:underline flex-1 text-sm sm:text-base leading-tight"
+                className="block font-bold hover:underline text-base leading-relaxed bg-white/10 p-3 rounded-lg backdrop-blur-sm border border-white/20"
               >
                 {renderText(breakingNews[0].title)}
               </Link>
-              <span className="text-sm opacity-90 hidden sm:block">
-                {formatTime(breakingNews[0].publishedAt)}
-              </span>
             </div>
           </div>
         </motion.div>
       )}
 
       {/* Main NY Times Layout */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6 sm:py-8 lg:py-12">
+      <div className="container mx-auto px-0 sm:px-0 lg:px-8 max-w-7xl py-6 sm:py-8 lg:py-12">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 xl:gap-12">
           {/* Main Content Area */}
           <div className="xl:col-span-8">
@@ -202,59 +199,65 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-8 lg:mb-12 pb-6 lg:pb-8 border-b border-gray-200 dark:border-gray-700"
               >
-                <Link href={`/${safeLang}/news/${mainStory.slug}`} className="group">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-                    {/* Image */}
-                    {mainStory.thumbnail && (
-                      <div className="relative aspect-[16/10] lg:aspect-[4/3] overflow-hidden rounded-lg">
-                        <Image
-                          src={mainStory.thumbnail}
-                          alt={renderText(mainStory.title)}
-                          fill
-                          priority
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      </div>
-                    )}
-                    
-                    {/* Content */}
-                    <div className="space-y-3 lg:space-y-4">
-                      <div className="flex items-center gap-3">
-                        <Badge 
-                          variant="outline" 
-                          className="text-xs font-medium border-gray-300 dark:border-gray-600"
-                        >
-                          {renderText(mainStory.category.name)}
-                        </Badge>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {formatTime(mainStory.publishedAt)}
-                        </span>
-                      </div>
-                      
-                      <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-300">
-                        {renderText(mainStory.title)}
-                      </h1>
-                      
-                      <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                        {renderText(mainStory.description)}
-                      </p>
-                      
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                        {mainStory.author && (
-                          <div className="flex items-center gap-2">
-                            <User className="h-4 w-4" />
-                            <span>By {mainStory.author.name}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-4 w-4" />
-                          <span>{mainStory.views.toLocaleString()} views</span>
+                <div className="group">
+                  <Link href={`/${safeLang}/news/${mainStory.slug}`}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                      {/* Image */}
+                      {mainStory.thumbnail && (
+                        <div className="relative aspect-[16/10] lg:aspect-[4/3] overflow-hidden rounded-lg">
+                          <Image
+                            src={mainStory.thumbnail}
+                            alt={renderText(mainStory.title)}
+                            fill
+                            priority
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
                         </div>
+                      )}
+                      
+                      {/* Content */}
+                      <div className="space-y-3 lg:space-y-4">
+                        <div className="flex items-center gap-3">
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs font-medium border-gray-300 dark:border-gray-600"
+                          >
+                            {renderText(mainStory.category.name)}
+                          </Badge>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {formatTime(mainStory.publishedAt)}
+                          </span>
+                        </div>
+                        
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-300">
+                          {renderText(mainStory.title)}
+                        </h1>
+                        
+                        <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                          {renderText(mainStory.description)}
+                        </p>
                       </div>
                     </div>
+                  </Link>
+                  
+                  {/* Author Link - Outside the main article link */}
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mt-3">
+                    {mainStory.author && (
+                      <Link 
+                        href={`/${safeLang}/author/${mainStory.author.name.toLowerCase().replace(/\s+/g, '-')}`}
+                        className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group/author"
+                      >
+                        <User className="h-4 w-4 group-hover/author:scale-110 transition-transform duration-200" />
+                        <span>By {mainStory.author.name}</span>
+                      </Link>
+                    )}
+                    <div className="flex items-center gap-1">
+                      <Eye className="h-4 w-4" />
+                      <span>{mainStory.views.toLocaleString()} views</span>
+                    </div>
                   </div>
-                </Link>
+                </div>
               </motion.article>
             )}
 
@@ -268,51 +271,62 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
                   transition={{ delay: index * 0.1 }}
                   className="group"
                 >
-                  <Link href={`/${safeLang}/news/${article.slug}`}>
-                    {article.thumbnail && (
-                      <div className="relative aspect-[16/9] mb-4 overflow-hidden rounded-lg">
-                        <Image
-                          src={article.thumbnail}
-                          alt={renderText(article.title)}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 text-xs">
-                        <Badge 
-                          variant="outline" 
-                          className="text-xs border-gray-300 dark:border-gray-600"
-                        >
-                          {renderText(article.category.name)}
-                        </Badge>
-                        <span className="text-gray-500 dark:text-gray-400">
-                          {formatTime(article.publishedAt)}
-                        </span>
-                      </div>
-                      
-                      <h2 className="text-lg sm:text-xl font-bold leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-300">
-                        {renderText(article.title)}
-                      </h2>
-                      
-                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
-                        {renderText(article.description)}
-                      </p>
-                      
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                        {article.author && (
-                          <span>By {article.author.name}</span>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          <span>{article.views.toLocaleString()}</span>
+                  <div>
+                    <Link href={`/${safeLang}/news/${article.slug}`}>
+                      {article.thumbnail && (
+                        <div className="relative aspect-[16/9] mb-4 overflow-hidden rounded-lg">
+                          <Image
+                            src={article.thumbnail}
+                            alt={renderText(article.title)}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
                         </div>
+                      )}
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 text-xs">
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs border-gray-300 dark:border-gray-600"
+                          >
+                            {renderText(article.category.name)}
+                          </Badge>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            {formatTime(article.publishedAt)}
+                          </span>
+                        </div>
+                        
+                        <h2 className="text-lg sm:text-xl font-bold leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-300">
+                          {renderText(article.title)}
+                        </h2>
+                        
+                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
+                          {renderText(article.description)}
+                        </p>
+                      </div>
+                    </Link>
+                    
+                    {/* Author Link - Outside the main article link */}
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-3">
+                      {article.author && (
+                        <Link 
+                          href={`/${safeLang}/author/${article.author.name.toLowerCase().replace(/\s+/g, '-')}`}
+                          className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group/author"
+                        >
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3 group-hover/author:scale-110 transition-transform duration-200" />
+                            By {article.author.name}
+                          </span>
+                        </Link>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <Eye className="h-3 w-3" />
+                        <span>{article.views.toLocaleString()}</span>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 </motion.article>
               ))}
             </div>
@@ -369,7 +383,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
               </div>
 
               {/* Editor's Picks */}
-              <div className=" rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              <div className=" rounded-lg 0 p-0">
                 <h3 className="text-lg font-bold mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
                   Editor's Picks
                 </h3>

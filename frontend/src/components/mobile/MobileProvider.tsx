@@ -12,7 +12,7 @@ const MobileProvider = ({ children }: MobileProviderProps) => {
 
   useEffect(() => {
     if (isMobile) {
-      // Add mobile-specific meta tags
+      // Add mobile-specific meta tags for full frame
       const viewport = document.querySelector('meta[name="viewport"]')
       if (viewport) {
         viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover')
@@ -45,7 +45,7 @@ const MobileProvider = ({ children }: MobileProviderProps) => {
         document.head.appendChild(meta)
       }
 
-      // Add mobile-specific web app capabilities
+      // Add mobile-specific web app capabilities for full frame
       const webAppCapable = document.querySelector('meta[name="apple-mobile-web-app-capable"]')
       if (webAppCapable) {
         webAppCapable.setAttribute('content', 'yes')
@@ -53,6 +53,28 @@ const MobileProvider = ({ children }: MobileProviderProps) => {
         const meta = document.createElement('meta')
         meta.name = 'apple-mobile-web-app-capable'
         meta.content = 'yes'
+        document.head.appendChild(meta)
+      }
+
+      // Add full screen meta tags
+      const fullScreen = document.querySelector('meta[name="mobile-web-app-capable"]')
+      if (fullScreen) {
+        fullScreen.setAttribute('content', 'yes')
+      } else {
+        const meta = document.createElement('meta')
+        meta.name = 'mobile-web-app-capable'
+        meta.content = 'yes'
+        document.head.appendChild(meta)
+      }
+
+      // Add MS application meta tag for full frame
+      const msApp = document.querySelector('meta[name="msapplication-tap-highlight"]')
+      if (msApp) {
+        msApp.setAttribute('content', 'no')
+      } else {
+        const meta = document.createElement('meta')
+        meta.name = 'msapplication-tap-highlight'
+        meta.content = 'no'
         document.head.appendChild(meta)
       }
 

@@ -18,7 +18,11 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
       if (!user || user.role !== 'admin') {
         setAccessDenied(true);
         const timer = setTimeout(() => {
-          router.push('/');
+          // Get current language from URL or default to 'en'
+          const currentPath = window.location.pathname;
+          const langMatch = currentPath.match(/^\/([a-z]{2})(?:\/|$)/);
+          const currentLang = langMatch ? langMatch[1] : 'en';
+          router.push(`/${currentLang}`);
         }, 2000);
         return () => clearTimeout(timer);
       } else {
@@ -76,7 +80,13 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
           </p>
           <Button 
             variant="outline" 
-            onClick={() => router.push('/')}
+            onClick={() => {
+              // Get current language from URL or default to 'en'
+              const currentPath = window.location.pathname;
+              const langMatch = currentPath.match(/^\/([a-z]{2})\//);
+              const currentLang = langMatch ? langMatch[1] : 'en';
+              router.push(`/${currentLang}`);
+            }}
             className="mt-2"
           >
             Go to Home

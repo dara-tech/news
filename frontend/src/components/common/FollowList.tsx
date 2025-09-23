@@ -168,65 +168,55 @@ export default function FollowList({ userId, className = '' }: FollowListProps) 
     .filter(({ user }) => user !== null) as { user: FollowUser; item: FollowItem }[];
 
   return (
-    <Card className={`border border-gray-200 dark:border-gray-700 ${className}`}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="w-5 h-5" />
-          Follow Network
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="followers" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="followers" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Followers ({validFollowers.length})
-            </TabsTrigger>
-            <TabsTrigger value="following" className="flex items-center gap-2">
-              <UserPlus className="w-4 h-4" />
-              Following ({validFollowing.length})
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="followers" className="space-y-3 mt-4">
-            {validFollowers.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No followers yet</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {validFollowers.map(({ user, item }) => (
-                  <FollowUserCard 
-                    key={item._id} 
-                    user={user} 
-                    followDate={item.createdAt}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="following" className="space-y-3 mt-4">
-            {validFollowing.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <UserPlus className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Not following anyone yet</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {validFollowing.map(({ user, item }) => (
-                  <FollowUserCard 
-                    key={item._id} 
-                    user={user} 
-                    followDate={item.createdAt}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+    <div className={className}>
+      <Tabs defaultValue="followers" className="w-full " >
+        <TabsList className="grid w-full grid-cols-2 mb-6 h-12">
+          <TabsTrigger value="followers" className="text-sm font-medium">
+            Followers ({validFollowers.length})
+          </TabsTrigger>
+          <TabsTrigger value="following" className="text-sm font-medium">
+            Following ({validFollowing.length})
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="followers" className="space-y-4">
+          {validFollowers.length === 0 ? (
+            <div className="text-center py-2 text-gray-500 dark:text-gray-400">
+              <Users className="w-8 h-8 mx-auto mb-2 opacity-40" />
+              <p className="text-sm">No followers</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {validFollowers.map(({ user, item }) => (
+                <FollowUserCard 
+                  key={item._id} 
+                  user={user} 
+                  followDate={item.createdAt}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="following" className="space-y-4">
+          {validFollowing.length === 0 ? (
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+              <UserPlus className="w-8 h-8 mx-auto mb-2 opacity-40" />
+              <p className="text-sm">Not following anyone</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {validFollowing.map(({ user, item }) => (
+                <FollowUserCard 
+                  key={item._id} 
+                  user={user} 
+                  followDate={item.createdAt}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 } 

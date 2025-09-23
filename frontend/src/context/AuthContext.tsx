@@ -290,7 +290,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         localStorage.setItem('userInfo', JSON.stringify(updatedUser));
         setUser(updatedUser);
-        const redirectPath = updatedUser.role === 'admin' ? '/admin/dashboard' : '/';
+        // Get current language from URL or default to 'en'
+        const currentPath = window.location.pathname;
+        const langMatch = currentPath.match(/^\/([a-z]{2})(?:\/|$)/);
+        const currentLang = langMatch ? langMatch[1] : 'en';
+        
+        const redirectPath = updatedUser.role === 'admin' ? `/${currentLang}/admin/dashboard` : `/${currentLang}`;
         router.push(redirectPath);
       } catch {
         localStorage.removeItem('userInfo');
@@ -407,7 +412,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         localStorage.setItem('userInfo', JSON.stringify(updatedUser));
         setUser(updatedUser);
-        const redirectPath = updatedUser.role === 'admin' ? '/admin/dashboard' : '/';
+        // Get current language from URL or default to 'en'
+        const currentPath = window.location.pathname;
+        const langMatch = currentPath.match(/^\/([a-z]{2})(?:\/|$)/);
+        const currentLang = langMatch ? langMatch[1] : 'en';
+        
+        const redirectPath = updatedUser.role === 'admin' ? `/${currentLang}/admin/dashboard` : `/${currentLang}`;
         router.push(redirectPath);
       } catch {
         localStorage.removeItem('userInfo');

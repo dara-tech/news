@@ -135,10 +135,15 @@ const allowedOrigins = [
   'https://news-eta-vert.vercel.app', // Replace with your production domain
   'https://news-vzdx.onrender.com', 
   'https://newslys.netlify.app',  // Your current API domain
+  // Mobile app origins
+  'exp://192.168.100.69:8089',     // Expo development server
+  'exp://localhost:8089',           // Expo local development
+  'http://localhost:8089',          // Expo web development
   // Regex patterns
   /^http:\/\/localhost(:\d+)?$/,    // Local development with any port
   /^https?:\/\/localhost(:\d+)?$/,  // Local development with any protocol
   /^https?:\/\/127\.0\.0\.1(:\d+)?$/, // Localhost IP
+  /^exp:\/\/.*$/,                   // All Expo development URLs
   /^https?:\/\/.*\.vercel\.app$/,   // All Vercel deployments
   /^https?:\/\/.*\.onrender\.com$/, // All Render deployments
   /^https?:\/\/.*\.dara\.tech$/,    // Your custom domain

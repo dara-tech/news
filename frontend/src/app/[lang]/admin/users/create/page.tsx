@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { AxiosError } from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,7 +49,10 @@ const CreateUserPage = () => {
     try {
       await api.post('/users', formData);
       toast.success('User created successfully!');
-      router.push('/admin/users');
+      // Get current language from params
+      const params = useParams();
+      const lang = params?.lang || 'en';
+      router.push(`/${lang}/admin/users`);
         } catch (err) {
       if (err instanceof AxiosError) {
         toast.error(err.response?.data?.message || 'Failed to create user.');
