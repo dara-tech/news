@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -17,7 +17,14 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-const LoginPage = () => {
+interface LoginPageProps {
+  params: Promise<{
+    lang: string;
+  }>;
+}
+
+const LoginPage = ({ params }: LoginPageProps) => {
+  const { lang } = use(params);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -103,7 +110,7 @@ const LoginPage = () => {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 lg:w-1/2 bg-white dark:bg-gray-900 flex flex-col">
+      <div className="flex-1 lg:w-1/2  flex flex-col">
         {/* Header with Language Selector */}
         <div className="flex items-center justify-between p-6">
           <div className="flex items-center gap-2">
@@ -117,7 +124,7 @@ const LoginPage = () => {
         </div>
 
         {/* Login Form */}
-        <div className="flex-1 flex items-center justify-center px-8">
+        <div className="flex-1 flex items-center justify-center ">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Login</h1>
@@ -229,7 +236,7 @@ const LoginPage = () => {
                   Remember me?
                 </label>
                 <Link
-                  href="/forgot-password"
+                  href={`/${lang}/forgot-password`}
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition"
                 >
                   Forgot password?
@@ -258,7 +265,7 @@ const LoginPage = () => {
               {/* Create Account Link */}
               <div className="text-center">
                 <Link
-                  href="/register"
+                  href={`/${lang}/register`}
                   className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition flex items-center justify-center gap-2"
                 >
                   <ArrowRight className="w-4 h-4" />

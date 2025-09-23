@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -65,6 +66,18 @@ const userSchema = new mongoose.Schema(
         default: null,
       },
     },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpire: {
+      type: Date,
+    },
+    resetPin: {
+      type: String,
+    },
+    resetPinExpire: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -95,6 +108,50 @@ userSchema.methods.getSignedJwtToken = function () {
 // Match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Generate and hash password reset token
+userSchema.methods.getResetPasswordToken = function () {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash token and set to resetPasswordToken field
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set expire
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  return resetToken;
+};
+
+// Generate and hash password reset PIN
+userSchema.methods.getResetPasswordPin = function () {
+  // Generate 6-digit PIN
+  const pin = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Hash PIN and set to resetPin field
+  this.resetPin = crypto
+    .createHash('sha256')
+    .update(pin)
+    .digest('hex');
+
+  // Set expire (5 minutes for PIN)
+  this.resetPinExpire = Date.now() + 5 * 60 * 1000; // 5 minutes
+
+  return pin;
+};
+
+// Verify reset PIN
+userSchema.methods.verifyResetPin = function (pin) {
+  const hashedPin = crypto
+    .createHash('sha256')
+    .update(pin)
+    .digest('hex');
+
+  return this.resetPin === hashedPin && this.resetPinExpire > Date.now();
 };
 
 // Virtual for followers count

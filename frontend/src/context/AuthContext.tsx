@@ -12,6 +12,9 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
+  forgotPassword: (email: string) => Promise<void>;
+  verifyPinAndResetPassword: (email: string, pin: string, password: string) => Promise<void>;
+  resetPassword: (token: string, password: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -508,7 +511,156 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const value = { user, loading, login, register, loginWithGoogle, logout, updateUser };
+  // Forgot password function
+  const forgotPassword = async (email: string) => {
+    try {
+      // Get current language from URL
+      const currentPath = window.location.pathname;
+      const langMatch = currentPath.match(/^\/([a-z]{2})(?:\/|$)/);
+      const currentLang = langMatch ? langMatch[1] : 'en';
+      
+      const response = await api.post('/auth/forgot-password', { 
+        email, 
+        language: currentLang 
+      });
+      
+      if (response.data.success) {
+        // For development, we'll show the reset URL in the response
+        // In production, this would be sent via email
+        console.log('Reset URL:', response.data.resetUrl);
+        return response.data;
+      } else {
+        throw new Error('Failed to send reset email');
+      }
+    } catch (error: unknown) {
+      let userFacingMessage = 'Failed to send reset email. Please try again.';
+
+      if (error && typeof error === 'object') {
+        if ('response' in error && error.response) {
+          const errorResponse = error.response as { data?: unknown; status?: number };
+          const errorStatus = errorResponse?.status;
+          const errorData = errorResponse?.data;
+          
+          if (errorStatus === 404) {
+            userFacingMessage = 'No account found with this email address.';
+          } else if (errorStatus === 500) {
+            userFacingMessage = 'Server error. Please try again later.';
+          } else if (
+            typeof errorData === 'object' &&
+            errorData !== null &&
+            'message' in errorData &&
+            typeof (errorData as { message: unknown }).message === 'string'
+          ) {
+            userFacingMessage = (errorData as { message: string }).message;
+          }
+        } else if ('request' in error) {
+          userFacingMessage = 'No response from server. Please check your connection.';
+        } else if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
+          userFacingMessage = (error as { message: string }).message;
+        }
+      }
+
+      const forgotPasswordError = new Error(userFacingMessage);
+      forgotPasswordError.name = 'ForgotPasswordError';
+      throw forgotPasswordError;
+    }
+  };
+
+  // Verify PIN and reset password function
+  const verifyPinAndResetPassword = async (email: string, pin: string, password: string) => {
+    try {
+      const response = await api.post('/auth/verify-pin-reset', { 
+        email, 
+        pin, 
+        password 
+      });
+      
+      if (response.data.success) {
+        return response.data;
+      } else {
+        throw new Error('Failed to reset password');
+      }
+    } catch (error: unknown) {
+      let userFacingMessage = 'Failed to reset password. Please try again.';
+      
+      if (error && typeof error === 'object') {
+        if ('response' in error && error.response) {
+          const errorResponse = error.response as { data?: unknown; status?: number };
+          const errorStatus = errorResponse?.status;
+          const errorData = errorResponse?.data;
+          
+          if (errorStatus === 400) {
+            userFacingMessage = 'Invalid or expired PIN. Please request a new password reset.';
+          } else if (errorStatus === 404) {
+            userFacingMessage = 'User not found. Please check your email address.';
+          } else if (errorStatus === 500) {
+            userFacingMessage = 'Server error. Please try again later.';
+          } else if (
+            typeof errorData === 'object' &&
+            errorData !== null &&
+            'message' in errorData &&
+            typeof (errorData as { message: unknown }).message === 'string'
+          ) {
+            userFacingMessage = (errorData as { message: string }).message;
+          }
+        } else if ('request' in error) {
+          userFacingMessage = 'No response from server. Please check your connection.';
+        } else if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
+          userFacingMessage = (error as { message: string }).message;
+        }
+      }
+
+      const resetPasswordError = new Error(userFacingMessage);
+      resetPasswordError.name = 'ResetPasswordError';
+      throw resetPasswordError;
+    }
+  };
+
+  // Reset password function (legacy token method)
+  const resetPassword = async (token: string, password: string) => {
+    try {
+      const response = await api.put(`/auth/reset-password/${token}`, { password });
+      
+      if (response.data.success) {
+        return response.data;
+      } else {
+        throw new Error('Failed to reset password');
+      }
+    } catch (error: unknown) {
+      let userFacingMessage = 'Failed to reset password. Please try again.';
+
+      if (error && typeof error === 'object') {
+        if ('response' in error && error.response) {
+          const errorResponse = error.response as { data?: unknown; status?: number };
+          const errorStatus = errorResponse?.status;
+          const errorData = errorResponse?.data;
+          
+          if (errorStatus === 400) {
+            userFacingMessage = 'Invalid or expired reset token. Please request a new password reset.';
+          } else if (errorStatus === 500) {
+            userFacingMessage = 'Server error. Please try again later.';
+          } else if (
+            typeof errorData === 'object' &&
+            errorData !== null &&
+            'message' in errorData &&
+            typeof (errorData as { message: unknown }).message === 'string'
+          ) {
+            userFacingMessage = (errorData as { message: string }).message;
+          }
+        } else if ('request' in error) {
+          userFacingMessage = 'No response from server. Please check your connection.';
+        } else if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
+          userFacingMessage = (error as { message: string }).message;
+        }
+      }
+
+      const resetPasswordError = new Error(userFacingMessage);
+      resetPasswordError.name = 'ResetPasswordError';
+      throw resetPasswordError;
+    }
+  };
+
+  const value = { user, loading, login, register, loginWithGoogle, logout, updateUser, forgotPassword, verifyPinAndResetPassword, resetPassword };
 
   return (
     <AuthContext.Provider value={value}>

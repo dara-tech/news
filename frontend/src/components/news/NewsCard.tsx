@@ -87,7 +87,11 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
           </h3>
           
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            {new Date(article.createdAt).toLocaleDateString()}
+            {new Date(article.createdAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            })}
           </div>
         </div>
       </Link>

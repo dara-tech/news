@@ -20,7 +20,7 @@ interface AdSenseScriptProps {
 }
 
 export default function AdSenseScript({ adSenseId }: AdSenseScriptProps) {
-  const ADSENSE_ID = adSenseId || process.env.NEXT_PUBLIC_ADSENSE_ID || 'ca-pub-8955892254579960';
+  const ADSENSE_ID = adSenseId || process.env.NEXT_PUBLIC_ADSENSE_ID || 'ca-pub-8955989254579960';
 
   // Don't load if already loaded
   if (typeof window !== 'undefined' && window.__adsenseScriptLoaded) {

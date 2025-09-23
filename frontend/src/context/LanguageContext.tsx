@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { createContext, useState, useContext, ReactNode, useEffect, use } from 'react';
 import { useRouter, usePathname, useParams } from 'next/navigation';
 
 type Language = 'en' | 'kh';
@@ -21,11 +21,23 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   // Get current language from URL params
   useEffect(() => {
-    const currentLang = (params.lang as string) || 'en';
+    // Handle both old and new params structure for compatibility
+    let currentLang = 'en';
+    if (params && typeof params === 'object' && 'lang' in params) {
+      if (typeof params.lang === 'string') {
+        currentLang = params.lang;
+      } else if (params.lang && typeof params.lang === 'object' && 'then' in params.lang) {
+        // It's a Promise, we need to handle it differently
+        // For now, we'll extract from pathname as fallback
+        const pathSegments = pathname.split('/');
+        currentLang = pathSegments[1] || 'en';
+      }
+    }
+    
     if (currentLang === 'en' || currentLang === 'kh') {
       setLanguageState(currentLang as Language);
     }
-  }, [params.lang]);
+  }, [params, pathname]);
 
   const setLanguage = (newLanguage: Language) => {
     // Update URL to reflect language change

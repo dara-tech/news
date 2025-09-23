@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, use } from "react"
 import { notFound } from "next/navigation"
 import NewsGrid from "@/components/news/NewsGrid"
 import { Tag, Calendar, TrendingUp, Users, ChevronDown, Filter, Grid, List, Search } from "lucide-react"
@@ -29,7 +29,7 @@ interface Category {
 }
 
 interface CategoryPageProps {
-  params: { lang: string; slug: string }
+  params: Promise<{ lang: string; slug: string }>
   category: {
     category: Category;
     articles: Article[];
@@ -51,7 +51,8 @@ const getLocalizedText = (text: string | { en?: string; kh?: string } | undefine
 
 // ----- PAGE COMPONENT -----
 export default function CategoryPageClient({ params, category }: CategoryPageProps) {
-  const lang = (params.lang === 'km' ? 'kh' : 'en') as 'en' | 'kh';
+  const { lang: rawLang } = use(params);
+  const lang = (rawLang === 'km' ? 'kh' : 'en') as 'en' | 'kh';
   const categoryObj = category.category;
   const articles = category.articles;
   

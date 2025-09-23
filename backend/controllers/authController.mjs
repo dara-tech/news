@@ -8,6 +8,8 @@ import Follow from "../models/Follow.mjs";
 import ActivityLog from "../models/ActivityLog.mjs";
 import UserLogin from "../models/UserLogin.mjs";
 import logger from '../utils/logger.mjs';
+import crypto from "crypto";
+import { sendPasswordResetEmail } from '../utils/emailService.mjs';
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -563,6 +565,220 @@ const checkDataDeletionStatus = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Forgot password
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found with this email'
+      });
+    }
+
+  // Get reset PIN
+  const resetPin = user.getResetPasswordPin();
+
+  await user.save({ validateBeforeSave: false });
+
+  // Create reset url - extract language from request body or default to 'en'
+  const language = req.body.language || req.headers['accept-language']?.split(',')[0]?.split('-')[0] || 'en';
+  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/${language}/reset-password`;
+
+  try {
+    // Send password reset email with PIN
+    const emailResult = await sendPasswordResetEmail(user.email, resetUrl, user.username, resetPin);
+    
+    // Log password reset request
+    try {
+      const { logActivity } = await import('./activityController.mjs');
+      await logActivity({
+        userId: user._id,
+        action: 'user.forgot_password',
+        entity: 'user',
+        entityId: user._id.toString(),
+        description: `Password reset requested for user: ${user.username}`,
+        metadata: {
+          email: user.email,
+          resetPin: resetPin.substring(0, 2) + '****', // Only log partial PIN for security
+          resetUrl: resetUrl,
+          emailSent: emailResult.success,
+          messageId: emailResult.messageId
+        },
+        severity: 'medium',
+        req
+      });
+    } catch (error) {
+      logger.error('Failed to log forgot password activity:', error);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset PIN sent to your email',
+      resetUrl: process.env.NODE_ENV !== 'production' ? resetUrl : undefined, // Only show in development
+      previewUrl: emailResult.previewUrl // For development email preview
+    });
+  } catch (error) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    logger.error('Failed to send password reset email:', error);
+    res.status(500);
+    throw new Error('Email could not be sent');
+  }
+  } catch (error) {
+    logger.error('Forgot password error:', error);
+    logger.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+    });
+  }
+});
+
+// @desc    Verify PIN and reset password
+// @route   POST /api/auth/verify-pin-reset
+// @access  Public
+const verifyPinAndResetPassword = asyncHandler(async (req, res) => {
+  try {
+    const { email, pin, password } = req.body;
+
+    if (!email || !pin || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, PIN, and password are required'
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found with this email'
+      });
+    }
+
+    // Verify PIN
+    if (!user.verifyResetPin(pin)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired PIN'
+      });
+    }
+
+    // Set new password
+    user.password = password;
+    user.resetPin = undefined;
+    user.resetPinExpire = undefined;
+
+    await user.save();
+
+    // Log password reset completion
+    try {
+      const { logActivity } = await import('./activityController.mjs');
+      await logActivity({
+        userId: user._id,
+        action: 'user.reset_password',
+        entity: 'user',
+        entityId: user._id.toString(),
+        description: `Password reset completed for user: ${user.username}`,
+        metadata: {
+          email: user.email,
+          resetMethod: 'PIN',
+        },
+        severity: 'medium',
+        req
+      });
+    } catch (error) {
+      logger.error('Failed to log password reset activity:', error);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successful'
+    });
+  } catch (error) {
+    logger.error('Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during password reset'
+    });
+  }
+});
+
+// @desc    Reset password (legacy token method)
+// @route   PUT /api/auth/reset-password/:resettoken
+// @access  Public
+const resetPassword = asyncHandler(async (req, res) => {
+  // Get hashed token
+  const resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(req.params.resettoken)
+    .digest('hex');
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    res.status(400);
+    throw new Error('Invalid or expired reset token');
+  }
+
+  // Set new password
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  // Log password reset completion
+  try {
+    const { logActivity } = await import('./activityController.mjs');
+    await logActivity({
+      userId: user._id,
+      action: 'user.password_reset',
+      entity: 'user',
+      entityId: user._id.toString(),
+      description: `Password reset completed for user: ${user.username}`,
+      metadata: {
+        email: user.email,
+        resetToken: req.params.resettoken.substring(0, 10) + '...' // Only log partial token for security
+      },
+      severity: 'medium',
+      req
+    });
+  } catch (error) {
+    logger.error('Failed to log password reset activity:', error);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Password reset successful',
+  });
+});
+
 export {
   registerUser,
   loginUser,
@@ -577,4 +793,7 @@ export {
   updateUserProfileImage,
   dataDeletionCallback,
   checkDataDeletionStatus,
+  forgotPassword,
+  verifyPinAndResetPassword,
+  resetPassword,
 };
