@@ -44,11 +44,11 @@ const ForgotPasswordPage = ({ params }: ForgotPasswordPageProps) => {
   const onSubmit = async (data: ForgotPasswordFormValues) => {
     setServerError(null);
     try {
-      const response = await forgotPassword(data.email);
+      await forgotPassword(data.email);
       setSubmittedEmail(data.email);
       setIsSubmitted(true);
-      setResetUrl(response.resetUrl);
-      setPreviewUrl(response.previewUrl);
+      // Note: Since forgotPassword returns void, we don't set resetUrl and previewUrl
+      // These would need to be implemented differently if needed
     } catch (error: unknown) {
       if (error instanceof Error) {
         setServerError(error.message);

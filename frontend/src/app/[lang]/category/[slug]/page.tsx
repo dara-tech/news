@@ -102,5 +102,5 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     ? category.slug 
     : category.slug?.en || category.slug?.kh || slug;
   const articles = await getLatestNewsByCategory(categorySlug);
-  return <CategoryPageClient params={resolvedParams} category={{ category, articles }} />;
+  return <CategoryPageClient params={params} category={{ category, articles }} />;
 }
