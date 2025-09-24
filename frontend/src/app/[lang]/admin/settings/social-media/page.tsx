@@ -1,25 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import SocialMediaManagement from '@/components/admin/SocialMediaManagement';
 
-interface SocialMediaSettings {
-  socialLinks: any[];
-  contactInfo: {
-    email: string;
-    phone: string;
-    address: string;
-    website: string;
-  };
-  socialSharingEnabled: boolean;
-  socialLoginEnabled: boolean;
-  socialAnalyticsEnabled: boolean;
-  autoPostEnabled: boolean;
-  socialPreviewEnabled: boolean;
-}
-
 export default function SocialMediaSettingsPage() {
-  const [settings, setSettings] = useState<SocialMediaSettings | null>(null);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -30,11 +13,7 @@ export default function SocialMediaSettingsPage() {
         </div>
       </div>
 
-      <SocialMediaManagement 
-        onSettingsChange={(newSettings) => {
-          setSettings(newSettings);
-        }}
-      />
+      <SocialMediaManagement />
     </div>
   );
 } 

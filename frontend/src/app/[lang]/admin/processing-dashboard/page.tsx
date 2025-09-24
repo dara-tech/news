@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-  RefreshCw, Database, Clock, Shield, Activity, AlertTriangle, CheckCircle,
-  Cpu, HardDrive, Play, Pause, Circle, Image, Calendar, TrendingUp,
+  RefreshCw, Clock, Shield, Activity, AlertTriangle, CheckCircle,
+  Cpu, Image, Calendar, TrendingUp,
   TrendingDown, Server, Bot, Timer, FileText, Radio, Target, FileCheck,
   Monitor, ArrowRight, Workflow, Settings, Download, BarChart, LineChart,
   Lightbulb, Zap, Sparkles, PieChart
@@ -67,7 +67,7 @@ interface SentinelLog {
   timestamp: string;
   level: 'info' | 'warning' | 'error';
   message: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 interface SentinelMetrics {
@@ -136,11 +136,6 @@ interface ProcessFlowCardProps {
 
 // Advanced Process Metrics Card Component with Enterprise-Level Design
 function ProcessMetricsCard({ title, value, change, icon: Icon, trend = 'up' }: ProcessMetricsCardProps) {
-  const getTrendColor = () => {
-    if (trend === 'up') return 'text-emerald-600 dark:text-emerald-400';
-    if (trend === 'down') return 'text-red-600 dark:text-red-400';
-    return 'text-muted-foreground';
-  };
 
   const getTrendIcon = () => {
     if (trend === 'up') return <TrendingUp className="w-4 h-4" />;
@@ -497,7 +492,7 @@ function SentinelLogsCard({ logs }: { logs: SentinelLog[] }) {
 }
 
 // Process Flow Diagram Component with Drag and Drop
-function ProcessFlowDiagram({ data, sentinelMetrics, imageGenerationMetrics }: { data: any[], sentinelMetrics: any, imageGenerationMetrics?: any }) {
+function ProcessFlowDiagram({ data, sentinelMetrics, imageGenerationMetrics }: { data: ProcessFlow[], sentinelMetrics: SentinelMetrics, imageGenerationMetrics?: ImageGenerationMetrics }) {
   const processNodes = [
     {
       id: 'input',
@@ -540,7 +535,12 @@ function ProcessFlowDiagram({ data, sentinelMetrics, imageGenerationMetrics }: {
       name: 'SEO Optimization',
       icon: Target,
       status: 'active',
-      data: data.find(d => d.name === 'SEO Optimization Engine')?.value || 0,
+      data: {
+        input: data.find(d => d.name === 'SEO Optimization Engine')?.data?.input || 0,
+        processed: data.find(d => d.name === 'SEO Optimization Engine')?.data?.processed || 0,
+        output: data.find(d => d.name === 'SEO Optimization Engine')?.data?.output || 0,
+        errors: data.find(d => d.name === 'SEO Optimization Engine')?.data?.errors || 0,
+      },
       position: 'center',
       color: 'gray'
     },
@@ -555,55 +555,12 @@ function ProcessFlowDiagram({ data, sentinelMetrics, imageGenerationMetrics }: {
     }
   ];
 
-  const [draggedNode, setDraggedNode] = useState<string | null>(null);
-  const [dragOverNode, setDragOverNode] = useState<string | null>(null);
 
   // Update nodes when data changes
   useEffect(() => {
     // Nodes are now computed directly from props, no need to update state
   }, [sentinelMetrics, imageGenerationMetrics, data]);
 
-  const handleDragStart = (e: React.DragEvent, nodeId: string) => {
-    setDraggedNode(nodeId);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', nodeId);
-  };
-
-  const handleDragOver = (e: React.DragEvent, nodeId: string) => {
-    e.preventDefault();
-    if (draggedNode && draggedNode !== nodeId) {
-      setDragOverNode(nodeId);
-    }
-  };
-
-  const handleDragLeave = () => {
-    setDragOverNode(null);
-  };
-
-  const handleDrop = (e: React.DragEvent, targetNodeId: string) => {
-    e.preventDefault();
-    if (draggedNode && draggedNode !== targetNodeId) {
-      const draggedIndex = processNodes.findIndex(node => node.id === draggedNode);
-      const targetIndex = processNodes.findIndex(node => node.id === targetNodeId);
-      
-      // Note: Drag and drop functionality disabled since nodes are now computed from props
-      toast.success(`Drag and drop disabled - nodes are auto-computed`);
-    }
-    setDraggedNode(null);
-    setDragOverNode(null);
-  };
-
-  const getStatusColor = (status: string) => {
-    if (status === 'processing') return 'border-gray-300 bg-gray-50 dark:bg-gray-800/50';
-    if (status === 'active') return 'border-gray-300 bg-gray-50 dark:bg-gray-800/50';
-    return 'border-gray-200 bg-gray-50/50 dark:bg-gray-800/30';
-  };
-
-  const getIconColor = (status: string) => {
-    if (status === 'processing') return 'text-gray-700 dark:text-gray-300';
-    if (status === 'active') return 'text-gray-700 dark:text-gray-300';
-    return 'text-gray-500 dark:text-gray-400';
-  };
 
   return (
     <div className="relative">
@@ -677,7 +634,7 @@ function ProcessFlowDiagram({ data, sentinelMetrics, imageGenerationMetrics }: {
               </div>
               
               {/* Premium Process Nodes */}
-              {processNodes.map((node, index) => {
+              {processNodes.map((node) => {
                 const isActive = node.status === 'active' || node.status === 'processing';
                 const IconComponent = node.icon;
                 
@@ -887,7 +844,8 @@ export default function ProcessingDashboard() {
       if (showToast) {
         toast.success('Dashboard data refreshed successfully');
       }
-    } catch (error) {if (showToast) {
+    } catch {
+      if (showToast) {
         toast.error('Failed to load dashboard data');
       }
     } finally {
@@ -907,12 +865,8 @@ export default function ProcessingDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const getProcessFlowData = () => {
-    return processFlows.map(flow => ({
-      name: flow.name,
-      value: flow.data.processed,
-      status: flow.status
-    }));
+  const getProcessFlowData = (): ProcessFlow[] => {
+    return processFlows;
   };
 
         return (

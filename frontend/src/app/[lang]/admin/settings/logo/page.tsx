@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -11,14 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Save, 
   Upload,
-  Image,
   Type,
   RefreshCw,
   Eye,
-  Trash2,
-  Download
+  Trash2
 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface LogoSettings {
@@ -31,7 +29,6 @@ interface LogoSettings {
 }
 
 export default function LogoSettingsPage() {
-  const { user } = useAuth();
   const [settings, setSettings] = useState<LogoSettings>({
     logoDisplayMode: 'text',
     logoText: 'Newsly',
@@ -57,7 +54,8 @@ export default function LogoSettingsPage() {
       if (response.data.success && response.data.settings) {
         setSettings(prev => ({ ...prev, ...response.data.settings }));
       }
-    } catch (error: any) {toast.error('Failed to load logo settings');
+    } catch {
+      toast.error('Failed to load logo settings');
     } finally {
       setLoading(false);
     }
@@ -118,7 +116,8 @@ export default function LogoSettingsPage() {
         setPreviewUrl(null);
         toast.success('Logo uploaded successfully!');
       }
-    } catch (error: any) {toast.error('Failed to upload logo');
+    } catch {
+      toast.error('Failed to upload logo');
     } finally {
       setSaving(false);
     }
@@ -129,7 +128,8 @@ export default function LogoSettingsPage() {
       setSaving(true);
       await api.put('/admin/settings/logo', { settings });
       toast.success('Logo settings saved successfully!');
-    } catch (error: any) {toast.error('Failed to save logo settings');
+    } catch {
+      toast.error('Failed to save logo settings');
     } finally {
       setSaving(false);
     }
@@ -145,7 +145,8 @@ export default function LogoSettingsPage() {
         logoDisplayMode: 'text' as const,
       }));
       toast.success('Logo deleted successfully!');
-    } catch (error: any) {toast.error('Failed to delete logo');
+    } catch {
+      toast.error('Failed to delete logo');
     } finally {
       setSaving(false);
     }
@@ -155,9 +156,11 @@ export default function LogoSettingsPage() {
     if (settings.logoDisplayMode === 'image' && settings.logoUrl) {
       return (
         <div className="flex items-center justify-center p-4 border rounded-lg bg-gray-50">
-          <img
+          <Image
             src={settings.logoUrl}
             alt="Logo Preview"
+            width={128}
+            height={64}
             className="max-h-16 max-w-full object-contain"
           />
         </div>
@@ -235,9 +238,11 @@ export default function LogoSettingsPage() {
                 <div className="space-y-2">
                   <Label>Preview</Label>
                   <div className="flex items-center justify-center p-4 border rounded-lg bg-gray-50">
-                    <img
+                    <Image
                       src={previewUrl}
                       alt="Logo Preview"
+                      width={128}
+                      height={64}
                       className="max-h-16 max-w-full object-contain"
                     />
                   </div>

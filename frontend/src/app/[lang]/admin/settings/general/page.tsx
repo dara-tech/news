@@ -74,7 +74,8 @@ export default function GeneralSettingsPage() {
         setSettings(data.settings);
         setHasChanges(false);
       }
-    } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to load settings';
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load settings';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -131,7 +132,7 @@ export default function GeneralSettingsPage() {
     if (!canManageMaintenance) {
       // Remove maintenance mode from settings for non-admin users
       const settingsToSave = { ...settings };
-      delete (settingsToSave as any).maintenanceMode;
+      delete (settingsToSave as Record<string, unknown>).maintenanceMode;
       
       try {
         setSaving(true);
@@ -147,12 +148,14 @@ export default function GeneralSettingsPage() {
             setSettings(response.data.settings);
           }
         }
-      } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to save settings';
+      } catch (error: unknown) {
+        const typedError = error as { response?: { data?: { message?: string; errors?: Record<string, string> } } };
+        const errorMessage = typedError?.response?.data?.message || 'Failed to save settings';
         toast.error(errorMessage);
         
         // Show field-specific errors if available
-        if (error.response?.data?.errors) {
-          setErrors(error.response.data.errors);
+        if (typedError.response?.data?.errors) {
+          setErrors(typedError.response.data.errors);
         }
       } finally {
         setSaving(false);
@@ -174,12 +177,14 @@ export default function GeneralSettingsPage() {
           setSettings(response.data.settings);
         }
       }
-    } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to save settings';
+    } catch (error: unknown) {
+      const typedError = error as { response?: { data?: { message?: string; errors?: Record<string, string> } } };
+      const errorMessage = typedError?.response?.data?.message || 'Failed to save settings';
       toast.error(errorMessage);
       
       // Show field-specific errors if available
-      if (error.response?.data?.errors) {
-        setErrors(error.response.data.errors);
+      if (typedError.response?.data?.errors) {
+        setErrors(typedError.response.data.errors);
       }
     } finally {
       setSaving(false);

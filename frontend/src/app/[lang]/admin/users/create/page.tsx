@@ -32,6 +32,7 @@ const CreateUserPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const params = useParams();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -50,7 +51,6 @@ const CreateUserPage = () => {
       await api.post('/users', formData);
       toast.success('User created successfully!');
       // Get current language from params
-      const params = useParams();
       const lang = params?.lang || 'en';
       router.push(`/${lang}/admin/users`);
         } catch (err) {

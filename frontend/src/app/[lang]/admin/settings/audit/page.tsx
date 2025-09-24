@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,7 @@ interface AuditLog {
   };
   metadata: {
     section?: string;
-    changes?: any;
+    changes?: Record<string, unknown>;
     changedFields?: string[];
     userAgent?: string;
     ip?: string;
@@ -54,11 +54,7 @@ export default function SettingsAuditPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAuditLogs();
-  }, [pagination.page]);
-
-  const fetchAuditLogs = async () => {
+  const fetchAuditLogs = useCallback(async () => {
     try {
       setLoading(true);
       const { data } = await api.get('/admin/settings/audit', {
@@ -72,12 +68,17 @@ export default function SettingsAuditPage() {
         setLogs(data.logs);
         setPagination(data.pagination);
       }
-    } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to load audit logs';
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load audit logs';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit]);
+
+  useEffect(() => {
+    fetchAuditLogs();
+  }, [fetchAuditLogs]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {

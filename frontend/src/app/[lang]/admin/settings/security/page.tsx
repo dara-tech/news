@@ -73,7 +73,9 @@ export default function SecuritySettingsPage() {
       if (data.success) {
         setSettings(data.settings);
       }
-    } catch (error) {} finally {
+    } catch {
+      // Silently handle error
+    } finally {
       setLoading(false);
     }
   };
@@ -85,7 +87,9 @@ export default function SecuritySettingsPage() {
         setActiveUsers(data.activeUsers || 0);
         setSecurityEvents(data.recentEvents || []);
       }
-    } catch (error) {}
+    } catch {
+      // Silently handle error
+    }
   };
 
   const validateSettings = (): boolean => {
@@ -142,12 +146,14 @@ export default function SecuritySettingsPage() {
           setSettings(response.data.settings);
         }
       }
-    } catch (error: any) {const errorMessage = error.response?.data?.message || 'Failed to save security settings';
+    } catch (error: unknown) {
+      const typedError = error as { response?: { data?: { message?: string; errors?: Record<string, string> } } };
+      const errorMessage = typedError?.response?.data?.message || 'Failed to save security settings';
       toast.error(errorMessage);
       
       // Show field-specific errors if available
-      if (error.response?.data?.errors) {
-        setErrors(error.response.data.errors);
+      if (typedError.response?.data?.errors) {
+        setErrors(typedError.response.data.errors);
       }
     } finally {
       setSaving(false);
@@ -160,7 +166,7 @@ export default function SecuritySettingsPage() {
     try {
       await api.post('/admin/security/force-logout-all');
       toast.success('All users have been logged out');
-    } catch (error) {
+    } catch {
       toast.error('Failed to log out users');
     }
   };

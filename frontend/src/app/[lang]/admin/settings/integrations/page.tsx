@@ -104,7 +104,9 @@ export default function IntegrationsSettingsPage() {
       if (data.success) {
         setSettings(data.settings);
       }
-    } catch (error) {} finally {
+    } catch {
+      // Silently handle error
+    } finally {
       setLoading(false);
     }
   };
@@ -120,7 +122,8 @@ export default function IntegrationsSettingsPage() {
       await api.put('/admin/settings/integrations', { settings });
       setHasChanges(false);
       toast.success('Integration settings saved successfully!');
-    } catch (error) {toast.error('Failed to save integration settings');
+    } catch {
+      toast.error('Failed to save integration settings');
     } finally {
       setSaving(false);
     }
@@ -131,7 +134,7 @@ export default function IntegrationsSettingsPage() {
       setTestingEmail(true);
       await api.post('/admin/integrations/test-email');
       toast.success('Test email sent successfully!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to send test email');
     } finally {
       setTestingEmail(false);
@@ -143,7 +146,7 @@ export default function IntegrationsSettingsPage() {
       setTestingWebhook(true);
       await api.post('/admin/integrations/test-webhook');
       toast.success('Webhook test successful!');
-    } catch (error) {
+    } catch {
       toast.error('Webhook test failed');
     } finally {
       setTestingWebhook(false);

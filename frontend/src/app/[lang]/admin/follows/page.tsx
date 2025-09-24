@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { 
   Users, 
   UserPlus, 
@@ -18,7 +19,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -129,7 +130,8 @@ const FollowsPage = () => {
           setFollows(followsArray);
           setFilteredFollows(followsArray);
         }
-      } catch (err) {toast.error('Failed to fetch follow relationships.');
+      } catch {
+        toast.error('Failed to fetch follow relationships.');
         setFollows([]);
         setFilteredFollows([]);
       } finally {
@@ -139,7 +141,7 @@ const FollowsPage = () => {
     fetchFollows();
   }, []);
 
-  const filterFollows = () => {
+  const filterFollows = useCallback(() => {
     if (!Array.isArray(follows)) {
       setFilteredFollows([]);
       return;
@@ -170,11 +172,11 @@ const FollowsPage = () => {
     }
 
     setFilteredFollows(filtered);
-  };
+  }, [follows, searchTerm, filterType]);
 
   useEffect(() => {
     filterFollows();
-  }, [searchTerm, filterType, follows]);
+  }, [searchTerm, filterType, follows, filterFollows]);
 
   const handleDeleteFollow = async (id: string) => {
     try {
@@ -423,9 +425,11 @@ const FollowsPage = () => {
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                         {follow.follower.profileImage ? (
-                          <img 
+                          <Image 
                             src={follow.follower.profileImage} 
                             alt={follow.follower.username}
+                            width={32}
+                            height={32}
                             className="w-8 h-8 rounded-full object-cover"
                           />
                         ) : (
@@ -447,9 +451,11 @@ const FollowsPage = () => {
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                         {follow.following.profileImage ? (
-                          <img 
+                          <Image 
                             src={follow.following.profileImage} 
                             alt={follow.following.username}
+                            width={32}
+                            height={32}
                             className="w-8 h-8 rounded-full object-cover"
                           />
                         ) : (
@@ -534,9 +540,11 @@ const FollowsPage = () => {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                   <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium">
                     {selectedFollow.follower.profileImage ? (
-                      <img 
+                      <Image 
                         src={selectedFollow.follower.profileImage} 
                         alt={selectedFollow.follower.username}
+                        width={40}
+                        height={40}
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (
@@ -555,9 +563,11 @@ const FollowsPage = () => {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                   <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium">
                     {selectedFollow.following.profileImage ? (
-                      <img 
+                      <Image 
                         src={selectedFollow.following.profileImage} 
                         alt={selectedFollow.following.username}
+                        width={40}
+                        height={40}
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (

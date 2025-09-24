@@ -182,7 +182,9 @@ export default function DashboardPage() {
       if (response.data.success && response.data.settings) {
         setLogoSettings(prev => ({ ...prev, ...response.data.settings }));
       }
-    } catch (error) {}
+    } catch {
+      // Silently handle error
+    }
   }, []);
 
   // Smart refresh mechanism
@@ -254,7 +256,7 @@ export default function DashboardPage() {
       setLoading(false);
       setIsRefreshing(false);
     }
-  }, []);
+  }, [filters.categories, filters.dateRange, settings.enableNotifications]);
 
   // Auto-refresh functionality
   useEffect(() => {

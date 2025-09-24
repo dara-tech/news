@@ -76,7 +76,6 @@ const EditUserPage = () => {
       });
       toast.success('User updated successfully!');
       // Get current language from params
-      const params = useParams();
       const lang = params?.lang || 'en';
       router.push(`/${lang}/admin/users`);
     } catch (error) {
