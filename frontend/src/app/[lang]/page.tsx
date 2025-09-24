@@ -2,6 +2,7 @@ import api from '@/lib/api';
 import { Article, Category } from '@/types';
 import MaintenanceCheck from '@/components/MaintenanceCheck';
 import HomePage from '@/components/home/HomePage';
+import PerformanceGuard from '@/components/performance/PerformanceGuard';
 
 interface HomeProps {
   params: Promise<{ lang: 'en' | 'kh' }>;
@@ -49,11 +50,16 @@ export default async function Home({ params }: HomeProps) {
 
   return (
     <MaintenanceCheck>
-      <HomePage 
-        lang={resolvedParams.lang}
-        newsData={newsData}
-        categories={categories}
-      />
+      <PerformanceGuard
+        maxRenderTime={16}
+        maxRendersPerSecond={30}
+      >
+        <HomePage 
+          lang={resolvedParams.lang}
+          newsData={newsData}
+          categories={categories}
+        />
+      </PerformanceGuard>
     </MaintenanceCheck>
   );
 }

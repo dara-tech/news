@@ -11,6 +11,7 @@ import {
   AwardsSection,
   TopAuthors 
 } from "@/components/home/sections"
+import { useMemo, useCallback } from "react"
 
 interface NewsArticle {
   id: string
@@ -41,13 +42,13 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
   // Fallback for lang if undefined
   const safeLang = lang || 'en';
   
-  const renderText = (text: string | { en: string; kh: string }) => {
+  const renderText = useCallback((text: string | { en: string; kh: string }) => {
     if (typeof text === 'string') return text
     return text[safeLang as keyof typeof text] || text.en || ''
-  }
+  }, [safeLang]);
 
-  // Get real trending topics from articles
-  const getTrendingTopics = () => {
+  // Memoize trending topics to prevent recalculation on every render
+  const trendingTopics = useMemo(() => {
     const topicCounts: { [key: string]: number } = {};
     articles.forEach(article => {
       const category = renderText(article.category.name);
@@ -67,10 +68,10 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
         href: `/${safeLang}/category/${category.toLowerCase().replace(/\s+/g, '-')}`,
         color: ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-purple-500', 'bg-pink-500', 'bg-red-500'][index]
       }));
-  };
+  }, [articles, renderText, safeLang]);
 
-  // Get real weather data (simulated)
-  const getWeatherData = () => {
+  // Memoize weather data to prevent regeneration on every render
+  const weatherData = useMemo(() => {
     const conditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Rain', 'Thunderstorm'];
     const icons = ['sun', 'cloud', 'cloud', 'rain', 'rain'];
     const currentCondition = conditions[Math.floor(Math.random() * conditions.length)];
@@ -98,46 +99,55 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
         };
       })
     };
-  };
+  }, [safeLang]);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     return new Date(dateString).toLocaleDateString(safeLang === 'kh' ? 'km-KH' : 'en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     })
-  }
+  }, [safeLang]);
 
-  const formatTime = (dateString: string) => {
+  const formatTime = useCallback((dateString: string) => {
     return new Date(dateString).toLocaleTimeString(safeLang === 'kh' ? 'km-KH' : 'en-US', {
       hour: '2-digit',
       minute: '2-digit'
     })
-  }
+  }, [safeLang]);
 
-  // Organize articles
-  const breakingNews = articles.filter(article => article.isBreaking).slice(0, 1)
-  const mainStory = articles.find(article => article.isFeatured && !article.isBreaking) || articles[0]
-  const topStories = articles.filter(article => 
-    article.id !== mainStory?.id && 
-    !article.isBreaking
-  ).slice(0, 4)
-  
-  // For sidebar, use all articles except the main story, prioritizing non-breaking news
-  const sidebarStories = articles
-    .filter(article => article.id !== mainStory?.id)
-    .sort((a, b) => {
-      // Prioritize non-breaking news for sidebar
-      if (a.isBreaking && !b.isBreaking) return 1
-      if (!a.isBreaking && b.isBreaking) return -1
-      // Then sort by views (most popular first)
-      return (b.views || 0) - (a.views || 0)
-    })
-    .slice(0, 6)
+  // Memoize article organization to prevent recalculation on every render
+  const { breakingNews, mainStory, topStories, sidebarStories } = useMemo(() => {
+    const breaking = articles.filter(article => article.isBreaking).slice(0, 1);
+    const main = articles.find(article => article.isFeatured && !article.isBreaking) || articles[0];
+    const top = articles.filter(article => 
+      article.id !== main?.id && 
+      !article.isBreaking
+    ).slice(0, 4);
+    
+    // For sidebar, use all articles except the main story, prioritizing non-breaking news
+    const sidebar = articles
+      .filter(article => article.id !== main?.id)
+      .sort((a, b) => {
+        // Prioritize non-breaking news for sidebar
+        if (a.isBreaking && !b.isBreaking) return 1
+        if (!a.isBreaking && b.isBreaking) return -1
+        // Then sort by views (most popular first)
+        return (b.views || 0) - (a.views || 0)
+      })
+      .slice(0, 6);
+
+    return {
+      breakingNews: breaking,
+      mainStory: main,
+      topStories: top,
+      sidebarStories: sidebar
+    };
+  }, [articles]);
 
   return (
-    <div className="min-h-screen0">
+    <div className="min-h-screen">
       {/* Header Date Bar */}
       <div className="border-b border-gray-200 dark:border-gray-700 py-2 lg:py-3">
         <div className="container mx-auto px-0 sm:px-0 lg:px-8 max-w-7xl">
@@ -438,7 +448,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
               {/* Weather Widget */}
               {safeLang && (
                 <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                  <WeatherWidget lang={safeLang} realData={getWeatherData()} />
+                  <WeatherWidget lang={safeLang} realData={weatherData} />
                 </div>
               )}
 
@@ -464,7 +474,7 @@ export const NYTimesLayout = ({ articles, lang }: NYTimesLayoutProps) => {
         <div className="">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-8 lg:py-12">
             {/* Trending Topics Section */}
-            <TrendingTopics lang={safeLang} realData={getTrendingTopics()} />
+            <TrendingTopics lang={safeLang} realData={trendingTopics} />
           </div>
         </div>
       )}
