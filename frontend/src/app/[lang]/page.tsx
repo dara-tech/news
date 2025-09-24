@@ -26,7 +26,8 @@ async function getNewsData(lang: 'en' | 'kh'): Promise<NewsData> {
       featured: featuredRes.data?.data || featuredRes.data || [],
       latest: latestRes.data?.news || latestRes.data?.data || latestRes.data || [],
     };
-  } catch (error) {throw new Error('Could not load news. Please try refreshing the page.');
+  } catch (error) {
+    throw new Error('Could not load news. Please try refreshing the page.');
   }
 }
 
@@ -34,7 +35,8 @@ async function getCategories(): Promise<Category[]> {
   try {
     const response = await api.get('/categories', { timeout: 15000 });
     return response.data?.data || response.data || [];
-  } catch (error) {return [];
+  } catch (error) {
+    return [];
   }
 }
 
