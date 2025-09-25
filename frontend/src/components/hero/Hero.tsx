@@ -26,6 +26,18 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
   const router = useRouter()
   const tickerRef = useRef<{ pause: () => void; play: () => void }>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [hasError, setHasError] = useState(false)
+
+  // Error boundary for client-side errors
+  React.useEffect(() => {
+    const handleError = (error: ErrorEvent) => {
+      console.error('Hero component error:', error)
+      setHasError(true)
+    }
+    
+    window.addEventListener('error', handleError)
+    return () => window.removeEventListener('error', handleError)
+  }, [])
 
   // Update time every minute
   React.useEffect(() => {
@@ -67,6 +79,21 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
     })
   }
 
+  // Error fallback
+  if (hasError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Unable to load content</h2>
+          <p className="text-muted-foreground mb-4">Please refresh the page to try again.</p>
+          <Button onClick={() => window.location.reload()}>
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Breaking News Ticker */}
@@ -83,7 +110,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
       )}
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto lg:px-8 py-8">
         {/* Header Bar */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}

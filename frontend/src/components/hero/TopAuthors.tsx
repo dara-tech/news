@@ -37,15 +37,20 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
   useEffect(() => {
     const fetchTopAuthors = async () => {
       try {
+        setLoading(true)
         const response = await api.get('/news/top-authors', {
           params: { limit, lang: locale }
         })
         
-        if (response.data?.success && response.data?.data) {
+        if (response.data?.success && Array.isArray(response.data?.data)) {
           setAuthors(response.data.data)
+        } else {
+          console.warn('Invalid response format for top authors:', response.data)
+          setAuthors([])
         }
       } catch (error) {
         console.error('Error fetching top authors:', error)
+        setAuthors([])
       } finally {
         setLoading(false)
       }
@@ -78,7 +83,8 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
     )
   }
 
-  if (authors.length === 0) {
+  // Don't render if no authors
+  if (!authors || authors.length === 0) {
     return null
   }
 

@@ -2,6 +2,7 @@
 
 import { Article, Category } from '@/types';
 import Hero from '../hero/Hero';
+import ErrorBoundary from '../ErrorBoundary';
 
 
 interface HomePageProps {
@@ -58,11 +59,13 @@ export default function HomePage({ lang, newsData }: HomePageProps) {
   );
 
   return (
-    <Hero
-      breaking={safeBreaking}
-      featured={safeFeatured}
-      categories={safeCategories}
-      locale={safeLang}
-    />
+    <ErrorBoundary>
+      <Hero
+        breaking={safeBreaking}
+        featured={safeFeatured}
+        categories={safeCategories}
+        locale={safeLang}
+      />
+    </ErrorBoundary>
   );
 }
