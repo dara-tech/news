@@ -1,8 +1,8 @@
 'use client';
 
 import { Article, Category } from '@/types';
+import Hero from '../hero/Hero';
 
-import { NYTimesLayout } from '@/components/news/NYTimesLayout';
 
 interface HomePageProps {
   lang: 'en' | 'kh';
@@ -10,15 +10,21 @@ interface HomePageProps {
     breaking: Article[];
     featured: Article[];
     latest: Article[];
+    categories: Category[];
   };
-  categories: Category[];
 }
 
-export default function HomePage({ lang, newsData, categories }: HomePageProps) {
+export default function HomePage({ lang, newsData }: HomePageProps) {
   // Ensure lang is always a string
   const safeLang = typeof lang === 'string' ? lang : 'en';
   const locale = safeLang;
-  const { breaking, featured, latest } = newsData;
+  const { breaking, featured, latest, categories } = newsData;
+
+  // Ensure arrays are always arrays, even if undefined or null
+  const safeBreaking = Array.isArray(breaking) ? breaking : [];
+  const safeFeatured = Array.isArray(featured) ? featured : [];
+  const safeLatest = Array.isArray(latest) ? latest : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
 
   // Transform articles to match NY Times component interface
   const transformArticle = (article: Article) => ({
@@ -43,18 +49,20 @@ export default function HomePage({ lang, newsData, categories }: HomePageProps) 
 
   // Combine all articles and prioritize breaking/featured
   const allArticles = [
-    ...breaking.map(article => ({ ...transformArticle(article), isBreaking: true })),
-    ...featured.map(article => ({ ...transformArticle(article), isFeatured: true })),
-    ...latest.map(transformArticle)
+    ...safeBreaking.map(article => ({ ...transformArticle(article), isBreaking: true })),
+    ...safeFeatured.map(article => ({ ...transformArticle(article), isFeatured: true })),
+    ...safeLatest.map(transformArticle)
   ].filter((article, index, self) => 
     // Remove duplicates based on ID
     index === self.findIndex(a => a.id === article.id)
   );
 
   return (
-    <NYTimesLayout 
-      articles={allArticles}
-      lang={safeLang}
+    <Hero
+      breaking={safeBreaking}
+      featured={safeFeatured}
+      categories={safeCategories}
+      locale={safeLang}
     />
   );
 }

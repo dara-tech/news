@@ -326,6 +326,123 @@ app.use("/api/user/activity", userActivityRoutes)
 // Public settings routes (no authentication required)
 app.use("/api/settings", settingsRoutes)
 
+// Additional public endpoints for frontend
+app.get("/api/trending", async (req, res) => {
+  try {
+    const News = (await import('./models/News.mjs')).default;
+    const trendingNews = await News.find({ status: 'published' })
+      .sort({ views: -1, createdAt: -1 })
+      .limit(10)
+      .populate('author', 'username')
+      .populate('category', 'name color')
+      .select('title description thumbnail views createdAt slug author category');
+    
+    res.json({
+      success: true,
+      data: trendingNews
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to get trending content' });
+  }
+});
+
+app.get("/api/overview", async (req, res) => {
+  try {
+    const News = (await import('./models/News.mjs')).default;
+    const Category = (await import('./models/Category.mjs')).default;
+    
+    const [totalNews, totalCategories, recentNews] = await Promise.all([
+      News.countDocuments({ status: 'published' }),
+      Category.countDocuments(),
+      News.find({ status: 'published' })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select('title createdAt views')
+    ]);
+    
+    res.json({
+      success: true,
+      data: {
+        totalNews,
+        totalCategories,
+        recentNews,
+        lastUpdated: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to get overview data' });
+  }
+});
+
+app.get("/api/logo", async (req, res) => {
+  try {
+    const Settings = (await import('./models/Settings.mjs')).default;
+    const settings = await Settings.getCategorySettings('logo');
+    res.json({
+      success: true,
+      settings: settings || {}
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to get logo settings' });
+  }
+});
+
+app.get("/api/notifications", async (req, res) => {
+  try {
+    // Return empty notifications for now
+    res.json({
+      success: true,
+      data: {
+        notifications: [],
+        unreadCount: 0
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to get notifications' });
+  }
+});
+
+app.get("/api/footer", async (req, res) => {
+  try {
+    const Settings = (await import('./models/Settings.mjs')).default;
+    const settings = await Settings.getCategorySettings('footer');
+    res.json({
+      success: true,
+      settings: settings || {}
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to get footer settings' });
+  }
+});
+
+app.get("/api/social-media", async (req, res) => {
+  try {
+    const Settings = (await import('./models/Settings.mjs')).default;
+    const settings = await Settings.getCategorySettings('social-media');
+    res.json({
+      success: true,
+      settings: settings || {}
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to get social media settings' });
+  }
+});
+
+app.get("/api/profile", async (req, res) => {
+  try {
+    // Return basic profile info for unauthenticated users
+    res.json({
+      success: true,
+      data: {
+        user: null,
+        isAuthenticated: false
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to get profile' });
+  }
+});
+
 // Direct public social media settings endpoint
 app.get("/api/settings/public/social-media", async (req, res) => {
   try {

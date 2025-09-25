@@ -12,41 +12,32 @@ interface NewsData {
   breaking: Article[];
   featured: Article[];
   latest: Article[];
+  categories: Category[];
 }
 
 async function getNewsData(lang: 'en' | 'kh'): Promise<NewsData> {
   try {
-    const [breakingRes, featuredRes, latestRes] = await Promise.all([
+    const [breakingRes, featuredRes, latestRes, categoriesRes] = await Promise.all([
       api.get('/news/breaking', { params: { lang } }),
       api.get('/news/featured', { params: { lang } }),
       api.get('/news', { params: { lang } }),
+      api.get('/categories', { timeout: 15000 }),
     ]);
 
     return {
       breaking: breakingRes.data?.data || breakingRes.data || [],
       featured: featuredRes.data?.data || featuredRes.data || [],
       latest: latestRes.data?.news || latestRes.data?.data || latestRes.data || [],
+      categories: categoriesRes.data?.data || categoriesRes.data || [],
     };
   } catch (error) {
     throw new Error('Could not load news. Please try refreshing the page.');
   }
 }
 
-async function getCategories(): Promise<Category[]> {
-  try {
-    const response = await api.get('/categories', { timeout: 15000 });
-    return response.data?.data || response.data || [];
-  } catch (error) {
-    return [];
-  }
-}
-
 export default async function Home({ params }: HomeProps) {
   const resolvedParams = await params;
-  const [newsData, categories] = await Promise.all([
-    getNewsData(resolvedParams.lang),
-    getCategories()
-  ]);
+  const newsData = await getNewsData(resolvedParams.lang);
 
   return (
     <MaintenanceCheck>
@@ -57,7 +48,6 @@ export default async function Home({ params }: HomeProps) {
         <HomePage 
           lang={resolvedParams.lang}
           newsData={newsData}
-          categories={categories}
         />
       </PerformanceGuard>
     </MaintenanceCheck>

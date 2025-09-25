@@ -4,6 +4,7 @@ import type React from "react"
 import { useMemo, useCallback, useRef } from "react"
 import { ArrowRight, TrendingUp, Eye } from "lucide-react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { motion } from "framer-motion"
 import type { Article, Category } from "@/types"
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,7 @@ import MainFeature from "./MainFeature"
 import SecondaryFeatureGrid from "./SecondaryFeatureGrid"
 import MoreStories from "./MoreStories"
 import TrendingCategories from "./TrendingCategories"
+import TopAuthors from "./TopAuthors"
 
 interface HeroProps {
   breaking: Article[]
@@ -169,18 +171,98 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
             </div>
 
             {/* Sidebar */}
-            <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:h-fit space-y-6">
+            <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:h-fit space-y-4">
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className="space-y-6"
+                className="space-y-4"
               >
-                {/* More Stories */}
-                <MoreStories articles={moreStories} locale={locale} />
+                {/* Top Authors - Compact */}
+                <TopAuthors locale={locale} limit={4} />
                 
-                {/* Trending Categories */}
-                <TrendingCategories categories={trendingCategories} locale={locale} />
+                {/* More Stories - Made more compact */}
+                <div className="bg-card rounded-lg border p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-sm">More Stories</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => router.push("/news")}
+                      className="text-xs h-6 px-2"
+                    >
+                      View All
+                      <ArrowRight className="ml-1 h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {moreStories.slice(0, 3).map((article, index) => (
+                      <motion.div
+                        key={article._id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className="group"
+                      >
+                        <Link
+                          href={`/${locale}/news/${article.slug?.[locale] || article._id}`}
+                          className="block p-2 rounded-md hover:bg-muted/50 transition-colors"
+                        >
+                          <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                            {typeof article.title === 'string' ? article.title : article.title?.[locale] || 'Untitled'}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                            <span>{article.views || 0} views</span>
+                            <span>•</span>
+                            <span>{new Date(article.publishedAt || article.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Trending Categories - Made more compact */}
+                <div className="bg-card rounded-lg border p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-sm">Trending Categories</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => router.push("/categories")}
+                      className="text-xs h-6 px-2"
+                    >
+                      View All
+                      <ArrowRight className="ml-1 h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {trendingCategories.slice(0, 6).map((category, index) => (
+                      <motion.div
+                        key={category._id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                      >
+                        <Link
+                          href={`/${locale}/category/${category.slug?.[locale] || category.slug}`}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
+                          style={{ 
+                            backgroundColor: category.color + '20',
+                            color: category.color,
+                            borderColor: category.color + '40'
+                          }}
+                        >
+                          <div 
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: category.color }}
+                          />
+                          {typeof category.name === 'string' ? category.name : category.name?.[locale] || 'Category'}
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             </aside>
           </div>
