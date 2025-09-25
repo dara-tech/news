@@ -56,10 +56,12 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
 
   if (loading) {
     return (
-      <div className="bg-card rounded-lg border p-4">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="bg-card/50 rounded-lg border border-border/50 p-6">
+        <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-4 h-4 text-primary" />
-          <h3 className="font-semibold text-sm">Top Authors</h3>
+          <h3 className="font-semibold text-lg">
+            {locale === 'kh' ? 'អ្នកសរសេរល្អបំផុត' : 'Top Authors'}
+          </h3>
         </div>
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
@@ -85,11 +87,13 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-card rounded-lg border p-4"
+      className="bg-card/50 rounded-lg border border-border/50 p-6"
     >
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-4">
         <TrendingUp className="w-4 h-4 text-primary" />
-        <h3 className="font-semibold text-sm">Top Authors</h3>
+        <h3 className="font-semibold text-lg">
+          {locale === 'kh' ? 'អ្នកសរសេរល្អបំផុត' : 'Top Authors'}
+        </h3>
       </div>
       
       <div className="space-y-3">
@@ -154,12 +158,12 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
         ))}
       </div>
       
-      <div className="mt-3 pt-3 border-t">
+      <div className="mt-4 pt-4 border-t border-border/30">
         <Link 
           href="/authors"
-          className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+          className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
         >
-          View all authors
+          {locale === 'kh' ? 'មើលអ្នកសរសេរទាំងអស់' : 'View all authors'}
           <TrendingUp className="w-3 h-3" />
         </Link>
       </div>

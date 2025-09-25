@@ -1,11 +1,10 @@
 "use client"
 
-import type React from "react"
-import { useMemo, useCallback, useRef } from "react"
-import { ArrowRight, TrendingUp, Eye } from "lucide-react"
+import React, { useMemo, useCallback, useRef, useState } from "react"
+import { ArrowRight, Clock, Globe, ChevronRight, ExternalLink } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import type { Article, Category } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -23,39 +22,30 @@ interface HeroProps {
   locale: "en" | "kh"
 }
 
-const READERS_COUNT = 12847
-function formatReaders(count: number): string {
-  if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`
-  if (count >= 1000) return `${(count / 1000).toFixed(1)}K`
-  return count.toString()
-}
-
 const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = [], locale = "en" }) => {
   const router = useRouter()
   const tickerRef = useRef<{ pause: () => void; play: () => void }>(null)
+  const [currentTime, setCurrentTime] = useState(new Date())
+
+  // Update time every minute
+  React.useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000)
+    return () => clearInterval(timer)
+  }, [])
 
   // Memoize derived values
-  const { mainFeature, secondaryFeatures, trendingCategories, allCategories, moreStories } = useMemo(() => {
+  const { mainFeature, secondaryFeatures, trendingCategories, moreStories, latestNews } = useMemo(() => {
     const main = featured[0] || breaking[0] || null
-    const secondaries = featured.slice(1, 5)
+    const secondaries = featured.slice(1, 6)
+    const latest = [...featured, ...breaking].slice(0, 8)
     
-    // Get more stories for sidebar - use breaking news as fallback
-    let moreStories = featured.slice(5, 9)
-    if (moreStories.length < 4) {
-      // If not enough featured articles, add breaking news
-      const needed = 4 - moreStories.length
-      const breakingForSidebar = breaking.slice(0, needed)
-      moreStories = [...moreStories, ...breakingForSidebar]
-    }
-    
-    const trending = categories.slice(0, 6)
-    const remainingCategories = categories.slice(6)
+    const trending = categories.slice(0, 8)
     return {
       mainFeature: main,
       secondaryFeatures: secondaries,
-      moreStories: moreStories,
+      moreStories: latest.slice(4, 8),
       trendingCategories: trending,
-      allCategories: remainingCategories,
+      latestNews: latest,
     }
   }, [breaking, featured, categories])
 
@@ -69,226 +59,216 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
     }
   }, [])
 
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString(locale === 'kh' ? 'km-KH' : 'en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Phnom_Penh'
+    })
+  }
+
   return (
-    <section className="relative min-h-screen" aria-label="Featured content">
-      {/* Breaking News */}
+    <div className="min-h-screen bg-background">
+      {/* Breaking News Ticker */}
       {breaking.length > 0 && (
         <div
           role="alert"
           aria-live="polite"
           onMouseEnter={() => handleTickerHover(true)}
           onMouseLeave={() => handleTickerHover(false)}
-          onFocus={() => handleTickerHover(true)}
-          onBlur={() => handleTickerHover(false)}
           className="relative z-20"
         >
           <BreakingNewsTicker ref={tickerRef} articles={breaking} locale={locale} autoRotateInterval={6000} />
         </div>
       )}
 
-      {/* Advanced Responsive Grid Layout */}
-      <div className="container mx-auto px-2 sm:px-4 pt-4 sm:pt-8 md:pt-12 relative z-10">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Bar */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6 p-4 rounded-lg border border-border/50 bg-background"
+          transition={{ duration: 0.5 }}
+          className="flex items-center justify-between py-4 border-b border-border/30 mb-8"
         >
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span className="font-medium text-sm">Live Coverage</span>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="w-4 h-4" />
+              <span>{formatTime(currentTime)}</span>
             </div>
-            <div className="hidden sm:block h-4 w-px bg-border" />
-            <span className="text-xs text-muted-foreground">Real-time updates</span>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Globe className="w-4 h-4" />
+              <span>{locale === 'kh' ? 'កម្ពុជា' : 'Cambodia'}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="text-xs">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              Trending
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              <Eye className="w-3 h-3 mr-1" />
-              {formatReaders(READERS_COUNT)} Reading
-            </Badge>
+          <div className="text-sm text-muted-foreground">
+            {new Date().toLocaleDateString(locale === 'kh' ? 'km-KH' : 'en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
           </div>
         </motion.div>
 
-        {/* Professional Hero Layout */}
-        <div className="space-y-8 lg:space-y-12">
-          {/* Main Feature - Hero Section */}
-          {mainFeature && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
-            >
-              <MainFeature article={mainFeature} locale={locale} />
-            </motion.div>
-          )}
-
-          {/* Secondary Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            {/* Featured Articles Section */}
-            <div className="lg:col-span-8">
+        {/* Main Hero Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Main Content Area */}
+          <div className="lg:col-span-8">
+            {/* Main Feature Story */}
+            {mainFeature && (
               <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="space-y-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="mb-12"
               >
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl lg:text-3xl font-bold text-foreground">
-                    Featured Stories
+                <MainFeature article={mainFeature} locale={locale} />
+              </motion.div>
+            )}
+
+            {/* Secondary Stories Grid */}
+            {secondaryFeatures.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="mb-12"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-foreground">
+                    {locale === 'kh' ? 'ព័ត៌មានថ្មីៗ' : 'Latest News'}
                   </h2>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => router.push("/news")}
-                    className="text-primary hover:text-primary/80"
+                    onClick={() => router.push(`/${locale}/news`)}
+                    className="text-muted-foreground hover:text-foreground"
                   >
-                    View All
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    {locale === 'kh' ? 'មើលទាំងអស់' : 'View All'}
+                    <ChevronRight className="ml-1 w-4 h-4" />
                   </Button>
                 </div>
                 
-                {secondaryFeatures.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {secondaryFeatures.slice(0, 4).map((article, index) => (
-                      <motion.div
-                        key={article._id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                      >
-                        <SecondaryFeatureGrid articles={[article]} locale={locale} />
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            </div>
-
-            {/* Sidebar */}
-            <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:h-fit space-y-4">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="space-y-4"
-              >
-                {/* Top Authors - Compact */}
-                <TopAuthors locale={locale} limit={4} />
-                
-                {/* More Stories - Made more compact */}
-                <div className="bg-card rounded-lg border p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-sm">More Stories</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => router.push("/news")}
-                      className="text-xs h-6 px-2"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {secondaryFeatures.slice(0, 4).map((article, index) => (
+                    <motion.div
+                      key={article._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.1 * index }}
                     >
-                      View All
-                      <ArrowRight className="ml-1 h-3 w-3" />
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    {moreStories.slice(0, 3).map((article, index) => (
-                      <motion.div
-                        key={article._id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className="group"
-                      >
-                        <Link
-                          href={`/${locale}/news/${article.slug?.[locale] || article._id}`}
-                          className="block p-2 rounded-md hover:bg-muted/50 transition-colors"
-                        >
-                          <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                            {typeof article.title === 'string' ? article.title : article.title?.[locale] || 'Untitled'}
-                          </h4>
-                          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                            <span>{article.views || 0} views</span>
-                            <span>•</span>
-                            <span>{new Date(article.publishedAt || article.createdAt).toLocaleDateString()}</span>
-                          </div>
-                        </Link>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Trending Categories - Made more compact */}
-                <div className="bg-card rounded-lg border p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-sm">Trending Categories</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => router.push("/categories")}
-                      className="text-xs h-6 px-2"
-                    >
-                      View All
-                      <ArrowRight className="ml-1 h-3 w-3" />
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {trendingCategories.slice(0, 6).map((category, index) => (
-                      <motion.div
-                        key={category._id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                      >
-                        <Link
-                          href={`/${locale}/category/${category.slug?.[locale] || category.slug}`}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
-                          style={{ 
-                            backgroundColor: category.color + '20',
-                            color: category.color,
-                            borderColor: category.color + '40'
-                          }}
-                        >
-                          <div 
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: category.color }}
-                          />
-                          {typeof category.name === 'string' ? category.name : category.name?.[locale] || 'Category'}
-                        </Link>
-                      </motion.div>
-                    ))}
-                  </div>
+                      <SecondaryFeatureGrid articles={[article]} locale={locale} />
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
-            </aside>
+            )}
           </div>
-        </div>
 
-        {/* All Categories Button (below grid, optional) */}
-        {allCategories.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-center pt-4 sm:pt-8"
-          >
-            <Button
-              variant="outline"
-              size="default"
-              className="group hover:scale-105 transform-gpu transition-all duration-300 bg-transparent w-full sm:w-auto"
-              onClick={() => router.push("/news")}
+          {/* Sidebar */}
+          <aside className="lg:col-span-4 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="space-y-6"
             >
-              <span className="text-sm sm:text-base">View All News</span>
-              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </motion.div>
-        )}
+              {/* Top Authors */}
+              <TopAuthors locale={locale} limit={5} />
+              
+              {/* Latest Stories */}
+              <div className="bg-card/50 rounded-lg border border-border/50 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-lg">
+                    {locale === 'kh' ? 'ព័ត៌មានថ្មី' : 'Latest Stories'}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.push(`/${locale}/news`)}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {locale === 'kh' ? 'ទាំងអស់' : 'All'}
+                    <ExternalLink className="ml-1 w-3 h-3" />
+                  </Button>
+                </div>
+                <div className="space-y-4">
+                  {moreStories.slice(0, 4).map((article, index) => (
+                    <motion.div
+                      key={article._id}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: 0.1 * index }}
+                      className="group"
+                    >
+                      <Link
+                        href={`/${locale}/news/${article.slug?.[locale] || article._id}`}
+                        className="block p-3 rounded-lg hover:bg-muted/30 transition-colors border-l-2 border-transparent hover:border-primary/50"
+                      >
+                        <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors mb-2">
+                          {typeof article.title === 'string' ? article.title : article.title?.[locale] || 'Untitled'}
+                        </h4>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span>{article.views || 0} {locale === 'kh' ? 'មើល' : 'views'}</span>
+                          <span>•</span>
+                          <span>
+                            {new Date(article.publishedAt || article.createdAt).toLocaleDateString(
+                              locale === 'kh' ? 'km-KH' : 'en-US'
+                            )}
+                          </span>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Categories */}
+              <div className="bg-card/50 rounded-lg border border-border/50 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-lg">
+                    {locale === 'kh' ? 'ប្រភេទព័ត៌មាន' : 'Categories'}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.push(`/${locale}/categories`)}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {locale === 'kh' ? 'ទាំងអស់' : 'All'}
+                    <ExternalLink className="ml-1 w-3 h-3" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {trendingCategories.slice(0, 8).map((category, index) => (
+                    <motion.div
+                      key={category._id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: 0.05 * index }}
+                    >
+                      <Link
+                        href={`/${locale}/category/${category.slug?.[locale] || category.slug}`}
+                        className="block p-3 rounded-lg hover:bg-muted/30 transition-colors text-center"
+                      >
+                        <div 
+                          className="w-3 h-3 rounded-full mx-auto mb-2"
+                          style={{ backgroundColor: category.color }}
+                        />
+                        <span className="text-xs font-medium">
+                          {typeof category.name === 'string' ? category.name : category.name?.[locale] || 'Category'}
+                        </span>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </aside>
+        </div>
       </div>
-    </section>
+    </div>
   )
 }
 
