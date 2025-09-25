@@ -39,7 +39,7 @@ function getCategorySlug(category: Category, lang: string = 'en'): string {
   }
   
   // Use the appropriate language slug, fallback to English
-  const safeLang = lang === 'km' ? 'kh' : lang;
+  const safeLang = lang === 'kh' ? 'kh' : 'en';
   return category.slug[safeLang as keyof typeof category.slug] || category.slug.en || String(category._id || 'unknown');
 }
 

@@ -136,7 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                              currentPath.includes('/search') || 
                              currentPath === '/' || 
                              currentPath === '/en' || 
-                             currentPath === '/km';
+                             currentPath === '/kh';
         
         // Always check localStorage for stored user, even on public routes
         const storedUser = localStorage.getItem('userInfo');
@@ -164,7 +164,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           !currentPath.includes('/search') && 
           currentPath !== '/' && 
           currentPath !== '/en' && 
-          currentPath !== '/km'
+          currentPath !== '/kh'
         ) {
           router.push('/');
         }
@@ -180,7 +180,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           !currentPath.includes('/search') && 
           currentPath !== '/' && 
           currentPath !== '/en' && 
-          currentPath !== '/km'
+          currentPath !== '/kh'
         ) {
           router.push('/');
         }

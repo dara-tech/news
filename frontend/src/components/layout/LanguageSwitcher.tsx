@@ -2,26 +2,47 @@
 
 import { useLanguage } from "@/context/LanguageContext"
 import { Button } from "@/components/ui/button"
-
-const LANGUAGES = [
-  { code: "en", label: "EN" },
-  { code: "kh", label: "KH" },
-]
+import { Loader2 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function LanguageSwitcher() {
-  const { language, toggleLanguage } = useLanguage()
-
-  const currentLabel = LANGUAGES.find(l => l.code === language)?.label || "EN"
+  const { language, toggleLanguage, isChanging } = useLanguage()
 
   return (
-    <Button
-      onClick={toggleLanguage}
-      className="px-3 py-1 text-sm font-medium bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md transition-colors"
-      variant="outline"
-      size="sm"
-      title="Switch language"
-    >
-      {currentLabel}
-    </Button>
+    <>
+      <Button
+        onClick={toggleLanguage}
+        disabled={isChanging}
+        variant="outline"
+        size="sm"
+        className="px-3 py-1 min-w-[60px]"
+      >
+        <AnimatePresence mode="wait">
+          {isChanging ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center gap-1"
+            >
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span className="text-xs">...</span>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={language}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {language.toUpperCase()}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Button>
+    </>
   )
 }

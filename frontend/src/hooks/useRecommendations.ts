@@ -58,7 +58,7 @@ interface RecommendationData {
 
 interface RecommendationFilters {
   limit: number;
-  language: 'en' | 'km';
+  language: 'en' | 'kh';
   categories: string[];
   tags: string[];
   timeRange: 'today' | 'week' | 'month' | 'all';

@@ -33,7 +33,7 @@ export default function RelatedArticles({ currentArticle, locale, limit = 6 }: R
     autoFetch: true,
     initialFilters: {
       limit,
-      language: locale === 'kh' ? 'km' : 'en',
+      language: locale === 'kh' ? 'kh' : 'en',
       excludeRead: false,
       includeBreaking: true
     }

@@ -41,7 +41,7 @@ interface SearchResultItemProps {
 // Get localized text
 const getLocalizedText = (text: string | { en?: string; kh?: string } | undefined, locale: string) => {
   if (typeof text === 'string') return text
-  return text?.[locale === 'km' ? 'kh' : 'en'] || text?.en || ''
+  return text?.[locale === 'kh' ? 'kh' : 'en'] || text?.en || ''
 }
 
 // Get author name

@@ -37,7 +37,7 @@ function getLocalizedText(
   text: string | { [key: string]: string | undefined } | undefined,
   lang: string
 ): string {
-  const safeLang = lang === 'km' ? 'km' : lang;
+  const safeLang = lang === 'kh' ? 'kh' : 'en';
   if (!text) return '';
   if (typeof text === 'string') return text;
   if (typeof text === 'object') {
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       canonical: `https://yourdomain.com/${lang}/category/${slug}`,
       languages: {
         "en-US": `https://yourdomain.com/en/category/${slug}`,
-        "km-KH": `https://yourdomain.com/km/category/${slug}`,
+        "km-KH": `https://yourdomain.com/kh/category/${slug}`,
       },
     },
     openGraph: {

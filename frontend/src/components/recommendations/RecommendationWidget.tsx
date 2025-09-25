@@ -22,18 +22,18 @@ interface RecommendationItem {
   _id: string;
   title: {
     en: string;
-    km: string;
+    kh: string;
   };
   description: {
     en: string;
-    km: string;
+    kh: string;
   };
   thumbnail?: string;
   publishedAt: string;
   views: number;
   category: {
     _id: string;
-    name: string | { en: string; km: string };
+    name: string | { en: string; kh: string };
   };
   author: {
     _id: string;
@@ -48,7 +48,7 @@ interface RecommendationItem {
 interface RecommendationWidgetProps {
   type?: 'for-you' | 'trending' | 'explore';
   limit?: number;
-  language?: 'en' | 'km';
+  language?: 'en' | 'kh';
   showHeader?: boolean;
   className?: string;
   onArticleClick?: (article: RecommendationItem) => void;
@@ -182,11 +182,11 @@ export default function RecommendationWidget({
     }
   };
 
-  const getCategoryName = (category: { name: string | { en: string; km: string } }) => {
+  const getCategoryName = (category: { name: string | { en: string; kh: string } }) => {
     if (typeof category.name === 'string') {
       return category.name;
     }
-    return language === 'km' ? category.name.km : category.name.en;
+    return language === 'kh' ? category.name.kh : category.name.en;
   };
 
   if (loading) {
@@ -291,11 +291,11 @@ export default function RecommendationWidget({
                 </div>
                 
                 <h3 className="font-medium text-sm leading-tight line-clamp-2 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                  {language === 'km' ? article.title.km : article.title.en}
+                  {language === 'kh' ? article.title.kh : article.title.en}
                 </h3>
                 
                 <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                  {language === 'km' ? article.description.km : article.description.en}
+                  {language === 'kh' ? article.description.kh : article.description.en}
                 </p>
                 
                 <div className="flex items-center justify-between">

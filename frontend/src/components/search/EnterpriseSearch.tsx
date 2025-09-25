@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { getArticleImage } from '@/hooks/useImageLoader';
+import api from '@/lib/api';
 
 interface SearchSuggestion {
   id: string;
@@ -50,11 +51,12 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
   const inputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+
   // Get trending recommendations
   const { recommendations: trendingRecs } = useRecommendations({
     type: 'trending',
     autoFetch: true,
-    initialFilters: { limit: 5, language: lang as 'en' | 'km' }
+    initialFilters: { limit: 5, language: lang as 'en' | 'kh' }
   });
 
   // Load recent searches from localStorage
@@ -88,11 +90,19 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
     
     try {
       // Use actual news search API
-      const response = await fetch(`/api/news?keyword=${encodeURIComponent(searchQuery)}&limit=5&lang=${lang}`);
-      const data = await response.json();
+      const response = await api.get('/news', {
+        params: {
+          keyword: searchQuery,
+          limit: 5,
+          lang: lang
+        }
+      });
       
-      if (data.news && data.news.length > 0) {
-        const searchSuggestions: SearchSuggestion[] = data.news.map((article: any) => ({
+      const data = response.data || {};
+      const news = data.news || data.data || [];
+      
+      if (news.length > 0) {
+        const searchSuggestions: SearchSuggestion[] = news.map((article: any) => ({
           id: article._id,
           type: 'article' as const,
           title: article.title[lang] || article.title.en || '',
@@ -108,7 +118,9 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
         // Fallback to local suggestions
         setSuggestions(generateLocalSuggestions(searchQuery));
       }
-    } catch (error) {// Fallback to local suggestions
+    } catch (error) {
+      console.error('Search error:', error);
+      // Fallback to local suggestions
       setSuggestions(generateLocalSuggestions(searchQuery));
     } finally {
       setIsLoading(false);
@@ -210,7 +222,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
     localStorage.removeItem('recentSearches');
   };
 
-  // Keyboard navigation
+  // Keyboard navigation and click outside
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -222,8 +234,18 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
       }
     };
 
+    const handleClickOutside = (e: MouseEvent) => {
+      if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   return (
@@ -240,6 +262,10 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
+            onBlur={() => {
+              // Delay closing to allow clicking on suggestions
+              setTimeout(() => setIsOpen(false), 150);
+            }}
             className="pl-10 pr-20 h-10 bg-background/80 border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 rounded-xl transition-all duration-200 placeholder:text-muted-foreground/60"
           />
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
@@ -254,7 +280,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
       </form>
 
       <AnimatePresence>
-        {isOpen && (
+        {(isOpen || (query && suggestions.length > 0)) && (
           <motion.div
             initial={{ opacity: 0, y: 8, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -330,6 +356,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
               <div className="max-h-80 overflow-y-auto">
                 {suggestions.length > 0 ? (
                   <div className="p-2">
+                    <div className="text-xs text-muted-foreground mb-2">Found {suggestions.length} results</div>
                     {suggestions.map((suggestion, index) => (
                       <motion.button
                         key={suggestion.id}

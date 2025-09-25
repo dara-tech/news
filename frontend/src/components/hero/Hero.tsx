@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useCallback, useRef, useState } from "react"
+import React, { useMemo, useCallback, useRef, useState, memo } from "react"
 import { ArrowRight, Clock, Globe, ChevronRight, ExternalLink } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -14,6 +14,7 @@ import SecondaryFeatureGrid from "./SecondaryFeatureGrid"
 import MoreStories from "./MoreStories"
 import TrendingCategories from "./TrendingCategories"
 import TopAuthors from "./TopAuthors"
+import { useOptimizedLanguage } from "@/hooks/useOptimizedLanguage"
 
 interface HeroProps {
   breaking: Article[]
@@ -27,6 +28,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
   const tickerRef = useRef<{ pause: () => void; play: () => void }>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [hasError, setHasError] = useState(false)
+  const { language, formatTime, formatDate, isChanging } = useOptimizedLanguage()
 
   // Error boundary for client-side errors
   React.useEffect(() => {
@@ -71,13 +73,12 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
     }
   }, [])
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString(locale === 'kh' ? 'km-KH' : 'en-US', {
+  const formatTimeOptimized = useCallback((date: Date) => {
+    return formatTime(date, {
       hour: '2-digit',
-      minute: '2-digit',
-      timeZone: 'Asia/Phnom_Penh'
+      minute: '2-digit'
     })
-  }
+  }, [formatTime])
 
   // Error fallback
   if (hasError) {
@@ -121,15 +122,15 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="w-4 h-4" />
-              <span>{formatTime(currentTime)}</span>
+              <span>{formatTimeOptimized(currentTime)}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Globe className="w-4 h-4" />
-              <span>{locale === 'kh' ? 'កម្ពុជា' : 'Cambodia'}</span>
+              <span>{language === 'kh' ? 'កម្ពុជា' : 'Cambodia'}</span>
             </div>
           </div>
           <div className="text-sm text-muted-foreground">
-            {new Date().toLocaleDateString(locale === 'kh' ? 'km-KH' : 'en-US', {
+            {formatDate(new Date(), {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
@@ -164,15 +165,15 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-foreground">
-                    {locale === 'kh' ? 'ព័ត៌មានថ្មីៗ' : 'Latest News'}
+                    {language === 'kh' ? 'ព័ត៌មានថ្មីៗ' : 'Latest News'}
                   </h2>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => router.push(`/${locale}/news`)}
+                    onClick={() => router.push(`/${language}/news`)}
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    {locale === 'kh' ? 'មើលទាំងអស់' : 'View All'}
+                    {language === 'kh' ? 'មើលទាំងអស់' : 'View All'}
                     <ChevronRight className="ml-1 w-4 h-4" />
                   </Button>
                 </div>
@@ -185,7 +186,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: 0.1 * index }}
                     >
-                      <SecondaryFeatureGrid articles={[article]} locale={locale} />
+                      <SecondaryFeatureGrid articles={[article]} locale={language} />
                     </motion.div>
                   ))}
                 </div>
@@ -202,21 +203,21 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
               className="space-y-6"
             >
               {/* Top Authors */}
-              <TopAuthors locale={locale} limit={5} />
+              <TopAuthors locale={language} limit={5} />
               
               {/* Latest Stories */}
               <div className="bg-card/50 rounded-lg border border-border/50 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-lg">
-                    {locale === 'kh' ? 'ព័ត៌មានថ្មី' : 'Latest Stories'}
+                    {language === 'kh' ? 'ព័ត៌មានថ្មី' : 'Latest Stories'}
                   </h3>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => router.push(`/${locale}/news`)}
+                    onClick={() => router.push(`/${language}/news`)}
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
-                    {locale === 'kh' ? 'ទាំងអស់' : 'All'}
+                    {language === 'kh' ? 'ទាំងអស់' : 'All'}
                     <ExternalLink className="ml-1 w-3 h-3" />
                   </Button>
                 </div>
@@ -230,19 +231,17 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
                       className="group"
                     >
                       <Link
-                        href={`/${locale}/news/${article.slug?.[locale] || article._id}`}
+                        href={`/${language}/news/${article.slug?.[language] || article._id}`}
                         className="block p-3 rounded-lg hover:bg-muted/30 transition-colors border-l-2 border-transparent hover:border-primary/50"
                       >
                         <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors mb-2">
-                          {typeof article.title === 'string' ? article.title : article.title?.[locale] || 'Untitled'}
+                          {typeof article.title === 'string' ? article.title : article.title?.[language] || 'Untitled'}
                         </h4>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span>{article.views || 0} {locale === 'kh' ? 'មើល' : 'views'}</span>
+                          <span>{article.views || 0} {language === 'kh' ? 'មើល' : 'views'}</span>
                           <span>•</span>
                           <span>
-                            {new Date(article.publishedAt || article.createdAt).toLocaleDateString(
-                              locale === 'kh' ? 'km-KH' : 'en-US'
-                            )}
+                            {formatDate(article.publishedAt || article.createdAt)}
                           </span>
                         </div>
                       </Link>
@@ -255,15 +254,15 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
               <div className="bg-card/50 rounded-lg border border-border/50 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-lg">
-                    {locale === 'kh' ? 'ប្រភេទព័ត៌មាន' : 'Categories'}
+                    {language === 'kh' ? 'ប្រភេទព័ត៌មាន' : 'Categories'}
                   </h3>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => router.push(`/${locale}/categories`)}
+                    onClick={() => router.push(`/${language}/categories`)}
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
-                    {locale === 'kh' ? 'ទាំងអស់' : 'All'}
+                    {language === 'kh' ? 'ទាំងអស់' : 'All'}
                     <ExternalLink className="ml-1 w-3 h-3" />
                   </Button>
                 </div>
@@ -276,7 +275,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
                       transition={{ duration: 0.3, delay: 0.05 * index }}
                     >
                       <Link
-                        href={`/${locale}/category/${category.slug?.[locale] || category.slug}`}
+                        href={`/${language}/category/${category.slug?.[language] || category.slug}`}
                         className="block p-3 rounded-lg hover:bg-muted/30 transition-colors text-center"
                       >
                         <div 
@@ -284,7 +283,7 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
                           style={{ backgroundColor: category.color }}
                         />
                         <span className="text-xs font-medium">
-                          {typeof category.name === 'string' ? category.name : category.name?.[locale] || 'Category'}
+                          {typeof category.name === 'string' ? category.name : category.name?.[language] || 'Category'}
                         </span>
                       </Link>
                     </motion.div>
@@ -299,4 +298,4 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
   )
 }
 
-export default Hero
+export default memo(Hero)

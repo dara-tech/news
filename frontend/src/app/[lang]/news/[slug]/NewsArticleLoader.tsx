@@ -99,7 +99,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
               "keywords": article.keywords || article.tags?.join(', '),
               "wordCount": rawContent.split(/\s+/).length,
               "timeRequired": `PT${Math.ceil(rawContent.split(/\s+/).length / 200)}M`,
-              "inLanguage": locale === 'kh' ? 'km' : 'en',
+              "inLanguage": locale === 'kh' ? 'kh' : 'en',
               "isAccessibleForFree": true,
               "genre": "News",
               "about": {

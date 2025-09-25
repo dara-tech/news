@@ -114,7 +114,7 @@ api.interceptors.response.use(
                 !currentPath.includes('/search') && 
                 currentPath !== '/' && 
                 currentPath !== '/en' && 
-                currentPath !== '/km') {
+                currentPath !== '/kh') {
               window.location.href = '/';
             }
           }

@@ -33,7 +33,7 @@ interface SearchFiltersProps {
 // Get localized text
 const getLocalizedText = (text: string | { en?: string; kh?: string } | undefined, locale: string) => {
   if (typeof text === 'string') return text
-  return text?.[locale === 'km' ? 'kh' : 'en'] || text?.en || ''
+  return text?.[locale === 'kh' ? 'kh' : 'en'] || text?.en || ''
 }
 
 export const SearchFiltersComponent = ({ 
@@ -58,7 +58,7 @@ export const SearchFiltersComponent = ({
             <Button variant="outline" className="w-full justify-between">
               <Filter className="w-4 h-4" />
               {filters.category ?
-                categories.find(c => c._id === filters.category)?.name?.[lang === 'km' ? 'kh' : 'en'] || 'Category'
+                categories.find(c => c._id === filters.category)?.name?.[lang === 'kh' ? 'kh' : 'en'] || 'Category'
                 : 'Category'
               }
             </Button>

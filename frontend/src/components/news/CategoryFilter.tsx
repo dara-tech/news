@@ -16,8 +16,8 @@ function getLocalizedText(text: string | { [key: string]: string | undefined } |
   if (typeof text === 'string') return text;
   if (typeof text === 'object') {
     
-    // Handle both 'kh' and 'km' locale keys for Khmer
-    const khmerKey = locale === 'kh' ? 'kh' : 'km';
+    // Handle Khmer locale key
+    const khmerKey = 'kh';
     
     // Try exact locale match first
     if (typeof text[locale] === 'string' && text[locale]!.trim()) {
@@ -29,9 +29,9 @@ function getLocalizedText(text: string | { [key: string]: string | undefined } |
       return text[khmerKey]!;
     }
     
-    // Try 'km' key if locale is 'kh'
-    if (locale === 'kh' && typeof text['km'] === 'string' && text['km']!.trim()) {
-      return text['km']!;
+    // Try 'kh' key if locale is 'kh'
+    if (locale === 'kh' && typeof text['kh'] === 'string' && text['kh']!.trim()) {
+      return text['kh']!;
     }
     
     // Fallback to English
@@ -64,7 +64,7 @@ function getCategorySlug(category: Category, lang: string = 'en'): string {
   }
   
   // Use the appropriate language slug, fallback to English
-  const safeLang = lang === 'km' ? 'kh' : lang;
+  const safeLang = lang === 'kh' ? 'kh' : 'en';
   return category.slug[safeLang as keyof typeof category.slug] || category.slug.en || String(category._id || 'unknown');
 }
 

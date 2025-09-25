@@ -41,7 +41,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface Category {
   id: string;
-  name: string | { en: string; km: string };
+  name: string | { en: string; kh: string };
   color?: string;
   count?: number;
 }
@@ -83,7 +83,7 @@ interface RecommendationFiltersProps {
 
 const LANGUAGES = [
   { value: 'en', label: 'English', flag: '🇺🇸' },
-  { value: 'km', label: 'ខ្មែរ', flag: '🇰🇭' },
+  { value: 'kh', label: 'ខ្មែរ', flag: '🇰🇭' },
   { value: 'zh', label: '中文', flag: '🇨🇳' },
   { value: 'th', label: 'ไทย', flag: '🇹🇭' },
   { value: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' }
@@ -125,49 +125,49 @@ const CONTENT_TYPES = [
 const DEFAULT_CATEGORIES: Category[] = [
   { 
     id: '1', 
-    name: { en: 'Technology', km: 'បច្ចេកវិទ្យា' }, 
+    name: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' }, 
     color: '#3b82f6',
     count: 142
   },
   { 
     id: '2', 
-    name: { en: 'Business', km: 'អាជីវកម្ម' }, 
+    name: { en: 'Business', kh: 'អាជីវកម្ម' }, 
     color: '#10b981',
     count: 89
   },
   { 
     id: '3', 
-    name: { en: 'Politics', km: 'នយោបាយ' }, 
+    name: { en: 'Politics', kh: 'នយោបាយ' }, 
     color: '#f59e0b',
     count: 156
   },
   { 
     id: '4', 
-    name: { en: 'Health', km: 'សុខភាព' }, 
+    name: { en: 'Health', kh: 'សុខភាព' }, 
     color: '#ef4444',
     count: 78
   },
   { 
     id: '5', 
-    name: { en: 'Sports', km: 'កីឡា' }, 
+    name: { en: 'Sports', kh: 'កីឡា' }, 
     color: '#8b5cf6',
     count: 234
   },
   { 
     id: '6', 
-    name: { en: 'Entertainment', km: 'កម្សាន្ត' }, 
+    name: { en: 'Entertainment', kh: 'កម្សាន្ត' }, 
     color: '#ec4899',
     count: 167
   },
   { 
     id: '7', 
-    name: { en: 'Science', km: 'វិទ្យាសាស្ត្រ' }, 
+    name: { en: 'Science', kh: 'វិទ្យាសាស្ត្រ' }, 
     color: '#06b6d4',
     count: 92
   },
   { 
     id: '8', 
-    name: { en: 'World News', km: 'ព័ត៌មានពិភពលោក' }, 
+    name: { en: 'World News', kh: 'ព័ត៌មានពិភពលោក' }, 
     color: '#84cc16',
     count: 312
   }

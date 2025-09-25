@@ -31,18 +31,18 @@ interface RecommendationItem {
   _id: string;
   title: {
     en: string;
-    km: string;
+    kh: string;
   };
   description: {
     en: string;
-    km: string;
+    kh: string;
   };
   thumbnail?: string;
   publishedAt: string;
   views: number;
   category: {
     _id: string;
-    name: string | { en: string; km: string };
+    name: string | { en: string; kh: string };
   };
   author: {
     _id: string;
@@ -332,17 +332,17 @@ export default function RecommendationEngine({
             </div>
           </div>
           <CardTitle className="text-lg leading-tight line-clamp-2">
-            {filters.language === 'km' ? article.title.km : article.title.en}
+            {filters.language === 'kh' ? article.title.kh : article.title.en}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
-            {filters.language === 'km' ? article.description.km : article.description.en}
+            {filters.language === 'kh' ? article.description.kh : article.description.en}
           </p>
           
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center space-x-2">
-              <span>{filters.language === 'km' ? (article.category.name as { km: string }).km : (article.category.name as { en: string }).en}</span>
+              <span>{filters.language === 'kh' ? (article.category.name as { kh: string }).kh : (article.category.name as { en: string }).en}</span>
               <span>•</span>
               <span>{formatDistanceToNow(new Date(article.publishedAt), { addSuffix: true })}</span>
             </div>

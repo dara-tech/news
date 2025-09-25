@@ -64,7 +64,7 @@ type FetchError = {
 export default function AuthorProfilePage() {
   const params = useParams();
   const { authorId, lang } = params;
-  const locale = (lang as string) === 'km' ? 'kh' : 'en';
+  const locale = (lang as string) === 'kh' ? 'kh' : 'en';
   
   const [data, setData] = useState<AuthorProfileData | null>(null);
   const [loading, setLoading] = useState(true);

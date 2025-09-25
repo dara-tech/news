@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     canonical: ogMeta.url,
     languages: {
       'en': isKhmer ? `/en/news/${article.slug}` : undefined,
-      'km': !isKhmer ? `/kh/news/${article.slug}` : undefined,
+      'kh': !isKhmer ? `/kh/news/${article.slug}` : undefined,
     },
   };
 

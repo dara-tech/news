@@ -7,46 +7,11 @@ import { useCarousel } from "@/components/hero/components/use-carousel"
 import type { Article } from "@/types"
 import { cn } from "@/lib/utils"
 import { ChevronLeft, ChevronRight, Zap } from "lucide-react"
-import { FaHotjar } from "react-icons/fa";
 
 interface BreakingNewsTickerProps {
   articles: Article[]
   locale: "en" | "kh"
   autoRotateInterval?: number
-}
-
-const TICKER_VARIANTS = {
-  initial: { opacity: 0, y: -12, scale: 0.95 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 30,
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: 12,
-    scale: 0.95,
-    transition: {
-      duration: 0.2,
-    },
-  },
-}
-
-const PULSE_VARIANTS = {
-  animate: {
-    scale: [1, 1.1, 1],
-    opacity: [0.7, 1, 0.7],
-    transition: {
-      duration: 2,
-      repeat: Number.POSITIVE_INFINITY,
-      ease: [0.42, 0, 0.58, 1] as [number, number, number, number], // cubic-bezier for easeInOut
-    },
-  },
 }
 
 const DEFAULT_INTERVAL = 5000
@@ -90,254 +55,87 @@ export const BreakingNewsTicker = forwardRef<BreakingNewsTickerHandle, BreakingN
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.42, 0, 0.58, 1] }}
-        role="alert"
-        aria-live="polite"
-        className="relative overflow-hidden bg-gradient-to-r from-red-600 via-red-500 to-red-600 border-b border-red-500/30"
+        transition={{ duration: 0.3 }}
+        className="bg-red-600 border-b border-red-500/30"
       >
-        {/* Mobile Layout */}
-        <div className="block sm:hidden">
-          <div className="h-32 px-3 py-3 flex flex-col justify-between">
-            {/* Header Section */}
-            <div className="flex items-center justify-center mb-2">
-              <div className="flex items-center gap-2">
-                <div className="relative flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                  {/* Animated pulse rings */}
-                  <motion.span
-                    className="absolute inline-flex h-full w-full rounded-full bg-white/30"
-                    variants={PULSE_VARIANTS}
-                    animate="animate"
-                  />
-                  <motion.span
-                    className="absolute inline-flex h-3/4 w-3/4 rounded-full bg-white/50"
-                    variants={PULSE_VARIANTS}
-                    animate="animate"
-                    transition={{ delay: 0.5 }}
-                  />
-                  {/* Center icon */}
-                  <div className="relative rounded-full h-8 w-8 bg-white border-2 border-red-600 flex items-center justify-center shadow-lg">
-                    <Zap className="text-red-600 w-4 h-4" />
-                  </div>
-                </div>
-                <div className="flex flex-col text-center">
-                  <span className="uppercase text-sm font-black tracking-[0.2em] text-white drop-shadow-lg">Breaking</span>
-                  <span className="text-xs text-white/80 font-medium">Live Updates</span>
-                </div>
-              </div>
+        <div className="h-12 sm:h-14 px-2 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
+          {/* Breaking Label */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-[80px] sm:min-w-[120px]">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full flex items-center justify-center">
+              <Zap className="text-red-600 w-2.5 h-2.5 sm:w-3 sm:h-3" />
             </div>
-
-            {/* Content Section */}
-            <div className="relative overflow-hidden min-h-[80px] flex items-center justify-center mb-2">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={currentArticle._id}
-                  variants={TICKER_VARIANTS}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  className="absolute inset-0 flex items-center justify-center"
-                  aria-live="polite"
-                  aria-atomic="true"
-                >
-                  <Link
-                    href={articleHref}
-                    className="block w-full text-center text-sm font-bold leading-tight text-white hover:text-white/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/80 rounded-sm transition-all duration-200 line-clamp-3 hover:scale-[1.02] transform-gpu px-3"
-                    aria-label={`Breaking: ${articleTitle}`}
-                    tabIndex={0}
-                  >
-                    {articleTitle}
-                  </Link>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Footer Section */}
-            <div className="flex items-center justify-between">
-              {/* Navigation Buttons */}
-              {validArticles.length > 1 && (
-                <div className="flex items-center gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setCurrentIndex((currentIndex - 1 + validArticles.length) % validArticles.length)}
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/80 border border-white/20"
-                    aria-label="Previous breaking news"
-                    type="button"
-                  >
-                    <ChevronLeft className="w-4 h-4 text-white" />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setCurrentIndex((currentIndex + 1) % validArticles.length)}
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/80 border border-white/20"
-                    aria-label="Next breaking news"
-                    type="button"
-                  >
-                    <ChevronRight className="w-4 h-4 text-white" />
-                  </motion.button>
-                </div>
-              )}
-
-              {/* Dot Indicators */}
-              {validArticles.length > 1 && (
-                <div className="flex items-center gap-1.5">
-                  {validArticles.map((_, index) => (
-                    <motion.button
-                      key={index}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setCurrentIndex(index)}
-                      className={cn(
-                        "w-2 h-2 rounded-full border border-white transition-all duration-300",
-                        "focus:outline-none focus:ring-2 focus:ring-white/80",
-                        index === currentIndex ? "bg-white shadow-lg scale-125" : "bg-white/30 hover:bg-white/60",
-                      )}
-                      aria-label={`View breaking news ${index + 1}`}
-                      aria-current={index === currentIndex ? "step" : undefined}
-                      type="button"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+            <span className="uppercase text-xs sm:text-sm font-bold tracking-wide text-white">
+              Breaking
+            </span>
           </div>
-        </div>
 
-        {/* Desktop Layout */}
-        <div className="hidden sm:block">
-          <div className="h-18 px-4 flex items-center justify-between gap-4 relative z-10">
-            {/* Subtle pattern overlay */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIi8+PC9nPjwvZz48L3N2Zz4=')] animate-pulse" />
-            </div>
+          {/* Navigation Buttons - Hidden on mobile, shown on tablet+ */}
+          {validArticles.length > 1 && (
+            <button
+              onClick={() => setCurrentIndex((currentIndex - 1 + validArticles.length) % validArticles.length)}
+              className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 transition-colors items-center justify-center"
+              aria-label="Previous breaking news"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+            </button>
+          )}
 
-            {/* Breaking Label */}
-            <div className="flex items-center gap-4 min-w-[140px]">
-              <div className="relative flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                {/* Animated pulse rings */}
-                <motion.span
-                  className="absolute inline-flex h-full w-full rounded-full bg-white/30"
-                  variants={PULSE_VARIANTS}
-                  animate="animate"
-                />
-                <motion.span
-                  className="absolute inline-flex h-3/4 w-3/4 rounded-full bg-white/50"
-                  variants={PULSE_VARIANTS}
-                  animate="animate"
-                  transition={{ delay: 0.5 }}
-                />
-
-                {/* Center icon */}
-                <motion.div 
-                  className="relative rounded-full h-8 w-8 bg-white border-2 border-red-600 flex items-center justify-center shadow-lg"
-                  animate={{
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 10, -10, 0],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      color: ["#dc2626", "#f97316", "#dc2626"],
-                    }}
-                    transition={{
-                      duration: 1,
-                      repeat: Number.POSITIVE_INFINITY,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <FaHotjar />
-                  </motion.div>
-                </motion.div>
-              </div>
-
-              <div className="flex flex-col">
-                <span className="uppercase text-sm font-black tracking-[0.2em] text-white drop-shadow-lg">Breaking</span>
-                <span className="text-xs text-white/80 font-medium">Live Updates</span>
-              </div>
-            </div>
-
-            {/* Navigation Buttons */}
-            {validArticles.length > 1 && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setCurrentIndex((currentIndex - 1 + validArticles.length) % validArticles.length)}
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/80 border border-white/20"
-                aria-label="Previous breaking news"
-                type="button"
+          {/* News Content */}
+          <div className="flex-1 overflow-hidden min-w-0">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentArticle._id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="w-full"
               >
-                <ChevronLeft className="w-5 h-5 text-white" />
-              </motion.button>
-            )}
-
-            {/* News Ticker Content */}
-            <div className="relative w-full mx-4 overflow-hidden flex-grow min-h-[40px] flex items-center">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={currentArticle._id}
-                  variants={TICKER_VARIANTS}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  className="absolute inset-0 flex items-center"
-                  aria-live="polite"
-                  aria-atomic="true"
+                <Link
+                  href={articleHref}
+                  className="block text-white hover:text-white/90 font-medium truncate transition-colors text-sm sm:text-base"
+                  aria-label={`Breaking: ${articleTitle}`}
                 >
-                  <Link
-                    href={articleHref}
-                    className="block w-full text-base sm:text-lg font-bold leading-tight text-white hover:text-white/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/80 rounded-sm transition-all duration-200 truncate hover:scale-[1.02] transform-gpu"
-                    aria-label={`Breaking: ${articleTitle}`}
-                    tabIndex={0}
-                  >
-                    {articleTitle}
-                  </Link>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Next Button */}
-            {validArticles.length > 1 && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setCurrentIndex((currentIndex + 1) % validArticles.length)}
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/80 border border-white/20"
-                aria-label="Next breaking news"
-                type="button"
-              >
-                <ChevronRight className="w-5 h-5 text-white" />
-              </motion.button>
-            )}
-
-            {/* Dot Indicators */}
-            {validArticles.length > 1 && (
-              <div className="flex items-center gap-2 ml-4">
-                {validArticles.map((_, index) => (
-                  <motion.button
-                    key={index}
-                    whileHover={{ scale: 1.2 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setCurrentIndex(index)}
-                    className={cn(
-                      "w-3 h-3 rounded-full border-2 border-white transition-all duration-300",
-                      "focus:outline-none focus:ring-2 focus:ring-white/80",
-                      index === currentIndex ? "bg-white shadow-lg scale-110" : "bg-white/30 hover:bg-white/60",
-                    )}
-                    aria-label={`View breaking news ${index + 1}`}
-                    aria-current={index === currentIndex ? "step" : undefined}
-                    type="button"
-                  />
-                ))}
-              </div>
-            )}
+                  {articleTitle}
+                </Link>
+              </motion.div>
+            </AnimatePresence>
           </div>
+
+          {/* Navigation Buttons - Hidden on mobile, shown on tablet+ */}
+          {validArticles.length > 1 && (
+            <button
+              onClick={() => setCurrentIndex((currentIndex + 1) % validArticles.length)}
+              className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 transition-colors items-center justify-center"
+              aria-label="Next breaking news"
+            >
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+            </button>
+          )}
+
+          {/* Dot Indicators - Hidden on mobile, shown on tablet+ */}
+          {validArticles.length > 1 && validArticles.length <= 5 && (
+            <div className="hidden sm:flex items-center gap-1">
+              {validArticles.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-colors",
+                    index === currentIndex ? "bg-white" : "bg-white/30 hover:bg-white/60"
+                  )}
+                  aria-label={`View breaking news ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Counter for many articles */}
+          {validArticles.length > 5 && (
+            <div className="text-white/70 text-xs sm:text-sm font-medium min-w-[40px] text-right">
+              {currentIndex + 1}/{validArticles.length}
+            </div>
+          )}
         </div>
       </motion.div>
     )

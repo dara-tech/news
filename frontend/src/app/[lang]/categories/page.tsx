@@ -7,7 +7,7 @@ import Link from "next/link"
 // For this example, I'll define them here.
 interface CategoryName {
   en: string
-  km: string
+  kh: string
   [key: string]: string
 }
 

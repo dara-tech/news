@@ -41,7 +41,7 @@ export const EnterpriseNewsGrid = ({
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(lang === 'km' ? 'km-KH' : 'en-US', {
+    return new Date(dateString).toLocaleDateString(lang === 'kh' ? 'km-KH' : 'en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',

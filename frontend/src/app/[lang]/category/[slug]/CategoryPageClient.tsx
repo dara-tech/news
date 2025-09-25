@@ -36,8 +36,8 @@ interface CategoryPageProps {
   };
 }
 
-const getLocalizedText = (text: string | { en?: string; kh?: string } | undefined, lang: "en" | "kh" | "km" = "en"): string => {
-  const safeLang = lang === 'km' ? 'kh' : lang;
+const getLocalizedText = (text: string | { en?: string; kh?: string } | undefined, lang: "en" | "kh" = "en"): string => {
+  const safeLang = lang;
   if (!text) return "";
   if (typeof text === "string") return text;
   if (typeof text === "object") {
@@ -51,8 +51,8 @@ const getLocalizedText = (text: string | { en?: string; kh?: string } | undefine
 
 // ----- PAGE COMPONENT -----
 export default function CategoryPageClient({ params, category }: CategoryPageProps) {
-  const { lang: rawLang } = use(params);
-  const lang = (rawLang === 'km' ? 'kh' : 'en') as 'en' | 'kh';
+  const { lang } = use(params);
+  const safeLang = (lang === 'kh' ? 'kh' : 'en') as 'en' | 'kh';
   const categoryObj = category.category;
   const articles = category.articles;
   
@@ -82,8 +82,8 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(article => 
-        getLocalizedText(article.title, lang).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getLocalizedText(article.description, lang).toLowerCase().includes(searchTerm.toLowerCase())
+        getLocalizedText(article.title, safeLang).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getLocalizedText(article.description, safeLang).toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
     
@@ -95,21 +95,21 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
         case "oldest":
           return new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime()
         case "title":
-          return getLocalizedText(a.title, lang).localeCompare(getLocalizedText(b.title, lang))
+          return getLocalizedText(a.title, safeLang).localeCompare(getLocalizedText(b.title, safeLang))
         default:
           return 0
       }
     })
     
     setFilteredArticles(filtered)
-  }, [articles, searchTerm, sortBy, lang])
+  }, [articles, searchTerm, sortBy, safeLang])
 
   if (!categoryObj) {
     return null
   }
 
-  const categoryName = getLocalizedText(categoryObj.name, lang) || 'Category'
-  const categoryDescription = getLocalizedText(categoryObj.description, lang)
+  const categoryName = getLocalizedText(categoryObj.name, safeLang) || 'Category'
+  const categoryDescription = getLocalizedText(categoryObj.description, safeLang)
 
   return (
     <div className="min-h-screen">
@@ -264,7 +264,7 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
               </TabsList>
               
               <TabsContent value="all" className="space-y-8">
-                <NewsGrid articles={filteredArticles} locale={lang}/>
+                <NewsGrid articles={filteredArticles} locale={safeLang}/>
               </TabsContent>
               
               <TabsContent value="recent" className="space-y-8">
@@ -275,7 +275,7 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
                     weekAgo.setDate(weekAgo.getDate() - 7)
                     return publishedDate >= weekAgo
                   })} 
-                  locale={lang} 
+                  locale={safeLang} 
         
                 />
               </TabsContent>
@@ -283,7 +283,7 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
               <TabsContent value="trending" className="space-y-8">
                 <NewsGrid 
                   articles={filteredArticles.slice(0, 5)} 
-                  locale={lang} 
+                  locale={safeLang} 
     
                 />
               </TabsContent>

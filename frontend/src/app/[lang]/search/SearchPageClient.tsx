@@ -101,6 +101,53 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
     fetchCategories()
   }, [])
 
+  // Auto-search when there's an initial query
+  useEffect(() => {
+    if (initialQuery && initialQuery.trim()) {
+      // We'll call performSearch after it's defined
+      const searchWithInitialQuery = async () => {
+        if (!initialQuery.trim()) {
+          setResults([])
+          setTotalResults(0)
+          return
+        }
+
+        setIsLoading(true)
+        try {
+          const params = new URLSearchParams({
+            keyword: initialQuery,
+            page: '1',
+            limit: '10',
+            lang: lang
+          })
+
+          if (filters.category) params.append('category', filters.category)
+          if (filters.dateRange && filters.dateRange !== 'all') params.append('dateRange', filters.dateRange)
+          if (filters.sortBy) params.append('sortBy', filters.sortBy)
+          if (filters.featured) params.append('featured', 'true')
+          if (filters.breaking) params.append('breaking', 'true')
+
+          const response = await api.get(`/news?${params.toString()}`)
+          const data = response.data || {}
+          const newResults = data.news || data.data || []
+
+          setResults(newResults)
+          setCurrentPage(1)
+          setTotalResults(data.pagination?.total || data.total || 0)
+          setHasMore(newResults.length === 10 && newResults.length < (data.pagination?.total || data.total || 0))
+        } catch (error) {
+          console.error('Search error:', error)
+          setResults([])
+          setTotalResults(0)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      
+      searchWithInitialQuery()
+    }
+  }, [initialQuery, lang, filters])
+
   // Perform search
   const performSearch = useCallback(async (searchQuery: string, page: number = 1, resetResults: boolean = false) => {
     if (!searchQuery.trim()) {
@@ -112,9 +159,10 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
     setIsLoading(true)
     try {
       const params = new URLSearchParams({
-        q: searchQuery,
+        keyword: searchQuery,
         page: page.toString(),
-        limit: '10'
+        limit: '10',
+        lang: lang
       })
 
       if (filters.category) params.append('category', filters.category)
@@ -123,9 +171,9 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
       if (filters.featured) params.append('featured', 'true')
       if (filters.breaking) params.append('breaking', 'true')
 
-      const response = await api.get(`/news/search?${params.toString()}`)
-      const data = response.data?.data || {}
-      const newResults = data.results || []
+      const response = await api.get(`/news?${params.toString()}`)
+      const data = response.data || {}
+      const newResults = data.news || data.data || []
 
       if (resetResults || page === 1) {
         setResults(newResults)
@@ -134,8 +182,8 @@ const SearchPageClient = ({ initialQuery, initialFilters, lang }: SearchPageClie
         setResults(prev => [...prev, ...newResults])
       }
 
-      setTotalResults(data.total || 0)
-      setHasMore(newResults.length === 10 && results.length + newResults.length < (data.total || 0))
+      setTotalResults(data.pagination?.total || data.total || 0)
+      setHasMore(newResults.length === 10 && results.length + newResults.length < (data.pagination?.total || data.total || 0))
       setCurrentPage(page)
     } catch (error) {
       console.error('Search error:', error)
