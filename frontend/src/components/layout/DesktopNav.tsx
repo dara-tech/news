@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import api from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
+import EnterpriseSearch from "@/components/search/EnterpriseSearch"
+
 
 type Category = {
   _id: string
@@ -265,7 +267,7 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
 
   return (
     <nav 
-      className="hidden lg:flex items-center gap-2 relative z-50"
+      className="hidden lg:flex items-center gap-2 relative z-50 overflow-visible"
       role="navigation"
       aria-label="Main navigation"
     >
@@ -331,6 +333,11 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
             <CategoriesDropdown />
           </>
         )}
+      </div>
+
+      {/* Enterprise Search */}
+      <div className="hidden lg:block relative">
+        <EnterpriseSearch lang={lang} />
       </div>
 
     </nav>

@@ -249,7 +249,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
   }, []);
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative z-50 ${className}`}>
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative">
           <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-all duration-200 ${
@@ -286,7 +286,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute top-full left-0 right-0 mt-2 bg-background/98 backdrop-blur-xl border border-border/20 rounded-xl shadow-xl z-50 overflow-hidden"
+            className="absolute top-full left-0 right-0 mt-2 bg-background/98 backdrop-blur-xl border border-border/20 rounded-xl shadow-xl z-[60] overflow-hidden"
           >
             {/* Recent Searches */}
             {recentSearches.length > 0 && !query && (
