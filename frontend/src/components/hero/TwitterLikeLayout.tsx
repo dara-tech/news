@@ -115,7 +115,7 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
       <div className="w-full mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-screen">
           {/* Left Sidebar - Navigation */}
-          <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen overflow-hidden border-r border-border/50">
+          <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen overflow-hidden border-none">
             <div className="p-6 space-y-6 h-full flex flex-col">
             
 
@@ -166,9 +166,9 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
           </aside>
 
           {/* Main Content - Twitter-like Feed */}
-          <main className="lg:col-span-6 border-x border-border/50 h-screen overflow-y-auto">
+          <main className="lg:col-span-6 border-x border-none h-screen overflow-y-auto">
             {customMainContent ? (
-              <div >
+              <div className="border-none">
                 {customMainContent}
               </div>
             ) : (
