@@ -168,7 +168,7 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
           {/* Main Content - Twitter-like Feed */}
           <main className="lg:col-span-6 border-x border-border/50 h-screen overflow-y-auto">
             {customMainContent ? (
-              <div className="p-6">
+              <div >
                 {customMainContent}
               </div>
             ) : (
