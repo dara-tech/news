@@ -1,5 +1,5 @@
-import NewsArticleSkeleton from "@/components/skeletons/NewsArticleSkeleton"
+import TwitterLikeLayoutSkeleton from "@/components/hero/TwitterLikeLayoutSkeleton"
 
 export default function Loading() {
-  return <NewsArticleSkeleton />
+  return <TwitterLikeLayoutSkeleton />
 }

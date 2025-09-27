@@ -113,12 +113,12 @@ export default function GeneralSettingsPage() {
       return;
     }
     
-    setSettings(prev => ({ ...prev, [field]: value }));
+    setSettings(prev => ({ ...(prev || {}), [field]: value }));
     setHasChanges(true);
     
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors(prev => ({ ...(prev || {}), [field]: '' }));
     }
   };
 

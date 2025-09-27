@@ -292,7 +292,7 @@ export default function AutoPostingManager() {
         setSettings(prev => ({
           ...prev,
           [platform]: {
-            ...(prev[platform as keyof AutoPostingSettings] as any),
+            ...((prev[platform as keyof AutoPostingSettings] as any) || {}),
             status: 'connected'
           }
         }));
@@ -302,7 +302,7 @@ export default function AutoPostingManager() {
         setSettings(prev => ({
           ...prev,
           [platform]: {
-            ...(prev[platform as keyof AutoPostingSettings] as any),
+            ...((prev[platform as keyof AutoPostingSettings] as any) || {}),
             status: 'error'
           }
         }));

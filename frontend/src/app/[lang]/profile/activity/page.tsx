@@ -91,7 +91,7 @@ export default function UserActivityPage() {
       setLoading(true);
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        ...Object.fromEntries(Object.entries(filters).filter(([, value]) => value && value !== 'all'))
+        ...Object.fromEntries(Object.entries(filters || {}).filter(([, value]) => value && value !== 'all'))
       });
       
       const { data } = await api.get(`/user/activity?${params}`);
@@ -129,7 +129,7 @@ export default function UserActivityPage() {
     try {
       const params = new URLSearchParams({
         format: 'csv',
-        ...Object.fromEntries(Object.entries(filters).filter(([, value]) => value && value !== 'all'))
+        ...Object.fromEntries(Object.entries(filters || {}).filter(([, value]) => value && value !== 'all'))
       });
       
       const response = await api.get(`/user/activity/export?${params}`, {

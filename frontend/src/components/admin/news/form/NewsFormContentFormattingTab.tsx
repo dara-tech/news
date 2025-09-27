@@ -115,7 +115,7 @@ export default function NewsFormContentFormattingTab({
   }, [formData.formattingOptions]);
 
   const handleFormattingOptionChange = (key: keyof FormattingOptions, value: boolean) => {
-    const newOptions = { ...formattingOptions, [key]: value };
+    const newOptions = { ...(formattingOptions || {}), [key]: value };
     setFormattingOptions(newOptions);
     onFormDataChange('formattingOptions', newOptions);
   };

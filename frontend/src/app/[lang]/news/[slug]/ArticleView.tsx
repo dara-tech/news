@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import NewsArticleLoader from './NewsArticleLoader';
 
 interface ArticleViewProps {
-  params: { id: string; lang: 'en' | 'km' };
+  params: { id: string; lang: 'en' | 'kh' };
 }
 
 export default async function ArticleView({ params }: ArticleViewProps) {
@@ -14,7 +14,7 @@ export default async function ArticleView({ params }: ArticleViewProps) {
     notFound();
   }
 
-  const locale = lang === 'km' ? 'kh' : 'en';
+  const locale = lang === 'kh' ? 'kh' : 'en';
 
   return <NewsArticleLoader article={article} locale={locale} />;
 }

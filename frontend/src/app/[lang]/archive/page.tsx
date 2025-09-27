@@ -59,7 +59,7 @@ export default async function ArchivePage({ params, searchParams }: ArchivePageP
   const currentPage = parseInt(page || '1', 10);
   const { news, pagination, years } = await getArchiveData(lang, currentPage, year, month, category);
 
-  const locale = lang === 'km' ? 'kh' : 'en';
+  const locale = lang === 'kh' ? 'kh' : 'en';
   const currentYear = new Date().getFullYear();
   const availableYears = years.length > 0 ? years : Array.from(
     { length: 5 }, 

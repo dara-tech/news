@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { NewsArticle } from '@/types/news';
@@ -16,6 +16,16 @@ import NewsTableSkeleton from '@/components/admin/news/NewsTableSkeleton';
 import EmptyState from '@/components/common/EmptyState';
 import ErrorState from '@/components/common/ErrorState';
 
+interface FilterState {
+  status?: string;
+  category?: string;
+  author?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}
+
 const NewsPage = () => {
   const { user } = useAuth();
   const [articles, setArticles] = useState<NewsArticle[]>([]);
@@ -24,33 +34,71 @@ const NewsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalArticles, setTotalArticles] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState<FilterState>({});
+  const [categories, setCategories] = useState<Array<{ _id: string; name: { en: string; kh: string } }>>([]);
+  const [authors, setAuthors] = useState<Array<{ _id: string; username: string; email: string }>>([]);
   const articlesPerPage = 10;
 
+  // Fetch categories and authors for filters
   useEffect(() => {
-    const fetchNews = async () => {
+    const fetchFilterData = async () => {
       try {
-        if (!user) {
-          throw new Error('Not authenticated');
-        }
+        const [categoriesRes, authorsRes] = await Promise.all([
+          api.get('/categories'),
+          api.get('/users')
+        ]);
         
-        setLoading(true);
-        const { data } = await api.get('/news/admin', {
-          params: { page: currentPage, limit: articlesPerPage },
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        setArticles(data.articles || []);
-        setTotalPages(data.totalPages || 1);
-        setTotalArticles(data.totalArticles || (data.articles?.length || 0));
-      } catch {
-        setError('Failed to fetch news articles.');
-        toast.error('Failed to fetch news articles.');
-      } finally {
-        setLoading(false);
+        setCategories(categoriesRes.data?.data || []);
+        setAuthors(authorsRes.data?.data || []);
+      } catch (error) {
+        console.error('Failed to fetch filter data:', error);
       }
     };
 
+    fetchFilterData();
+  }, []);
+
+  // Fetch news with search and filters
+  const fetchNews = useCallback(async () => {
+    try {
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+      
+      setLoading(true);
+      setError(null);
+      
+      const params: any = {
+        page: currentPage,
+        limit: articlesPerPage,
+        ...filters
+      };
+      
+      if (searchTerm.trim()) {
+        params.search = searchTerm.trim();
+      }
+      
+      const { data } = await api.get('/news/admin', {
+        params,
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      
+      setArticles(data.articles || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalArticles(data.totalArticles || (data.articles?.length || 0));
+    } catch (error) {
+      console.error('Failed to fetch news:', error);
+      setError('Failed to fetch news articles.');
+      toast.error('Failed to fetch news articles.');
+    } finally {
+      setLoading(false);
+    }
+  }, [user, currentPage, searchTerm, filters, articlesPerPage]);
+
+  useEffect(() => {
     fetchNews();
-  }, [user, currentPage]);
+  }, [fetchNews]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -84,7 +132,7 @@ const NewsPage = () => {
       const headers = ['Title', 'Status', 'Author', 'Created Date', 'Views', 'Category'];
       const csvContent = [
         headers.join(','),
-        ...articles.map(article => [
+        ...(Array.isArray(articles) ? articles : []).map(article => [
           `"${article.title.en.replace(/"/g, '""')}"`,
           article.status,
           `"${article.author?.email || 'Unknown'}"`,
@@ -135,6 +183,23 @@ const NewsPage = () => {
   const handleAdd = () => {
     window.location.href = '/admin/news/create';
   };
+
+  // Search and filter handlers
+  const handleSearch = useCallback((term: string) => {
+    setSearchTerm(term);
+    setCurrentPage(1); // Reset to first page when searching
+  }, []);
+
+  const handleFilter = useCallback((newFilters: FilterState) => {
+    setFilters(newFilters);
+    setCurrentPage(1); // Reset to first page when filtering
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setFilters({});
+    setSearchTerm('');
+    setCurrentPage(1);
+  }, []);
 
   // Pagination indexes for display
   const indexOfFirstArticle = (currentPage - 1) * articlesPerPage;
@@ -193,7 +258,16 @@ const NewsPage = () => {
 
   return (
     <Card>
-      <NewsHeader />
+      <NewsHeader
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        onClearFilters={handleClearFilters}
+        searchTerm={searchTerm}
+        activeFilters={filters}
+        categories={categories}
+        authors={authors}
+        totalResults={totalArticles}
+      />
       <CardContent>
         {renderContent()}
       </CardContent>

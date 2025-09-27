@@ -79,7 +79,7 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
       className="relative rounded-lg overflow-hidden group border border-border/50 bg-background"
     >
       <Link
-        href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}
+        href={`/${locale === "kh" ? "kh" : "en"}/news/${article.slug}`}
         className="block w-full h-full focus:outline-none transition-all duration-300"
         tabIndex={0}
       >

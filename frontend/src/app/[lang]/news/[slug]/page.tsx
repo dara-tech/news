@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // Prepare keywords
   const defaultKeywords = [categoryName, 'news', isKhmer ? 'ព័ត៌មាន' : 'ព័ត៌មាន'];
   const articleKeywords = tags || [];
-  const keywords = [...new Set([...defaultKeywords, ...articleKeywords])];
+  const keywords = [...new Set([...defaultKeywords, ...(Array.isArray(articleKeywords) ? articleKeywords : [])])];
 
   // Add canonical URL and language alternates
   metadata.metadataBase = new URL(BASE_URL);

@@ -116,7 +116,7 @@ export function DataTable<TData, TValue>({
       {/* Mobile-optimized Header with Actions */}
       <div className="flex flex-col gap-3 sm:gap-4">
         {/* Search - Full width on mobile */}
-        <div className="relative w-full">
+        {/* <div className="relative w-full">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground ml-1" />
           <Input
             placeholder={searchPlaceholder}
@@ -124,7 +124,7 @@ export function DataTable<TData, TValue>({
             onChange={(event) => setGlobalFilter(String(event.target.value))}
             className="pl-10 sm:h-9 w-full"
           />
-        </div>
+        </div> */}
 
         {/* Filters and Actions Row */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

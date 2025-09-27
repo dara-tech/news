@@ -117,12 +117,12 @@ export default function SecuritySettingsPage() {
   };
 
   const handleInputChange = (field: keyof SecuritySettings, value: string | boolean | number) => {
-    setSettings(prev => ({ ...prev, [field]: value }));
+    setSettings(prev => ({ ...(prev || {}), [field]: value }));
     setHasChanges(true);
     
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors(prev => ({ ...(prev || {}), [field]: '' }));
     }
   };
 

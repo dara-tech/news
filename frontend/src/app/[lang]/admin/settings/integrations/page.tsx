@@ -112,7 +112,7 @@ export default function IntegrationsSettingsPage() {
   };
 
   const handleInputChange = (field: keyof IntegrationSettings, value: string | boolean | number) => {
-    setSettings(prev => ({ ...prev, [field]: value }));
+    setSettings(prev => ({ ...(prev || {}), [field]: value }));
     setHasChanges(true);
   };
 

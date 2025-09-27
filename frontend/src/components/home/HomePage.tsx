@@ -3,7 +3,10 @@
 import { Article, Category } from '@/types';
 import Hero from '../hero/Hero';
 import ErrorBoundary from '../ErrorBoundary';
-
+import { useState, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, TrendingUp, Clock, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface HomePageProps {
   lang: 'en' | 'kh';
@@ -27,45 +30,43 @@ export default function HomePage({ lang, newsData }: HomePageProps) {
   const safeLatest = Array.isArray(latest) ? latest : [];
   const safeCategories = Array.isArray(categories) ? categories : [];
 
-  // Transform articles to match NY Times component interface
-  const transformArticle = (article: Article) => ({
-    id: article._id || article.id || '',
-    title: article.title,
-    description: article.description,
-    thumbnail: article.thumbnail,
-    category: {
-      name: article.category?.name || 'General',
-      color: article.category?.color || '#3b82f6'
-    },
-    publishedAt: article.publishedAt || article.createdAt || new Date().toISOString(),
-    views: article.views || 0,
-    author: article.author ? {
-      name: article.author.username || article.author.name || 'Staff Writer',
-      profileImage: article.author.avatar
-    } : undefined,
-    isFeatured: (article as any).isFeatured || false,
-    isBreaking: (article as any).isBreaking || false,
-    slug: article.slug
-  });
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Combine all articles and prioritize breaking/featured
-  const allArticles = [
-    ...safeBreaking.map(article => ({ ...transformArticle(article), isBreaking: true })),
-    ...safeFeatured.map(article => ({ ...transformArticle(article), isFeatured: true })),
-    ...safeLatest.map(transformArticle)
-  ].filter((article, index, self) => 
-    // Remove duplicates based on ID
-    index === self.findIndex(a => a.id === article.id)
-  );
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    // Simulate refresh delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsRefreshing(false);
+    // In a real app, you would refetch data here
+    window.location.reload();
+  }, []);
+
+  // Calculate stats
+  const totalArticles = safeBreaking.length + safeFeatured.length + safeLatest.length;
+  const hasBreaking = safeBreaking.length > 0;
+  const hasFeatured = safeFeatured.length > 0;
 
   return (
     <ErrorBoundary>
-      <Hero
-        breaking={safeBreaking}
-        featured={safeFeatured}
-        categories={safeCategories}
-        locale={safeLang}
-      />
+      <div className="min-h-screen bg-background">
+        {/* Stats Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-b border-border/50"
+        >
+        
+        </motion.div>
+
+        {/* Main Hero Component with Infinite Scroll */}
+        <Hero
+          breaking={safeBreaking}
+          featured={safeFeatured}
+          categories={safeCategories}
+          locale={safeLang}
+          useTwitterLayout={true}
+        />
+      </div>
     </ErrorBoundary>
   );
 }

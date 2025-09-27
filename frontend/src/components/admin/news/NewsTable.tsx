@@ -349,7 +349,6 @@ const NewsTable = ({
       <DataTable
         columns={columns}
         data={articles}
-        searchPlaceholder="Search articles..."
         onAdd={onAdd}
         onExport={onExport}
         onBulkDelete={onBulkDelete}

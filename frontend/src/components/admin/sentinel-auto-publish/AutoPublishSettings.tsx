@@ -43,7 +43,7 @@ export default function AutoPublishSettings({ settings, onUpdate }: AutoPublishS
   }, [settings]);
 
   const handleSettingChange = (key: string, value: any) => {
-    setLocalSettings(prev => ({ ...prev, [key]: value }));
+    setLocalSettings(prev => ({ ...(prev || {}), [key]: value }));
   };
 
   const handleSave = async () => {

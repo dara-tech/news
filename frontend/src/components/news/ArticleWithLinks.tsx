@@ -17,7 +17,7 @@ export default function ArticleWithLinks({
   // Simple regex to find URLs in content
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const urls = content.match(urlRegex) || [];
-  const allLinks = [...new Set([...urls, ...links])];
+  const allLinks = [...new Set([...(Array.isArray(urls) ? urls : []), ...(Array.isArray(links) ? links : [])])];
 
   return (
     <div className={`space-y-4 ${className}`}>

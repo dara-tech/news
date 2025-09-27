@@ -372,7 +372,7 @@ const UsersPage = () => {
 
     const csvContent = [
       ['Username', 'Email', 'Role', 'Status', 'Joined', 'Last Login', 'Articles'],
-      ...selectedData.map(user => [
+      ...(Array.isArray(selectedData) ? selectedData : []).map(user => [
         user.username,
         user.email,
         user.role,

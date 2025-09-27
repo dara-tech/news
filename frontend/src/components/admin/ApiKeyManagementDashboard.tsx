@@ -589,7 +589,7 @@ const ApiKeyManagementDashboard: React.FC = () => {
                     <select
                       id={`${editingService}-${key}`}
                       value={value ? 'true' : 'false'}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, [key]: e.target.value === 'true' }))}
+                      onChange={(e) => setEditForm(prev => ({ ...(prev || {}), [key]: e.target.value === 'true' }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       aria-label={`Select ${key}`}
                       disabled={editingService === 'google' || editingService === 'jwt' || editingService === 'mongodb'}
@@ -601,7 +601,7 @@ const ApiKeyManagementDashboard: React.FC = () => {
                     <textarea
                       id={`${editingService}-${key}-textarea`}
                       value={value || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, [key]: e.target.value }))}
+                      onChange={(e) => setEditForm(prev => ({ ...(prev || {}), [key]: e.target.value }))}
                       placeholder={`Enter ${key}`}
                       rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -612,7 +612,7 @@ const ApiKeyManagementDashboard: React.FC = () => {
                       id={`${editingService}-${key}-input`}
                       type={isSecret ? 'password' : 'text'}
                       value={value || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, [key]: e.target.value }))}
+                      onChange={(e) => setEditForm(prev => ({ ...(prev || {}), [key]: e.target.value }))}
                       placeholder={`Enter ${key}`}
                       disabled={editingService === 'google' || editingService === 'jwt' || editingService === 'mongodb'}
                     />

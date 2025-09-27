@@ -176,22 +176,47 @@ export default function TrendingPageClient({ lang }: TrendingPageClientProps) {
 
         const response = await getTrendingTopics(lang, 20, timeRange)
         
+        // Debug logging
+        console.log('Trending API response:', response);
+        if (response.data && response.data.recommendations) {
+          console.log('First recommendation item:', response.data.recommendations[0]);
+        }
+        
         if (response.success && response.data && response.data.recommendations) {
           // Transform API data to match our interface
-          const transformedTopics: TrendingTopic[] = response.data.recommendations.map((item: any, index: number) => ({
-            id: item._id || `trending-${index}`,
-            title: typeof item.title === 'string' ? item.title : (item.title?.[lang] || item.title?.en || 'Untitled'),
-            category: item.category || 'General',
-            trend: item.recommendationScore > 50 ? 'up' : item.recommendationScore > 30 ? 'stable' : 'down',
-            change: Math.round(item.recommendationScore || 0),
-            posts: item.views || 0,
-            href: `/search?q=${encodeURIComponent(typeof item.title === 'string' ? item.title : (item.title?.[lang] || item.title?.en || ''))}`,
-            color: ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-purple-500', 'bg-pink-500', 'bg-emerald-500', 'bg-indigo-500', 'bg-red-500'][index % 8],
-            publishedAt: item.publishedAt,
-            views: item.views,
-            likes: item.likes || 0,
-            comments: item.comments || 0
-          }))
+          const transformedTopics: TrendingTopic[] = response.data.recommendations.map((item: any, index: number) => {
+            // Handle category object properly
+            let categoryName = 'General';
+            try {
+              if (item.category) {
+                if (typeof item.category === 'string') {
+                  categoryName = item.category;
+                } else if (typeof item.category === 'object' && item.category.name) {
+                  categoryName = typeof item.category.name === 'string' 
+                    ? item.category.name 
+                    : (item.category.name[lang] || item.category.name.en || 'General');
+                }
+              }
+            } catch (error) {
+              console.warn('Error processing category for item', index, ':', error, item.category);
+              categoryName = 'General';
+            }
+
+            return {
+              id: item._id || `trending-${index}`,
+              title: typeof item.title === 'string' ? item.title : (item.title?.[lang] || item.title?.en || 'Untitled'),
+              category: categoryName,
+              trend: item.recommendationScore > 50 ? 'up' : item.recommendationScore > 30 ? 'stable' : 'down',
+              change: Math.round(item.recommendationScore || 0),
+              posts: item.views || 0,
+              href: `/search?q=${encodeURIComponent(typeof item.title === 'string' ? item.title : (item.title?.[lang] || item.title?.en || ''))}`,
+              color: ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-purple-500', 'bg-pink-500', 'bg-emerald-500', 'bg-indigo-500', 'bg-red-500'][index % 8],
+              publishedAt: item.publishedAt,
+              views: item.views,
+              likes: item.likes || 0,
+              comments: item.comments || 0
+            };
+          })
           
           setTrendingTopics(transformedTopics)
         } else {

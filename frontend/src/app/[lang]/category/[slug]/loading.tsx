@@ -1,5 +1,5 @@
-import CategoryPageSkeleton from "@/components/skeletons/CategoryPageSkeleton"
+import CategoryLoadingSkeleton from "@/components/hero/CategoryLoadingSkeleton"
 
 export default function Loading() {
-  return <CategoryPageSkeleton />
+  return <CategoryLoadingSkeleton />
 }

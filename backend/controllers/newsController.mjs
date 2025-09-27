@@ -16,19 +16,71 @@ import { cacheNews, cacheNewsById, cacheNewsBySlug, invalidateNewsCache, invalid
 // @access  Private/Admin
 export const getNewsForAdmin = asyncHandler(async (req, res) => {
   try {
-    const { page = 1, limit = 10, status } = req.query;
+    const { 
+      page = 1, 
+      limit = 10, 
+      status, 
+      search, 
+      category, 
+      author, 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc',
+      dateFrom,
+      dateTo
+    } = req.query;
     
     const query = {};
+    
+    // Status filter
     if (status) {
       query.status = status;
     }
     
+    // Category filter
+    if (category) {
+      query.category = category;
+    }
+    
+    // Author filter
+    if (author) {
+      query.author = author;
+    }
+    
+    // Date range filter
+    if (dateFrom || dateTo) {
+      query.createdAt = {};
+      if (dateFrom) {
+        query.createdAt.$gte = new Date(dateFrom);
+      }
+      if (dateTo) {
+        query.createdAt.$lte = new Date(dateTo);
+      }
+    }
+    
+    // Search functionality - search in title, description, and content
+    if (search) {
+      const searchRegex = new RegExp(search, 'i');
+      query.$or = [
+        { 'title.en': searchRegex },
+        { 'title.kh': searchRegex },
+        { 'description.en': searchRegex },
+        { 'description.kh': searchRegex },
+        { 'content.en': searchRegex },
+        { 'content.kh': searchRegex },
+        { tags: { $in: [searchRegex] } }
+      ];
+    }
+    
+    // Sort configuration
+    const sortConfig = {};
+    sortConfig[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    
     const articles = await News.find(query)
       .populate('author', 'username email profileImage')
       .populate('category', 'name')
-      .sort({ createdAt: -1 })
+      .sort(sortConfig)
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(parseInt(limit));
     
     const total = await News.countDocuments(query);
     
@@ -36,10 +88,12 @@ export const getNewsForAdmin = asyncHandler(async (req, res) => {
       success: true,
       articles,
       totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      totalArticles: total
+      currentPage: parseInt(page),
+      totalArticles: total,
+      hasMore: page * limit < total
     });
   } catch (error) {
+    logger.error('Admin news fetch error:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'

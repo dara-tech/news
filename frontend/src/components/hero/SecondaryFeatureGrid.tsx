@@ -93,7 +93,7 @@ function MobileCard({ article, locale, index }: { article: Article; locale: "en"
       whileTap={{ scale: 0.99 }}
       className="group relative"
     >
-      <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
+      <Link href={`/${locale === "kh" ? "kh" : "en"}/news/${article.slug}`}>
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 via-white/5 to-white/10 border border-primary/20 transition-all duration-500 backdrop-blur-sm">
           {/* Advanced background effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -196,7 +196,7 @@ function TabletCard({ article, locale }: { article: Article; locale: "en" | "kh"
       whileHover={{ y: -4, scale: 1.02 }}
       className="group"
     >
-                      <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
+                      <Link href={`/${locale === "kh" ? "kh" : "en"}/news/${article.slug}`}>
                   <div className="bg-card/50 border border-primary/20 rounded-xl overflow-hidden transition-all duration-300 h-full backdrop-blur-sm">
           {/* Image Header */}
           <div className="relative h-48">
@@ -278,7 +278,7 @@ function DesktopCard({
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className="group"
     >
-      <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
+      <Link href={`/${locale === "kh" ? "kh" : "en"}/news/${article.slug}`}>
         <div className="bg-card/50 border border-primary/20 rounded-xl overflow-hidden transition-all duration-300 backdrop-blur-sm">
           {/* Image */}
           <div className="relative h-32 overflow-hidden">
@@ -343,7 +343,7 @@ const SecondaryFeatureGrid: React.FC<SecondaryFeatureGridProps> = ({ articles, l
     const article = articles[0];
     return (
       <div className="group relative overflow-hidden rounded-lg bg-background border border-border/50 transition-all duration-300">
-        <Link href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug}`}>
+        <Link href={`/${locale === "kh" ? "kh" : "en"}/news/${article.slug}`}>
           <div className="flex flex-col h-full">
             {/* Image */}
             <div className="relative h-48 overflow-hidden">

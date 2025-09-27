@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react"
 import { notFound } from "next/navigation"
 import NewsGrid from "@/components/news/NewsGrid"
-import { Tag, Calendar, TrendingUp, Users, ChevronDown, Filter, Grid, List, Search } from "lucide-react"
+import { Tag, Calendar, TrendingUp, Users, Grid, List, Search, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Article } from "@/types"
+import TwitterLikeLayout from "@/components/hero/TwitterLikeLayout"
 
 
 // ----- INTERFACES & API FUNCTIONS -----
@@ -111,11 +112,23 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
   const categoryName = getLocalizedText(categoryObj.name, safeLang) || 'Category'
   const categoryDescription = getLocalizedText(categoryObj.description, safeLang)
 
-  return (
-    <div className="min-h-screen">
+  // Create a custom main content component for the category page
+  const CategoryMainContent = () => (
+    <div className="space-y-6">
+      {/* Back Navigation */}
+      <div className="mb-6">
+        <Button 
+          variant="ghost" 
+          className="text-gray-600 dark:text-gray-400"
+          onClick={() => window.history.back()}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Categories
+        </Button>
+      </div>
+
       {/* Hero Section */}
-      <div className="relative overflow-hidden  border-b border-gray-200 dark:border-gray-700">
-        <div className="absolute inset-0 " />
+      <div className="relative overflow-hidden border-b border-gray-200 dark:border-gray-700">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             {/* Category Icon */}
@@ -141,19 +154,19 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
             
             {/* Category Stats */}
             <div className="flex justify-center items-center gap-8 mb-8">
-              <div className="flex items-center gap-2  px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
                 <Calendar className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {articles?.length || 0} Articles
                 </span>
               </div>
-              <div className="flex items-center gap-2  px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
                 <TrendingUp className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Updated Daily
                 </span>
               </div>
-              <div className="flex items-center gap-2 0 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
                 <Users className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Popular
@@ -312,5 +325,16 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
         )}
       </div>
     </div>
+  );
+
+  return (
+    <TwitterLikeLayout
+      breaking={[]}
+      featured={[]}
+      latestNews={[]}
+      categories={[]}
+      locale={safeLang}
+      customMainContent={<CategoryMainContent />}
+    />
   );
 }

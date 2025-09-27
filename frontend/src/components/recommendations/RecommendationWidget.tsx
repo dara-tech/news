@@ -136,7 +136,7 @@ export default function RecommendationWidget({
       onArticleClick(article);
     } else {
       // Default behavior - navigate to article
-      window.location.href = `/article/${article.slug}`;
+      window.location.href = `/news/${article.slug}`;
     }
   };
 

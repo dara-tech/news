@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { User, TrendingUp, Eye, Heart } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -89,12 +88,7 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="bg-card/50 rounded-lg border border-border/50 p-6"
-    >
+    <div className="bg-card/50 rounded-lg border border-border/50 p-6">
       <div className="flex items-center gap-2 mb-4">
         <TrendingUp className="w-4 h-4 text-primary" />
         <h3 className="font-semibold text-lg">
@@ -104,11 +98,8 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
       
       <div className="space-y-3">
         {authors.slice(0, limit).map((author, index) => (
-          <motion.div
+          <div
             key={author._id}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
             className="group"
           >
             <Link 
@@ -160,7 +151,7 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
                 </div>
               </div>
             </Link>
-          </motion.div>
+          </div>
         ))}
       </div>
       
@@ -173,7 +164,7 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
           <TrendingUp className="w-3 h-3" />
         </Link>
       </div>
-    </motion.div>
+    </div>
   )
 }
 

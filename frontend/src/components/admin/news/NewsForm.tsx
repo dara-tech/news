@@ -273,7 +273,7 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
       return newState;
     });
     if (validationErrors[name]) {
-      setValidationErrors(prev => ({ ...prev, [name]: "" }));
+      setValidationErrors(prev => ({ ...(prev || {}), [name]: "" }));
     }
   };
 
@@ -305,12 +305,12 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
   };
 
   const handleSwitchChange = (checked: boolean, name: "isFeatured" | "isBreaking") => {
-    setFormData(prev => prev ? { ...prev, [name]: checked } : prev);
+    setFormData(prev => prev ? { ...(prev || {}), [name]: checked } : prev);
   };
 
   // Only allow a single string value for status, never an array
   const handleStatusChange = (value: "draft" | "published") => {
-    setFormData(prev => prev ? { ...prev, status: value } : prev);
+    setFormData(prev => prev ? { ...(prev || {}), status: value } : prev);
   };
 
   const handleCategoryChange = (value: string) => {
@@ -342,14 +342,14 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     } else if (field === 'images') {
       if (files.length > 0) {
         const newFiles = Array.from(files);
-        setFormData(prev => prev ? { ...prev, images: [...prev.images, ...newFiles] } : null);
+        setFormData(prev => prev ? { ...(prev || {}), images: [...(prev.images || []), ...(Array.isArray(newFiles) ? newFiles : [])] } : null);
         const newPreviews = newFiles.map(file => URL.createObjectURL(file));
         setImagePreviews(prev => [...prev, ...newPreviews]);
         setHasUnsavedChanges(true);
       }
     } else if (field === 'metaImage') {
       if (files[0]) {
-        setFormData(prev => prev ? { ...prev, seo: { ...prev.seo, metaImage: files[0] } } : null);
+        setFormData(prev => prev ? { ...(prev || {}), seo: { ...(prev.seo || {}), metaImage: files[0] } } : null);
         setMetaImagePreview(URL.createObjectURL(files[0]));
         setHasUnsavedChanges(true);
       }
@@ -400,21 +400,21 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     if (!droppedFiles.length) return;
     if (field === 'thumbnail') {
       if (droppedFiles[0]) {
-        setFormData(prev => prev ? { ...prev, thumbnail: droppedFiles[0] } : null);
+        setFormData(prev => prev ? { ...(prev || {}), thumbnail: droppedFiles[0] } : null);
         setThumbnailPreview(URL.createObjectURL(droppedFiles[0]));
         setHasUnsavedChanges(true);
       }
     } else if (field === 'images') {
       if (droppedFiles.length > 0) {
         const newFiles = Array.from(droppedFiles);
-        setFormData(prev => prev ? { ...prev, images: [...prev.images, ...newFiles] } : null);
+        setFormData(prev => prev ? { ...(prev || {}), images: [...(prev.images || []), ...(Array.isArray(newFiles) ? newFiles : [])] } : null);
         const newPreviews = newFiles.map(file => URL.createObjectURL(file));
         setImagePreviews(prev => [...prev, ...newPreviews]);
         setHasUnsavedChanges(true);
       }
     } else if (field === 'metaImage') {
       if (droppedFiles[0]) {
-        setFormData(prev => prev ? { ...prev, seo: { ...prev.seo, metaImage: droppedFiles[0] } } : null);
+        setFormData(prev => prev ? { ...(prev || {}), seo: { ...(prev.seo || {}), metaImage: droppedFiles[0] } } : null);
         setMetaImagePreview(URL.createObjectURL(droppedFiles[0]));
         setHasUnsavedChanges(true);
       }

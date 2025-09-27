@@ -239,7 +239,7 @@ const FollowsPage = () => {
 
     const csvContent = [
       ['Follower', 'Follower Email', 'Follower Role', 'Following', 'Following Email', 'Following Role', 'Follow Date', 'Status'],
-      ...selectedData.map(follow => [
+      ...(Array.isArray(selectedData) ? selectedData : []).map(follow => [
         follow.follower.username,
         follow.follower.email,
         follow.follower.role,

@@ -389,7 +389,7 @@ class ContentManager {
   updateContentPlan(id: string, updates: Partial<ContentPlan>): void {
     const index = this.contentPlan.findIndex(item => item.id === id);
     if (index !== -1) {
-      this.contentPlan[index] = { ...this.contentPlan[index], ...updates };
+      this.contentPlan[index] = { ...(this.contentPlan[index] || {}), ...(updates || {}) };
     }
   }
 

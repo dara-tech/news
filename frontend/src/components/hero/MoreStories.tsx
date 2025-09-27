@@ -35,7 +35,7 @@ const MoreStories: React.FC<MoreStoriesProps> = ({ articles = [], locale = "en" 
             articles.map((article, idx) => (
               <Link
                 key={article._id || idx}
-                href={`/${locale === "kh" ? "km" : "en"}/news/${article.slug || article._id}`}
+                href={`/${locale === "kh" ? "kh" : "en"}/news/${article.slug || article._id}`}
                 className="block group rounded transition-all duration-200 hover:bg-muted/30 p-2"
               >
                 <div className="flex items-center gap-2">

@@ -36,11 +36,11 @@ const CreateUserPage = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...(prev || {}), [name]: value }));
   };
 
   const handleRoleChange = (value: string) => {
-    setFormData(prev => ({ ...prev, role: value }));
+    setFormData(prev => ({ ...(prev || {}), role: value }));
   };
 
   const handleSubmit = async (e: FormEvent) => {

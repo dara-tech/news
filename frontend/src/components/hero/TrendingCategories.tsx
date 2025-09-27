@@ -22,7 +22,7 @@ interface TrendingCategoriesProps {
 }
 
 const TrendingCategories: React.FC<TrendingCategoriesProps> = ({ categories = [], locale = "en" }) => {
-  if (categories.length === 0) return null
+  if (!Array.isArray(categories) || categories.length === 0) return null
 
   return (
     <Card className="p-4 shadow-none">
@@ -33,12 +33,17 @@ const TrendingCategories: React.FC<TrendingCategoriesProps> = ({ categories = []
       </h3>
       <div className="flex flex-wrap gap-1.5 sm:gap-2">
         {categories.map((category) => {
-          const articleCount = category.articlesCount ?? 0
-          const categoryName = getLocalizedString(category.name as LocalizedString, locale) || "Uncategorized"
+          // Safety check for category object
+          if (!category || typeof category !== 'object' || !category._id) {
+            return null;
+          }
+          
+          const articleCount = category.articlesCount ?? category.newsCount ?? 0
+          const categoryName = getLocalizedString(category.name, locale) || "Uncategorized"
           // Get localized slug properly
           const categorySlug = typeof category.slug === "string" 
             ? category.slug 
-            : category.slug?.[locale === 'kh' ? 'kh' : 'en'] || category.slug?.en || category._id
+            : category.slug?.[locale] || category.slug?.en || category._id
           const categoryColor = category.color || "#3b82f6"
           return (
             <Link
