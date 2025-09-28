@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Shield, Play, Save, Clock } from 'lucide-react';
+import { Shield, Play, Save, Clock, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { SentinelConfig, SentinelRuntime } from './types';
@@ -24,6 +24,7 @@ interface SentinelProps {
 
 export default function Sentinel({ sentinel, runtime, sentinelError, onUpdate }: SentinelProps) {
   const [savingSentinel, setSavingSentinel] = useState(false);
+  const [runningSentinel, setRunningSentinel] = useState(false);
 
   const updateSentinel = async (updates: Partial<{ 
     enabled: boolean; 
@@ -51,16 +52,53 @@ export default function Sentinel({ sentinel, runtime, sentinelError, onUpdate }:
 
   const runSentinelOnce = async () => {
     try {
-      const { data } = await api.post('/admin/system/sentinel/run-once');
+      setRunningSentinel(true);
+      
+      // Create a custom axios instance with longer timeout for sentinel operations
+      const sentinelApi = api.create({
+        timeout: 120000, // 2 minutes for sentinel operations
+      });
+      
+      const { data } = await sentinelApi.post('/admin/system/sentinel/run-once');
       if (data?.success) {
-        toast.success('Sentinel run triggered');
+        toast.success('Sentinel run triggered successfully');
+        
+        // Start polling for status updates immediately
+        startStatusPolling();
+        
+        // Also trigger immediate update
         onUpdate();
       } else {
-        toast.error('Failed to trigger Sentinel');
+        toast.error('Failed to trigger Sentinel: ' + (data?.message || 'Unknown error'));
       }
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to trigger Sentinel');
+      console.error('Sentinel run error:', e);
+      if (e.code === 'ECONNABORTED') {
+        toast.error('Sentinel operation timed out. It may still be running in the background.');
+        // Start polling anyway in case it's still running
+        startStatusPolling();
+      } else {
+        toast.error('Failed to trigger Sentinel: ' + (e?.response?.data?.message || e?.message || 'Network error'));
+      }
+    } finally {
+      setRunningSentinel(false);
     }
+  };
+
+  // Poll for status updates when sentinel is running
+  const startStatusPolling = () => {
+    const pollInterval = setInterval(async () => {
+      try {
+        onUpdate(); // This will fetch the latest status
+      } catch (error) {
+        console.error('Status polling error:', error);
+      }
+    }, 2000); // Poll every 2 seconds
+
+    // Stop polling after 5 minutes
+    setTimeout(() => {
+      clearInterval(pollInterval);
+    }, 300000);
   };
 
   if (!sentinel) {
@@ -168,17 +206,39 @@ export default function Sentinel({ sentinel, runtime, sentinelError, onUpdate }:
         {/* Run Controls */}
         <Card className="border-slate-200/50 shadow-sm">
           <CardContent className="p-3 sm:p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-              <Button 
-                size="sm" 
-                onClick={runSentinelOnce} 
-                disabled={savingSentinel || !!sentinelError || runtime?.running || !!timeLeft(runtime?.cooldownUntil)}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
-              >
-                <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                Run Scan Now
-              </Button>
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <Button 
+                  size="sm" 
+                  onClick={runSentinelOnce} 
+                  disabled={savingSentinel || runningSentinel || !!sentinelError || runtime?.running || !!timeLeft(runtime?.cooldownUntil)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md w-full sm:w-auto"
+                >
+                  {runningSentinel || runtime?.running ? (
+                    <>
+                      <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 animate-spin" />
+                      {runtime?.running ? 'Running...' : 'Processing...'}
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      Run Scan Now
+                    </>
+                  )}
+                </Button>
+                
+                {/* Status Indicator */}
+                {runtime?.running && (
+                  <div className="flex items-center gap-1.5 px-3 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+                    <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                      Currently Running
+                    </span>
+                  </div>
+                )}
+              </div>
               
+              {/* Stats Row */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 {runtime?.lastRunAt && (
                   <div className="flex items-center gap-1.5">
@@ -198,7 +258,7 @@ export default function Sentinel({ sentinel, runtime, sentinelError, onUpdate }:
                     Processed: {runtime.lastProcessed}
                   </Badge>
                 )}
-                {timeLeft(runtime?.nextRunAt) && (
+                {timeLeft(runtime?.nextRunAt) && !runtime?.running && (
                   <Badge className="text-2xs">
                     Next: {timeLeft(runtime?.nextRunAt)}
                   </Badge>
@@ -208,12 +268,6 @@ export default function Sentinel({ sentinel, runtime, sentinelError, onUpdate }:
                     Cooldown: {timeLeft(runtime?.cooldownUntil)}
                   </Badge>
                 )}
-                <Badge 
-                  variant={sentinel.running ? 'default' : 'secondary'} 
-                  className="text-2xs"
-                >
-                  {sentinel.running ? 'Running' : 'Stopped'}
-                </Badge>
               </div>
             </div>
           </CardContent>

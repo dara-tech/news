@@ -13,6 +13,8 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
+import api from '@/lib/api';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell
@@ -118,18 +120,30 @@ const DataQualityDashboard: React.FC = () => {
 
   const runEnhancedSentinel = async () => {
     try {
-      const response = await fetch('/api/admin/data-quality/enhanced-sentinel/run', {
-        method: 'POST'
+      setLoading(true);
+      
+      // Create a custom axios instance with longer timeout for sentinel operations
+      const sentinelApi = api.create({
+        timeout: 120000, // 2 minutes for sentinel operations
       });
-      const data = await response.json();
+      
+      const { data } = await sentinelApi.post('/admin/data-quality/enhanced-sentinel/run');
       
       if (data.success) {
-        alert('Enhanced Sentinel run completed successfully!');
+        toast.success('Enhanced Sentinel run completed successfully!');
         loadData(); // Refresh data
       } else {
-        alert('Enhanced Sentinel run failed: ' + data.message);
+        toast.error('Enhanced Sentinel run failed: ' + (data.message || 'Unknown error'));
       }
-    } catch (error) {alert('Enhanced Sentinel run failed');
+    } catch (error: any) {
+      console.error('Enhanced Sentinel run error:', error);
+      if (error.code === 'ECONNABORTED') {
+        toast.error('Enhanced Sentinel operation timed out. It may still be running in the background.');
+      } else {
+        toast.error('Enhanced Sentinel run failed: ' + (error.message || 'Network error'));
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -231,9 +245,18 @@ const DataQualityDashboard: React.FC = () => {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button onClick={runEnhancedSentinel}>
-            <Target className="h-4 w-4 mr-2" />
-            Run Enhanced Sentinel
+          <Button onClick={runEnhancedSentinel} disabled={loading}>
+            {loading ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Running...
+              </>
+            ) : (
+              <>
+                <Target className="h-4 w-4 mr-2" />
+                Run Enhanced Sentinel
+              </>
+            )}
           </Button>
         </div>
       </div>

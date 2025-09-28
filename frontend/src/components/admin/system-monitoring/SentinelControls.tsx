@@ -18,6 +18,7 @@ import {
   Shield, 
   AlertTriangle,
   TrendingUp,
+  RefreshCw,
   Clock,
   Database,
   Network
@@ -85,18 +86,52 @@ export default function SentinelControls({ sentinel, runtime, sentinelError, onU
   const forceRun = async () => {
     try {
       setIsForceRun(true);
-      const { data } = await api.post('/admin/system/sentinel/run-once');
+      
+      // Create a custom axios instance with longer timeout for sentinel operations
+      const sentinelApi = api.create({
+        timeout: 120000, // 2 minutes for sentinel operations
+      });
+      
+      const { data } = await sentinelApi.post('/admin/system/sentinel/run-once');
       if (data?.success) {
-        toast.success('Sentinel run-once initiated');
+        toast.success('Sentinel run-once initiated successfully');
+        
+        // Start polling for status updates immediately
+        startStatusPolling();
+        
+        // Also trigger immediate update
         onUpdate();
       } else {
-        toast.error('Failed to run Sentinel');
+        toast.error('Failed to run Sentinel: ' + (data?.message || 'Unknown error'));
       }
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to run Sentinel');
+      console.error('Force run error:', e);
+      if (e.code === 'ECONNABORTED') {
+        toast.error('Sentinel operation timed out. It may still be running in the background.');
+        // Start polling anyway in case it's still running
+        startStatusPolling();
+      } else {
+        toast.error('Failed to run Sentinel: ' + (e?.response?.data?.message || e?.message || 'Network error'));
+      }
     } finally {
       setIsForceRun(false);
     }
+  };
+
+  // Poll for status updates when sentinel is running
+  const startStatusPolling = () => {
+    const pollInterval = setInterval(async () => {
+      try {
+        onUpdate(); // This will fetch the latest status
+      } catch (error) {
+        console.error('Status polling error:', error);
+      }
+    }, 2000); // Poll every 2 seconds
+
+    // Stop polling after 5 minutes
+    setTimeout(() => {
+      clearInterval(pollInterval);
+    }, 300000);
   };
 
   const resetSentinel = async () => {
@@ -257,8 +292,17 @@ export default function SentinelControls({ sentinel, runtime, sentinelError, onU
                 'Click to run Sentinel once'
               }
             >
-              <Zap className="h-3 w-3 mr-2" />
-              Run Once
+              {isForceRun || healthStatus === 'running' ? (
+                <>
+                  <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
+                  {healthStatus === 'running' ? 'Running...' : 'Processing...'}
+                </>
+              ) : (
+                <>
+                  <Zap className="h-3 w-3 mr-2" />
+                  Run Once
+                </>
+              )}
             </Button>
             
             <Button

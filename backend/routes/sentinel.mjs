@@ -26,4 +26,26 @@ router.get('/metrics', async (req, res) => {
   }
 });
 
+// Reload Sentinel sources
+router.post('/reload-sources', async (req, res) => {
+  try {
+    await sentinelService.loadSources();
+    res.json({ success: true, message: 'Sources reloaded successfully' });
+  } catch (error) {
+    logger.error('Error reloading Sentinel sources:', error);
+    res.status(500).json({ success: false, error: 'Failed to reload sources' });
+  }
+});
+
+// Run Sentinel once
+router.post('/run-once', async (req, res) => {
+  try {
+    const result = await sentinelService.runOnce();
+    res.json({ success: true, result });
+  } catch (error) {
+    logger.error('Error running Sentinel once:', error);
+    res.status(500).json({ success: false, error: 'Failed to run Sentinel' });
+  }
+});
+
 export default router;

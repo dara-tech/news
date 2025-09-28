@@ -20,7 +20,7 @@ const api: AxiosInstance = axios.create({
   xsrfCookieName: 'XSRF-TOKEN',
   xsrfHeaderName: 'X-XSRF-TOKEN',
   // Timeout settings
-  timeout: 30000, // 30 seconds (default)
+  timeout: 60000, // 60 seconds (increased for sentinel operations)
   maxRedirects: 3, // Maximum number of redirects to follow
   // Handle file uploads
   maxBodyLength: Infinity,

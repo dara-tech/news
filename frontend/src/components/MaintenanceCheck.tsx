@@ -60,12 +60,12 @@ export default function MaintenanceCheck({ children }: MaintenanceCheckProps) {
   // Show loading while checking maintenance status
   if (isChecking) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
         <div className="text-center">
           {/* Minimal Logo */}
           <div className="flex justify-center mb-8">
             <div className="relative">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 bg-blue-600 dark:bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-2xl font-bold">R</span>
               </div>
               {/* Simple loading ring */}
@@ -73,10 +73,10 @@ export default function MaintenanceCheck({ children }: MaintenanceCheckProps) {
             </div>
           </div>
           
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
             Razewire
           </h1>
-          <p className="text-gray-500 text-sm">
+          <p className="text-muted-foreground text-sm">
             Loading...
           </p>
           

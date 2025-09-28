@@ -23,12 +23,20 @@ import logger from '../utils/logger.mjs';
 class SentinelService {
   constructor() {
     this.rssParser = new Parser({ 
-      timeout: 20000,
+      timeout: 45000, // Increased timeout for better reliability
       requestOptions: {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; SentinelPP01/2.0; +https://news-app.local) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'application/rss+xml, application/xml;q=0.9, */*;q=0.8'
+          'User-Agent': 'Mozilla/5.0 (compatible; SentinelPP01/3.0; +https://news-app.local) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml, application/rdf+xml;q=0.9, */*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive'
         }
+      },
+      customFields: {
+        feed: ['title', 'description', 'link', 'language', 'managingEditor', 'webMaster'],
+        item: ['title', 'description', 'link', 'pubDate', 'guid', 'enclosure', 'category', 'author', 'comments']
       }
     });
     
@@ -98,7 +106,33 @@ class SentinelService {
     if (this.logBuffer.length > 500) {
       this.logBuffer = this.logBuffer.slice(-500);
     }
-    return entry;
+  }
+
+  // Memory management methods to prevent crashes
+  cleanupMemory() {
+    // Clean up content hash cache if it gets too large
+    if (this.contentHashCache.size > 1000) {
+      const entries = Array.from(this.contentHashCache.entries());
+      const toKeep = entries.slice(-500);
+      this.contentHashCache.clear();
+      toKeep.forEach(([key, value]) => this.contentHashCache.set(key, value));
+      this.pushLog('info', `[Sentinel-PP-01] Cleaned content hash cache, kept ${toKeep.length} entries`);
+    }
+
+    // Clean up GUIDs set if it gets too large
+    if (this.lastSeenGuids.size > 5000) {
+      const guidsArray = Array.from(this.lastSeenGuids);
+      const toKeep = guidsArray.slice(-2500);
+      this.lastSeenGuids.clear();
+      toKeep.forEach(guid => this.lastSeenGuids.add(guid));
+      this.pushLog('info', `[Sentinel-PP-01] Cleaned GUIDs set, kept ${toKeep.length} entries`);
+    }
+
+    // Clean up log buffer if it gets too large
+    if (this.logBuffer.length > 100) {
+      this.logBuffer = this.logBuffer.slice(-50);
+      this.pushLog('info', `[Sentinel-PP-01] Cleaned log buffer, kept ${this.logBuffer.length} entries`);
+    }
   }
 
   // Check daily rate limits for AI API calls
@@ -427,6 +461,9 @@ Return ONLY the JSON object.`;
     let hasError = false;
     
     try {
+      // Clean up memory before starting
+      this.cleanupMemory();
+      
       const cfg = await this.loadConfig();
       // ensure sources up to date for one-off runs
       this.sources = (cfg.sources || []).filter(s => s.enabled !== false);
@@ -461,8 +498,8 @@ Return ONLY the JSON object.`;
       let skipped = 0;
       let errors = 0;
       
-      // Cap per run
-      const maxPerRun = Number(process.env.SENTINEL_MAX_PER_RUN || 3);
+      // Cap per run (optimized for perfect performance)
+      const maxPerRun = Number(process.env.SENTINEL_MAX_PER_RUN || 15);
       const batch = significant.slice(0, Math.max(1, maxPerRun));
       
       this.pushLog('info', `[Sentinel-PP-01] Processing batch of ${batch.length} items`, { 
@@ -472,6 +509,8 @@ Return ONLY the JSON object.`;
       
       for (const item of batch) {
         try {
+          // Clean up memory before processing each item
+          this.cleanupMemory();
           const itemStartTime = Date.now();
           
           const draftJson = await this.generateDraftJson(item);
@@ -557,12 +596,24 @@ Return ONLY the JSON object.`;
       const processingTime = Date.now() - startTime;
       this.updatePerformanceMetrics(0, 0, processingTime, true);
       
+      // Emergency memory cleanup on error
+      this.cleanupMemory();
+      
       this.pushLog('error', `[Sentinel-PP-01] RunOnce failed`, { 
         error: error.message,
         processingTime: Math.round(processingTime / 1000) + 's',
         stack: error.stack?.split('\n').slice(0, 3).join('\n')
       });
-      throw error;
+      
+      // Return safe fallback instead of throwing
+      return {
+        processed: 0,
+        created: 0,
+        previews: [],
+        persist: false,
+        performance: { processingTime },
+        error: error.message
+      };
     }
   }
 
@@ -596,23 +647,39 @@ Return ONLY the JSON object.`;
 
   async fetchAllSources() {
     const allItems = [];
-    const fetchPromises = this.sources.map(async (src) => {
+    const sourceStats = {
+      total: 0,
+      successful: 0,
+      failed: 0,
+      totalItems: 0
+    };
+    
+    // Process sources sequentially to prevent memory overload
+    for (const src of this.sources) {
       if (src.enabled === false) {
         this.pushLog('info', `[Sentinel-PP-01] Skipping disabled source: ${src.name}`);
-        return;
+        continue;
       }
 
+      sourceStats.total++;
+      
       try {
         // Enhanced RSS parsing with retry logic
         const feed = await this.fetchRSSWithRetry(src.url, src.name);
-        if (!feed || !feed.items) {
+        if (!feed || !feed.items || feed.items.length === 0) {
           this.pushLog('warning', `[Sentinel-PP-01] No items found for ${src.name}`);
-          return;
+          sourceStats.failed++;
+          continue;
         }
 
-        for (const it of feed.items || []) {
+        // Limit items per source to prevent memory issues
+        const limitedItems = feed.items.slice(0, 100);
+        let addedCount = 0;
+
+        for (const it of limitedItems) {
           const guid = it.guid || it.id || it.link || `${src.name}-${it.title}`;
           if (this.lastSeenGuids.has(guid)) continue;
+          
           allItems.push({ 
             ...it, 
             sourceName: src.name, 
@@ -620,36 +687,106 @@ Return ONLY the JSON object.`;
             sourceReliability: src.reliability,
             sourcePriority: src.priority
           });
+          addedCount++;
         }
 
-        this.pushLog('info', `[Sentinel-PP-01] Successfully fetched ${feed.items.length} items from ${src.name}`);
+        sourceStats.successful++;
+        sourceStats.totalItems += addedCount;
+        
+        this.pushLog('info', `[Sentinel-PP-01] Successfully fetched ${addedCount}/${feed.items.length} items from ${src.name}`);
+        
+        // Clean up memory after each source
+        this.cleanupMemory();
+        
+        // Small delay between sources to prevent overwhelming
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
       } catch (e) {
+        sourceStats.failed++;
         this.pushLog('warning', `[Sentinel-PP-01] RSS fetch failed for ${src.name}: ${e.message}`, {
           url: src.url,
           error: e.message
         });
       }
-    });
+    }
 
-    await Promise.all(fetchPromises);
+    // Log performance summary
+    const successRate = sourceStats.total > 0 ? Math.round((sourceStats.successful / sourceStats.total) * 100) : 0;
+    this.pushLog('info', `[Sentinel-PP-01] Source fetch summary: ${sourceStats.successful}/${sourceStats.total} successful (${successRate}%), ${sourceStats.totalItems} total items`);
+    
+    // Update performance metrics
+    this.performanceMetrics.sourceSuccessRate = successRate;
+    this.performanceMetrics.lastFetchStats = sourceStats;
+
     return allItems;
   }
 
-  async fetchRSSWithRetry(url, sourceName, maxRetries = 2) {
+  async fetchRSSWithRetry(url, sourceName, maxRetries = 3) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
+        // Validate URL before attempting to fetch
+        if (!url || !url.startsWith('http')) {
+          throw new Error(`Invalid URL: ${url}`);
+        }
+
         const feed = await this.rssParser.parseURL(url);
-        return feed;
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
+        
+        // Validate feed structure
+        if (!feed || typeof feed !== 'object') {
+          throw new Error('Invalid feed structure');
         }
         
-        // Wait before retry (exponential backoff)
-        const delay = Math.pow(2, attempt) * 1000;
-        this.pushLog('info', `[Sentinel-PP-01] Retrying ${sourceName} in ${delay}ms (attempt ${attempt}/${maxRetries})`);
+        // Ensure items array exists
+        if (!Array.isArray(feed.items)) {
+          feed.items = [];
+        }
+        
+        // Additional validation for feed quality
+        if (feed.items.length === 0) {
+          this.pushLog('warning', `[Sentinel-PP-01] No items found in feed for ${sourceName}`);
+          return { items: [] };
+        }
+        
+        this.pushLog('info', `[Sentinel-PP-01] Successfully fetched ${feed.items.length} items from ${sourceName}`);
+        return feed;
+        
+      } catch (error) {
+        const errorMessage = this.getErrorMessage(error);
+        
+        if (attempt === maxRetries) {
+          this.pushLog('warning', `[Sentinel-PP-01] RSS fetch failed for ${sourceName}: ${errorMessage}`);
+          // Return empty feed instead of throwing to prevent cascade failures
+          return { items: [] };
+        }
+        
+        // Wait before retry (exponential backoff with jitter)
+        const baseDelay = Math.pow(2, attempt) * 1000;
+        const jitter = Math.random() * 1000; // Add randomness to prevent thundering herd
+        const delay = baseDelay + jitter;
+        
+        this.pushLog('info', `[Sentinel-PP-01] Retrying ${sourceName} in ${Math.round(delay)}ms (attempt ${attempt}/${maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
+    }
+  }
+
+  getErrorMessage(error) {
+    if (error.code === 'ECONNABORTED') {
+      return 'Request timed out';
+    } else if (error.code === 'ENOTFOUND') {
+      return 'Domain not found';
+    } else if (error.status) {
+      return `Status code ${error.status}`;
+    } else if (error.message.includes('Feed not recognized')) {
+      return 'Feed not recognized as RSS 1 or 2';
+    } else if (error.message.includes('Invalid character')) {
+      return 'Invalid character in entity name';
+    } else if (error.message.includes('Attribute without value')) {
+      return 'Attribute without value';
+    } else if (error.message.includes('Unable to parse XML')) {
+      return 'Unable to parse XML';
+    } else {
+      return error.message || 'Unknown error';
     }
   }
 
@@ -1572,6 +1709,24 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
         ...(metrics.uptime === 0 ? ['Verify service is running and configured'] : [])
       ]
     };
+  }
+
+  // Load sources from database
+  async loadSources() {
+    try {
+      const cfg = await this.loadConfig();
+      this.sources = (cfg.sources || []).filter(s => s.enabled !== false);
+      this.pushLog('info', `[Sentinel-PP-01] Loaded ${this.sources.length} sources from database`, {
+        sourcesCount: this.sources.length,
+        highPriority: this.sources.filter(s => s.priority === 'high').length,
+        mediumPriority: this.sources.filter(s => s.priority === 'medium').length,
+        lowPriority: this.sources.filter(s => s.priority === 'low').length
+      });
+      return this.sources;
+    } catch (error) {
+      this.pushLog('error', `[Sentinel-PP-01] Failed to load sources: ${error.message}`);
+      throw error;
+    }
   }
 
   // Enhanced source management
