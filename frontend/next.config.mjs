@@ -22,6 +22,9 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/react-*'],
     scrollRestoration: true,
+    // Memory optimization
+    memoryBasedWorkersCount: true,
+    workerThreads: false,
   },
   
   // Turbopack configuration (replaces deprecated turbo)
@@ -72,6 +75,20 @@ const nextConfig = {
 
   // Advanced webpack optimization
   webpack: (config, { dev, isServer }) => {
+    // Development memory optimizations
+    if (dev) {
+      // Reduce memory usage in development
+      config.optimization = {
+        ...config.optimization,
+        removeAvailableModules: false,
+        removeEmptyChunks: false,
+        splitChunks: false,
+      };
+      
+      // Disable source maps in development to save memory
+      config.devtool = false;
+    }
+    
     // Production optimizations
     if (!dev && !isServer) {
       // Optimize bundle splitting

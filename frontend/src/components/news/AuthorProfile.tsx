@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Link from 'next/link';
 import { 
   Calendar, 
   FileText, 
@@ -28,6 +30,10 @@ import FollowButton from '@/components/common/FollowButton';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import { getArticleImageUrl } from '@/hooks/useImageLoader';
+// Helper function for localized text
+const getLocalizedText = (en: string, kh: string, locale: 'en' | 'kh'): string => {
+  return locale === 'kh' ? kh : en;
+};
 
 interface AuthorProfileProps {
   author: {
@@ -40,7 +46,6 @@ interface AuthorProfileProps {
     role?: string;
   };
   currentArticleId?: string;
-  locale: 'en' | 'kh';
   authorStats?: AuthorStats;
   authorArticles?: AuthorArticle[];
   pagination?: {
@@ -67,15 +72,18 @@ interface AuthorArticle {
   likes: number;
   comments: number;
   category?: string;
+  slug?: string | { en: string; kh: string };
 }
 
 export default function AuthorProfile({ 
   author, 
   currentArticleId, 
-  locale,
   authorStats: providedStats,
   authorArticles: providedArticles,
 }: AuthorProfileProps) {
+  // Get language from URL params
+  const params = useParams();
+  const locale = (params?.lang === 'kh' ? 'kh' : 'en') as 'en' | 'kh';
   const [showAllArticles, setShowAllArticles] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [authorStats, setAuthorStats] = useState<AuthorStats>({
@@ -86,13 +94,11 @@ export default function AuthorProfile({
     joinDate: new Date()
   });
   const [authorArticles, setAuthorArticles] = useState<AuthorArticle[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (providedStats && providedArticles) {
       setAuthorStats(providedStats);
       setAuthorArticles(providedArticles);
-      setIsLoading(false);
     } else {
       setTimeout(() => {
         setAuthorStats({
@@ -135,7 +141,6 @@ export default function AuthorProfile({
             category: 'Health'
           }
         ]);
-        setIsLoading(false);
       }, 1000);
     }
   }, [providedStats, providedArticles]);
@@ -154,8 +159,6 @@ export default function AuthorProfile({
 
   const authorName = getAuthorName();
   const displayArticles = showAllArticles ? authorArticles : authorArticles.slice(0, 3);
-
-  
 
   return (
     <div className="w-full sm:py-0 lg:py-6">
@@ -179,9 +182,18 @@ export default function AuthorProfile({
               {authorName}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {author?.role === 'admin' ? 'Senior Editor' : 
-               author?.role === 'editor' ? 'Editor' : 'Contributor'} • 
-              Joined {format(authorStats.joinDate, 'MMM yyyy')}
+              {getLocalizedText(
+                author?.role === 'admin' ? 'Senior Editor' : 
+                author?.role === 'editor' ? 'Editor' : 'Contributor',
+                author?.role === 'admin' ? 'អ្នកនិពន្ធជាន់ខ្ពស់' : 
+                author?.role === 'editor' ? 'អ្នកនិពន្ធ' : 'អ្នកចូលរួម',
+                locale
+              )} • 
+              {getLocalizedText(
+                `Joined ${format(authorStats.joinDate, 'MMM yyyy')}`,
+                `ចូលរួម ${format(authorStats.joinDate, 'MMM yyyy')}`,
+                locale
+              )}
             </p>
           </div>
           
@@ -197,7 +209,7 @@ export default function AuthorProfile({
               className="px-3 py-1.5 text-sm font-medium"
             >
               <Mail className="w-3 h-3 mr-1" />
-              Contact
+{getLocalizedText("Contact", "ទំនាក់ទំនង", locale)}
             </Button>
           </div>
         </div>
@@ -210,25 +222,33 @@ export default function AuthorProfile({
             <div className="text-lg font-semibold text-foreground">
               {authorStats.totalArticles}
             </div>
-            <div className="text-xs text-muted-foreground">Articles</div>
+            <div className="text-xs text-muted-foreground">
+              {getLocalizedText("Articles", "អត្ថបទ", locale)}
+            </div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-foreground">
               {authorStats.totalViews.toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground">Views</div>
+            <div className="text-xs text-muted-foreground">
+              {getLocalizedText("Views", "មើល", locale)}
+            </div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-foreground">
               {authorStats.totalLikes.toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground">Likes</div>
+            <div className="text-xs text-muted-foreground">
+              {getLocalizedText("Likes", "ចូលចិត្ត", locale)}
+            </div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-foreground">
               {authorStats.totalComments.toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground">Comments</div>
+            <div className="text-xs text-muted-foreground">
+              {getLocalizedText("Comments", "មតិ", locale)}
+            </div>
           </div>
         </div>
       </div>
@@ -238,7 +258,7 @@ export default function AuthorProfile({
         <div className="p-4 border-b border-border/50">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground">
-              Recent Articles
+              {getLocalizedText("Recent Articles", "អត្ថបទថ្មីៗ", locale)}
             </h2>
             <Button
               variant="ghost"
@@ -246,73 +266,75 @@ export default function AuthorProfile({
               onClick={() => setShowAllArticles(!showAllArticles)}
               className="text-muted-foreground hover:text-foreground"
             >
-              {showAllArticles ? 'Show Less' : `View All (${authorArticles.length})`}
+{showAllArticles ? 
+                getLocalizedText("Show Less", "បង្ហាញតិច", locale) : 
+                getLocalizedText(`View All (${authorArticles.length})`, `មើលទាំងអស់ (${authorArticles.length})`, locale)
+              }
             </Button>
           </div>
         </div>
         
         <div className="divide-y divide-border/50">
           {displayArticles.map((article) => (
-            <div
-              key={article._id}
-              className={`group p-4 hover:bg-muted/30 transition-colors ${
+            <Link href={`/${locale}/news/${getLocalizedString(article.slug) || article._id}`} prefetch={true} key={article._id}>
+              <div className={`group block p-4 hover:bg-muted/30 transition-colors ${
                 article._id === currentArticleId ? 'bg-primary/5 border-l-4 border-l-primary' : ''
-              }`}
-            >
-              <div className="flex gap-3">
-                <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                  <Image
-                    src={getArticleImageUrl(article) || '/placeholder.jpg'}
-                    alt={getLocalizedString(article.title)}
-                    width={64}
-                    height={64}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors text-sm">
-                      {getLocalizedString(article.title)}
-                    </h3>
-                    {article._id === currentArticleId && (
-                      <Badge className="ml-2 bg-primary/10 text-primary text-xs">
-                        Current
-                      </Badge>
-                    )}
+              }`}>
+                <div className="flex gap-3">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                    <Image
+                      src={getArticleImageUrl(article) || '/placeholder.jpg'}
+                      alt={getLocalizedString(article.title)}
+                      width={64}
+                      height={64}
+                      className="object-cover w-full h-full"
+                    />
                   </div>
                   
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      <span>{format(new Date(article.createdAt), 'MMM d, yyyy')}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors text-sm">
+                        {getLocalizedString(article.title)}
+                      </h3>
+                      {article._id === currentArticleId && (
+                        <Badge className="ml-2 bg-primary/10 text-primary text-xs">
+                          {getLocalizedText("Current", "បច្ចុប្បន្ន", locale)}
+                        </Badge>
+                      )}
                     </div>
-                    {article.category && (
-                      <Badge variant="outline" className="text-xs">
-                        {article.category}
-                      </Badge>
-                    )}
+                    
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>{format(new Date(article.createdAt), 'MMM d, yyyy')}</span>
+                      </div>
+                      {article.category && (
+                        <Badge variant="outline" className="text-xs">
+                          {article.category}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        <span>{article.views.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Heart className="w-3 h-3" />
+                        <span>{article.likes.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageCircle className="w-3 h-3" />
+                        <span>{article.comments.toLocaleString()}</span>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      <span>{article.views.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Heart className="w-3 h-3" />
-                      <span>{article.likes.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MessageCircle className="w-3 h-3" />
-                      <span>{article.comments.toLocaleString()}</span>
-                    </div>
-                  </div>
+                  <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0 mt-1" />
                 </div>
-                
-                <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0 mt-1" />
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -320,20 +342,20 @@ export default function AuthorProfile({
       {/* Social Links - Twitter-style */}
       <div className="p-4 border-t border-border/50">
         <h3 className="text-sm font-semibold text-foreground mb-3">
-          Connect
+          {getLocalizedText("Connect", "តភ្ជាប់", locale)}
         </h3>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="flex items-center gap-1 px-3 py-1.5 text-xs">
             <Twitter className="w-3 h-3" />
-            <span>Twitter</span>
+            <span>{getLocalizedText("Twitter", "Twitter", locale)}</span>
           </Button>
           <Button variant="outline" size="sm" className="flex items-center gap-1 px-3 py-1.5 text-xs">
             <Linkedin className="w-3 h-3" />
-            <span>LinkedIn</span>
+            <span>{getLocalizedText("LinkedIn", "LinkedIn", locale)}</span>
           </Button>
           <Button variant="outline" size="sm" className="flex items-center gap-1 px-3 py-1.5 text-xs">
             <Globe className="w-3 h-3" />
-            <span>Website</span>
+            <span>{getLocalizedText("Website", "គេហទំព័រ", locale)}</span>
           </Button>
         </div>
       </div>

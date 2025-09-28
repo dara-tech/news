@@ -190,5 +190,30 @@
       "website": "គេហទំព័រ",
       "address": "អាសយដ្ឋាន"
     }
+  },
+  "Author": {
+    "backToHome": "ត្រលប់ទៅទំព័រដើម",
+    "authorNotFound": "រកមិនឃើញអ្នកនិពន្ធ",
+    "authorNotFoundDescription": "អ្នកនិពន្ធដែលអ្នកកំពុងស្វែងរកមិនមាន។",
+    "goBackHome": "ត្រលប់ទៅទំព័រដើម",
+    "contact": "ទំនាក់ទំនង",
+    "articles": "អត្ថបទ",
+    "views": "មើល",
+    "likes": "ចូលចិត្ត",
+    "comments": "មតិ",
+    "recentArticles": "អត្ថបទថ្មីៗ",
+    "showLess": "បង្ហាញតិច",
+    "viewAll": "មើលទាំងអស់",
+    "current": "បច្ចុប្បន្ន",
+    "connect": "តភ្ជាប់",
+    "twitter": "Twitter",
+    "linkedin": "LinkedIn",
+    "website": "គេហទំព័រ",
+    "joined": "ចូលរួម",
+    "roles": {
+      "admin": "អ្នកនិពន្ធជាន់ខ្ពស់",
+      "editor": "អ្នកនិពន្ធ",
+      "contributor": "អ្នកចូលរួម"
+    }
   }
 }

@@ -190,5 +190,30 @@
       "website": "Website",
       "address": "Address"
     }
+  },
+  "Author": {
+    "backToHome": "Back to Home",
+    "authorNotFound": "Author Not Found",
+    "authorNotFoundDescription": "The author you are looking for does not exist.",
+    "goBackHome": "Go Back Home",
+    "contact": "Contact",
+    "articles": "Articles",
+    "views": "Views",
+    "likes": "Likes",
+    "comments": "Comments",
+    "recentArticles": "Recent Articles",
+    "showLess": "Show Less",
+    "viewAll": "View All",
+    "current": "Current",
+    "connect": "Connect",
+    "twitter": "Twitter",
+    "linkedin": "LinkedIn",
+    "website": "Website",
+    "joined": "Joined",
+    "roles": {
+      "admin": "Senior Editor",
+      "editor": "Editor",
+      "contributor": "Contributor"
+    }
   }
 }
