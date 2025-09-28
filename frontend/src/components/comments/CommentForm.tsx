@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { commentApi, type Comment } from '@/lib/commentApi';
 import { useAuth } from '@/context/AuthContext';
+import { Card } from '../ui/card';
 
 interface CommentFormProps {
   newsId: string;
@@ -66,15 +67,7 @@ export default function CommentForm({
   // Show login prompt for unauthenticated users
   if (!user) {
     return (
-      <div className="bg-gray-50 border rounded-lg p-4 text-center">
-        <p className="text-gray-600 text-sm mb-3">Please log in to comment</p>
-        <Button
-          onClick={() => window.location.href = '/register'}
-          size="sm"
-        >
-          Log In / Register
-        </Button>
-      </div>
+    <div className="text-normal text-mute foreground"></div>
     );
   }
 

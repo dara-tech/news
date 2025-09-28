@@ -237,7 +237,7 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
           </main>
 
           {/* Right Sidebar - Trending & More */}
-          <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen overflow-hidden">
+          <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
             <div className="p-6 space-y-4 h-full flex flex-col">
               {/* Search Bar */}
               <div className="relative">
@@ -250,13 +250,9 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
               </div>
 
               {/* Trending Categories */}
-              <div className="bg-card/50 rounded-xl border border-border/50 p-4">
-                <h3 className="font-semibold text-lg mb-4">
-                  {locale === 'kh' ? 'ប្រភេទពេញនិយម' : 'Trending Categories'}
-                </h3>
+              <div className="bg-card/50 rounded-xl border border-border/50 p-4 h-[500px]">
                 <TrendingCategories categories={displayCategories} locale={language} />
               </div>
-
               {/* Latest Stories */}
               <div className="bg-card/50 rounded-xl border border-border/50 p-4 flex-1">
                 <div className="flex items-center justify-between mb-4">

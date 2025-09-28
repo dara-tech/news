@@ -64,7 +64,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
   const ArticleMainContent = () => (
     <div className="px-1">
       {/* Minimal Header Navigation */}
-      <div className="py-8">
+      <div className="lg:hidden ">
         <Button 
           variant="ghost" 
           size="sm"
@@ -76,7 +76,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
         </Button>
       </div>
 
-      <article className="space-y-8">
+      <article className="space-y-8 lg:py-8">
         {/* Article Metadata */}
         <div className="space-y-6">
           {/* Category & Badges */}

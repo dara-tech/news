@@ -3,11 +3,11 @@ import { notFound } from 'next/navigation';
 import NewsArticleLoader from './NewsArticleLoader';
 
 interface ArticleViewProps {
-  params: { id: string; lang: 'en' | 'kh' };
+  params: Promise<{ id: string; lang: 'en' | 'kh' }>;
 }
 
 export default async function ArticleView({ params }: ArticleViewProps) {
-  const { id, lang } = params;
+  const { id, lang } = await params;
   const article = await getArticle(id);
 
   if (!article) {

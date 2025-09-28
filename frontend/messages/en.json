@@ -215,5 +215,9 @@
       "editor": "Editor",
       "contributor": "Contributor"
     }
+  },
+  "Authors": {
+    "title": "All Authors",
+    "description": "Discover news writers you love"
   }
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -70,7 +71,7 @@ interface AuthorArticle {
   createdAt: string;
   views: number;
   likes: number;
-  comments: number;
+  comments: number ;
   category?: string;
   slug?: string | { en: string; kh: string };
 }
@@ -84,8 +85,11 @@ export default function AuthorProfile({
   // Get language from URL params
   const params = useParams();
   const locale = (params?.lang === 'kh' ? 'kh' : 'en') as 'en' | 'kh';
+  const { user } = useAuth();
   const [showAllArticles, setShowAllArticles] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [likedArticles, setLikedArticles] = useState<Set<string>>(new Set());
+  const [articleLikes, setArticleLikes] = useState<Record<string, number>>({});
   const [authorStats, setAuthorStats] = useState<AuthorStats>({
     totalArticles: 0,
     totalViews: 0,
@@ -99,6 +103,13 @@ export default function AuthorProfile({
     if (providedStats && providedArticles) {
       setAuthorStats(providedStats);
       setAuthorArticles(providedArticles);
+      
+      // Initialize likes data
+      const initialLikes: Record<string, number> = {};
+      providedArticles.forEach(article => {
+        initialLikes[article._id] = article.likes;
+      });
+      setArticleLikes(initialLikes);
     } else {
       setTimeout(() => {
         setAuthorStats({
@@ -109,7 +120,7 @@ export default function AuthorProfile({
           joinDate: new Date('2023-01-15')
         });
         
-        setAuthorArticles([
+        const mockArticles = [
           {
             _id: '1',
             title: { en: 'Breaking News: Technology Advances', kh: 'ព័ត៌មានថ្មី៖ ការវិវត្តន៍បច្ចេកវិទ្យា' },
@@ -140,7 +151,16 @@ export default function AuthorProfile({
             comments: 28,
             category: 'Health'
           }
-        ]);
+        ];
+        
+        setAuthorArticles(mockArticles);
+        
+        // Initialize likes data for mock articles
+        const initialLikes: Record<string, number> = {};
+        mockArticles.forEach(article => {
+          initialLikes[article._id] = article.likes;
+        });
+        setArticleLikes(initialLikes);
       }, 1000);
     }
   }, [providedStats, providedArticles]);
@@ -157,13 +177,80 @@ export default function AuthorProfile({
     return 'Anonymous';
   };
 
+  // Like functionality
+  const handleLike = async (articleId: string) => {
+    if (!user) {
+      // Redirect to login or show login modal
+      return;
+    }
+
+    try {
+      const isLiked = likedArticles.has(articleId);
+      const currentLikes = articleLikes[articleId] || 0;
+      
+      // Optimistic update
+      setLikedArticles(prev => {
+        const newSet = new Set(prev);
+        if (isLiked) {
+          newSet.delete(articleId);
+        } else {
+          newSet.add(articleId);
+        }
+        return newSet;
+      });
+      
+      setArticleLikes(prev => ({
+        ...prev,
+        [articleId]: isLiked ? currentLikes - 1 : currentLikes + 1
+      }));
+
+      // API call
+      const response = await fetch(`/api/articles/${articleId}/like`, {
+        method: isLiked ? 'DELETE' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
+
+      if (!response.ok) {
+        // Revert optimistic update
+        setLikedArticles(prev => {
+          const newSet = new Set(prev);
+          if (isLiked) {
+            newSet.add(articleId);
+          } else {
+            newSet.delete(articleId);
+          }
+          return newSet;
+        });
+        
+        setArticleLikes(prev => ({
+          ...prev,
+          [articleId]: isLiked ? currentLikes + 1 : currentLikes - 1
+        }));
+      }
+    } catch (error) {
+      console.error('Error liking article:', error);
+    }
+  };
+
+  // Comment functionality
+  const handleComment = (articleId: string) => {
+    // Navigate to article with comment section focused
+    const articleSlug = authorArticles.find(a => a._id === articleId)?.slug;
+    const slug = typeof articleSlug === 'string' ? articleSlug : 
+                 typeof articleSlug === 'object' ? getLocalizedString(articleSlug) : articleId;
+    window.location.href = `/${locale}/news/${slug}#comments`;
+  };
+
   const authorName = getAuthorName();
   const displayArticles = showAllArticles ? authorArticles : authorArticles.slice(0, 3);
 
   return (
     <div className="w-full sm:py-0 lg:py-6">
       {/* Header Section - Twitter-style Profile */}
-      <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4 z-10">
+      <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 py-4  z-10">
         <div className="flex items-center gap-4">
           <Avatar className="w-12 h-12">
             <AvatarImage 
@@ -216,7 +303,7 @@ export default function AuthorProfile({
       </div>
 
       {/* Stats Section - Twitter-style */}
-      <div className="p-4 border-b border-border/50">
+      <div className="py-4 border-b border-border/50">
         <div className="grid grid-cols-4 gap-4">
           <div className="text-center">
             <div className="text-lg font-semibold text-foreground">
@@ -255,7 +342,7 @@ export default function AuthorProfile({
 
       {/* Recent Articles - Twitter Feed Style */}
       <div className="divide-y divide-border/50">
-        <div className="p-4 border-b border-border/50">
+        <div className="py-4 border-b border-border/50">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground">
               {getLocalizedText("Recent Articles", "អត្ថបទថ្មីៗ", locale)}
@@ -277,7 +364,7 @@ export default function AuthorProfile({
         <div className="divide-y divide-border/50">
           {displayArticles.map((article) => (
             <Link href={`/${locale}/news/${getLocalizedString(article.slug) || article._id}`} prefetch={true} key={article._id}>
-              <div className={`group block p-4 hover:bg-muted/30 transition-colors ${
+              <div className={`group block py-4 hover:bg-muted/30 transition-colors ${
                 article._id === currentArticleId ? 'bg-primary/5 border-l-4 border-l-primary' : ''
               }`}>
                 <div className="flex gap-3">
@@ -320,14 +407,30 @@ export default function AuthorProfile({
                         <Eye className="w-3 h-3" />
                         <span>{article.views.toLocaleString()}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Heart className="w-3 h-3" />
-                        <span>{article.likes.toLocaleString()}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleLike(article._id);
+                        }}
+                        className={`flex items-center gap-1 hover:text-red-500 transition-colors ${
+                          likedArticles.has(article._id) ? 'text-red-500' : ''
+                        }`}
+                      >
+                        <Heart className={`w-3 h-3 ${likedArticles.has(article._id) ? 'fill-current' : ''}`} />
+                        <span>{(articleLikes[article._id] || article.likes).toLocaleString()}</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleComment(article._id);
+                        }}
+                        className="flex items-center gap-1 hover:text-blue-500 transition-colors"
+                      >
                         <MessageCircle className="w-3 h-3" />
                         <span>{article.comments.toLocaleString()}</span>
-                      </div>
+                      </button>
                     </div>
                   </div>
                   
@@ -340,7 +443,7 @@ export default function AuthorProfile({
       </div>
 
       {/* Social Links - Twitter-style */}
-      <div className="p-4 border-t border-border/50">
+      <div className="py-4 border-t border-border/50">
         <h3 className="text-sm font-semibold text-foreground mb-3">
           {getLocalizedText("Connect", "តភ្ជាប់", locale)}
         </h3>

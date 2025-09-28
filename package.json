@@ -24,6 +24,7 @@
     "@tiptap/starter-kit": "^3.0.7",
     "axios": "^1.12.2",
     "dotenv": "^17.2.2",
-    "mongoose": "^8.18.1"
+    "mongoose": "^8.18.1",
+    "node-fetch": "^3.3.2"
   }
 }

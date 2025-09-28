@@ -6,8 +6,6 @@ import { Clock, Eye, MessageCircle, TrendingUp, Heart, Bookmark, Share2 } from '
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Article } from '@/types';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { useOptimizedLanguage } from '@/hooks/useOptimizedLanguage';
 import { useArticleLikes } from '@/hooks/useArticleLikes';
 import { useArticleComments } from '@/hooks/useArticleComments';
@@ -29,16 +27,25 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, locale, index, isLas
   const [showComments, setShowComments] = useState(false);
   
   // Use the like hook for real backend integration
-  const { likeCount, isLiked, isLoading: likeLoading, toggleLike, error: likeError } = useArticleLikes({
+  const { likeCount: hookLikeCount, isLiked, isLoading: likeLoading, toggleLike, error: likeError } = useArticleLikes({
+    article,
+    locale: language,
+    initialCount: article.likes || 0
+  });
+
+  // Use the comment hook for real backend integration
+  const { commentCount: hookCommentCount, isLoading: commentLoading, error: commentError, refreshCommentCount } = useArticleComments({
     article,
     locale: language
   });
 
-  // Use the comment hook for real backend integration
-  const { commentCount, isLoading: commentLoading, error: commentError, refreshCommentCount } = useArticleComments({
-    article,
-    locale: language
-  });
+  // Check if user is authenticated to determine data source
+  const isAuthenticated = typeof window !== 'undefined' && localStorage.getItem('userInfo');
+  
+  // For authenticated users, use hook data for real-time updates
+  // For unauthenticated users, use article data for consistency
+  const likeCount = isAuthenticated && hookLikeCount !== undefined ? hookLikeCount : (article.likes || 0);
+  const commentCount = isAuthenticated && hookCommentCount !== undefined ? hookCommentCount : (article.comments || 0);
   
   // Local state for other interactions (not yet implemented in backend)
   const [saveCount, setSaveCount] = useState(0);
@@ -164,7 +171,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, locale, index, isLas
 
   return (
     <article
-      className={`group relative bg-card dark:bg-black border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 ${isLast ? 'mb-20' : 'mb-4'}`}
+      className={`group relative bg-card dark:bg-black border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col ${isLast ? 'mb-20' : 'mb-4'}`}
     >
       {/* Trending Badge */}
       {index < 3 && (
@@ -177,7 +184,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, locale, index, isLas
       )}
 
       {/* Image */}
-      <div className="relative h-48 sm:h-52 overflow-hidden">
+      <div className="relative flex-1 min-h-[500px] overflow-hidden">
         {imageSrc && !imageError ? (
           <>
             {!imageLoaded && (

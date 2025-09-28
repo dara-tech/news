@@ -31,7 +31,7 @@ class NewsService {
       const response = await api.get(this.baseUrl, {
         params: {
           page: params.page || 1,
-          limit: params.limit || 10,
+          limit: params.limit || 20, // Increased default limit
           lang: params.lang,
           category: params.category,
           search: params.search,
@@ -45,12 +45,18 @@ class NewsService {
       
       const news = Array.isArray(data.news) ? data.news : Array.isArray(data.data) ? data.data : [];
       
+      const currentPage = data.page || 1;
+      const limit = data.limit || 20;
+      const total = data.total || 0;
+      
+      // Always return hasMore: true for infinite scroll
+      // The actual stopping will be handled by the frontend when no more data is available
       return {
         news,
-        total: data.total || 0,
-        page: data.page || 1,
-        limit: data.limit || 10,
-        hasMore: data.hasMore ?? (news.length === (data.limit || 10))
+        total,
+        page: currentPage,
+        limit,
+        hasMore: true // Always true for infinite scroll
       };
     } catch (error) {
       console.error('Error fetching news:', error);
@@ -105,18 +111,21 @@ class NewsService {
           q: query,
           lang,
           page,
-          limit: 10
+          limit: 20 // Increased limit for search
         }
       });
 
       const data = response.data;
+      const currentPage = data.page || 1;
+      const limit = data.limit || 20;
+      const total = data.total || 0;
       
       return {
         news: Array.isArray(data.news) ? data.news : Array.isArray(data.data) ? data.data : [],
-        total: data.total || 0,
-        page: data.page || 1,
-        limit: data.limit || 10,
-        hasMore: data.hasMore ?? (data.news?.length === (data.limit || 10))
+        total,
+        page: currentPage,
+        limit,
+        hasMore: true // Always true for infinite scroll
       };
     } catch (error) {
       console.error('Error searching news:', error);
@@ -130,18 +139,21 @@ class NewsService {
         params: {
           lang,
           page,
-          limit: 10
+          limit: 20 // Increased limit for category
         }
       });
 
       const data = response.data;
+      const currentPage = data.page || 1;
+      const limit = data.limit || 20;
+      const total = data.total || 0;
       
       return {
         news: Array.isArray(data.news) ? data.news : Array.isArray(data.data) ? data.data : [],
-        total: data.total || 0,
-        page: data.page || 1,
-        limit: data.limit || 10,
-        hasMore: data.hasMore ?? (data.news?.length === (data.limit || 10))
+        total,
+        page: currentPage,
+        limit,
+        hasMore: true // Always true for infinite scroll
       };
     } catch (error) {
       console.error('Error fetching news by category:', error);

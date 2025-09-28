@@ -33,6 +33,8 @@ export interface Article {
   publishedAt: string;
   updatedAt: string;
   views?: number;
+  likes?: number;
+  comments?: number;
   author: {
     _id: string;
     avatar?: string;

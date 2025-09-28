@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { User, TrendingUp, Eye, Heart } from "lucide-react"
+import { User, TrendingUp, Eye, Heart, MessageCircle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
@@ -20,6 +20,7 @@ interface Author {
   articleCount: number
   totalViews: number
   totalLikes: number
+  totalComments: number
   avgViews: number
   latestArticle: string
   engagementScore: number
@@ -31,6 +32,7 @@ interface Author {
     publishedAt: string
     views: number
     likes: number
+    comments: number
     category: {
       _id: string
       name: any
@@ -207,7 +209,7 @@ export default function TopAuthors({ lang }: TopAuthorsProps) {
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex items-center justify-center gap-1 text-blue-600 dark:text-blue-400 mb-1">
                         <TrendingUp className="h-3 w-3" />
@@ -233,6 +235,15 @@ export default function TopAuthors({ lang }: TopAuthorsProps) {
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {lang === 'kh' ? 'ចូលចិត្ត' : 'Likes'}
+                      </p>
+                    </div>
+                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="flex items-center justify-center gap-1 text-purple-600 dark:text-purple-400 mb-1">
+                        <MessageCircle className="h-3 w-3" />
+                        <span className="font-semibold text-sm">{formatNumber(author.totalComments || 0)}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {lang === 'kh' ? 'មតិ' : 'Comments'}
                       </p>
                     </div>
                   </div>

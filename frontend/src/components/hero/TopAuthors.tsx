@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { User, TrendingUp, Eye, Heart } from 'lucide-react'
+import { User, TrendingUp, Eye, Heart, MessageCircle } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
@@ -15,12 +15,14 @@ interface Author {
   articleCount: number
   totalViews: number
   totalLikes: number
+  totalComments: number
   engagementScore: number
   recentArticles: Array<{
     id: string
     title: { en: string; kh: string }
     views: number
     likes: number
+    comments: number
   }>
 }
 
@@ -147,6 +149,10 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
                   <div className="flex items-center gap-1">
                     <Heart className="w-3 h-3" />
                     <span>{author.totalLikes}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MessageCircle className="w-3 h-3" />
+                    <span>{author.totalComments || 0}</span>
                   </div>
                 </div>
               </div>

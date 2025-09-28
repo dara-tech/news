@@ -1,7 +1,6 @@
 "use client"
 
 import { use } from "react"
-import { notFound } from "next/navigation"
 import AuthorProfile from "@/components/news/AuthorProfile"
 import { ArrowLeft, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -21,6 +20,7 @@ interface AuthorData {
     totalArticles: number;
     totalViews: number;
     totalLikes: number;
+    totalComments: number;
     joinDate: string;
   };
 }
@@ -33,6 +33,7 @@ interface AuthorArticle {
   publishedAt: string;
   views: number;
   likes: number;
+  comments: number;
   category: {
     _id: string;
     name: string | { en: string; kh: string };
@@ -85,7 +86,7 @@ export default function AuthorPageClient({ params, authorData }: AuthorPageProps
   if (!authorData) {
     // Mobile error content
     const mobileErrorContent = (
-      <div className="w-full p-4">
+      <div className="w-full ">
         <div className="mb-4">
           <Link href="/">
             <Button variant="ghost" className="mb-0">
@@ -178,7 +179,7 @@ export default function AuthorPageClient({ params, authorData }: AuthorPageProps
     createdAt: article.publishedAt,
     views: article.views || 0,
     likes: article.likes || 0,
-    comments: 0, // Not available in current API
+    comments: article.comments || 0, // Now available from API
     category: typeof article.category.name === 'string' 
       ? article.category.name 
       : getLocalizedText(article.category.name, safeLang),
@@ -189,12 +190,7 @@ export default function AuthorPageClient({ params, authorData }: AuthorPageProps
   const mobileAuthorContent = (
     <div className="w-full p-4">
       <div className="mb-4">
-        <Link href="/">
-          <Button variant="ghost" className="mb-0">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-{getSimpleLocalizedText("Back to Home", "ត្រលប់ទៅទំព័រដើម", safeLang)}
-          </Button>
-        </Link>
+       
       </div>
       
       <AuthorProfile 
@@ -203,7 +199,7 @@ export default function AuthorPageClient({ params, authorData }: AuthorPageProps
           totalArticles: authorData.author.stats.totalArticles,
           totalViews: authorData.author.stats.totalViews,
           totalLikes: authorData.author.stats.totalLikes,
-          totalComments: 0, // Not available in current API
+          totalComments: authorData.author.stats.totalComments || 0, // Now available from API
           joinDate: new Date(authorData.author.stats.joinDate)
         }}
         authorArticles={transformedArticles}
@@ -221,7 +217,7 @@ export default function AuthorPageClient({ params, authorData }: AuthorPageProps
           totalArticles: authorData.author.stats.totalArticles,
           totalViews: authorData.author.stats.totalViews,
           totalLikes: authorData.author.stats.totalLikes,
-          totalComments: 0, // Not available in current API
+          totalComments: authorData.author.stats.totalComments || 0, // Now available from API
           joinDate: new Date(authorData.author.stats.joinDate)
         }}
         authorArticles={transformedArticles}

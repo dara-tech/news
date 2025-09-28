@@ -57,11 +57,18 @@ const InfiniteScrollFeed: React.FC<InfiniteScrollFeedProps> = ({
         response = await newsService.getNews({
           lang: locale,
           page,
-          limit: 10,
+          limit: 20, // Increased limit for better performance
           sortBy,
           sortOrder
         });
       }
+      
+      // Update hasMore based on API response
+      if (response.hasMore !== undefined) {
+        // The hasMore logic is now handled in newsService
+        console.log('API response hasMore:', response.hasMore, 'for page:', page);
+      }
+      
       return response.news;
     } catch (error) {
       console.error('Error fetching more articles:', error);
@@ -69,7 +76,7 @@ const InfiniteScrollFeed: React.FC<InfiniteScrollFeedProps> = ({
     }
   }, [onLoadMore, searchQuery, categoryId, locale, sortBy, sortOrder]);
 
-  // Use infinite scroll hook
+  // Use infinite scroll hook - always allow infinite loading
   const {
     data: articles,
     loading,
@@ -81,20 +88,9 @@ const InfiniteScrollFeed: React.FC<InfiniteScrollFeedProps> = ({
   } = useInfiniteScroll({
     initialData: initialArticles,
     fetchMore,
-    hasMore
+    hasMore: true // Always true for infinite scroll
   });
 
-  // Debug logging for feed state
-  console.log('InfiniteScrollFeed debug:', {
-    initialArticlesCount: initialArticles.length,
-    currentArticlesCount: articles.length,
-    loading,
-    error,
-    hasMore: hasMoreData,
-    hasOnLoadMore: !!onLoadMore,
-    searchQuery,
-    categoryId
-  });
 
   // Scroll to top handler
   const scrollToTop = useCallback(() => {
@@ -152,10 +148,6 @@ const InfiniteScrollFeed: React.FC<InfiniteScrollFeedProps> = ({
       {/* Loading Trigger */}
       <div ref={loadingRef} className="mt-8">
         {loading && <LoadingSkeleton />}
-        
-        {!hasMoreData && articles.length > 0 && (
-          <EndOfContent />
-        )}
       </div>
 
       {/* Scroll to Top Button */}

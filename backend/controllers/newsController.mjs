@@ -4,6 +4,8 @@ import News from "../models/News.mjs";
 import Category from "../models/Category.mjs";
 import Notification from "../models/Notification.mjs";
 import User from "../models/User.mjs";
+import Like from "../models/Like.mjs";
+import Comment from "../models/Comment.mjs";
 import { v2 as cloudinary } from "cloudinary";
 import socialMediaService from "../services/socialMediaService.mjs";
 import sentinelService from "../services/sentinelService.mjs";
@@ -257,14 +259,15 @@ export const createNews = asyncHandler(async (req, res) => {
 export const getNews = [cacheNews, asyncHandler(async (req, res) => {
 
   // --- Pagination Parameters ---
-  const pageSize = Number(req.query.limit) || 10;
+  const pageSize = Number(req.query.limit) || 20; // Increased default limit
   const page = Number(req.query.page) || 1;
-  const keyword = req.query.keyword;
+  const keyword = req.query.keyword || req.query.q; // Support both 'keyword' and 'q' parameters
   const category = req.query.category;
   const dateRange = req.query.dateRange;
   const sortBy = req.query.sortBy;
   const featured = req.query.featured;
   const breaking = req.query.breaking;
+  const lang = req.query.lang; // Language parameter for frontend compatibility
 
   // --- Build the MongoDB Query ---
   // Start with a base query to only find documents with 'published' status.
@@ -387,17 +390,34 @@ export const getNews = [cacheNews, asyncHandler(async (req, res) => {
 
     const news = await newsQuery;
     
+    // Get likes and comments counts for each article
+    const newsWithCounts = await Promise.all(
+      news.map(async (article) => {
+        const likesCount = await Like.countDocuments({ news: article._id });
+        const commentsCount = await Comment.countDocuments({ 
+          news: article._id, 
+          status: 'approved' 
+        });
+        
+        return {
+          ...article.toObject(),
+          likes: likesCount,
+          comments: commentsCount
+        };
+      })
+    );
     
-    if (news.length > 0) {
+    if (newsWithCounts.length > 0) {
       // News found
     }
     
     // --- Send Response ---
     const responsePayload = {
-      news,
+      news: newsWithCounts,
       page,
       pages: Math.ceil(count / pageSize),
-      total: count
+      total: count,
+      hasMore: page < Math.ceil(count / pageSize) // Add hasMore for infinite scroll
     };
 
     res.json(responsePayload);
@@ -438,9 +458,22 @@ export const getNewsByIdentifier = [cacheNewsById, asyncHandler(async (req, res)
     news.views = (news.views || 0) + 1;
     await news.save();
 
+    // Get likes and comments counts
+    const likesCount = await Like.countDocuments({ news: news._id });
+    const commentsCount = await Comment.countDocuments({ 
+      news: news._id, 
+      status: 'approved' 
+    });
+
+    const newsWithCounts = {
+      ...news.toObject(),
+      likes: likesCount,
+      comments: commentsCount
+    };
+
     res.json({
       success: true,
-      data: news
+      data: newsWithCounts
     });
   } catch (error) {
     // Ensure a 404 status is sent if the error was 'News article not found'
@@ -857,7 +890,7 @@ export const getBreakingNews = asyncHandler(async (req, res) => {
 export const getNewsByCategory = asyncHandler(async (req, res) => {
   try {
     
-    const pageSize = 10;
+    const pageSize = 20; // Increased limit for category news
     const page = Number(req.query.page) || 1;
     const category = req.params.category.toLowerCase();
 
@@ -904,6 +937,7 @@ export const getNewsByCategory = asyncHandler(async (req, res) => {
       page,
       pages: Math.ceil(count / pageSize),
       total: count,
+      hasMore: page < Math.ceil(count / pageSize), // Add hasMore for infinite scroll
       category: categoryDoc.name
     });
     
@@ -996,6 +1030,23 @@ export const getAuthorProfile = asyncHandler(async (req, res) => {
     .skip((page - 1) * limit)
     .limit(limit);
 
+    // Get likes and comments counts for each article
+    const articlesWithCounts = await Promise.all(
+      articles.map(async (article) => {
+        const likesCount = await Like.countDocuments({ news: article._id });
+        const commentsCount = await Comment.countDocuments({ 
+          news: article._id, 
+          status: 'approved' 
+        });
+        
+        return {
+          ...article.toObject(),
+          likes: likesCount,
+          comments: commentsCount
+        };
+      })
+    );
+
     // Get total count for pagination
     const totalArticles = await News.countDocuments({ 
       author: authorId,
@@ -1008,10 +1059,22 @@ export const getAuthorProfile = asyncHandler(async (req, res) => {
       { $group: { _id: null, totalViews: { $sum: { $ifNull: ['$views', 0] } } } }
     ]);
 
-    const totalLikes = await News.aggregate([
-      { $match: { author: new mongoose.Types.ObjectId(authorId), status: 'published' } },
-      { $group: { _id: null, totalLikes: { $sum: { $ifNull: ['$likes', 0] } } } }
-    ]);
+    // Get ALL published articles by this author for accurate totals
+    const allAuthorArticles = await News.find({
+      author: authorId,
+      status: 'published'
+    }).select('_id');
+
+    // Calculate total likes from Like model for ALL articles
+    const totalLikes = await Like.countDocuments({ 
+      news: { $in: allAuthorArticles.map(article => article._id) } 
+    });
+
+    // Calculate total comments from Comment model for ALL articles
+    const totalComments = await Comment.countDocuments({ 
+      news: { $in: allAuthorArticles.map(article => article._id) },
+      status: 'approved'
+    });
 
     // Get author's join date (first article date or user creation date)
     const firstArticle = await News.findOne({ 
@@ -1022,7 +1085,8 @@ export const getAuthorProfile = asyncHandler(async (req, res) => {
     const authorStats = {
       totalArticles,
       totalViews: totalViews[0]?.totalViews || 0,
-      totalLikes: totalLikes[0]?.totalLikes || 0,
+      totalLikes: totalLikes || 0,
+      totalComments: totalComments || 0,
       joinDate: firstArticle?.publishedAt || author.createdAt
     };
 
@@ -1037,7 +1101,7 @@ export const getAuthorProfile = asyncHandler(async (req, res) => {
         role: author.role,
         stats: authorStats
       },
-      articles,
+      articles: articlesWithCounts,
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(totalArticles / limit),
@@ -1059,7 +1123,27 @@ export const getAuthorProfile = asyncHandler(async (req, res) => {
 // @access  Public
 export const getTopAuthors = asyncHandler(async (req, res) => {
   try {
-    const { limit = 10, lang = 'en' } = req.query;
+    const { 
+      limit = 10, 
+      lang = 'en', 
+      page = 1, 
+      search = '', 
+      sortBy = 'engagement' 
+    } = req.query;
+
+    // Build match conditions
+    const matchConditions = {
+      status: 'published',
+      publishedAt: { $exists: true, $ne: null }
+    };
+
+    // Add search condition if provided
+    if (search && search.trim()) {
+      matchConditions.$or = [
+        { 'authorInfo.username': { $regex: search, $options: 'i' } },
+        { 'authorInfo.email': { $regex: search, $options: 'i' } }
+      ];
+    }
 
     // Aggregate authors by their article performance
     const topAuthors = await News.aggregate([
@@ -1074,7 +1158,6 @@ export const getTopAuthors = asyncHandler(async (req, res) => {
           _id: '$author',
           articleCount: { $sum: 1 },
           totalViews: { $sum: { $ifNull: ['$views', 0] } },
-          totalLikes: { $sum: { $ifNull: ['$likes', 0] } },
           avgViews: { $avg: { $ifNull: ['$views', 0] } },
           latestArticle: { $max: '$publishedAt' }
         }
@@ -1101,21 +1184,37 @@ export const getTopAuthors = asyncHandler(async (req, res) => {
           createdAt: '$authorInfo.createdAt',
           articleCount: 1,
           totalViews: 1,
-          totalLikes: 1,
           avgViews: 1,
-          latestArticle: 1,
-          // Calculate engagement score (weighted combination)
-          engagementScore: {
-            $add: [
-              { $multiply: ['$articleCount', 10] }, // 10 points per article
-              { $multiply: [{ $divide: ['$totalViews', 100] }, 1] }, // 1 point per 100 views
-              { $multiply: ['$totalLikes', 2] } // 2 points per like
-            ]
-          }
+          latestArticle: 1
         }
       },
+      // Apply search filter after lookup
+      ...(search && search.trim() ? [{
+        $match: {
+          $or: [
+            { username: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } }
+          ]
+        }
+      }] : []),
+      // Apply sorting based on sortBy parameter
       {
-        $sort: { engagementScore: -1 }
+        $sort: (() => {
+          switch (sortBy) {
+            case 'articles':
+              return { articleCount: -1, totalViews: -1 };
+            case 'views':
+              return { totalViews: -1, articleCount: -1 };
+            case 'likes':
+              return { totalLikes: -1, totalViews: -1 };
+            case 'engagement':
+            default:
+              return { totalViews: -1, articleCount: -1 };
+          }
+        })()
+      },
+      {
+        $skip: (parseInt(page) - 1) * parseInt(limit)
       },
       {
         $limit: parseInt(limit)
@@ -1134,26 +1233,104 @@ export const getTopAuthors = asyncHandler(async (req, res) => {
         .sort({ publishedAt: -1 })
         .limit(3);
 
+        // Get likes and comments counts for each recent article
+        const recentArticlesWithCounts = await Promise.all(
+          recentArticles.map(async (article) => {
+            const likesCount = await Like.countDocuments({ news: article._id });
+            const commentsCount = await Comment.countDocuments({ 
+              news: article._id, 
+              status: 'approved' 
+            });
+            
+            return {
+              id: article._id,
+              title: article.title,
+              description: article.description,
+              thumbnail: article.thumbnail,
+              publishedAt: article.publishedAt,
+              views: article.views || 0,
+              likes: likesCount,
+              comments: commentsCount,
+              category: article.category
+            };
+          })
+        );
+
+        // Calculate total likes and comments for this author
+        const authorArticles = await News.find({
+          author: author._id,
+          status: 'published'
+        }).select('_id');
+        
+        const totalLikes = await Like.countDocuments({ 
+          news: { $in: authorArticles.map(article => article._id) }
+        });
+        
+        const totalComments = await Comment.countDocuments({ 
+          news: { $in: authorArticles.map(article => article._id) },
+          status: 'approved'
+        });
+
         return {
           ...author,
-          recentArticles: recentArticles.map(article => ({
-            id: article._id,
-            title: article.title,
-            description: article.description,
-            thumbnail: article.thumbnail,
-            publishedAt: article.publishedAt,
-            views: article.views || 0,
-            likes: article.likes || 0,
-            category: article.category
-          }))
+          totalLikes,
+          totalComments,
+          recentArticles: recentArticlesWithCounts
         };
       })
     );
 
+    // Get total count for pagination
+    const totalAuthors = await News.aggregate([
+      {
+        $match: {
+          status: 'published',
+          publishedAt: { $exists: true, $ne: null }
+        }
+      },
+      {
+        $group: {
+          _id: '$author'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'authorInfo'
+        }
+      },
+      {
+        $unwind: '$authorInfo'
+      },
+      ...(search && search.trim() ? [{
+        $match: {
+          $or: [
+            { 'authorInfo.username': { $regex: search, $options: 'i' } },
+            { 'authorInfo.email': { $regex: search, $options: 'i' } }
+          ]
+        }
+      }] : []),
+      {
+        $count: 'total'
+      }
+    ]);
+
+    const total = totalAuthors.length > 0 ? totalAuthors[0].total : 0;
+    const totalPages = Math.ceil(total / parseInt(limit));
+
     res.json({
       success: true,
       data: authorsWithRecentArticles,
-      total: authorsWithRecentArticles.length
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        totalPages,
+        hasMore: parseInt(page) < totalPages
+      },
+      timestamp: new Date()
     });
 
   } catch (error) {

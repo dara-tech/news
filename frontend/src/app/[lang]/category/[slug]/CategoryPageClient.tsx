@@ -116,7 +116,7 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
   const CategoryMainContent = () => (
     <div className="space-y-6 px-1">
       {/* Minimal Back Navigation */}
-      <div className=" py-8">
+      <div className="lg:hidden">
         <Button 
           variant="ghost" 
           size="sm"
@@ -129,7 +129,7 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
       </div>
 
       {/* Minimal Hero Section */}
-      <div className="border-b border-border pb-8 ">
+      <div className="border-b border-border py-8">
         <div className="flex items-center gap-4 mb-6">
           {/* Category Icon - Minimal */}
           <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-lg font-medium" 

@@ -25,55 +25,47 @@ export function useInfiniteScroll({
   initialData,
   fetchMore,
   hasMore: initialHasMore = true,
-  threshold = 0.1,
-  rootMargin = '100px'
+  threshold = 0.01, // More sensitive threshold
+  rootMargin = '200px' // Increased rootMargin for easier triggering
 }: UseInfiniteScrollOptions): UseInfiniteScrollReturn {
   const [data, setData] = useState<Article[]>(initialData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(initialHasMore);
+  const [hasMore, setHasMore] = useState(true); // Always true for infinite scroll
   const [page, setPage] = useState(1);
   const loadingRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   const loadMore = useCallback(async () => {
-    if (loading || !hasMore) {
-      console.log('Load more skipped:', { loading, hasMore });
+    if (loading) {
       return;
     }
-
-    console.log('Loading more articles, page:', page + 1);
     setLoading(true);
     setError(null);
 
     try {
       const newData = await fetchMore(page + 1);
-      console.log('Fetched new data:', newData.length, 'articles');
       
       if (newData.length === 0) {
-        console.log('No more data available, setting hasMore to false');
-        setHasMore(false);
+        // Just continue without setting hasMore to false
+        // The infinite scroll will keep trying
       } else {
-        setData(prev => {
-          const updated = [...prev, ...newData];
-          console.log('Updated data length:', updated.length);
-          return updated;
-        });
+        setData(prev => [...prev, ...newData]);
         setPage(prev => prev + 1);
       }
     } catch (err) {
-      console.error('Error loading more articles:', err);
       setError(err instanceof Error ? err.message : 'Failed to load more articles');
+      // Don't stop infinite scroll on errors
     } finally {
       setLoading(false);
     }
-  }, [loading, hasMore, page, fetchMore]);
+  }, [loading, page, fetchMore]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
     setPage(1);
-    setHasMore(initialHasMore);
+    setHasMore(true); // Always true for infinite scroll
 
     try {
       const newData = await fetchMore(1);
@@ -84,7 +76,7 @@ export function useInfiniteScroll({
     } finally {
       setLoading(false);
     }
-  }, [fetchMore, initialHasMore]);
+  }, [fetchMore]);
 
   // Set up intersection observer
   useEffect(() => {
@@ -112,14 +104,14 @@ export function useInfiniteScroll({
         observerRef.current.disconnect();
       }
     };
-  }, [loadMore, loading, hasMore, threshold, rootMargin]);
+  }, [hasMore, threshold, rootMargin]);
 
   // Update data when initialData changes
   useEffect(() => {
     setData(initialData);
     setPage(1);
-    setHasMore(initialHasMore);
-  }, [initialData, initialHasMore]);
+    setHasMore(true); // Always true for infinite scroll
+  }, [initialData]);
 
   return {
     data,

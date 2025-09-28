@@ -29,6 +29,9 @@ logger.info('Registering news routes...');
 // Public routes - specific routes first
 router.get('/', getNews);
 
+// Search route
+router.get('/search', getNews);
+
 router.get('/featured', getFeaturedNews);
 router.get('/breaking', getBreakingNews);
 router.get('/top-authors', getTopAuthors);

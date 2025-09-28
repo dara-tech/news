@@ -109,7 +109,7 @@ export const BreakingNewsTicker = forwardRef<BreakingNewsTickerHandle, BreakingN
                   key={index}
                   onClick={() => setCurrentIndex(index)}
                   className={cn(
-                    "w-2 h-2 rounded-full transition-colors",
+                    "w-2 h-2 rounded-full transition-colors p-0 min-w-0 min-h-0",
                     index === currentIndex ? "bg-white" : "bg-white/30 hover:bg-white/60"
                   )}
                   aria-label={`View breaking news ${index + 1}`}
