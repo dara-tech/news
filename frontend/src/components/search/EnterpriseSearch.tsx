@@ -353,7 +353,7 @@ export default function EnterpriseSearch({ lang, className = '' }: EnterpriseSea
 
             {/* Search Suggestions */}
             {query && (
-              <div className="max-h-80 overflow-y-auto">
+              <div className="max-h-80 overflow-y-auto scrollbar-hide">
                 {suggestions.length > 0 ? (
                   <div className="p-2">
                     <div className="text-xs text-muted-foreground mb-2">Found {suggestions.length} results</div>

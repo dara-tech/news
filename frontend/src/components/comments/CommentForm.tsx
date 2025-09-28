@@ -66,27 +66,14 @@ export default function CommentForm({
   // Show login prompt for unauthenticated users
   if (!user) {
     return (
-      <div className="space-y-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 text-sm font-medium">?</span>
-            </div>
-            <div>
-              <p className="text-blue-800 text-sm font-medium">Want to join the conversation?</p>
-              <p className="text-blue-600 text-xs">Please log in to comment on this article.</p>
-            </div>
-          </div>
-          <div className="mt-3">
-            <Button
-              onClick={() => window.location.href = '/register'}
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Log In / Register
-            </Button>
-          </div>
-        </div>
+      <div className="bg-gray-50 border rounded-lg p-4 text-center">
+        <p className="text-gray-600 text-sm mb-3">Please log in to comment</p>
+        <Button
+          onClick={() => window.location.href = '/register'}
+          size="sm"
+        >
+          Log In / Register
+        </Button>
       </div>
     );
   }

@@ -103,7 +103,7 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
             className="group"
           >
             <Link 
-              href={`/author/${author.username}`}
+              href={`/${locale}/author/${author._id}`}
               className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors"
             >
               <div className="relative">
@@ -157,7 +157,7 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
       
       <div className="mt-4 pt-4 border-t border-border/30">
         <Link 
-          href="/authors"
+          href={`/${locale}/authors`}
           className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
         >
           {locale === 'kh' ? 'មើលអ្នកសរសេរទាំងអស់' : 'View all authors'}

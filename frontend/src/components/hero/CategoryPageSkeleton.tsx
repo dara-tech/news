@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import NewsGridSkeleton from '@/components/news/NewsGridSkeleton';
 
 const CategoryPageSkeleton = () => (
   <div className="min-h-screen bg-background">
@@ -69,88 +70,49 @@ const CategoryPageSkeleton = () => (
               <Skeleton className="h-10 w-32" />
             </div>
 
-            {/* Category Hero Skeleton */}
-            <div className="relative overflow-hidden border-b border-gray-200 dark:border-gray-700">
-              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div className="text-center">
-                  {/* Category Icon Skeleton */}
-                  <Skeleton className="w-16 h-16 rounded-full mx-auto mb-6" />
+            {/* Category Hero Skeleton - Minimal Design */}
+            <div className="border-b border-border pb-8">
+              <div className="flex items-center gap-4 mb-6">
+                {/* Category Icon Skeleton - Minimal */}
+                <Skeleton className="w-12 h-12 rounded-lg" />
+                
+                <div>
+                  {/* Category Title Skeleton - Clean */}
+                  <Skeleton className="h-8 w-48 mb-2" />
                   
-                  {/* Category Title Skeleton */}
-                  <Skeleton className="h-12 w-64 mx-auto mb-4" />
-                  
-                  {/* Category Description Skeleton */}
-                  <Skeleton className="h-6 w-96 mx-auto mb-8" />
-                  
-                  {/* Category Stats Skeleton */}
-                  <div className="flex justify-center items-center gap-8 mb-8">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full border">
-                        <Skeleton className="w-4 h-4" />
-                        <Skeleton className="h-4 w-20" />
-                      </div>
-                    ))}
-                  </div>
+                  {/* Article Count Skeleton - Minimal */}
+                  <Skeleton className="h-4 w-20" />
                 </div>
               </div>
+              
+              {/* Category Description Skeleton - Clean */}
+              <Skeleton className="h-5 w-96 max-w-2xl" />
             </div>
 
             {/* Main Content Skeleton */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-              {/* Controls Section Skeleton */}
-              <div className="mb-8 border-0 shadow-lg rounded-lg">
-                <div className="p-6">
-                  <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-                    {/* Search Skeleton */}
-                    <div className="flex-1 max-w-md">
-                      <Skeleton className="h-10 w-full" />
-                    </div>
-                    
-                    {/* Controls Skeleton */}
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="h-10 w-40" />
-                      <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-                        <Skeleton className="h-8 w-8" />
-                        <Skeleton className="h-8 w-8" />
-                      </div>
+              {/* Controls Section Skeleton - Minimal Design */}
+              <div className="space-y-4">
+                <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                  {/* Search Skeleton - Minimal */}
+                  <div className="flex-1 max-w-md">
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  
+                  {/* Controls Skeleton - Minimal */}
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-10 w-32" />
+                    <div className="flex items-center bg-muted rounded-md p-1">
+                      <Skeleton className="h-8 w-8" />
+                      <Skeleton className="h-8 w-8" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Tabs Skeleton */}
-              <div className="w-full mb-8">
-                <div className="grid w-full grid-cols-3 mb-8">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center gap-2 p-3 border-b">
-                      <Skeleton className="h-4 w-20" />
-                      <Skeleton className="h-5 w-6 rounded-full" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Articles Grid Skeleton */}
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
-                      {/* Article Image Skeleton */}
-                      <Skeleton className="w-full h-48" />
-                      
-                      {/* Article Content Skeleton */}
-                      <div className="p-4">
-                        <Skeleton className="h-4 w-full mb-2" />
-                        <Skeleton className="h-4 w-3/4 mb-3" />
-                        <div className="flex items-center gap-2 text-xs">
-                          <Skeleton className="h-3 w-16" />
-                          <Skeleton className="h-3 w-2" />
-                          <Skeleton className="h-3 w-12" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {/* Articles Grid Skeleton - Using new NewsGridSkeleton */}
+              <div className="space-y-6">
+                <NewsGridSkeleton count={6} viewMode="grid" />
               </div>
             </div>
           </div>

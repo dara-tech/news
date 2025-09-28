@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { getAuthorProfile } from '@/lib/api';
 import AuthorProfile from '@/components/news/AuthorProfile';
+import TwitterLikeLayout from '@/components/hero/TwitterLikeLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
@@ -63,8 +64,8 @@ type FetchError = {
 
 export default function AuthorProfilePage() {
   const params = useParams();
-  const { authorId, lang } = params;
-  const locale = (lang as string) === 'kh' ? 'kh' : 'en';
+  const { authorId } = params;
+  const locale = 'en'; // Default to English for non-language prefixed routes
   
   const [data, setData] = useState<AuthorProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,9 +77,11 @@ export default function AuthorProfilePage() {
         setLoading(true);
         setError(null);
         
-        const response = await getAuthorProfile(authorId as string);setData(response);
+        const response = await getAuthorProfile(authorId as string);
+        setData(response);
       } catch (err) {
-        const errorObj = err as FetchError;setError(
+        const errorObj = err as FetchError;
+        setError(
           errorObj.response?.data?.message ||
           errorObj.message ||
           'Failed to load author profile'
@@ -94,115 +97,132 @@ export default function AuthorProfilePage() {
   }, [authorId]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen">
-        <div className="max-w-6xl mx-auto space-y-3 sm:space-y-6 px-3 sm:px-0">
-          {/* Back Button Skeleton */}
-          <div className="mb-2">
-            <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-          </div>
-          
-          {/* Hero Section Skeleton - Mobile Optimized */}
-          <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg sm:rounded-2xl p-4 sm:p-8">
-            <div className="flex flex-col items-center gap-4 sm:gap-8 sm:flex-row sm:items-start">
-              <div className="w-20 h-20 sm:w-32 sm:h-32 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
-              <div className="flex-1 text-center sm:text-left space-y-3 sm:space-y-4 w-full">
-                <div className="h-5 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-40 sm:w-64 mx-auto sm:mx-0" />
-                <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-full max-w-md mx-auto sm:mx-0" />
-                <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="h-5 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse w-16 sm:w-24" />
-                  ))}
-                </div>
-              </div>
+    const loadingContent = (
+      <div className="w-full">
+        {/* Header Section Skeleton - Twitter-style Profile */}
+        <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4 z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-muted rounded-full animate-pulse" />
+            <div className="flex-1 min-w-0">
+              <div className="h-5 bg-muted rounded w-32 mb-1 animate-pulse" />
+              <div className="h-3 bg-muted rounded w-48 animate-pulse" />
+            </div>
+            <div className="flex gap-2">
+              <div className="h-8 bg-muted rounded w-16 animate-pulse" />
+              <div className="h-8 bg-muted rounded w-20 animate-pulse" />
             </div>
           </div>
+        </div>
 
-          {/* Stats Grid Skeleton - Mobile Optimized */}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
+        {/* Stats Section Skeleton - Twitter-style */}
+        <div className="p-4 border-b border-border/50">
+          <div className="grid grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-black rounded-lg sm:rounded-xl p-3 sm:p-6 border border-gray-200 dark:border-gray-700">
-                <div className="h-6 w-6 sm:h-12 sm:w-12 bg-gray-200 dark:bg-gray-700 rounded-lg sm:rounded-xl mx-auto mb-2 sm:mb-4 animate-pulse" />
-                <div className="h-4 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-10 sm:w-16 mx-auto mb-1 sm:mb-2" />
-                <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-12 sm:w-20 mx-auto" />
+              <div key={i} className="text-center">
+                <div className="h-6 bg-muted rounded w-12 mx-auto mb-1 animate-pulse" />
+                <div className="h-3 bg-muted rounded w-16 mx-auto animate-pulse" />
               </div>
             ))}
           </div>
+        </div>
 
-          {/* Content Tabs Skeleton - Mobile Optimized */}
-          <div className="bg-white dark:bg-black rounded-lg sm:rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-              <div className="h-4 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-32 sm:w-48" />
-            </div>
-            <div className="p-3 sm:p-6">
-              <div className="space-y-2 sm:space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="flex gap-3 sm:gap-4 p-2 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                    <div className="w-12 h-12 sm:w-20 sm:h-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-full" />
-                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4" />
-                      <div className="flex gap-2 sm:gap-4">
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-10 sm:w-16" />
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-10 sm:w-16" />
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-10 sm:w-16" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        {/* Recent Articles Skeleton - Twitter Feed Style */}
+        <div className="divide-y divide-border/50">
+          <div className="p-4 border-b border-border/50">
+            <div className="flex items-center justify-between">
+              <div className="h-5 bg-muted rounded w-32 animate-pulse" />
+              <div className="h-6 bg-muted rounded w-24 animate-pulse" />
             </div>
           </div>
-
-          {/* Social Connections Skeleton - Mobile Optimized */}
-          <div className="bg-white dark:bg-black rounded-lg sm:rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-              <div className="h-4 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-40 sm:w-48" />
-            </div>
-            <div className="p-3 sm:p-6">
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-12 sm:h-16 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-                ))}
+          
+          <div className="divide-y divide-border/50">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="p-4">
+                <div className="flex gap-3">
+                  <div className="w-16 h-16 bg-muted rounded-lg animate-pulse flex-shrink-0" />
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="h-4 bg-muted rounded w-3/4 animate-pulse" />
+                      <div className="w-12 h-4 bg-muted rounded animate-pulse ml-2" />
+                    </div>
+                    
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="h-3 bg-muted rounded w-20 animate-pulse" />
+                      <div className="h-5 bg-muted rounded w-16 animate-pulse" />
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                      <div className="h-3 bg-muted rounded w-12 animate-pulse" />
+                      <div className="h-3 bg-muted rounded w-10 animate-pulse" />
+                      <div className="h-3 bg-muted rounded w-12 animate-pulse" />
+                    </div>
+                  </div>
+                  
+                  <div className="w-3 h-3 bg-muted rounded animate-pulse flex-shrink-0 mt-1" />
+                </div>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Social Links Skeleton - Twitter-style */}
+        <div className="p-4 border-t border-border/50">
+          <div className="h-4 bg-muted rounded w-16 mb-3 animate-pulse" />
+          <div className="flex gap-2">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-8 bg-muted rounded w-20 animate-pulse" />
+            ))}
           </div>
         </div>
       </div>
     );
+
+    return (
+      <TwitterLikeLayout
+        breaking={[]}
+        featured={[]}
+        latestNews={[]}
+        categories={[]}
+        locale={locale}
+        isLoading={true}
+        customMainContent={loadingContent}
+      />
+    );
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen">
-        <div className="max-w-6xl mx-auto sm:px-0">
-          <div className="mb-2">
-            <Link href={`/${lang}`}>
-              <Button variant="ghost" className="mb-0">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
+    const errorContent = (
+      <div className="w-full p-8">
+        <Card className="bg-card border border-border shadow-sm">
+          <CardContent className="p-6 sm:p-8 text-center">
+            <AlertCircle className="w-12 h-12 sm:w-16 sm:h-16 text-destructive mx-auto mb-3 sm:mb-4" />
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+              Author Not Found
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
+              {error}
+            </p>
+            <Link href="/">
+              <Button className="w-full sm:w-auto">
+                Go Back Home
               </Button>
             </Link>
-          </div>
-          
-          <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm">
-            <CardContent className="p-6 sm:p-8 text-center">
-              <AlertCircle className="w-12 h-12 sm:w-16 sm:h-16 text-red-500 mx-auto mb-3 sm:mb-4" />
-              <h2 className="text-xl sm:text-2xl font-bold dark:text-white mb-2">
-                Author Not Found
-              </h2>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6">
-                {error}
-              </p>
-              <Link href={`/${lang}`}>
-                <Button className="w-full sm:w-auto">
-                  Go Back Home
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+          </CardContent>
+        </Card>
       </div>
+    );
+
+    return (
+      <TwitterLikeLayout
+        breaking={[]}
+        featured={[]}
+        latestNews={[]}
+        categories={[]}
+        locale={locale}
+        isLoading={false}
+        customMainContent={errorContent}
+      />
     );
   }
 
@@ -216,7 +236,7 @@ export default function AuthorProfilePage() {
     username: data.author.username,
     email: data.author.email,
     avatar: data.author.avatar,
-    profileImage: data.author.profileImage,  // ✅ Add profileImage field
+    profileImage: data.author.profileImage,
     role: data.author.role
   };
 
@@ -233,32 +253,42 @@ export default function AuthorProfilePage() {
       : article.category.name[locale] || article.category.name.en
   }));
 
-  return (
-    <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto sm:px-0">
-        <div className="mb-2">
-          <Link href={`/${lang}`}>
-            <Button variant="ghost" className="mb-0">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
-        
-        <AuthorProfile 
-          author={transformedAuthor}
-          locale={locale}
-          authorStats={{
-            totalArticles: data.author.stats.totalArticles,
-            totalViews: data.author.stats.totalViews,
-            totalLikes: data.author.stats.totalLikes,
-            totalComments: 0, // Not available in current API
-            joinDate: new Date(data.author.stats.joinDate)
-          }}
-          authorArticles={transformedArticles}
-          pagination={data.pagination}
-        />
+  const authorContent = (
+    <div className="w-full">
+      <div className="mb-2 lg:hidden ">
+        <Link href="/">
+          <Button variant="ghost" className="mb-0">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </Link>
       </div>
+      
+      <AuthorProfile 
+        author={transformedAuthor}
+        locale={locale}
+        authorStats={{
+          totalArticles: data.author.stats.totalArticles,
+          totalViews: data.author.stats.totalViews,
+          totalLikes: data.author.stats.totalLikes,
+          totalComments: 0, // Not available in current API
+          joinDate: new Date(data.author.stats.joinDate)
+        }}
+        authorArticles={transformedArticles}
+        pagination={data.pagination}
+      />
     </div>
   );
-} 
+
+  return (
+    <TwitterLikeLayout
+      breaking={[]}
+      featured={[]}
+      latestNews={[]}
+      categories={[]}
+      locale={locale}
+      isLoading={false}
+      customMainContent={authorContent}
+    />
+  );
+}

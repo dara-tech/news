@@ -1,67 +1,202 @@
 "use client"
 
 import { Skeleton } from "@/components/ui/skeleton"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import LeftSidebarSkeleton from "@/components/hero/LeftSidebarSkeleton"
+import RightSidebarSkeleton from "@/components/hero/RightSidebarSkeleton"
 
 export default function NewsPageSkeleton() {
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto py-6">
-        {/* Page Header Skeleton */}
-        <div className="mb-8">
-          <div className="border-b-4 border-gray-200 dark:border-gray-700 mb-4">
-            <Skeleton className="h-8 w-64 mb-2" />
-          </div>
-          <Skeleton className="h-4 w-48" />
-        </div>
+    <div className="min-h-screen bg-background">
+      {/* Mobile Layout - Full Width */}
+      <div className="block lg:hidden">
+        <div className="w-full p-4 space-y-8">
+          {/* Page Header Skeleton */}
+          <div className="space-y-6">
+            <div>
+              <Skeleton className="h-10 w-64 mb-2" />
+              <Skeleton className="h-6 w-96" />
+            </div>
 
-        {/* Search Bar Skeleton */}
-        <div className="mb-8">
-          <div className="max-w-md">
-            <div className="flex gap-2">
-              <Skeleton className="flex-1 h-10" />
-              <Skeleton className="w-20 h-10" />
+            {/* Search and Filters Skeleton */}
+            <div className="space-y-4">
+              {/* Search Bar Skeleton */}
+              <div className="relative">
+                <Skeleton className="h-10 w-full" />
+              </div>
+
+              {/* Filters Skeleton */}
+              <div className="flex flex-wrap gap-4 items-center">
+                {/* Category Filter Skeleton */}
+                <Skeleton className="h-10 w-[200px]" />
+                
+                {/* Sort Filter Skeleton */}
+                <Skeleton className="h-10 w-[180px]" />
+                
+                {/* View Mode Toggle Skeleton */}
+                <div className="flex items-center border rounded-lg">
+                  <Skeleton className="h-10 w-10 rounded-r-none" />
+                  <Skeleton className="h-10 w-10 rounded-l-none" />
+                </div>
+              </div>
+
+              {/* Active Filters Skeleton */}
+              <div className="flex flex-wrap gap-2">
+                <Skeleton className="h-6 w-20 rounded-full" />
+                <Skeleton className="h-6 w-24 rounded-full" />
+              </div>
+            </div>
+          </div>
+
+          {/* News Content Skeleton */}
+          <div className="space-y-6">
+            {/* News Grid Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="w-full h-48 rounded-lg" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-2/3" />
+                    <div className="flex items-center justify-between pt-2">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination Skeleton */}
+            <div className="flex items-center justify-center space-x-2">
+              <Skeleton className="h-10 w-20" />
+              <div className="flex items-center space-x-1">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-10" />
+                ))}
+              </div>
+              <Skeleton className="h-10 w-16" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Layout - Twitter-like */}
+      <div className="hidden lg:block">
+        {/* Breaking News Ticker Skeleton */}
+        <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-b border-border/50">
+          <div className="px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-4" />
+              <Skeleton className="h-4 w-32" />
             </div>
           </div>
         </div>
 
-        {/* Category Filter Skeleton */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-2">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-8 w-24 rounded-full" />
-            ))}
-          </div>
-        </div>
+        {/* Twitter-like Layout Skeleton */}
+        <div className="w-full mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-screen">
+            {/* Left Sidebar Skeleton */}
+            <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen overflow-hidden border-r border-border/50">
+              <LeftSidebarSkeleton />
+            </aside>
 
-        {/* News Grid Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(12)].map((_, i) => (
-            <Card key={i} className="overflow-hidden">
-              <CardHeader className="p-0">
-                <Skeleton className="w-full h-48" />
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                  <div className="flex items-center justify-between pt-2">
-                    <Skeleton className="h-3 w-20" />
-                    <Skeleton className="h-3 w-16" />
+            {/* Main Content Skeleton */}
+            <main className="lg:col-span-6 border-x border-border/50 h-screen overflow-y-auto">
+              {/* Header Skeleton */}
+              <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4 z-10">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-32" />
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </div>
 
-        {/* Pagination Skeleton */}
-        <div className="mt-8 flex justify-center">
-          <div className="flex gap-2">
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-10 w-10" />
-            ))}
+              {/* News Page Content Skeleton */}
+              <div className="p-4 space-y-8">
+                {/* Page Header Skeleton */}
+                <div className="space-y-6">
+                  <div>
+                    <Skeleton className="h-10 w-64 mb-2" />
+                    <Skeleton className="h-6 w-96" />
+                  </div>
+
+                  {/* Search and Filters Skeleton */}
+                  <div className="space-y-4">
+                    {/* Search Bar Skeleton */}
+                    <div className="relative">
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+
+                    {/* Filters Skeleton */}
+                    <div className="flex flex-wrap gap-4 items-center">
+                      {/* Category Filter Skeleton */}
+                      <Skeleton className="h-10 w-[200px]" />
+                      
+                      {/* Sort Filter Skeleton */}
+                      <Skeleton className="h-10 w-[180px]" />
+                      
+                      {/* View Mode Toggle Skeleton */}
+                      <div className="flex items-center border rounded-lg">
+                        <Skeleton className="h-10 w-10 rounded-r-none" />
+                        <Skeleton className="h-10 w-10 rounded-l-none" />
+                      </div>
+                    </div>
+
+                    {/* Active Filters Skeleton */}
+                    <div className="flex flex-wrap gap-2">
+                      <Skeleton className="h-6 w-20 rounded-full" />
+                      <Skeleton className="h-6 w-24 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* News Content Skeleton */}
+                <div className="space-y-6">
+                  {/* News Grid Skeleton */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(12)].map((_, i) => (
+                      <div key={i} className="space-y-3">
+                        <Skeleton className="w-full h-48 rounded-lg" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-2/3" />
+                          <div className="flex items-center justify-between pt-2">
+                            <Skeleton className="h-3 w-20" />
+                            <Skeleton className="h-3 w-16" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Pagination Skeleton */}
+                  <div className="flex items-center justify-center space-x-2">
+                    <Skeleton className="h-10 w-20" />
+                    <div className="flex items-center space-x-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Skeleton key={i} className="h-10 w-10" />
+                      ))}
+                    </div>
+                    <Skeleton className="h-10 w-16" />
+                  </div>
+                </div>
+              </div>
+            </main>
+
+            {/* Right Sidebar Skeleton */}
+            <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen overflow-hidden">
+              <RightSidebarSkeleton />
+            </aside>
           </div>
         </div>
       </div>

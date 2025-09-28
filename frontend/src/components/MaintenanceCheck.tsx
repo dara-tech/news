@@ -60,35 +60,33 @@ export default function MaintenanceCheck({ children }: MaintenanceCheckProps) {
   // Show loading while checking maintenance status
   if (isChecking) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="max-w-md w-full mx-auto px-6">
-          <div className="bg-card border border-border rounded-lg shadow-sm p-8">
-            <div className="text-center space-y-6">
-              <div className="flex justify-center">
-                <div className="relative">
-                  <div className="w-12 h-12 border-4 border-border rounded-full"></div>
-                  <div className="absolute top-0 left-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          {/* Minimal Logo */}
+          <div className="flex justify-center mb-8">
+            <div className="relative">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-2xl font-bold">R</span>
               </div>
-              
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-foreground">
-                  Initializing System
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Verifying service availability and system status...
-                </p>
-              </div>
-              
-              {error && (
-                <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                  <p className="text-sm text-destructive font-medium">
-                    {error}
-                  </p>
-                </div>
-              )}
+              {/* Simple loading ring */}
+              <div className="absolute inset-0 w-16 h-16 border-2 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
             </div>
           </div>
+          
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+            Razewire
+          </h1>
+          <p className="text-gray-500 text-sm">
+            Loading...
+          </p>
+          
+          {error && (
+            <div className="mt-6 max-w-sm mx-auto p-3 bg-red-50 rounded-lg">
+              <p className="text-red-600 text-sm">
+                {error}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );

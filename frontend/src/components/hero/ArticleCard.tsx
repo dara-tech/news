@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { motion, type Variants } from 'framer-motion';
+// Removed framer-motion import for static layout
 import { Clock, Eye, MessageCircle, TrendingUp, Heart, Bookmark, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useOptimizedLanguage } from '@/hooks/useOptimizedLanguage';
 import { useArticleLikes } from '@/hooks/useArticleLikes';
+import { useArticleComments } from '@/hooks/useArticleComments';
+import CommentSection from '@/components/comments/CommentSection';
 
 interface ArticleCardProps {
   article: Article;
@@ -24,42 +26,24 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, locale, index, isLas
   const [isCommented, setIsCommented] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   
   // Use the like hook for real backend integration
   const { likeCount, isLiked, isLoading: likeLoading, toggleLike, error: likeError } = useArticleLikes({
     article,
     locale: language
   });
+
+  // Use the comment hook for real backend integration
+  const { commentCount, isLoading: commentLoading, error: commentError, refreshCommentCount } = useArticleComments({
+    article,
+    locale: language
+  });
   
   // Local state for other interactions (not yet implemented in backend)
-  const [commentCount, setCommentCount] = useState(0);
   const [saveCount, setSaveCount] = useState(0);
 
-  const cardVariants: Variants = {
-    hidden: { 
-      opacity: 0, 
-      y: 50,
-      scale: 0.95
-    },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        delay: index * 0.1,
-        ease: "easeOut"
-      }
-    },
-    hover: {
-      y: -8,
-      scale: 1.02,
-      transition: {
-        duration: 0.3,
-        ease: "easeOut"
-      }
-    }
-  };
+  // Removed framer-motion variants for static layout
 
   const handleLike = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -75,7 +59,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, locale, index, isLas
     await toggleLike();
   }, [toggleLike, locale]);
 
-  const handleComment = useCallback((e: React.MouseEvent) => {
+  const handleComment = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     
     // Check if user is authenticated before attempting to comment
@@ -86,10 +70,15 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, locale, index, isLas
       return;
     }
     
-    // For now, just toggle local state - implement comment API later
-    setIsCommented(!isCommented);
-    setCommentCount(prev => isCommented ? prev - 1 : prev + 1);
-  }, [isCommented, locale]);
+    // Toggle comment section visibility
+    const newShowComments = !showComments;
+    setShowComments(newShowComments);
+    
+    // If showing comments, refresh the comment count
+    if (newShowComments) {
+      await refreshCommentCount();
+    }
+  }, [showComments, locale, refreshCommentCount]);
 
   const handleSave = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -174,198 +163,170 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, locale, index, isLas
   const excerpt = getExcerpt();
 
   return (
-    <motion.article
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      whileHover="hover"
-      className={`group relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 ${isLast ? 'mb-20' : 'mb-6'}`}
+    <article
+      className={`group relative bg-card dark:bg-black border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 ${isLast ? 'mb-20' : 'mb-4'}`}
     >
       {/* Trending Badge */}
       {index < 3 && (
-        <div className="absolute top-4 right-4 z-10">
-          <Badge variant="destructive" className="bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg">
-            <TrendingUp className="w-3 h-3 mr-1" />
-            {language === 'kh' ? 'ពេញនិយម' : 'Trending'}
-          </Badge>
+        <div className="absolute top-3 right-3 z-10">
+          <div className="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+            <TrendingUp className="w-3 h-3" />
+            #{index + 1}
+          </div>
         </div>
       )}
 
-      {/* Image Section - Full Width */}
-      <div className="relative w-full h-80 overflow-hidden bg-muted">
+      {/* Image */}
+      <div className="relative h-48 sm:h-52 overflow-hidden">
         {imageSrc && !imageError ? (
           <>
             {!imageLoaded && (
-              <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted animate-pulse" />
+              <div className="absolute inset-0 bg-gray-100 dark:bg-gray-800 animate-pulse" />
             )}
             <Image
               src={imageSrc}
               alt={title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover transition-all duration-700 group-hover:scale-105"
-              onLoad={() => {
-                console.log('Image loaded successfully:', imageSrc);
-                setImageLoaded(true);
-              }}
-              onError={(e) => {
-                console.error('Image failed to load:', imageSrc, e);
-                setImageError(true);
-              }}
+              className="object-cover transition-all duration-300 group-hover:scale-105"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
               priority={index < 2}
-              unoptimized={true}
             />
           </>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary/20 via-muted/50 to-secondary/20 flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <div className="w-16 h-16 mx-auto mb-2 bg-muted rounded-full flex items-center justify-center">
-                📰
+          <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-2">
+                <span className="text-xl">📰</span>
               </div>
-              <p className="text-sm">{language === 'kh' ? 'គ្មានរូបភាព' : 'No Image'}</p>
-              {imageSrc && (
-                <p className="text-xs mt-1 opacity-60 break-all max-w-xs">
-                  {imageSrc}
-                </p>
-              )}
+              <p className="text-xs text-gray-500 dark:text-gray-400">No image</p>
             </div>
-          </div>
-        )}
-        
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        
-        {/* Category Badge */}
-        {article.category && categoryName && (
-          <div className="absolute bottom-4 left-4">
-            <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm text-white border-white/30">
-              {categoryName}
-            </Badge>
           </div>
         )}
       </div>
 
-      {/* Content Section */}
-      <div className="p-6 space-y-4">
-        {/* Meta Information */}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+      {/* Content */}
+      <div className="p-4">
+        {/* Meta Info */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
           <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
-            <time>{formatTime(new Date(article.createdAt))}</time>
+            <Clock className="w-3 h-3" />
+            <span>{formatTime(new Date(article.createdAt))}</span>
           </div>
           {article.views && (
-            <div className="flex items-center gap-1">
-              <Eye className="w-4 h-4" />
-              <span>{article.views.toLocaleString()}</span>
-            </div>
+            <>
+              <span>•</span>
+              <div className="flex items-center gap-1">
+                <Eye className="w-3 h-3" />
+                <span>{article.views.toLocaleString()}</span>
+              </div>
+            </>
           )}
-          <div className="flex items-center gap-1">
-            <MessageCircle className="w-4 h-4" />
-            <span>{Math.floor(Math.random() * 50)}</span>
-          </div>
         </div>
 
         {/* Title */}
-        <Link href={`/${language}/news/${article.slug}`}>
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-3 leading-tight">
+        <Link 
+          href={`/${language}/news/${article.slug}`}
+          prefetch={true}
+        >
+          <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-200 line-clamp-2 leading-tight mb-2">
             {title}
           </h2>
         </Link>
 
         {/* Excerpt */}
         {excerpt && (
-          <p className="text-muted-foreground line-clamp-3 leading-relaxed">
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-3">
             {excerpt}
           </p>
         )}
 
-        {/* Tags */}
-        {article.tags && article.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {article.tags.slice(0, 3).map((tag, tagIndex) => (
-              <Badge
-                key={tagIndex}
-                variant="outline"
-                className="text-xs hover:bg-primary/10 hover:border-primary/50 transition-colors cursor-pointer"
-              >
-                #{tag}
-              </Badge>
-            ))}
-            {article.tags.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{article.tags.length - 3}
-              </Badge>
-            )}
+        {/* Category */}
+        {article.category && categoryName && (
+          <div className="mb-3">
+            <span className="inline-block bg-muted text-muted-foreground text-xs px-2 py-1 rounded-full">
+              {categoryName}
+            </span>
           </div>
         )}
 
-        {/* Minimal Action Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-border/30">
-          <div className="flex items-center gap-4">
-            <Button
-              size="sm"
-              variant="ghost"
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between pt-3 border-t border-border">
+          <div className="flex items-center gap-6">
+            <button
               onClick={handleLike}
               disabled={likeLoading}
-              title={likeError || (isLiked ? 'Unlike this article' : 'Like this article')}
-              className={`group transition-all duration-200 ${
-                isLiked ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-red-500'
-              } ${likeError ? 'opacity-50' : ''}`}
+              className={`flex items-center gap-1 text-xs font-medium transition-colors duration-200 ${
+                isLiked 
+                  ? 'text-red-500 hover:text-red-600' 
+                  : 'text-muted-foreground hover:text-red-500'
+              }`}
             >
               <Heart 
-                className={`w-4 h-4 mr-1.5 transition-all duration-200 ${
+                className={`w-4 h-4 ${
                   isLiked ? 'fill-current' : ''
                 }`} 
               />
-              <span className="text-sm font-medium">{likeCount}</span>
-            </Button>
+              <span>{likeCount}</span>
+            </button>
             
-            <Button
-              size="sm"
-              variant="ghost"
+            <button
               onClick={handleComment}
-              className={`group transition-all duration-200 ${
-                isCommented ? 'text-blue-500 hover:text-blue-600' : 'text-muted-foreground hover:text-blue-500'
+              className={`flex items-center gap-1 text-xs font-medium transition-colors duration-200 ${
+                showComments 
+                  ? 'text-blue-500 hover:text-blue-600' 
+                  : 'text-muted-foreground hover:text-blue-500'
               }`}
             >
               <MessageCircle 
-                className={`w-4 h-4 mr-1.5 transition-all duration-200 ${
-                  isCommented ? 'fill-current' : ''
+                className={`w-4 h-4 ${
+                  showComments ? 'fill-current' : ''
                 }`} 
               />
-              <span className="text-sm font-medium">{commentCount}</span>
-            </Button>
+              <span>{commentCount}</span>
+            </button>
             
-            <Button
-              size="sm"
-              variant="ghost"
+            <button
               onClick={handleShare}
-              className="text-muted-foreground hover:text-blue-500 transition-colors duration-200 group"
+              className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-blue-500 transition-colors duration-200"
             >
-              <Share2 className="w-4 h-4 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
-              <span className="text-sm font-medium">
-                {language === 'kh' ? 'ចែករំលែក' : 'Share'}
-              </span>
-            </Button>
+              <Share2 className="w-4 h-4" />
+              <span>{language === 'kh' ? 'ចែករំលែក' : 'Share'}</span>
+            </button>
           </div>
 
-          <Button
-            size="sm"
-            variant="ghost"
+          <button
             onClick={handleSave}
-            className={`transition-all duration-200 ${
-              isBookmarked ? 'text-amber-500 hover:text-amber-600' : 'text-muted-foreground hover:text-amber-500'
+            title={isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
+            className={`transition-colors duration-200 ${
+              isBookmarked 
+                ? 'text-amber-500 hover:text-amber-600' 
+                : 'text-muted-foreground hover:text-amber-500'
             }`}
           >
             <Bookmark 
-              className={`w-4 h-4 transition-all duration-200 ${
+              className={`w-4 h-4 ${
                 isBookmarked ? 'fill-current' : ''
               }`} 
             />
-          </Button>
+          </button>
         </div>
+
+        {/* Comment Section */}
+        {showComments && (
+          <div className="mt-4 pt-4 border-t border-border">
+            <div className="max-h-96 overflow-y-auto scrollbar-hide">
+              <CommentSection 
+                newsId={article._id} 
+                className=""
+                onCommentCreated={refreshCommentCount}
+              />
+            </div>
+          </div>
+        )}
       </div>
-    </motion.article>
+    </article>
   );
 };
 

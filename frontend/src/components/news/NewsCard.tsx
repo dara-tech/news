@@ -10,6 +10,7 @@ import { getArticleImageUrl } from '@/hooks/useImageLoader';
 interface NewsCardProps {
   article: Article;
   locale: Locale;
+  viewMode?: 'grid' | 'list';
 }
 
 const cardVariants: Variants = {
@@ -36,7 +37,7 @@ function getLocalizedText(
   return '';
 }
 
-const NewsCard = ({ article, locale }: NewsCardProps) => {
+const NewsCard = ({ article, locale, viewMode = 'grid' }: NewsCardProps) => {
   const langPath = locale === 'kh' ? 'kh' : 'en';
   const articleSlug =
     typeof article.slug === 'string'
@@ -48,15 +49,76 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
   const title = getLocalizedText(article.title, locale) || 'News article';
   const categoryName = getLocalizedText(article.category?.name, locale);
 
+  // List view layout
+  if (viewMode === 'list') {
+    return (
+      <motion.div
+        variants={cardVariants}
+        className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200"
+      >
+        <Link
+          href={`/${langPath}/news/${articleSlug}`}
+          className="block"
+          prefetch={true}
+        >
+          <div className="flex gap-4 p-4">
+            {/* Image - Smaller for list view */}
+            {getArticleImageUrl(article) && (
+              <div className="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg">
+                <Image
+                  fill
+                  src={getArticleImageUrl(article) || ''}
+                  alt={title || 'News article thumbnail'}
+                  sizes="96px"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.warn('NewsCard image failed to load:', getArticleImageUrl(article));
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              {article.category && categorySlug && (
+                <div className="text-xs font-medium text-primary uppercase tracking-wide mb-1">
+                  {categoryName}
+                </div>
+              )}
+              
+              <h3 className="text-lg font-semibold text-foreground leading-tight mb-2 line-clamp-2">
+                {title}
+              </h3>
+              
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>
+                  {new Date(article.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}
+                </span>
+                <FiArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </div>
+          </div>
+        </Link>
+      </motion.div>
+    );
+  }
+
+  // Grid view layout (default)
   return (
     <motion.div
       variants={cardVariants}
-      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+      className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 group"
     >
       <Link
         href={`/${langPath}/news/${articleSlug}`}
         className="block"
-        prefetch={false}
+        prefetch={true}
       >
         {getArticleImageUrl(article) && (
           <div className="relative aspect-video overflow-hidden">
@@ -65,7 +127,7 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
               src={getArticleImageUrl(article) || ''}
               alt={title || 'News article thumbnail'}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 console.warn('NewsCard image failed to load:', getArticleImageUrl(article));
                 const target = e.target as HTMLImageElement;
@@ -77,21 +139,24 @@ const NewsCard = ({ article, locale }: NewsCardProps) => {
         
         <div className="p-4">
           {article.category && categorySlug && (
-            <div className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wide mb-2">
+            <div className="text-xs font-medium text-primary uppercase tracking-wide mb-2">
               {categoryName}
             </div>
           )}
           
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight mb-2">
+          <h3 className="text-lg font-semibold text-foreground leading-tight mb-2 line-clamp-2">
             {title}
           </h3>
           
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {new Date(article.createdAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
-            })}
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>
+              {new Date(article.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })}
+            </span>
+            <FiArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
       </Link>

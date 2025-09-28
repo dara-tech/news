@@ -5,9 +5,10 @@ interface NewsGridProps {
   articles: Article[];
   locale: 'en' | 'kh';
   className?: string;
+  viewMode?: 'grid' | 'list';
 }
 
-export default function NewsGrid({ articles, locale, className = '' }: NewsGridProps) {
+export default function NewsGrid({ articles, locale, className = '', viewMode = 'grid' }: NewsGridProps) {
   if (!articles || articles.length === 0) {
     return (
       <div className={`text-center py-12 ${className}`}>
@@ -24,13 +25,30 @@ export default function NewsGrid({ articles, locale, className = '' }: NewsGridP
     );
   }
 
+  // Grid view (default)
+  if (viewMode === 'grid') {
+    return (
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
+        {articles.map((article) => (
+          <NewsCard
+            key={article._id || article.id}
+            article={article}
+            locale={locale}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // List view
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
       {articles.map((article) => (
         <NewsCard
           key={article._id || article.id}
           article={article}
           locale={locale}
+          viewMode="list"
         />
       ))}
     </div>

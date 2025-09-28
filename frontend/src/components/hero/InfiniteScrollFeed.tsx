@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import {  AnimatePresence } from 'framer-motion';
+// Removed framer-motion import for static layout
 import type { Article } from '@/types';
 import { useOptimizedLanguage } from '@/hooks/useOptimizedLanguage';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -138,9 +138,9 @@ const InfiniteScrollFeed: React.FC<InfiniteScrollFeedProps> = ({
       {/* Articles Grid */}
       <div className="space-y-6">
         {articles.length > 0 ? (
-          <AnimatePresence mode="popLayout">
+          <div>
             {articleCards}
-          </AnimatePresence>
+          </div>
         ) : !loading ? (
           <EmptyState
             searchQuery={searchQuery}

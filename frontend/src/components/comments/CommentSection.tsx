@@ -15,6 +15,7 @@ import { LogIn, MessageCircle } from 'lucide-react';
 interface CommentSectionProps {
   newsId: string;
   className?: string;
+  onCommentCreated?: () => void;
 }
 
 function wsCommentToComment(wsComment: WebSocketComment): Comment {
@@ -46,7 +47,7 @@ function wsStatsToStats(wsStats: WebSocketStats): CommentStats {
   };
 }
 
-export default function CommentSection({ newsId, className }: CommentSectionProps) {
+export default function CommentSection({ newsId, className, onCommentCreated }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [stats, setStats] = useState<CommentStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -141,6 +142,12 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
 
   const handleCommentCreated = (newComment: Comment) => {
     setComments((prev: Comment[]) => {
+      // Check if comment already exists to prevent duplicates
+      const commentExists = prev.some(comment => comment._id === newComment._id);
+      if (commentExists) {
+        return prev;
+      }
+      
       if (newComment.parentComment) {
         return insertOrReplaceReplyInTree(prev, newComment);
       }
@@ -152,6 +159,11 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
       totalComments: prev.totalComments + (newComment.parentComment ? 0 : 1),
       totalReplies: (prev.totalReplies || 0) + (newComment.parentComment ? 1 : 0)
     } : null);
+
+    // Call external callback to refresh comment count in parent component
+    if (onCommentCreated) {
+      onCommentCreated();
+    }
   };
 
   const handleCommentDeleted = (commentId: string) => {
@@ -196,6 +208,12 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
     onCommentCreated: (newComment: any) => {
       const comment = wsCommentToComment(newComment);
       setComments((prev: Comment[]) => {
+        // Check if comment already exists to prevent duplicates
+        const commentExists = prev.some(existingComment => existingComment._id === comment._id);
+        if (commentExists) {
+          return prev;
+        }
+        
         if (comment.parentComment) {
           return insertOrReplaceReplyInTree(prev, comment);
         }
@@ -285,6 +303,13 @@ export default function CommentSection({ newsId, className }: CommentSectionProp
         </div>
       )}
 
+      {/* Comment Form */}
+      <CommentForm
+        newsId={newsId}
+        onCommentCreated={handleCommentCreated}
+        onCancel={() => {}}
+        placeholder="Share your thoughts on this article..."
+      />
 
       <CommentList
         comments={comments}

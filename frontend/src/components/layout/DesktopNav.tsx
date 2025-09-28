@@ -179,7 +179,7 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
       </div>
 
       {/* Categories list */}
-      <div className="max-h-80 overflow-y-auto">
+      <div className="max-h-80 overflow-y-auto scrollbar-hide">
         {state.isLoading ? (
           <div className="p-2 space-y-1">
             {[...Array(6)].map((_, i) => (
@@ -231,6 +231,7 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
                 <Link
                   href={`/${lang}/category/${String(categorySlug).replace(/[^a-zA-Z0-9-_]/g, '-')}`}
                   className="group flex items-center justify-between p-2 mx-1 rounded-lg hover:bg-muted/30 transition-all duration-150"
+                  prefetch={true}
                   onClick={(e) => {
                     e.stopPropagation()
                     setTimeout(() => {
@@ -280,6 +281,7 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
               ? "bg-primary/10 text-primary border border-primary/20 shadow-sm shadow-primary/5"
               : "text-muted-foreground hover:text-foreground hover:bg-muted/30 hover:shadow-sm"
           }`}
+          prefetch={true}
           aria-current={pathname === link.href ? "page" : undefined}
         >
           <link.icon className={`h-4 w-4 transition-all duration-300 ${

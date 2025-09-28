@@ -87,7 +87,9 @@ const Header = () => {
       >
         <div className="container mx-auto flex h-16 items-center justify-between px-4 overflow-visible">
           {/* Logo */}
-          <Logo lang={lang} />
+          <div className="flex justify-center flex-1 sm:justify-start sm:flex-none ml-8">
+            <Logo lang={lang} />
+          </div>
 
           {/* Desktop Navigation */}
           <DesktopNav lang={lang} pathname={pathname} />
@@ -96,8 +98,10 @@ const Header = () => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <LanguageSwitcher />
+            <div className="hidden sm:flex items-center gap-2">
+              <ThemeToggle />
+              <LanguageSwitcher />
+            </div>
 
             {/* User actions */}
             {user ? (

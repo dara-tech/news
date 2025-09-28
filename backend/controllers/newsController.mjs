@@ -283,11 +283,6 @@ export const getNews = [cacheNews, asyncHandler(async (req, res) => {
     ];
   }
 
-  // Category filter
-  if (category) {
-    query.category = category;
-  }
-
   // Date range filter
   if (dateRange && dateRange !== 'all') {
     const now = new Date();
@@ -348,6 +343,28 @@ export const getNews = [cacheNews, asyncHandler(async (req, res) => {
   }
 
   try {
+    // Category filter - handle both ObjectId and slug
+    if (category) {
+      // Check if category is a valid ObjectId
+      if (mongoose.Types.ObjectId.isValid(category)) {
+        query.category = category;
+      } else {
+        // If it's a slug, find the category by slug first
+        try {
+          const categoryDoc = await Category.findOne({
+            $or: [
+              { 'slug.en': category },
+              { 'slug.kh': category }
+            ]
+          });
+          if (categoryDoc) {
+            query.category = categoryDoc._id;
+          }
+        } catch (error) {
+          console.error('Error finding category by slug:', error);
+        }
+      }
+    }
     // --- Execute Queries ---
     // First, count the total number of documents that match the query.
     const count = await News.countDocuments(query);

@@ -246,10 +246,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         userData = loginResponse.data.user || loginResponse.data;
       } else if ('_id' in loginResponse.data) {
         userData = loginResponse.data;
-        token = loginResponse.headers['authorization']?.split(' ')[1];
+        // For cookie-based auth, we don't need to extract token from response
+        // The token is automatically sent with subsequent requests via cookies
+        token = 'cookie-based-auth';
       }
 
-      if (!token) throw new Error('No authentication token received');
+      // For cookie-based authentication, we don't need to validate token presence
+      // The token is automatically sent with subsequent requests via cookies
 
       if (!userData) {
         try {
@@ -273,7 +276,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         username: userData.username || email.split('@')[0],
         email: userData.email || email,
         role: (userData.role as User['role']) || 'user',
-        token
+        profileImage: userData.profileImage || undefined,
+        // For cookie-based auth, we don't store the token in localStorage
+        // The token is automatically sent with requests via cookies
+        ...(token && token !== 'cookie-based-auth' ? { token } : {})
       };
 
       localStorage.setItem('userInfo', JSON.stringify(userToStore));
@@ -374,10 +380,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         userData = registerResponse.data.user || registerResponse.data;
       } else if ('_id' in registerResponse.data) {
         userData = registerResponse.data;
-        token = registerResponse.headers['authorization']?.split(' ')[1];
+        // For cookie-based auth, we don't need to extract token from response
+        // The token is automatically sent with subsequent requests via cookies
+        token = 'cookie-based-auth';
       }
 
-      if (!token) throw new Error('No authentication token received');
+      // For cookie-based authentication, we don't need to validate token presence
+      // The token is automatically sent with subsequent requests via cookies
 
       if (!userData) {
         try {
@@ -395,7 +404,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         username: userData.username || username,
         email: userData.email || email,
         role: (userData.role as User['role']) || 'user',
-        token
+        profileImage: userData.profileImage || undefined,
+        // For cookie-based auth, we don't store the token in localStorage
+        // The token is automatically sent with requests via cookies
+        ...(token && token !== 'cookie-based-auth' ? { token } : {})
       };
 
       localStorage.setItem('userInfo', JSON.stringify(userToStore));

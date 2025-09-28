@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react"
 import { notFound } from "next/navigation"
 import NewsGrid from "@/components/news/NewsGrid"
-import { Tag, Calendar, TrendingUp, Users, Grid, List, Search, ArrowLeft } from "lucide-react"
+import { Tag, Calendar, TrendingUp, Users, Grid, List, Search, ArrowLeft, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -114,214 +114,156 @@ export default function CategoryPageClient({ params, category }: CategoryPagePro
 
   // Create a custom main content component for the category page
   const CategoryMainContent = () => (
-    <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="mb-6">
+    <div className="space-y-6 px-1">
+      {/* Minimal Back Navigation */}
+      <div className=" py-8">
         <Button 
           variant="ghost" 
-          className="text-gray-600 dark:text-gray-400"
+          size="sm"
+          className="text-muted-foreground hover:text-foreground"
           onClick={() => window.history.back()}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Categories
+          Back
         </Button>
       </div>
 
-      {/* Hero Section */}
-      <div className="relative overflow-hidden border-b border-gray-200 dark:border-gray-700">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center">
-            {/* Category Icon */}
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full text-white text-2xl font-bold mb-6 shadow-lg" 
-                 style={{ backgroundColor: String(categoryObj.color ?? '#3B82F6') }}>
-              {(() => { 
-                const name = categoryName; 
-                return (typeof name === 'string' && name.length > 0 ? name.charAt(0).toUpperCase() : 'C'); 
-              })()}
-            </div>
-            
-            {/* Category Title */}
-            <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
+      {/* Minimal Hero Section */}
+      <div className="border-b border-border pb-8 ">
+        <div className="flex items-center gap-4 mb-6">
+          {/* Category Icon - Minimal */}
+          <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-lg font-medium" 
+               style={{ backgroundColor: String(categoryObj.color ?? '#3B82F6') }}>
+            {(() => { 
+              const name = categoryName; 
+              return (typeof name === 'string' && name.length > 0 ? name.charAt(0).toUpperCase() : 'C'); 
+            })()}
+          </div>
+          
+          <div>
+            {/* Category Title - Clean */}
+            <h1 className="text-3xl font-bold text-foreground mb-1">
               {categoryName}
             </h1>
             
-            {/* Category Description */}
-            {categoryDescription && (
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-                {categoryDescription}
-              </p>
-            )}
-            
-            {/* Category Stats */}
-            <div className="flex justify-center items-center gap-8 mb-8">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-                <Calendar className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {articles?.length || 0} Articles
-                </span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-                <TrendingUp className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Updated Daily
-                </span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-                <Users className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Popular
-                </span>
-              </div>
-            </div>
+            {/* Article Count - Minimal */}
+            <p className="text-sm text-muted-foreground">
+              {articles?.length || 0} articles
+            </p>
           </div>
         </div>
+        
+        {/* Category Description - Clean */}
+        {categoryDescription && (
+          <p className="text-muted-foreground max-w-2xl">
+            {categoryDescription}
+          </p>
+        )}
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="space-y-6">
         {articles && articles.length > 0 ? (
           <>
-            {/* Controls Section */}
-            <Card className="mb-8 border-0 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-                  {/* Search */}
-                  <div className="flex-1 max-w-md">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input
-                        placeholder="Search articles..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10  border-gray-200 dark:border-gray-600"
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Controls */}
-                  <div className="flex items-center gap-3">
-                    {/* Sort */}
-                    <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger className="w-40 ">
-                        <SelectValue placeholder="Sort by" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="latest">Latest First</SelectItem>
-                        <SelectItem value="oldest">Oldest First</SelectItem>
-                        <SelectItem value="title">Title A-Z</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    {/* View Mode */}
-                    <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            {/* Enhanced Filtering Section */}
+            <div className="space-y-4">
+              {/* Main Controls Row */}
+              <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                {/* Search Section */}
+                <div className="flex-1 w-full lg:max-w-md">
+                  <div className="relative group">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <Input
+                      placeholder="Search articles in this category..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 h-10 bg-background border-border focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    />
+                    {searchTerm && (
                       <Button
-                        variant={viewMode === "grid" ? "default" : "ghost"}
+                        variant="ghost"
                         size="sm"
-                        onClick={() => setViewMode("grid")}
-                        className="h-8 px-3"
+                        onClick={() => setSearchTerm("")}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted"
                       >
-                        <Grid className="w-4 h-4" />
+                        <X className="h-3 w-3" />
                       </Button>
-                      <Button
-                        variant={viewMode === "list" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => setViewMode("list")}
-                        className="h-8 px-3"
-                      >
-                        <List className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    )}
                   </div>
                 </div>
                 
-                {/* Results Counter */}
-                {searchTerm && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Found {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''} 
-                      {searchTerm && (
-                        <span> matching "<span className="font-medium">{searchTerm}</span>"</span>
-                      )}
-                    </p>
+                {/* Filter Controls */}
+                <div className="flex items-center gap-3 w-full lg:w-auto">
+                  {/* Sort Dropdown */}
+                  <div className="flex-1 lg:flex-none">
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger className="w-full lg:w-40 h-10 bg-background border-border hover:border-primary/50 transition-colors">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="latest" className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Latest First
+                        </SelectItem>
+                        <SelectItem value="oldest" className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Oldest First
+                        </SelectItem>
+                        <SelectItem value="title" className="flex items-center gap-2">
+                          <Tag className="h-4 w-4" />
+                          Title A-Z
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  
+                  {/* View Mode Toggle */}
+                  <div className="flex items-center bg-muted rounded-lg p-1 border border-border">
+                    <Button
+                      variant={viewMode === "grid" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewMode("grid")}
+                      className="h-8 px-3 transition-all"
+                      title="Grid view"
+                    >
+                      <Grid className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === "list" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewMode("list")}
+                      className="h-8 px-3 transition-all"
+                      title="List view"
+                    >
+                      <List className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+             
+            </div>
 
-            {/* Articles Content */}
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-8">
-                <TabsTrigger value="all" className="flex items-center gap-2">
-                  All Articles
-                  <Badge variant="secondary" className="ml-1">
-                    {filteredArticles.length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="recent" className="flex items-center gap-2">
-                  Recent
-                  <Badge variant="secondary" className="ml-1">
-                    {filteredArticles.filter(a => {
-                      const publishedDate = new Date(a.publishedAt)
-                      const weekAgo = new Date()
-                      weekAgo.setDate(weekAgo.getDate() - 7)
-                      return publishedDate >= weekAgo
-                    }).length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="trending" className="flex items-center gap-2">
-                  Trending
-                  <Badge variant="secondary" className="ml-1">
-                    {Math.min(filteredArticles.length, 5)}
-                  </Badge>
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="all" className="space-y-8">
-                <NewsGrid articles={filteredArticles} locale={safeLang}/>
-              </TabsContent>
-              
-              <TabsContent value="recent" className="space-y-8">
-                <NewsGrid 
-                  articles={filteredArticles.filter(a => {
-                    const publishedDate = new Date(a.publishedAt)
-                    const weekAgo = new Date()
-                    weekAgo.setDate(weekAgo.getDate() - 7)
-                    return publishedDate >= weekAgo
-                  })} 
-                  locale={safeLang} 
-        
-                />
-              </TabsContent>
-              
-              <TabsContent value="trending" className="space-y-8">
-                <NewsGrid 
-                  articles={filteredArticles.slice(0, 5)} 
-                  locale={safeLang} 
-    
-                />
-              </TabsContent>
-            </Tabs>
-          </>
+            {/* Articles Content - Simplified */}
+            <div className="space-y-6">
+              <NewsGrid articles={filteredArticles} locale={safeLang} viewMode={viewMode}/>
+            </div>
+          </>   
         ) : (
-          /* Empty State */
-          <Card className="text-center py-16border-0 shadow-lg">
-            <CardContent className="space-y-6">
-              <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto">
-                <Tag className="w-12 h-12 text-gray-400" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  No articles yet
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                  This category is waiting for its first article. Check back soon for exciting content!
-                </p>
-              </div>
-              <Button variant="outline" className="mt-6">
-                Browse Other Categories
-              </Button>
-            </CardContent>
-          </Card>
+          /* Minimal Empty State */
+          <div className="text-center py-16">
+            <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
+              <Tag className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold text-foreground">
+                No articles yet
+              </h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                This category is waiting for its first article. Check back soon!
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </div>

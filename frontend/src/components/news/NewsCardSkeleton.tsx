@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, Variants } from 'framer-motion';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -11,73 +12,66 @@ const cardVariants: Variants = {
   },
 };
 
-const shimmerVariants: Variants = {
-  shimmer: {
-    x: ['-100%', '100%'],
-    transition: {
-      x: {
-        repeat: Infinity,
-        repeatType: 'loop' as const,
-        duration: 1.5,
-        ease: 'linear' as const,
-      },
-    },
-  },
-};
+interface NewsCardSkeletonProps {
+  viewMode?: 'grid' | 'list';
+}
 
-export default function NewsCardSkeleton() {
+export default function NewsCardSkeleton({ viewMode = 'grid' }: NewsCardSkeletonProps) {
+  // List view skeleton
+  if (viewMode === 'list') {
+    return (
+      <motion.div
+        variants={cardVariants}
+        className="bg-card border border-border rounded-lg overflow-hidden"
+      >
+        <div className="flex gap-4 p-4">
+          {/* Image skeleton - Smaller for list view */}
+          <Skeleton className="w-24 h-24 rounded-lg flex-shrink-0" />
+          
+          {/* Content skeleton */}
+          <div className="flex-1 min-w-0 space-y-3">
+            {/* Category skeleton */}
+            <Skeleton className="h-3 w-16" />
+            
+            {/* Title skeleton */}
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-full" />
+              <Skeleton className="h-5 w-3/4" />
+            </div>
+            
+            {/* Date skeleton */}
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Grid view skeleton (default)
   return (
     <motion.div
       variants={cardVariants}
-      className="group relative overflow-hidden rounded-3xl aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 shadow-2xl"
+      className="bg-card border border-border rounded-lg overflow-hidden group"
     >
       {/* Image skeleton */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800">
-        <motion.div
-          variants={shimmerVariants}
-          animate="shimmer"
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-        />
-      </div>
-
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
-
+      <Skeleton className="w-full aspect-video" />
+      
       {/* Content skeleton */}
-      <div className="relative z-30 flex flex-col justify-end h-full p-6">
+      <div className="p-4 space-y-3">
         {/* Category skeleton */}
-        <div className="inline-flex items-center gap-2 self-start bg-white/25 backdrop-blur-lg px-4 py-2 rounded-full mb-4 border border-white/40">
-          <div className="w-3 h-3 rounded-full bg-white/60" />
-          <div className="w-16 h-3 bg-white/60 rounded animate-pulse" />
-        </div>
-
+        <Skeleton className="h-3 w-16" />
+        
         {/* Title skeleton */}
-        <div className="space-y-2 mb-4">
-          <div className="h-6 bg-white/80 rounded animate-pulse" />
-          <div className="h-6 bg-white/60 rounded animate-pulse w-3/4" />
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-3/4" />
         </div>
-
-        {/* Metadata skeleton */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1">
-            <div className="w-4 h-4 bg-white/60 rounded animate-pulse" />
-            <div className="w-20 h-3 bg-white/60 rounded animate-pulse" />
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-4 h-4 bg-white/60 rounded animate-pulse" />
-            <div className="w-16 h-3 bg-white/60 rounded animate-pulse" />
-          </div>
+        
+        {/* Date and arrow skeleton */}
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-4" />
         </div>
-      </div>
-
-      {/* Action button skeleton */}
-      <div className="absolute top-4 right-4 z-40 p-3 bg-white/20 backdrop-blur-lg rounded-full">
-        <div className="w-6 h-6 bg-white/60 rounded animate-pulse" />
-      </div>
-
-      {/* Progress bar skeleton */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-30">
-        <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-1/3 animate-pulse" />
       </div>
     </motion.div>
   );

@@ -267,7 +267,7 @@ export default function SmartNavigation({ lang, user }: SmartNavigationProps) {
             </div>
 
             {/* Content */}
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-80 overflow-y-auto scrollbar-hide">
               {getCurrentItems().length > 0 ? (
                 <div className="p-2">
                   {getCurrentItems().map((item, index) => (

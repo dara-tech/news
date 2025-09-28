@@ -121,52 +121,56 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
 
               {/* Navigation Menu */}
               <nav className="space-y-1">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
-                  onClick={() => router.push(`/${language}`)}
-                >
-                  <Home className="mr-4 h-5 w-5" />
-                  {language === 'kh' ? 'ទំព័រដើម' : 'Home'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
-                  onClick={() => router.push(`/${language}/news`)}
-                >
-                  <Newspaper className="mr-4 h-5 w-5" />
-                  {language === 'kh' ? 'ព័ត៌មាន' : 'News'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
-                  onClick={() => router.push(`/${language}/categories`)}
-                >
-                  <Tag className="mr-4 h-5 w-5" />
-                  {language === 'kh' ? 'ប្រភេទ' : 'Categories'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
-                  onClick={() => router.push(`/${language}/trending`)}
-                >
-                  <TrendingUp className="mr-4 h-5 w-5" />
-                  {language === 'kh' ? 'ពេញនិយម' : 'Trending'}
-                </Button>
+                <Link href={`/${language}`} prefetch={true}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
+                  >
+                    <Home className="mr-4 h-5 w-5" />
+                    {locale === 'kh' ? 'ទំព័រដើម' : 'Home'}
+                  </Button>
+                </Link>
+                <Link href={`/${locale}/news`} prefetch={true}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
+                  >
+                    <Newspaper className="mr-4 h-5 w-5" />
+                    {locale === 'kh' ? 'ព័ត៌មាន' : 'News'}
+                  </Button>
+                </Link>
+                <Link href={`/${locale}/categories`} prefetch={true}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
+                  >
+                    <Tag className="mr-4 h-5 w-5" />
+                    {locale === 'kh' ? 'ប្រភេទ' : 'Categories'}
+                  </Button>
+                </Link>
+                <Link href={`/${locale}/trending`} prefetch={true}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
+                  >
+                    <TrendingUp className="mr-4 h-5 w-5" />
+                    {locale === 'kh' ? 'ពេញនិយម' : 'Trending'}
+                  </Button>
+                </Link>
               </nav>
 
               {/* Top Authors */}
               <div className="flex-1 pt-6">
                 <h3 className="font-semibold text-lg mb-4 text-muted-foreground">
-                  {language === 'kh' ? 'អ្នកសរសេរកំពុងពេញនិយម' : 'Top Authors'}
+                  {locale === 'kh' ? 'អ្នកសរសេរកំពុងពេញនិយម' : 'Top Authors'}
                 </h3>
-                <TopAuthors locale={language} limit={3} />
+                <TopAuthors locale={locale} limit={3} />
               </div>
             </div>
           </aside>
 
           {/* Main Content - Twitter-like Feed */}
-          <main className="lg:col-span-6 border-x border-none h-screen overflow-y-auto">
+          <main className="lg:col-span-6 border-x border-none h-screen overflow-y-auto scrollbar-hide">
             {customMainContent ? (
               <div className="border-none">
                 {customMainContent}
@@ -174,10 +178,10 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
             ) : (
               <>
                 {/* Header */}
-                <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4 z-10">
+                <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4 z-10 hidden">
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-bold">
-                      {language === 'kh' ? 'ព័ត៌មានថ្មីៗ' : 'Latest News'}
+                      {locale === 'kh' ? 'ព័ត៌មានថ្មីៗ' : 'Latest News'}
                     </h2>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
@@ -186,7 +190,7 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
                       </div>
                       <div className="flex items-center gap-2">
                         <Globe className="h-4 w-4" />
-                        <span>{language === 'kh' ? 'កម្ពុជា' : 'Cambodia'}</span>
+                        <span>{locale === 'kh' ? 'កម្ពុជា' : 'Cambodia'}</span>
                       </div>
                     </div>
                   </div>
@@ -194,11 +198,11 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
 
                 {/* Main Feature - Pinned Post */}
                 {mainFeature && (
-                  <div className="border-b border-border/50">
-                    <div className="p-4">
+                  <div className="border-b border-border/50 py-6">
+                    <div >
                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                        <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                          {language === 'kh' ? 'ពិសេស' : 'Featured'}
+                        <span className="px-3 py-3 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                          {locale === 'kh' ? 'ពិសេស' : 'Featured'}
                         </span>
                         <span>•</span>
                         <span>{formatDate(mainFeature.publishedAt || mainFeature.createdAt)}</span>
@@ -207,6 +211,15 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
                     </div>
                   </div>
                 )}
+                {/* Latest News Section Header */}
+                <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border/50 p-4 z-10">
+                  <div className="flex items-center gap-3">
+                    <Newspaper className="h-5 w-5 text-primary" />
+                    <h2 className="text-lg font-semibold tracking-tight">
+                      {locale === 'kh' ? 'ព័ត៌មានថ្មីៗ' : 'Latest News'}
+                    </h2>
+                  </div>
+                </div>
 
                 {/* Infinite Scroll Feed - Main Content */}
                 <div>
@@ -230,7 +243,7 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
               <div className="relative">
                 <input
                   type="text"
-                  placeholder={language === 'kh' ? 'ស្វែងរកព័ត៌មាន...' : 'Search news...'}
+                  placeholder={locale === 'kh' ? 'ស្វែងរកព័ត៌មាន...' : 'Search news...'}
                   className="w-full bg-muted/50 border border-border/50 rounded-full px-4 py-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -239,7 +252,7 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
               {/* Trending Categories */}
               <div className="bg-card/50 rounded-xl border border-border/50 p-4">
                 <h3 className="font-semibold text-lg mb-4">
-                  {language === 'kh' ? 'ប្រភេទពេញនិយម' : 'Trending Categories'}
+                  {locale === 'kh' ? 'ប្រភេទពេញនិយម' : 'Trending Categories'}
                 </h3>
                 <TrendingCategories categories={displayCategories} locale={language} />
               </div>
@@ -248,15 +261,15 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
               <div className="bg-card/50 rounded-xl border border-border/50 p-4 flex-1">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-lg">
-                    {language === 'kh' ? 'ព័ត៌មានថ្មី' : 'Latest Stories'}
+                    {locale === 'kh' ? 'ព័ត៌មានថ្មី' : 'Latest Stories'}
                   </h3>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => router.push(`/${language}/news`)}
+                    onClick={() => router.push(`/${locale}/news`)}
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
-                    {language === 'kh' ? 'ទាំងអស់' : 'All'}
+                    {locale === 'kh' ? 'ទាំងអស់' : 'All'}
                     <ExternalLink className="ml-1 w-3 h-3" />
                   </Button>
                 </div>
@@ -267,14 +280,15 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
                       className="group"
                     >
                       <Link
-                        href={`/${language}/news/${article.slug?.[language] || article._id}`}
+                        href={`/${locale}/news/${article.slug?.[language] || article._id}`}
                         className="block p-3 rounded-lg hover:bg-muted/30 transition-colors"
+                        prefetch={true}
                       >
                         <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors mb-2">
                           {typeof article.title === 'string' ? article.title : article.title?.[language] || 'Untitled'}
                         </h4>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span>{article.views || 0} {language === 'kh' ? 'មើល' : 'views'}</span>
+                          <span>{article.views || 0} {locale === 'kh' ? 'មើល' : 'views'}</span>
                           <span>•</span>
                           <span>
                             {formatDate(article.publishedAt || article.createdAt)}
@@ -287,9 +301,9 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
               </div>
 
               {/* Footer */}
-              <div className="text-xs text-muted-foreground space-y-2 pt-4">
+              <div className="text-xs text-muted-foreground space-y-2">
                 <p>© 2024 NewsHub</p>
-                <p>{language === 'kh' ? 'ព័ត៌មានថ្មីៗជារៀងរាល់ថ្ងៃ' : 'Fresh news every day'}</p>
+                <p>{locale === 'kh' ? 'ព័ត៌មានថ្មីៗជារៀងរាល់ថ្ងៃ' : 'Fresh news every day'}</p>
               </div>
             </div>
           </aside>

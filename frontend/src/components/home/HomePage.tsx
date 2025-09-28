@@ -6,7 +6,7 @@ import ErrorBoundary from '../ErrorBoundary';
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, TrendingUp, Clock, Star } from 'lucide-react';
-import { motion } from 'framer-motion';
+// Removed framer-motion import for static layout
 
 interface HomePageProps {
   lang: 'en' | 'kh';
@@ -50,13 +50,9 @@ export default function HomePage({ lang, newsData }: HomePageProps) {
     <ErrorBoundary>
       <div className="min-h-screen bg-background">
         {/* Stats Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-b border-border/50"
-        >
+        <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-b border-border/50">
         
-        </motion.div>
+        </div>
 
         {/* Main Hero Component with Infinite Scroll */}
         <Hero

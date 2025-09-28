@@ -62,9 +62,9 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
 
   // Create a custom main content component for the article
   const ArticleMainContent = () => (
-    <div className="max-w-4xl mx-auto">
+    <div className="px-1">
       {/* Minimal Header Navigation */}
-      <div className="mb-8 pt-4">
+      <div className="py-8">
         <Button 
           variant="ghost" 
           size="sm"
@@ -192,10 +192,6 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
 
         {/* Comments */}
         <div className="py-6 border-t border-border">
-          <h3 className="text-xl font-semibold mb-6 flex items-center text-foreground">
-            <MessageCircle className="w-5 h-5 mr-3" />
-            {locale === 'kh' ? 'មតិយោបល់' : 'Comments'}
-          </h3>
           {isClient && <CommentSection newsId={article._id} />}
         </div>
       </article>
@@ -265,20 +261,20 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
         />
       )}
 
-      {/* Enterprise Analytics */}
-      <ArticleAnalytics 
-        articleId={article._id} 
-        articleTitle={localizedTitle} 
-        locale={locale} 
-      />
-
+        {/* Enterprise Analytics */}
+        <ArticleAnalytics 
+          articleId={article._id} 
+          articleTitle={localizedTitle} 
+          locale={locale} 
+        />
+        
       {/* Use TwitterLikeLayout with custom main content */}
       <TwitterLikeLayout
         breaking={[]}
         featured={[]}
         latestNews={[]}
         categories={[]}
-        locale={locale}
+                      locale={locale} 
         customMainContent={<ArticleMainContent />}
       />
     </>
