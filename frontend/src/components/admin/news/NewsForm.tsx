@@ -238,10 +238,10 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
     if (!formData.category || (typeof formData.category === 'string' && !formData.category.trim())) errors.category = "Category is required";
     if (!formData.seo.metaTitle.en.trim()) errors["seo.metaTitle.en"] = "Meta title (English) is required";
     if (!formData.seo.metaTitle.kh.trim()) errors["seo.metaTitle.kh"] = "Meta title (Khmer) is required";
-    if (formData.seo.metaTitle.en.length > 70) errors["seo.metaTitle.en"] = "Meta title (English) should be under 70 characters";
-    if (formData.seo.metaTitle.kh.length > 70) errors["seo.metaTitle.kh"] = "Meta title (Khmer) should be under 70 characters";
-    if (formData.seo.metaDescription.en.length > 160) errors["seo.metaDescription.en"] = "Meta description (English) should be under 160 characters";
-    if (formData.seo.metaDescription.kh.length > 160) errors["seo.metaDescription.kh"] = "Meta description (Khmer) should be under 160 characters";
+    if (formData.seo.metaTitle.en.length > 200) errors["seo.metaTitle.en"] = "Meta title (English) should be under 200 characters";
+    if (formData.seo.metaTitle.kh.length > 200) errors["seo.metaTitle.kh"] = "Meta title (Khmer) should be under 200 characters";
+    if (formData.seo.metaDescription.en.length > 200) errors["seo.metaDescription.en"] = "Meta description (English) should be under 200 characters";
+    if (formData.seo.metaDescription.kh.length > 200) errors["seo.metaDescription.kh"] = "Meta description (Khmer) should be under 200 characters";
     if (!formData.seo.keywords.trim()) errors["seo.keywords"] = "Keywords are required";
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -527,6 +527,7 @@ const NewsForm = ({ initialData, onSubmit, isEditMode, isLoading, isSubmitting }
       toast.error(imageGenerationError);
     }
   };
+
 
   // --- FIX: Only append a single string value for status, never an array ---
   const handleSubmit = async (e: React.FormEvent) => {

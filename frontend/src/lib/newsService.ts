@@ -23,6 +23,13 @@ interface NewsParams {
 
 class NewsService {
   private baseUrl = '/news';
+  private cacheBuster = Date.now();
+
+  // Method to clear cache and force fresh data
+  clearCache() {
+    this.cacheBuster = Date.now();
+    console.log('Cache cleared, new cache buster:', this.cacheBuster);
+  }
 
   async getNews(params: NewsParams): Promise<NewsResponse> {
     try {
@@ -36,8 +43,16 @@ class NewsService {
           category: params.category,
           search: params.search,
           sortBy: params.sortBy || 'createdAt',
-          sortOrder: params.sortOrder || 'desc'
-        }
+          sortOrder: params.sortOrder || 'desc',
+          // Add cache-busting parameter for initial load
+          ...(params.page === 1 && { _t: this.cacheBuster })
+        },
+        // Add cache-busting headers for initial load
+        headers: params.page === 1 ? {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'X-Cache-Bypass': 'true'
+        } : {}
       });
 
       const data = response.data;

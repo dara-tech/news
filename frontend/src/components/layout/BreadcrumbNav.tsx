@@ -107,7 +107,7 @@ const BreadcrumbNav = memo(() => {
   }
   
   return (
-    <nav className="flex items-center space-x-1 text-sm text-muted-foreground py-2 px-4 bg-muted/30 border-b border-border/50">
+    <nav className="flex items-center space-x-1 text-sm text-muted-foreground px-4 bg-muted/30 border-b border-border/50">
       {breadcrumbs.map((item, index) => (
         <Fragment key={item.href}>
           {index === 0 ? (

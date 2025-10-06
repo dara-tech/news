@@ -1,15 +1,16 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import { Kantumruy_Pro } from 'next/font/google';
+import { Hanuman } from 'next/font/google';
 import './globals.css'
 import '../styles/enterprise.css';
 import AppProviders from "@/components/layout/AppProviders";
 import AdSenseScript from "@/components/adsense/AdSenseScript";
 
-const kantumruyPro = Kantumruy_Pro({
-  variable: '--font-kantumruy-pro',
+const hanuman = Hanuman({
+  variable: '--font-hanuman',
   subsets: ['khmer', 'latin'],
   display: 'swap',
+  weight: ['100', '300', '400', '700', '900'],
 });
 
 export const metadata: Metadata = {
@@ -83,7 +84,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const fontVariables = kantumruyPro.variable;
+  const fontVariables = hanuman.variable;
 
   return (
     <html lang="en" suppressHydrationWarning>

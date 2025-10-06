@@ -51,8 +51,8 @@ export const BreakingNewsTicker = forwardRef<BreakingNewsTickerHandle, BreakingN
     if (validArticles.length === 0 || !currentArticle) return null
 
     return (
-      <div className="bg-red-600 border-b border-red-500/30">
-        <div className="h-12 sm:h-14 px-2 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="bg-red-600 border-b border-red-500/30 py-2">
+        <div className="px-2 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
           {/* Breaking Label */}
           <div className="flex items-center gap-2 sm:gap-3 ]">
             {/* <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full flex items-center justify-center">

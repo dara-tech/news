@@ -19,11 +19,13 @@ import {
   Monitor,
   User,
   Brain,
-  Zap,
   Target,
   Key,
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { Button } from '@/components/ui/button';
+import { Maximize, Minimize } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -162,10 +164,6 @@ const data = {
           title: 'Security',
           url: '/admin/settings/security',
         },
-        {
-          title: 'Monitoring',
-          url: '/admin/settings/monitoring',
-        },
       ],
     },
     {
@@ -173,29 +171,8 @@ const data = {
       icon: BarChart3,
       items: [
         {
-          title: 'Enterprise Analytics',
-          url: '/admin/enterprise-analytics',
-          icon: Target,
-        },
-        {
           title: 'SEO Dashboard',
           url: '/admin/seo',
-        },
-        {
-          title: 'OpenGraph Demo',
-          url: '/admin/opengraph-demo',
-        },
-        {
-          title: 'Link Preview',
-          url: '/admin/link-preview',
-        },
-        {
-          title: 'Process Mining',
-          url: '/admin/processing-dashboard',
-        },
-        {
-          title: 'Data Quality',
-          url: '/admin/data-quality',
         },
         {
           title: 'API Keys',
@@ -205,16 +182,16 @@ const data = {
       ],
     },
     {
-      title: 'Automation',
-      icon: Zap,
+      title: 'System',
+      icon: Monitor,
       items: [
+        {
+          title: 'Monitoring',
+          url: '/admin/system-monitoring',
+        },
         {
           title: 'Auto-Posting',
           url: '/admin/auto-posting',
-        },
-        {
-          title: 'Sentinel AI',
-          url: '/admin/sentinel-auto-publish',
         },
       ],
     },
@@ -422,6 +399,38 @@ export default function AdminSidebar() {
 
 // Wrapper component to provide sidebar context
 export function AdminSidebarProvider({ children }: { children: React.ReactNode }) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      document.documentElement.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+      }).catch(() => {
+        console.log('Fullscreen not supported');
+      });
+    } else {
+      // Exit fullscreen
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+      }).catch(() => {
+        console.log('Could not exit fullscreen');
+      });
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
@@ -438,6 +447,15 @@ export function AdminSidebarProvider({ children }: { children: React.ReactNode }
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleFullscreen}
+                className="h-8 w-8 p-0"
+                title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              >
+                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+              </Button>
               <ThemeToggle />
             </div>
           </div>

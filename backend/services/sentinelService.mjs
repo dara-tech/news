@@ -28,10 +28,7 @@ class SentinelService {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; SentinelPP01/3.0; +https://news-app.local) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml, application/rdf+xml;q=0.9, */*;q=0.8',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive'
+          'Accept-Language': 'en-US,en;q=0.9'
         }
       },
       customFields: {
@@ -45,6 +42,7 @@ class SentinelService {
 
     // Enhanced state management
     this.intervalHandle = null;
+    this.isRunning = false;
     this.lastSeenGuids = new Set();
     this.contentHashCache = new Map(); // For better deduplication
     this.logBuffer = [];
@@ -57,6 +55,14 @@ class SentinelService {
     this.lastRunAt = null;
     this.lastCreated = 0;
     this.lastProcessed = 0;
+    
+    // Gemini API retry system
+    this.geminiRetryCount = 0;
+    this.geminiMaxRetries = 5;
+    this.geminiRetryDelay = 30000; // Start with 30 seconds
+    this.geminiMaxDelay = 300000; // Max 5 minutes
+    this.geminiLastError = null;
+    this.geminiCooldownUntil = 0;
     this.performanceMetrics = {
       totalProcessed: 0,
       totalCreated: 0,
@@ -65,15 +71,13 @@ class SentinelService {
       lastReset: new Date()
     };
     
-    // Content safety filters
+    // Content safety filters (less restrictive)
     this.safetyFilters = {
       sensitiveKeywords: [
-        'suicide', 'self-harm', 'explicit', 'pornography', 'hate speech',
-        'terrorism', 'extremism', 'violence', 'gore', 'disturbing'
+        'explicit', 'pornography', 'hate speech'
       ],
       biasIndicators: [
-        'fake news', 'conspiracy', 'unverified', 'rumor', 'allegedly',
-        'supposedly', 'claimed without evidence'
+        'fake news', 'conspiracy'
       ]
     };
 
@@ -81,7 +85,7 @@ class SentinelService {
 
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     this.genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-    this.model = this.genAI ? this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }) : null;
+    this.model = this.genAI ? this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' }) : null;
   }
 
   // Enhanced logging with performance tracking
@@ -161,26 +165,144 @@ class SentinelService {
     this.pushLog('info', `[Sentinel-PP-01] Daily requests: ${this.dailyRequestCount}/${this.maxDailyRequests}`);
   }
 
-  // Content safety check
+  // Content safety check (less restrictive)
   checkContentSafety(content) {
     const text = `${content.title || ''} ${content.description || ''} ${content.content || ''}`.toLowerCase();
     
-    // Check for sensitive content
+    // Check for sensitive content (only very explicit content)
     const sensitiveMatches = this.safetyFilters.sensitiveKeywords.filter(keyword => 
       text.includes(keyword.toLowerCase())
     );
     
-    // Check for bias indicators
+    // Check for bias indicators (only clear fake news)
     const biasMatches = this.safetyFilters.biasIndicators.filter(indicator => 
       text.includes(indicator.toLowerCase())
     );
     
+    // Only block if there are multiple sensitive keywords or very explicit content
+    const isSafe = sensitiveMatches.length === 0 || (sensitiveMatches.length === 1 && !text.includes('explicit'));
+    
     return {
-      isSafe: sensitiveMatches.length === 0,
+      isSafe,
       hasBias: biasMatches.length > 0,
       sensitiveKeywords: sensitiveMatches,
       biasIndicators: biasMatches,
-      safetyScore: Math.max(0, 100 - (sensitiveMatches.length * 20) - (biasMatches.length * 10))
+      safetyScore: Math.max(0, 100 - (sensitiveMatches.length * 10) - (biasMatches.length * 5))
+    };
+  }
+
+  // Gemini API retry system with exponential backoff
+  async callGeminiWithRetry(prompt, maxRetries = null) {
+    const retries = maxRetries || this.geminiMaxRetries;
+    const startTime = Date.now();
+    
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        // Check if we're in cooldown period
+        if (Date.now() < this.geminiCooldownUntil) {
+          const waitTime = Math.ceil((this.geminiCooldownUntil - Date.now()) / 1000);
+          this.pushLog('info', `[Sentinel-PP-01] Gemini API in cooldown, waiting ${waitTime}s before retry`);
+          await new Promise(resolve => setTimeout(resolve, this.geminiCooldownUntil - Date.now()));
+        }
+        
+        // Make the API call
+        const result = await this.model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        
+        // Reset retry count on success
+        this.geminiRetryCount = 0;
+        this.geminiRetryDelay = 30000; // Reset to initial delay
+        this.geminiLastError = null;
+        
+        this.pushLog('info', `[Sentinel-PP-01] Gemini API call successful (attempt ${attempt + 1})`, {
+          duration: Date.now() - startTime,
+          retryCount: this.geminiRetryCount
+        });
+        
+        return text;
+        
+      } catch (error) {
+        const errorMsg = error.message || String(error);
+        this.geminiLastError = errorMsg;
+        
+        // Check if it's a 429 error (quota exceeded)
+        if (errorMsg.includes('429') || errorMsg.includes('Too Many Requests') || errorMsg.includes('quota')) {
+          this.pushLog('warning', `[Sentinel-PP-01] Gemini API quota exceeded. Daily limit reached.`, {
+            error: errorMsg,
+            retryCount: this.geminiRetryCount
+          });
+          
+          // Set cooldown until next day (24 hours)
+          this.geminiCooldownUntil = Date.now() + (24 * 60 * 60 * 1000);
+          throw new Error('Gemini API quota exceeded. Please try again tomorrow or upgrade your plan.');
+        }
+        // Check if it's a 503 error (service unavailable)
+        else if (errorMsg.includes('503') || errorMsg.includes('Service Unavailable') || errorMsg.includes('overloaded')) {
+          this.geminiRetryCount++;
+          
+          if (attempt < retries) {
+            // Calculate exponential backoff delay
+            const delay = Math.min(
+              this.geminiRetryDelay * Math.pow(2, attempt),
+              this.geminiMaxDelay
+            );
+            
+            this.pushLog('warning', `[Sentinel-PP-01] Gemini API overloaded (attempt ${attempt + 1}/${retries + 1}), retrying in ${Math.ceil(delay / 1000)}s`, {
+              error: errorMsg,
+              retryCount: this.geminiRetryCount,
+              nextDelay: Math.ceil(delay / 1000)
+            });
+            
+            // Set cooldown period
+            this.geminiCooldownUntil = Date.now() + delay;
+            
+            // Wait before retry
+            await new Promise(resolve => setTimeout(resolve, delay));
+            
+            // Increase delay for next attempt
+            this.geminiRetryDelay = Math.min(delay * 1.5, this.geminiMaxDelay);
+            
+          } else {
+            this.pushLog('error', `[Sentinel-PP-01] Gemini API failed after ${retries + 1} attempts`, {
+              error: errorMsg,
+              totalRetries: this.geminiRetryCount,
+              duration: Date.now() - startTime
+            });
+            
+            // Set longer cooldown after max retries
+            this.geminiCooldownUntil = Date.now() + (this.geminiMaxDelay * 2);
+            throw error;
+          }
+        } else {
+          // Non-503 error, don't retry
+          this.pushLog('error', `[Sentinel-PP-01] Gemini API error (non-retryable)`, {
+            error: errorMsg,
+            attempt: attempt + 1
+          });
+          throw error;
+        }
+      }
+    }
+  }
+
+  // Check if Gemini API is available (not in cooldown)
+  isGeminiApiAvailable() {
+    return Date.now() >= this.geminiCooldownUntil;
+  }
+
+  // Get Gemini API status
+  getGeminiApiStatus() {
+    const now = Date.now();
+    const isAvailable = now >= this.geminiCooldownUntil;
+    const cooldownRemaining = Math.max(0, this.geminiCooldownUntil - now);
+    
+    return {
+      available: isAvailable,
+      cooldownRemaining: Math.ceil(cooldownRemaining / 1000), // seconds
+      retryCount: this.geminiRetryCount,
+      lastError: this.geminiLastError,
+      nextRetryDelay: Math.ceil(this.geminiRetryDelay / 1000) // seconds
     };
   }
 
@@ -204,24 +326,36 @@ class SentinelService {
         return null;
       }
 
+      // Check if Gemini API is available
+      if (!this.isGeminiApiAvailable()) {
+        const status = this.getGeminiApiStatus();
+        this.pushLog('info', `[Sentinel-PP-01] Gemini API in cooldown, skipping analysis for: ${item.title}`, {
+          cooldownRemaining: status.cooldownRemaining,
+          retryCount: status.retryCount
+        });
+        return null;
+      }
+
       // Check daily rate limit before making AI calls
       if (!this.checkDailyRateLimit()) {
         return null;
       }
 
       const analysisPrompt = `
-You are a content analyst for Sentinel-PP-01. Analyze the following news content and provide enhanced, meaningful insights.
+You're a seasoned journalist and content writer with years of experience covering international news. Write naturally, like a human reporter would, not like an AI.
 
 Source: ${item.sourceName}
 Title: ${item.title}
 Content: ${item.contentSnippet || item.content || ''}
 Published: ${item.isoDate || item.pubDate || ''}
 
+Rewrite this news story to make it more engaging and human. Write like a real journalist - use varied sentence lengths, contractions, natural language, and storytelling techniques.
+
 Please provide a JSON response with the following structure:
 {
-  "enhancedTitle": "Improved, more engaging title (max 75 chars)",
-  "enhancedDescription": "Enhanced description with key insights (max 160 chars)",
-  "enhancedContent": "Improved content with better structure, context, and insights (800-1200 words)",
+  "enhancedTitle": "Catchy, human-written headline (max 75 chars)",
+  "enhancedDescription": "Compelling summary that hooks readers (max 160 chars)",
+  "enhancedContent": "Well-written article with natural flow, varied sentences, and engaging storytelling (800-1200 words)",
   "keyInsights": ["insight1", "insight2", "insight3"],
   "contextualAnalysis": "Brief analysis of regional/global context",
   "relevanceScore": 85,
@@ -232,19 +366,30 @@ Please provide a JSON response with the following structure:
   "category": "Politics|Business|Technology|Health|Sports|Entertainment|Education|Environment|Science|Other"
 }
 
-Guidelines:
-- Make content more meaningful and engaging
+Writing Guidelines - Write like a HUMAN, not an AI:
+- Use contractions (don't, can't, won't, it's, they're)
+- Vary sentence length - mix short punchy sentences with longer descriptive ones
+- Start with a hook that draws readers in
+- Use active voice, not passive
+- Include quotes and human elements when possible
+- Write conversationally but professionally
+- Use transitional phrases naturally
+- Avoid repetitive sentence structures
+- Include specific details and context
+- Make it feel like a real news story, not AI-generated content
 - Add relevant context for Southeast Asian readers
-- Ensure factual accuracy and clarity
-- Provide balanced perspective
-- Include actionable insights when relevant
-- Maintain journalistic standards
-- Consider cultural sensitivity
+- Use storytelling techniques to make it engaging
+- Write with personality and voice
+- Use specific numbers, dates, and concrete details
+- Include "what this means for you" context
+- Use rhetorical questions occasionally
+- Mix formal and informal language appropriately
+- Avoid AI buzzwords and corporate speak
+- Write like you're talking to a friend who's interested in news
 
 Return ONLY the JSON object.`;
 
-      const result = await this.model.generateContent(analysisPrompt);
-      const text = (await result.response).text().trim();
+      const text = await this.callGeminiWithRetry(analysisPrompt);
       const jsonString = this.extractJson(text);
       const analysis = JSON.parse(jsonString);
       
@@ -308,36 +453,36 @@ Return ONLY the JSON object.`;
       }
 
       const translationPrompt = `
-You are a professional translator specializing in English to Khmer (Cambodian) translation for news content.
-
-Please translate the following enhanced news content to Khmer, maintaining the professional tone and cultural appropriateness.
+You're a native Khmer speaker and professional translator who writes naturally, not like an AI. Translate this news content to Khmer while keeping it engaging and human-sounding.
 
 Title: ${enhancedContent.enhancedTitle}
 Description: ${enhancedContent.enhancedDescription}
 Content: ${enhancedContent.enhancedContent.slice(0, 3000)} // Limit for API constraints
 
-Guidelines for Khmer translation:
-- Use formal, professional Khmer language
-- Maintain journalistic tone and style
-- Ensure cultural sensitivity and appropriateness
-- Use proper Khmer grammar and sentence structure
-- Preserve the meaning and context accurately
-- Use appropriate Khmer terms for technical concepts
-- Consider local context and cultural nuances
+Translation Guidelines - Make it sound NATURAL in Khmer:
+- Write like a real Khmer journalist would
+- Use natural Khmer expressions and idioms
+- Vary sentence structure - don't make it robotic
+- Use appropriate formality level for news content
+- Keep the engaging, human tone from the English version
+- Use contractions and natural speech patterns in Khmer
+- Make it flow naturally, not word-for-word translation
+- Include cultural context that makes sense for Cambodian readers
+- Use active voice and engaging storytelling techniques
+- Avoid overly formal or AI-sounding language
 
 Return a JSON object with the following structure:
 {
-  "khmerTitle": "Translated title in Khmer",
-  "khmerDescription": "Translated description in Khmer",
-  "khmerContent": "Translated content in Khmer",
+  "khmerTitle": "Natural, engaging title in Khmer",
+  "khmerDescription": "Compelling description in natural Khmer",
+  "khmerContent": "Well-written article in natural, engaging Khmer",
   "translationQuality": "high|medium|low",
   "culturalNotes": "Any cultural considerations or notes"
 }
 
 Return ONLY the JSON object.`;
 
-      const result = await this.model.generateContent(translationPrompt);
-      const text = (await result.response).text().trim();
+      const text = await this.callGeminiWithRetry(translationPrompt);
       const jsonString = this.extractJson(text);
       const translation = JSON.parse(jsonString);
       
@@ -390,20 +535,15 @@ Return ONLY the JSON object.`;
       return { isDuplicate: true, reason: 'content_hash_match' };
     }
     
-    // Check database for similar titles (more flexible matching)
-    const normalizedTitle = content.title?.toLowerCase().replace(/[^a-z0-9\s]/g, '');
-    if (normalizedTitle) {
-      // Use first 4 words for more flexible matching
-      const titleWords = normalizedTitle.split(' ').slice(0, 4).join(' ');
-      if (titleWords.length > 10) { // Only check if we have enough words
-        const existing = await News.findOne({
-          'title.en': { $regex: new RegExp(titleWords, 'i') }
-        });
-        
-        if (existing) {
-          this.pushLog('info', `[Sentinel-PP-01] Duplicate detected in database: ${content.title?.slice(0, 50)}...`);
-          return { isDuplicate: true, reason: 'similar_title', existingId: existing._id };
-        }
+    // Check database for exact title matches only (less aggressive)
+    if (content.title) {
+      const existing = await News.findOne({
+        'title.en': content.title
+      });
+      
+      if (existing) {
+        this.pushLog('info', `[Sentinel-PP-01] Duplicate detected in database: ${content.title?.slice(0, 50)}...`);
+        return { isDuplicate: true, reason: 'exact_title', existingId: existing._id };
       }
     }
     
@@ -423,8 +563,10 @@ Return ONLY the JSON object.`;
 
   async start() {
     const cfg = await this.loadConfig();
+    this.config = cfg; // Store config for use in persistDraft
     if (!cfg.enabled) {
       this.pushLog('info', '[Sentinel-PP-01] Disabled by settings');
+      this.isRunning = false;
       return;
     }
 
@@ -433,14 +575,22 @@ Return ONLY the JSON object.`;
     const frequencyMs = Number(cfg.frequencyMs || 300000); // default 5 min
     if (!this.model) {
       this.pushLog('warning', '[Sentinel-PP-01] GEMINI_API_KEY missing; not starting.');
+      this.isRunning = false;
       return;
     }
     if (this.intervalHandle) clearInterval(this.intervalHandle);
-    this.intervalHandle = setInterval(() => {
-      this.runOnce({ persistOverride: cfg.autoPersist }).catch((e) => logger.error('[Sentinel-PP-01] runOnce error:', e.message));
+    this.intervalHandle = setInterval(async () => {
+      try {
+        // Reload sources before each run to ensure they're up to date
+        await this.loadSources();
+        await this.runOnce({ persistOverride: cfg.autoPersist });
+      } catch (e) {
+        logger.error('[Sentinel-PP-01] runOnce error:', e.message);
+      }
     }, frequencyMs);
     this.frequencyMs = frequencyMs;
     this.nextRunAt = new Date(Date.now() + frequencyMs);
+    this.isRunning = true;
     this.pushLog('info', `[Sentinel-PP-01] Started. Interval: ${frequencyMs}ms`);
     // Kick off immediately as well
     this.runOnce({ persistOverride: cfg.autoPersist }).catch((e) => logger.error('[Sentinel-PP-01] initial run error:', e.message));
@@ -452,6 +602,7 @@ Return ONLY the JSON object.`;
       this.intervalHandle = null;
       this.pushLog('info', '[Sentinel-PP-01] Stopped');
     }
+    this.isRunning = false;
     this.frequencyMs = null;
     this.nextRunAt = null;
   }
@@ -465,6 +616,7 @@ Return ONLY the JSON object.`;
       this.cleanupMemory();
       
       const cfg = await this.loadConfig();
+      this.config = cfg; // Store config for use in persistDraft
       // ensure sources up to date for one-off runs
       this.sources = (cfg.sources || []).filter(s => s.enabled !== false);
       const persist = typeof persistOverride === 'boolean' ? persistOverride : !!cfg.autoPersist;
@@ -498,8 +650,8 @@ Return ONLY the JSON object.`;
       let skipped = 0;
       let errors = 0;
       
-      // Cap per run (optimized for perfect performance)
-      const maxPerRun = Number(process.env.SENTINEL_MAX_PER_RUN || 15);
+      // Cap per run (reduced for better success rate)
+      const maxPerRun = Number(process.env.SENTINEL_MAX_PER_RUN || 5);
       const batch = significant.slice(0, Math.max(1, maxPerRun));
       
       this.pushLog('info', `[Sentinel-PP-01] Processing batch of ${batch.length} items`, { 
@@ -912,7 +1064,7 @@ Return ONLY the JSON object.`;
         return null;
       }
       this.genAI = new GoogleGenerativeAI(apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
       this.pushLog('info', '[Sentinel-PP-01] Model initialized');
     }
 
@@ -965,10 +1117,10 @@ Return ONLY the JSON object.`;
       minute: '2-digit'
     }) + ' Indochina Time';
 
-    const sys = `Role: You are Sentinel-PP-01, an advanced AI News Analyst based in Phnom Penh, Cambodia. 
+    const sys = `You're a professional journalist and content writer based in Phnom Penh, Cambodia, with extensive experience covering international news. 
 Current time: ${clock}
-Mission: Create high-quality, factual news content for international readers with focus on Southeast Asia.
-Ethics: Maintain journalistic integrity, avoid bias, prioritize accuracy, and respect cultural sensitivities.`;
+Your job: Write engaging, well-researched news articles that readers actually want to read. Focus on Southeast Asian context and global relevance.
+Writing style: Write naturally, like a human journalist would - use varied sentences, contractions, storytelling techniques, and engaging language.`;
 
     const src = `Source: ${enhancedContent.sourceName} (Reliability: ${enhancedContent.sourceReliability || 0.8})
 Original Title: ${item.title}
@@ -1011,9 +1163,11 @@ Schema:
   }
 }
 
-Content Guidelines:
+Content Guidelines - Write like a HUMAN journalist:
 - Use the enhanced content provided from the analysis
-- Style: Professional, neutral tone similar to Reuters/AP
+- Style: Write naturally and engagingly, like a real journalist would
+- Use contractions, varied sentence lengths, and natural language
+- Make it interesting to read, not robotic or AI-sounding
 - Structure: 
   * Clear introduction with hook and context
   * Well-organized body with logical flow and clear sections
@@ -1055,8 +1209,7 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       }
 
       const startTime = Date.now();
-      const result = await this.model.generateContent(prompt);
-      const text = (await result.response).text().trim();
+      const text = await this.callGeminiWithRetry(prompt);
       const generationTime = Date.now() - startTime;
 
       const jsonString = this.extractJson(text);
@@ -1182,7 +1335,7 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
 
       // Add generation metadata
       parsed.generationMetadata = {
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         generationTime: generationTime,
         sourceQualityScore: enhancedContent.qualityScore,
         safetyScore: generatedSafetyCheck.safetyScore,
@@ -1428,7 +1581,7 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       thumbnail: thumbnailUrl || null,
       images: [],
       author: author._id,
-      status: 'draft',
+      status: this.config?.autoPublish ? 'published' : 'draft',
       isFeatured: !!draft.isFeatured,
       isBreaking: !!draft.isBreaking,
       source: {
@@ -1439,7 +1592,7 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       },
       ingestion: {
         method: 'sentinel',
-        model: this.model ? 'gemini-1.5-flash' : null,
+        model: this.model ? 'gemini-2.5-flash' : null,
         cost: undefined,
         retries: 0,
         enhancedAnalysis: draft.generationMetadata?.analysisMetadata || null,
@@ -1464,23 +1617,42 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
 
     await news.save();
     this.lastSeenGuids.add(item.guid);
-    this.pushLog('info', `[Sentinel-PP-01] Draft created: ${news.title.en}`);
+    const status = this.config?.autoPublish ? 'published' : 'draft';
+    this.pushLog('info', `[Sentinel-PP-01] Article created with status: ${status}`, { 
+      title: news.title.en,
+      autoPublish: this.config?.autoPublish 
+    });
     return true;
   }
 
   async loadConfig() {
     try {
+      // Ensure database connection before accessing Settings
+      const mongoose = (await import('mongoose')).default;
+      if (mongoose.connection.readyState !== 1) {
+        this.pushLog('info', '[Sentinel-PP-01] Database not connected, attempting to connect...');
+        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/newsapp');
+        this.pushLog('info', '[Sentinel-PP-01] Database connection established');
+      }
+      
       const integrations = await Settings.getCategorySettings('integrations');
+      const general = await Settings.getCategorySettings('general');
+      
+      this.pushLog('info', `[Sentinel-PP-01] Loaded config: ${integrations.sentinelSources?.length || 0} sources, enabled: ${integrations.sentinelEnabled}`);
+      
       return {
         enabled: integrations.sentinelEnabled ?? (process.env.SENTINEL_ENABLED === 'true'),
         autoPersist: integrations.sentinelAutoPersist ?? false,
+        autoPublish: general.autoPublishEnabled ?? false,
         frequencyMs: integrations.sentinelFrequencyMs ?? Number(process.env.SENTINEL_FREQUENCY_MS || 300000),
         sources: integrations.sentinelSources || [], // Always use database sources, empty array if none
       };
-    } catch {
+    } catch (error) {
+      this.pushLog('error', `[Sentinel-PP-01] Failed to load config: ${error.message}`);
       return {
         enabled: process.env.SENTINEL_ENABLED === 'true',
         autoPersist: false,
+        autoPublish: false,
         frequencyMs: Number(process.env.SENTINEL_FREQUENCY_MS || 300000),
         sources: [], // Always use database sources, empty array if none
       };
@@ -2091,7 +2263,8 @@ Return ONLY the JSON object. Ensure valid JSON, escape all quotes as needed.`;
       frequencyMs: this.frequencyMs,
       sourcesCount: this.sources.filter(s => s.enabled !== false).length,
       performanceMetrics: this.performanceMetrics,
-      logBufferSize: this.logBuffer.length
+      logBufferSize: this.logBuffer.length,
+      geminiApi: this.getGeminiApiStatus()
     };
   }
 }

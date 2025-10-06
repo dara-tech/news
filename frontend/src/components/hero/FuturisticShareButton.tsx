@@ -43,7 +43,7 @@ const FuturisticShareButton: React.FC<FuturisticShareButtonProps> = ({
         setTimeout(() => setShowSuccess(false), 2000);
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      console.error('Error sharing', error);
     } finally {
       setTimeout(() => setIsAnimating(false), 600);
     }
@@ -58,7 +58,7 @@ const FuturisticShareButton: React.FC<FuturisticShareButtonProps> = ({
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2000);
     } catch (error) {
-      console.error('Error copying link:', error);
+      console.error('Error copying link', error);
     }
   }, [articleUrl]);
 

@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Home, Search, Bell, User, Menu } from "lucide-react"
+import { Home, Search, Bell, User, Menu, Bookmark } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { useMobileOptimizations } from "@/hooks/useMobileOptimizations"
 import { cn } from "@/lib/utils"
@@ -31,6 +31,11 @@ const MobileBottomNav = ({ onMenuClick, className }: MobileBottomNavProps) => {
       href: "/search",
       label: "Search",
       icon: Search
+    },
+    {
+      href: "/saved",
+      label: "Saved",
+      icon: Bookmark
     },
     {
       href: "/notifications",

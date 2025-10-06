@@ -38,6 +38,7 @@ export interface Article {
   author: {
     _id: string;
     avatar?: string;
+    profileImage?: string;
     name?: string;
     username?: string;
     email?: string;

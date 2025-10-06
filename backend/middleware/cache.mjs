@@ -26,6 +26,12 @@ const cacheKeys = {
 // Cache middleware factory
 export const createCacheMiddleware = (keyGenerator, ttl = 300) => {
   return (req, res, next) => {
+    // Check for cache bypass header
+    if (req.headers['x-cache-bypass'] === 'true') {
+      logger.info(`🚫 Cache bypassed: ${req.url}`);
+      return next();
+    }
+    
     const key = keyGenerator(req);
     const cached = cache.get(key);
     

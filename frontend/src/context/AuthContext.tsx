@@ -7,6 +7,7 @@ import { User } from '@/types';
 
 interface AuthContextType {
   user: User | null;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -672,7 +673,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const value = { user, loading, login, register, loginWithGoogle, logout, updateUser, forgotPassword, verifyPinAndResetPassword, resetPassword };
+  const value = { 
+    user, 
+    isAuthenticated: !!user, 
+    loading, 
+    login, 
+    register, 
+    loginWithGoogle, 
+    logout, 
+    updateUser, 
+    forgotPassword, 
+    verifyPinAndResetPassword, 
+    resetPassword 
+  };
 
   return (
     <AuthContext.Provider value={value}>

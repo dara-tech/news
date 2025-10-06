@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, ChevronDown, ChevronRight, Search, Loader2, Star, FileText } from "lucide-react"
+import { Home, ChevronDown, ChevronRight, Search, Loader2, Star, FileText, Bookmark } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -49,7 +49,8 @@ const DesktopNav = memo(({ lang, pathname }: DesktopNavProps) => {
   const NAV_LINKS = useMemo(() => [
     { href: `/${lang}`, label: "Home", icon: Home },
     { href: `/${lang}/news`, label: "News", icon: FileText },
-    { href: `/${lang}/recommendations`, label: "Recommendations", icon: Star }
+    { href: `/${lang}/recommendations`, label: "Recommendations", icon: Star },
+    { href: `/${lang}/saved`, label: "Saved", icon: Bookmark }
   ], [lang])
 
   // Fetch categories with retry logic

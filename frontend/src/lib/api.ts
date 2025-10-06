@@ -20,7 +20,7 @@ const api: AxiosInstance = axios.create({
   xsrfCookieName: 'XSRF-TOKEN',
   xsrfHeaderName: 'X-XSRF-TOKEN',
   // Timeout settings
-  timeout: 60000, // 60 seconds (increased for sentinel operations)
+  timeout: 10000, // 10 seconds (reduced for better UX)
   maxRedirects: 3, // Maximum number of redirects to follow
   // Handle file uploads
   maxBodyLength: Infinity,
@@ -39,7 +39,7 @@ api.interceptors.request.use(
       delete config.headers['Content-Type'];
     }
 
-    // Only add auth token for server-side rendered requests
+    // Add auth token for client-side requests
     if (typeof window !== 'undefined') {
       const userInfo = localStorage.getItem('userInfo');
       
@@ -49,8 +49,15 @@ api.interceptors.request.use(
           
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            console.log('Added auth token to request:', config.url);
+          } else {
+            console.log('No token found in userInfo for request:', config.url);
           }
-        } catch (e) {}
+        } catch (e) {
+          console.log('Error parsing userInfo for request:', config.url, e);
+        }
+      } else {
+        console.log('No userInfo found for request:', config.url);
       }
     }
     

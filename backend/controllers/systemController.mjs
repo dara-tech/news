@@ -125,7 +125,26 @@ export const getSystemMetrics = asyncHandler(async (req, res) => {
 // @route   GET /api/admin/system/sentinel
 // @access  Private/Admin
 export const getSentinelConfig = asyncHandler(async (req, res) => {
-  const cfg = await Settings.getCategorySettings('integrations');
+  try {
+    // Ensure database connection before accessing any models
+    const mongoose = (await import('mongoose')).default;
+    if (mongoose.connection.readyState !== 1) {
+      logger.info('Database not connected in getSentinelConfig, attempting to connect...');
+      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/newsapp');
+      logger.info('Database connection established in getSentinelConfig');
+    }
+    
+    const cfg = await Settings.getCategorySettings('integrations');
+    
+    // Get real-time status by checking if sentinel is actually running
+    let isActuallyRunning = await checkSentinelRealTimeStatus();
+    
+    // If the direct check fails, try activity-based checking
+    if (!isActuallyRunning) {
+      isActuallyRunning = await checkSentinelStatusByActivity();
+    }
+    
+    
   res.json({
     success: true,
     config: {
@@ -136,16 +155,193 @@ export const getSentinelConfig = asyncHandler(async (req, res) => {
       lastRunAt: cfg.sentinelLastRunAt || null
     },
     runtime: {
-      running: !!sentinelService.intervalHandle,
-      nextRunAt: sentinelService.nextRunAt,
-      lastRunAt: sentinelService.lastRunAt,
+        running: isActuallyRunning,
+        nextRun: sentinelService.nextRunAt,
+        lastRun: sentinelService.lastRunAt,
       lastCreated: sentinelService.lastCreated,
       lastProcessed: sentinelService.lastProcessed,
       cooldownUntil: sentinelService.cooldownUntilMs ? new Date(sentinelService.cooldownUntilMs) : null,
       maxPerRun: Number(process.env.SENTINEL_MAX_PER_RUN || 3),
       frequencyMs: sentinelService.frequencyMs,
+        sourcesCount: sentinelService.sources?.length || 0,
+        status: isActuallyRunning ? 'running' : 'stopped'
+      }
+    });
+  } catch (error) {
+    logger.error('Error getting sentinel config:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get sentinel configuration'
+    });
+  }
+});
+
+// Helper function to check real-time sentinel status
+async function checkSentinelRealTimeStatus() {
+  try {
+    // Check if sentinel service has an active interval
+    if (!sentinelService.intervalHandle) {
+      return false;
     }
-  });
+    
+    // Check if sentinel service is marked as running
+    if (!sentinelService.isRunning) {
+      return false;
+    }
+    
+    // Check if sentinel has sources loaded
+    if (!sentinelService.sources || sentinelService.sources.length === 0) {
+      return false;
+    }
+    
+    // Check if sentinel has a valid frequency
+    if (!sentinelService.frequencyMs || sentinelService.frequencyMs <= 0) {
+      return false;
+    }
+    
+    // Additional check: verify the interval is actually scheduled
+    const now = Date.now();
+    const nextRun = sentinelService.nextRunAt;
+    
+    // If nextRunAt is in the future, it's likely running
+    if (nextRun && nextRun > now) {
+      return true;
+    }
+    
+    // If we have recent activity (last run within the last 10 minutes), consider it running
+    const lastRun = sentinelService.lastRunAt;
+    if (lastRun && (now - lastRun.getTime()) < 600000) { // 10 minutes
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    logger.error('Error checking sentinel real-time status:', error);
+    return false;
+  }
+}
+
+
+// Alternative method: Check sentinel status by looking at recent activity in logs
+export async function checkSentinelStatusByActivity() {
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Read the last few lines of the combined log to check for recent sentinel activity
+    const logPath = path.join(process.cwd(), 'logs', 'combined.log');
+    
+    if (!fs.existsSync(logPath)) {
+      return false;
+    }
+    
+    const logContent = fs.readFileSync(logPath, 'utf8');
+    const lines = logContent.split('\n').filter(line => line.trim());
+    const recentLines = lines.slice(-50); // Last 50 lines
+    
+    // Look for recent sentinel activity
+    const now = Date.now();
+    let hasRecentActivity = false;
+    
+    for (const line of recentLines) {
+      try {
+        const logEntry = JSON.parse(line);
+        const timestamp = new Date(logEntry.timestamp).getTime();
+        
+        // Check if this is a recent sentinel log entry (within last 5 minutes)
+        if (now - timestamp < 300000 && // 5 minutes
+            logEntry.message && 
+            logEntry.message.includes('[Sentinel-PP-01]')) {
+          hasRecentActivity = true;
+          break;
+        }
+      } catch (e) {
+        // Skip non-JSON lines
+        continue;
+      }
+    }
+    
+    return hasRecentActivity;
+  } catch (error) {
+    logger.error('Error checking sentinel status by activity:', error);
+    return false;
+  }
+}
+
+// @desc    Get real-time sentinel status
+// @route   GET /api/admin/system/sentinel/status
+// @access  Private/Admin
+// @desc    Stop sentinel service
+// @route   POST /api/admin/system/sentinel/stop
+// @access  Private/Admin
+export const stopSentinelService = asyncHandler(async (req, res) => {
+  try {
+    // Ensure database connection before accessing any models
+    const mongoose = (await import('mongoose')).default;
+    if (mongoose.connection.readyState !== 1) {
+      logger.info('Database not connected in stopSentinelService, attempting to connect...');
+      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/newsapp');
+      logger.info('Database connection established in stopSentinelService');
+    }
+    
+    // Stop the sentinel service
+    await sentinelService.stop();
+    
+    logger.info('Sentinel service stopped manually');
+    
+    res.json({
+      success: true,
+      message: 'Sentinel service stopped successfully'
+    });
+  } catch (error) {
+    logger.error('Error stopping sentinel service:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to stop sentinel service'
+    });
+  }
+});
+
+export const getSentinelStatus = asyncHandler(async (req, res) => {
+  try {
+    // Ensure database connection before accessing any models
+    const mongoose = (await import('mongoose')).default;
+    if (mongoose.connection.readyState !== 1) {
+      logger.info('Database not connected in getSentinelStatus, attempting to connect...');
+      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/newsapp');
+      logger.info('Database connection established in getSentinelStatus');
+    }
+    
+    let isRunning = await checkSentinelRealTimeStatus();
+    
+    // If the direct check fails, try activity-based checking
+    if (!isRunning) {
+      isRunning = await checkSentinelStatusByActivity();
+    }
+    
+    const cfg = await Settings.getCategorySettings('integrations');
+    
+    
+    res.json({
+      success: true,
+      status: isRunning ? 'running' : 'stopped',
+      running: isRunning,
+      enabled: !!cfg.sentinelEnabled,
+      sourcesCount: sentinelService.sources?.length || 0,
+      lastRun: sentinelService.lastRunAt,
+      nextRun: sentinelService.nextRunAt,
+      lastCreated: sentinelService.lastCreated,
+      lastProcessed: sentinelService.lastProcessed,
+      frequencyMs: sentinelService.frequencyMs,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    logger.error('Error getting sentinel status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get sentinel status'
+    });
+  }
 });
 
 // @desc    Update Sentinel configuration

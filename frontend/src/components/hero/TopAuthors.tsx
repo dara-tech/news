@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { User, TrendingUp, Eye, Heart, MessageCircle } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -50,7 +50,7 @@ const TopAuthors: React.FC<TopAuthorsProps> = ({ locale = 'en', limit = 5 }) => 
           setAuthors([])
         }
       } catch (error) {
-        console.error('Error fetching top authors:', error)
+        console.error('Error fetching top authors', error)
         setAuthors([])
       } finally {
         setLoading(false)

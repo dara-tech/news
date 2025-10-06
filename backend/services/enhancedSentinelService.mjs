@@ -41,7 +41,7 @@ class EnhancedSentinelService {
       // Step 1: Generate draft using original Sentinel
       const draftJson = await this.originalSentinel.generateDraftJson(item);
       if (!draftJson) {
-        logger.warning(`[Enhanced Sentinel] Original Sentinel failed to generate draft for: ${item.title}`);
+        logger.warn(`[Enhanced Sentinel] Original Sentinel failed to generate draft for: ${item.title}`);
         return null;
       }
 
@@ -362,7 +362,7 @@ Return the enhanced content in the same JSON format with improved language quali
       const sources = (config.sources || []).filter(s => s.enabled !== false);
       
       if (!sources.length) {
-        logger.warning('[Enhanced Sentinel] No enabled sources found');
+        logger.warn('[Enhanced Sentinel] No enabled sources found');
         return { processed: 0, created: 0, qualityStats: null };
       }
 
@@ -404,7 +404,7 @@ Return the enhanced content in the same JSON format with improved language quali
           const enhancedDraft = await this.processContentWithQualityCheck(item, sourceInfo);
           
           if (!enhancedDraft) {
-            logger.warning(`[Enhanced Sentinel] Failed to process item: ${item.title}`);
+            logger.warn(`[Enhanced Sentinel] Failed to process item: ${item.title}`);
             continue;
           }
 
@@ -599,6 +599,33 @@ Return the enhanced content in the same JSON format with improved language quali
         success: false,
         message: 'Failed to toggle auto-publish feature',
         error: error.message
+      };
+    }
+  }
+
+  /**
+   * Get enhanced sentinel service status
+   */
+  getStatus() {
+    try {
+      const originalStatus = this.originalSentinel.getMetrics ? this.originalSentinel.getMetrics() : {};
+      
+      return {
+        service: 'Enhanced Sentinel Service',
+        status: 'running',
+        enhancementEnabled: this.enhancementEnabled,
+        autoPublishEnabled: this.autoPublishEnabled,
+        qualityThreshold: this.qualityThreshold,
+        originalSentinel: originalStatus,
+        lastUpdated: new Date().toISOString()
+      };
+    } catch (error) {
+      logger.error('Failed to get enhanced sentinel status:', error);
+      return {
+        service: 'Enhanced Sentinel Service',
+        status: 'error',
+        error: error.message,
+        lastUpdated: new Date().toISOString()
       };
     }
   }

@@ -115,7 +115,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, locale, index, isLas
         await navigator.clipboard.writeText(`${window.location.origin}/${language}/news/${article.slug}`);
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      console.error('Error sharing', error);
     }
   }, [article.title, article.slug, language]);
 
@@ -144,8 +144,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, locale, index, isLas
       return article.thumbnail;
     }
     
-    // Fallback test image for debugging
-    return `https://picsum.photos/800/600?random=${article._id || Math.random()}`;
+    // No fallback image
+    return null;
   };
 
   // Get excerpt from content

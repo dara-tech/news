@@ -51,9 +51,6 @@ router.get('/author/:authorId', getAuthorProfile);
 
 router.get('/admin', protect, admin, getNewsForAdmin);
 
-// This route will handle both slugs and MongoDB ObjectIds - MUST BE LAST
-router.get('/:identifier', trackPageView, getNewsByIdentifier);
-
 // Protected Admin routes
 router.post('/', protect, admin, upload.any(), createNews);
 
@@ -68,6 +65,16 @@ router.route('/:id')
 
 // Route for updating status
 router.route('/:id/status').patch(protect, admin, updateNewsStatus);
+
+// Route for publishing (convenience endpoint)
+router.route('/:id/publish').patch(protect, admin, async (req, res) => {
+  // Set status to published and call updateNewsStatus
+  req.body.status = 'published';
+  return updateNewsStatus(req, res);
+});
+
+// This route will handle both slugs and MongoDB ObjectIds - MUST BE LAST
+router.get('/:identifier', trackPageView, getNewsByIdentifier);
 
 // Format content for an article (server-side formatting helper)
 router.post('/:id/format-content', protect, admin, async (req, res) => {

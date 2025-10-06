@@ -41,13 +41,13 @@ const MoreStories: React.FC<MoreStoriesProps> = ({ articles = [], locale = "en" 
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded overflow-hidden border border-border/30 flex-shrink-0 bg-muted">
                     <Image
-                      src={getArticleImageUrl(article) || "/placeholder.jpg"}
+                      src={getArticleImageUrl(article) || '/placeholder-news.jpg'}
                       alt={getLocalizedString(article.title, locale)}
                       width={32}
                       height={32}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = "/placeholder.jpg"
+                        (e.currentTarget as HTMLImageElement).style.display = "none"
                       }}
                     />
                   </div>

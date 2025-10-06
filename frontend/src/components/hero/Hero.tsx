@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState, memo } from "react"
+import { useMemo, useState, memo, useEffect } from "react"
 import type { Article, Category } from "@/types"
 import { Button } from "@/components/ui/button"
 import TwitterLikeLayout from "./TwitterLikeLayout"
@@ -8,19 +8,20 @@ import TwitterLikeLayout from "./TwitterLikeLayout"
 interface HeroProps {
   breaking: Article[]
   featured: Article[]
+  latest: Article[]
   categories: Category[]
   locale: "en" | "kh"
   useTwitterLayout?: boolean
   isLoading?: boolean
 }
 
-const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = [], locale = "en", useTwitterLayout = true, isLoading = false }) => {
+const Hero = ({ breaking = [], featured = [], latest = [], categories = [], locale = "en", useTwitterLayout = true, isLoading = false }: HeroProps) => {
   const [hasError, setHasError] = useState(false)
 
   // Error boundary for client-side errors
-  React.useEffect(() => {
+  useEffect(() => {
     const handleError = (error: ErrorEvent) => {
-      console.error('Hero component error:', error)
+      console.error('Hero component error', error)
       setHasError(true)
     }
     
@@ -30,7 +31,14 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
 
   // Memoize derived values
   const { latestNews } = useMemo(() => {
-    // Create a Map to ensure unique articles by _id
+    // If we have latest data from API, use it directly
+    if (latest.length > 0) {
+      return {
+        latestNews: latest,
+      }
+    }
+    
+    // Fallback: Create a Map to ensure unique articles by _id
     const uniqueArticles = new Map()
     
     // Add featured articles first
@@ -47,17 +55,17 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
       }
     })
     
-    const latest = Array.from(uniqueArticles.values()).slice(0, 8)
+    const fallbackLatest = Array.from(uniqueArticles.values()).slice(0, 8)
     
     return {
-      latestNews: latest,
+      latestNews: fallbackLatest,
     }
-  }, [breaking, featured])
+  }, [breaking, featured, latest])
 
   // Error fallback
   if (hasError) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-background ">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">Unable to load content</h2>
           <p className="text-muted-foreground mb-4">Please refresh the page to try again.</p>
@@ -82,6 +90,9 @@ const Hero: React.FC<HeroProps> = ({ breaking = [], featured = [], categories = 
       />
     );
   }
+
+  // Fallback for non-Twitter layout
+  return null;
 }
 
 export default memo(Hero)

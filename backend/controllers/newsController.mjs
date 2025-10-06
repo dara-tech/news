@@ -695,50 +695,56 @@ export const updateNewsStatus = asyncHandler(async (req, res) => {
   if (status === 'published' && !news.publishedAt) {
     news.publishedAt = Date.now();
     
-    // Format content when moving to published status
-    try {
-      const { formatContentAdvanced } = await import('../utils/advancedContentFormatter.mjs');
-      
-      // Format English content
-      if (news.content?.en && news.content.en.trim()) {
-        const enResult = await formatContentAdvanced(news.content.en, {
-          enableAIEnhancement: true,
-          enableReadabilityOptimization: true,
-          enableSEOOptimization: true,
-          enableVisualEnhancement: true,
-          addSectionHeadings: true,
-          enhanceQuotes: true,
-          optimizeLists: true,
-          enableContentAnalysis: false
-        });
+    // Only format content if explicitly requested via regenerateContent parameter
+    const { regenerateContent } = req.body;
+    
+    if (regenerateContent === true) {
+      try {
+        const { formatContentAdvanced } = await import('../utils/advancedContentFormatter.mjs');
         
-        if (enResult.success) {
-          news.content.en = enResult.content;
-          logger.info('Content formatted for English when publishing');
+        // Format English content
+        if (news.content?.en && news.content.en.trim()) {
+          const enResult = await formatContentAdvanced(news.content.en, {
+            enableAIEnhancement: true,
+            enableReadabilityOptimization: true,
+            enableSEOOptimization: true,
+            enableVisualEnhancement: true,
+            addSectionHeadings: true,
+            enhanceQuotes: true,
+            optimizeLists: true,
+            enableContentAnalysis: false
+          });
+          
+          if (enResult.success) {
+            news.content.en = enResult.content;
+            logger.info('Content formatted for English when publishing (regenerateContent=true)');
+          }
         }
-      }
-      
-      // Format Khmer content
-      if (news.content?.kh && news.content.kh.trim()) {
-        const khResult = await formatContentAdvanced(news.content.kh, {
-          enableAIEnhancement: true,
-          enableReadabilityOptimization: true,
-          enableSEOOptimization: true,
-          enableVisualEnhancement: true,
-          addSectionHeadings: true,
-          enhanceQuotes: true,
-          optimizeLists: true,
-          enableContentAnalysis: false
-        });
         
-        if (khResult.success) {
-          news.content.kh = khResult.content;
-          logger.info('Content formatted for Khmer when publishing');
+        // Format Khmer content
+        if (news.content?.kh && news.content.kh.trim()) {
+          const khResult = await formatContentAdvanced(news.content.kh, {
+            enableAIEnhancement: true,
+            enableReadabilityOptimization: true,
+            enableSEOOptimization: true,
+            enableVisualEnhancement: true,
+            addSectionHeadings: true,
+            enhanceQuotes: true,
+            optimizeLists: true,
+            enableContentAnalysis: false
+          });
+          
+          if (khResult.success) {
+            news.content.kh = khResult.content;
+            logger.info('Content formatted for Khmer when publishing (regenerateContent=true)');
+          }
         }
+      } catch (error) {
+        logger.error('Content formatting failed during status update:', error);
+        // Continue with original content if formatting fails
       }
-    } catch (error) {
-      logger.error('Content formatting failed during status update:', error);
-      // Continue with original content if formatting fails
+    } else {
+      logger.info('Publishing without content regeneration (regenerateContent=false or not provided)');
     }
   }
 
@@ -809,6 +815,7 @@ export const updateNewsStatus = asyncHandler(async (req, res) => {
 
   res.json(updatedNews);
 });
+
 
 // @desc    Delete a news article
 // @route   DELETE /api/news/:id

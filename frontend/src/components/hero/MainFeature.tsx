@@ -87,14 +87,14 @@ const MainFeature: React.FC<MainFeatureProps> = ({ article, locale }) => {
           {/* Background image */}
           <div className="relative w-full h-full overflow-hidden">
             <Image
-              src={getArticleImageUrl(article) || "/placeholder.jpg"}
+              src={getArticleImageUrl(article) || '/placeholder-news.jpg'}
               alt={article.title?.[locale] || "Feature article image"}
               fill
               priority
               sizes="100vw"
               className="object-cover w-full h-full transition-all duration-500 ease-out group-hover:scale-105"
               onError={(e) => {
-                e.currentTarget.src = "/placeholder.jpg"
+                e.currentTarget.style.display = "none"
               }}
             />
             {/* Simple overlay */}

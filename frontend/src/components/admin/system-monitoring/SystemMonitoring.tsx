@@ -17,7 +17,7 @@ import Overview from './Overview';
 import Performance from './Performance';
 import Endpoints from './Endpoints';
 import Events from './Events';
-import Sentinel from './Sentinel';
+import { SentinelMain } from '../sentinel';
 import Logs from './Logs';
 import Services from './Services';
 import Alerts from './Alerts';
@@ -346,12 +346,7 @@ export default function SystemMonitoring() {
         </TabsContent>
 
         <TabsContent value="sentinel" className="mt-3 sm:mt-6">
-          <Sentinel 
-            sentinel={sentinel}
-            runtime={runtime}
-            sentinelError={sentinelError}
-            onUpdate={fetchSentinel}
-          />
+          <SentinelMain />
         </TabsContent>
 
         <TabsContent value="logs" className="mt-3 sm:mt-6">

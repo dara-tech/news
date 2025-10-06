@@ -17,11 +17,11 @@ const AppBody = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col  bg-background scrollbar-hide  ">
       {/* <NavigationAnalytics /> */}
       <Header />
       {/* <BreadcrumbNav /> */}
-      <main className="flex-grow container sm:max-w-full w-full">
+      <main className=" sm:max-w-full w-full scrollbar-hide ">
         {children}
       </main>
       {/* <Footer /> */}

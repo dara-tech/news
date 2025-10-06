@@ -6,7 +6,6 @@ import { format, formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 import { Bookmark, User, Calendar, Eye, MessageCircle, ArrowLeft, Clock, Heart, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import CommentSection from '@/components/comments/CommentSection';
 import AuthorMiniCard from '@/components/news/AuthorMiniCard';
 import ArticleAnalytics from '@/components/news/ArticleAnalytics';

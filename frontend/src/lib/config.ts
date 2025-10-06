@@ -2,7 +2,7 @@
 export const config = {
   // WebSocket configuration
   websocket: {
-    enabled: process.env.NODE_ENV === 'development',
+    enabled: true, // Enable WebSocket for all environments
     reconnectAttempts: 5,
     connectionTimeout: 5000,
     heartbeatInterval: 30000,
@@ -16,7 +16,7 @@ export const config = {
   
   // Feature flags
   features: {
-    realTimeComments: process.env.NODE_ENV === 'development',
+    realTimeComments: true, // Enable real-time comments
     realTimeNotifications: false, // Disabled for now
   },
 } as const;

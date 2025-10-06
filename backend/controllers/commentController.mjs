@@ -118,8 +118,20 @@ const createComment = asyncHandler(async (req, res) => {
     }
   }
 
-  // Check if moderation is required
-  const moderationRequired = await checkModerationRequired();
+  // Check if moderation is required (with timeout)
+  let moderationRequired = false;
+  try {
+    moderationRequired = await Promise.race([
+      checkModerationRequired(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Settings check timeout')), 5000)
+      )
+    ]);
+  } catch (error) {
+    logger.error('Error checking moderation settings:', error);
+    // Default to no moderation if settings check fails
+    moderationRequired = false;
+  }
   
   // Create comment with appropriate status
   const comment = await Comment.create({
@@ -133,10 +145,19 @@ const createComment = asyncHandler(async (req, res) => {
   // Populate user details
   await comment.populate('user', 'username profileImage avatar');
 
-  // Broadcast real-time update only if approved
+  // Broadcast real-time update only if approved (with timeout)
   if (comment.status === 'approved' && commentWebSocket) {
     try {
-      commentWebSocket.broadcastCommentCreated(newsId, comment);
+      // Use Promise.race to timeout WebSocket broadcast
+      await Promise.race([
+        new Promise((resolve) => {
+          commentWebSocket.broadcastCommentCreated(newsId, comment);
+          resolve();
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('WebSocket broadcast timeout')), 2000)
+        )
+      ]);
     } catch (error) {
       logger.error('Error broadcasting comment creation:', error);
       // Don't fail the request if WebSocket broadcast fails

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
-import { Clock, Globe, Search, Home, Newspaper, Tag, TrendingUp, ExternalLink } from 'lucide-react';
+import { useRef, useState, useEffect, ReactNode } from 'react';
+import { Clock, Globe, Search, Home, Newspaper, Tag, TrendingUp, ExternalLink, Bookmark } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Article, Category } from '@/types';
@@ -22,10 +22,10 @@ interface TwitterLikeLayoutProps {
   categories: Category[];
   locale: 'en' | 'kh';
   isLoading?: boolean;
-  customMainContent?: React.ReactNode;
+  customMainContent?: ReactNode;
 }
 
-const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({ 
+const TwitterLikeLayout = ({ 
   breaking = [], 
   featured = [], 
   latestNews = [],
@@ -33,11 +33,12 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
   locale = 'en',
   isLoading = false,
   customMainContent
-}) => {
+}: TwitterLikeLayoutProps) => {
   const router = useRouter();
   const tickerRef = useRef<{ pause: () => void; play: () => void }>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const { language, formatTime, formatDate } = useOptimizedLanguage();
+  const effectiveLanguage = language as 'en' | 'kh';
   
   // State for fetched data
   const [fetchedCategories, setFetchedCategories] = useState<Category[]>(categories);
@@ -47,32 +48,29 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
   // Fetch categories and latest news if not provided
   useEffect(() => {
     const fetchData = async () => {
-      if (categories.length === 0 || latestNews.length === 0) {
+      // Only fetch if we don't have any data at all
+      if (categories.length === 0 && latestNews.length === 0) {
         setDataLoading(true);
         try {
           // Fetch categories
-          if (categories.length === 0) {
-            const categoriesResponse = await api.get('/categories');
-            if (categoriesResponse.data?.success && categoriesResponse.data?.data) {
-              setFetchedCategories(categoriesResponse.data.data || []);
-            }
+          const categoriesResponse = await api.get('/categories');
+          if (categoriesResponse.data?.success && categoriesResponse.data?.data) {
+            setFetchedCategories(categoriesResponse.data.data || []);
           }
 
           // Fetch latest news
-          if (latestNews.length === 0) {
-            const newsResponse = await api.get('/news', {
-              params: {
-                limit: 10,
-                sortBy: 'createdAt',
-                sortOrder: 'desc'
-              }
-            });
-            if (newsResponse.data?.news) {
-              setFetchedLatestNews(newsResponse.data.news || []);
+          const newsResponse = await api.get('/news', {
+            params: {
+              limit: 10,
+              sortBy: 'createdAt',
+              sortOrder: 'desc'
             }
+          });
+          if (newsResponse.data?.news) {
+            setFetchedLatestNews(newsResponse.data.news || []);
           }
         } catch (error) {
-          console.error('Error fetching data:', error);
+          console.error('Error fetching data', error);
         } finally {
           setDataLoading(false);
         }
@@ -86,8 +84,19 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
   const displayCategories = categories.length > 0 ? categories : fetchedCategories;
   const displayLatestNews = latestNews.length > 0 ? latestNews : fetchedLatestNews;
 
+  // Debug logging
+  useEffect(() => {
+    console.log('TwitterLikeLayout data flow', {
+      originalLatestNews: latestNews.length,
+      fetchedLatestNews: fetchedLatestNews.length,
+      displayLatestNews: displayLatestNews.length,
+      hasOriginalData: latestNews.length > 0,
+      hasFetchedData: fetchedLatestNews.length > 0
+    });
+  }, [latestNews.length, fetchedLatestNews.length, displayLatestNews.length]);
+
   // Update time every minute
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
@@ -101,27 +110,28 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    
+    <div className="bg-background ">
       {/* Breaking News Ticker */}
       {breaking.length > 0 && (
         <BreakingNewsTicker 
           articles={breaking} 
-          locale={language} 
+          locale={effectiveLanguage} 
           ref={tickerRef}
         />
       )}
 
       {/* Twitter-like Layout */}
-      <div className="w-full mx-auto">
+      <div className="w-full ">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-screen">
           {/* Left Sidebar - Navigation */}
-          <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen overflow-hidden border-none">
+          <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen border-none">
             <div className="p-6 space-y-6 h-full flex flex-col">
             
 
               {/* Navigation Menu */}
               <nav className="space-y-1">
-                <Link href={`/${language}`} prefetch={true}>
+                <Link href={`/${effectiveLanguage}`} prefetch={true}>
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
@@ -157,6 +167,15 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
                     {locale === 'kh' ? 'ពេញនិយម' : 'Trending'}
                   </Button>
                 </Link>
+                <Link href={`/${locale}/saved`} prefetch={true}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-lg h-14 hover:bg-primary/10 hover:text-primary"
+                  >
+                    <Bookmark className="mr-4 h-5 w-5" />
+                    {locale === 'kh' ? 'រក្សាទុក' : 'Saved'}
+                  </Button>
+                </Link>
               </nav>
 
               {/* Top Authors */}
@@ -164,13 +183,13 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
                 <h3 className="font-semibold text-lg mb-4 text-muted-foreground">
                   {locale === 'kh' ? 'អ្នកសរសេរកំពុងពេញនិយម' : 'Top Authors'}
                 </h3>
-                <TopAuthors locale={locale} limit={3} />
+                <TopAuthors locale={locale as 'en' | 'kh'} limit={3} />
               </div>
             </div>
           </aside>
 
           {/* Main Content - Twitter-like Feed */}
-          <main className="lg:col-span-6 border-x border-none h-screen overflow-y-auto scrollbar-hide">
+          <main className="lg:col-span-6 border-x border-none min-h-screen">
             {customMainContent ? (
               <div className="border-none">
                 {customMainContent}
@@ -198,16 +217,16 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
 
                 {/* Main Feature - Pinned Post */}
                 {mainFeature && (
-                  <div className="border-b border-border/50 py-6">
+                  <div className="border-b border-border/50 px-6 py-4">
                     <div >
                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                         <span className="px-3 py-3 bg-primary/10 text-primary rounded-full text-xs font-medium">
                           {locale === 'kh' ? 'ពិសេស' : 'Featured'}
                         </span>
                         <span>•</span>
-                        <span>{formatDate(mainFeature.publishedAt || mainFeature.createdAt)}</span>
+                        <span>{formatDate((mainFeature as any).publishedAt || (mainFeature as any).createdAt)}</span>
                       </div>
-                      <MainFeature article={mainFeature} locale={language} />
+                      <MainFeature article={mainFeature} locale={effectiveLanguage} />
                     </div>
                   </div>
                 )}
@@ -222,11 +241,14 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
                 </div>
 
                 {/* Infinite Scroll Feed - Main Content */}
-                <div>
+                <div >
                   <InfiniteScrollFeed
-                    initialArticles={latestNews}
-                    locale={locale}
+                    initialArticles={displayLatestNews}
+                    locale={effectiveLanguage}
+                    onLoadMore={async () => []}
                     hasMore={true}
+                    categoryId={undefined}
+                    searchQuery={undefined}
                     sortBy="createdAt"
                     sortOrder="desc"
                     className=""
@@ -237,21 +259,13 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
           </main>
 
           {/* Right Sidebar - Trending & More */}
-          <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+          <aside className="lg:col-span-3 hidden lg:block sticky top-0 h-screen overflow-y-auto scrollbar-hide ">
             <div className="p-6 space-y-4 h-full flex flex-col">
-              {/* Search Bar */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder={locale === 'kh' ? 'ស្វែងរកព័ត៌មាន...' : 'Search news...'}
-                  className="w-full bg-muted/50 border border-border/50 rounded-full px-4 py-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-colors"
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
+             
 
               {/* Trending Categories */}
               <div className="bg-card/50 rounded-xl border border-border/50 p-4 h-[500px]">
-                <TrendingCategories categories={displayCategories} locale={language} />
+                <TrendingCategories categories={displayCategories} locale={effectiveLanguage} />
               </div>
               {/* Latest Stories */}
               <div className="bg-card/50 rounded-xl border border-border/50 p-4 flex-1">
@@ -294,12 +308,6 @@ const TwitterLikeLayout: React.FC<TwitterLikeLayoutProps> = ({
                     </div>
                   ))}
                 </div>
-              </div>
-
-              {/* Footer */}
-              <div className="text-xs text-muted-foreground space-y-2">
-                <p>© 2024 NewsHub</p>
-                <p>{locale === 'kh' ? 'ព័ត៌មានថ្មីៗជារៀងរាល់ថ្ងៃ' : 'Fresh news every day'}</p>
               </div>
             </div>
           </aside>

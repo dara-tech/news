@@ -1,5 +1,3 @@
-'use client';
-
 import { Article, Category } from '@/types';
 import Hero from '../hero/Hero';
 import ErrorBoundary from '../ErrorBoundary';
@@ -27,11 +25,12 @@ export default function HomePage({ lang, newsData }: HomePageProps) {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-background">
+      <div >
         {/* Main Hero Component with Infinite Scroll */}
         <Hero
           breaking={safeBreaking}
           featured={safeFeatured}
+          latest={safeLatest}
           categories={safeCategories}
           locale={safeLang}
           useTwitterLayout={true}

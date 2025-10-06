@@ -22,6 +22,7 @@ import dashboardRoutes from "./routes/dashboard.mjs"
 import notificationRoutes from "./routes/notifications.mjs"
 import likeRoutes from "./routes/likes.mjs"
 import commentRoutes from "./routes/comments.mjs"
+import saveRoutes from "./routes/saves.mjs"
 import adminCommentRoutes from "./routes/adminComments.mjs"
 import adminLikeRoutes from "./routes/adminLikes.mjs"
 import analyticsRoutes from "./routes/analytics.mjs"
@@ -143,6 +144,7 @@ const allowedOrigins = [
   /^http:\/\/localhost(:\d+)?$/,    // Local development with any port
   /^https?:\/\/localhost(:\d+)?$/,  // Local development with any protocol
   /^https?:\/\/127\.0\.0\.1(:\d+)?$/, // Localhost IP
+  /^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/, // Local network IPs
   /^exp:\/\/.*$/,                   // All Expo development URLs
   /^https?:\/\/.*\.vercel\.app$/,   // All Vercel deployments
   /^https?:\/\/.*\.onrender\.com$/, // All Render deployments
@@ -312,6 +314,7 @@ app.use("/api/categories", categoryRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/api/notifications", notificationRoutes)
 app.use("/api/likes", likeRoutes)
+app.use("/api/saves", saveRoutes)
 app.use("/api/follows", followRoutes)
 app.use("/api/recommendations", recommendationRoutes)
 app.use("/api/comments", commentRoutes)
