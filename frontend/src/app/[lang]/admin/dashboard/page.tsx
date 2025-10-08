@@ -432,13 +432,13 @@ export default function DashboardPage() {
           )}
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           {/* Date Range Filter */}
           <Select
             value={filters.dateRange}
             onValueChange={(value: '7d' | '30d' | '90d' | 'custom') => setFilters(prev => ({ ...prev, dateRange: value }))}
           >
-            <SelectTrigger className="w-fit">
+            <SelectTrigger className="w-full sm:w-fit h-9">
               <Calendar className="h-4 w-4 mr-2" />
               <SelectValue />
             </SelectTrigger>
@@ -449,125 +449,149 @@ export default function DashboardPage() {
             </SelectContent>
           </Select>
 
-          {/* Export Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Export Format</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleExportData('csv')}>
-                <BarChart3 className="h-4 w-4 mr-2" />
-                CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExportData('json')}>
-                <Activity className="h-4 w-4 mr-2" />
-                JSON
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExportData('pdf')}>
-                <Share2 className="h-4 w-4 mr-2" />
-                PDF Report
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex gap-2">
+            {/* Export Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                  <Download className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleExportData('csv')}>
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExportData('json')}>
+                  <Activity className="h-4 w-4 mr-2" />
+                  JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExportData('pdf')}>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  PDF Report
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          {/* Settings Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuLabel>Dashboard Settings</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              
-              <div className="p-2 space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="auto-refresh" className="text-sm">Auto-refresh</Label>
-                  <Switch
-                    id="auto-refresh"
-                    checked={settings.autoRefresh}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, autoRefresh: checked }))
-                    }
-                  />
-                </div>
+            {/* Settings Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Dashboard Settings</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="animations" className="text-sm">Animations</Label>
-                  <Switch
-                    id="animations"
-                    checked={settings.showAnimations}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, showAnimations: checked }))
-                    }
-                  />
+                <div className="p-2 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="auto-refresh" className="text-sm">Auto-refresh</Label>
+                    <Switch
+                      id="auto-refresh"
+                      checked={settings.autoRefresh}
+                      onCheckedChange={(checked) => 
+                        setSettings(prev => ({ ...prev, autoRefresh: checked }))
+                      }
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="animations" className="text-sm">Animations</Label>
+                    <Switch
+                      id="animations"
+                      checked={settings.showAnimations}
+                      onCheckedChange={(checked) => 
+                        setSettings(prev => ({ ...prev, showAnimations: checked }))
+                      }
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="notifications" className="text-sm">Notifications</Label>
+                    <Switch
+                      id="notifications"
+                      checked={settings.enableNotifications}
+                      onCheckedChange={(checked) => 
+                        setSettings(prev => ({ ...prev, enableNotifications: checked }))
+                      }
+                    />
+                  </div>
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="notifications" className="text-sm">Notifications</Label>
-                  <Switch
-                    id="notifications"
-                    checked={settings.enableNotifications}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, enableNotifications: checked }))
-                    }
-                  />
-                </div>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          {/* Manual Refresh */}
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => fetchStats()}
-            disabled={isRefreshing}
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          </Button>
+            {/* Manual Refresh */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => fetchStats()}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Enhanced Tabs with Smart Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            <span className="hidden sm:inline">Overview</span>
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            <span className="hidden sm:inline">Analytics</span>
-          </TabsTrigger>
-          <TabsTrigger value="comments" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            <span className="hidden sm:inline">Comments</span>
-          </TabsTrigger>
-          <TabsTrigger value="likes" className="flex items-center gap-2">
-            <Heart className="h-4 w-4" />
-            <span className="hidden sm:inline">Likes</span>
-          </TabsTrigger>
-          <TabsTrigger value="map" className="flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            <span className="hidden sm:inline">User Map</span>
-          </TabsTrigger>
-          <TabsTrigger value="logo" className="flex items-center gap-2">
-            <Palette className="h-4 w-4" />
-            <span className="hidden sm:inline">Logo</span>
-          </TabsTrigger>
-          <TabsTrigger value="social" className="flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            <span className="hidden sm:inline">Social</span>
-          </TabsTrigger>
-        
-        </TabsList>
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-lg sm:rounded-xl border border-slate-200/50 p-1 sm:p-2 shadow-sm">
+          <TabsList className="flex w-full bg-transparent overflow-x-auto scrollbar-hide">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Overview</span>
+                <span className="sm:hidden">OV</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Analytics</span>
+                <span className="sm:hidden">AN</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="comments" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Comments</span>
+                <span className="sm:hidden">CM</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="likes" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Likes</span>
+                <span className="sm:hidden">LK</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="map" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">User Map</span>
+                <span className="sm:hidden">MP</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="logo" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Logo</span>
+                <span className="sm:hidden">LG</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="social" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
+              <div className="flex items-center justify-center gap-1 sm:gap-2">
+                <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Social</span>
+                <span className="sm:hidden">SC</span>
+              </div>
+            </TabsTrigger>
+          </TabsList>
+        </div>
         
         <TabsContent value="overview" className="space-y-6">
           <DashboardOverview />

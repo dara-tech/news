@@ -88,7 +88,7 @@ const LoginPage = ({ params }: LoginPageProps) => {
   };
 
   return (
-    <main className="flex min-h-screen">
+    <main className="flex min-h-screen px-4">
       {/* Left Panel - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 dark:from-blue-900 dark:via-blue-800 dark:to-blue-700 p-8 flex-col justify-between">
         <div className="flex flex-col gap-8">

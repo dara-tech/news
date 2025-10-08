@@ -101,10 +101,10 @@ const NewsHeader = ({
   return (
     <CardHeader>
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <CardTitle>News Articles</CardTitle>
-            <CardDescription>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg sm:text-xl">News Articles</CardTitle>
+            <CardDescription className="text-sm">
               Manage, search, and filter all articles in the system.
               {totalResults > 0 && (
                 <span className="ml-2 text-primary font-medium">
@@ -113,22 +113,27 @@ const NewsHeader = ({
               )}
             </CardDescription>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className="relative"
+              className="relative flex-1 sm:flex-none"
+              size="sm"
             >
               <Filter className="h-4 w-4 mr-2" />
-              Filters
+              <span className="hidden sm:inline">Filters</span>
+              <span className="sm:hidden">Filter</span>
               {getFilterCount() > 0 && (
                 <Badge variant="secondary" className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
                   {getFilterCount()}
                 </Badge>
               )}
             </Button>
-            <Link href="/admin/news/create">
-              <Button>Create Article</Button>
+            <Link href="/admin/news/create" className="flex-1 sm:flex-none">
+              <Button size="sm" className="w-full sm:w-auto">
+                <span className="hidden sm:inline">Create Article</span>
+                <span className="sm:hidden">Create</span>
+              </Button>
             </Link>
           </div>
         </div>
@@ -137,10 +142,10 @@ const NewsHeader = ({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search articles by title, description, content, or tags..."
+            placeholder="Search articles..."
             value={localSearchTerm}
             onChange={(e) => setLocalSearchTerm(e.target.value)}
-            className="pl-10 pr-4"
+            className="pl-10 pr-10 h-10 sm:h-9"
           />
           {localSearchTerm && (
             <Button
@@ -159,7 +164,7 @@ const NewsHeader = ({
 
         {/* Advanced Filters */}
         {showFilters && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 p-3 sm:p-4 bg-muted/50 rounded-lg">
             {/* Status Filter */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Status</label>
@@ -229,7 +234,7 @@ const NewsHeader = ({
                   value={activeFilters.sortBy || 'createdAt'}
                   onValueChange={(value) => handleFilterChange('sortBy', value)}
                 >
-                  <SelectTrigger className="flex-1">
+                  <SelectTrigger className="flex-1 h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -243,7 +248,7 @@ const NewsHeader = ({
                   value={activeFilters.sortOrder || 'desc'}
                   onValueChange={(value) => handleFilterChange('sortOrder', value)}
                 >
-                  <SelectTrigger className="w-20">
+                  <SelectTrigger className="w-16 sm:w-20 h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -262,12 +267,14 @@ const NewsHeader = ({
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal h-9",
                       !dateFrom && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFrom ? format(dateFrom, "PPP") : "Pick a date"}
+                    <span className="truncate">
+                      {dateFrom ? format(dateFrom, "MMM dd") : "Pick date"}
+                    </span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -288,12 +295,14 @@ const NewsHeader = ({
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal h-9",
                       !dateTo && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateTo ? format(dateTo, "PPP") : "Pick a date"}
+                    <span className="truncate">
+                      {dateTo ? format(dateTo, "MMM dd") : "Pick date"}
+                    </span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -308,15 +317,17 @@ const NewsHeader = ({
             </div>
 
             {/* Clear Filters */}
-            <div className="flex items-end">
+            <div className="flex items-end sm:col-span-2 lg:col-span-1">
               <Button
                 variant="outline"
                 onClick={onClearFilters}
                 disabled={!hasActiveFilters}
-                className="w-full"
+                className="w-full h-9"
+                size="sm"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Clear Filters
+                <span className="hidden sm:inline">Clear Filters</span>
+                <span className="sm:hidden">Clear</span>
               </Button>
             </div>
           </div>
@@ -326,46 +337,58 @@ const NewsHeader = ({
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2">
             {activeFilters.status && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                Status: {activeFilters.status}
+              <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+                <span className="hidden sm:inline">Status: </span>
+                <span className="sm:hidden">S: </span>
+                {activeFilters.status}
                 <X 
-                  className="h-3 w-3 cursor-pointer" 
+                  className="h-3 w-3 cursor-pointer hover:bg-muted-foreground/20 rounded" 
                   onClick={() => handleFilterChange('status', '')}
                 />
               </Badge>
             )}
             {activeFilters.category && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                Category: {categories.find(c => c._id === activeFilters.category)?.name.en || 'Unknown'}
+              <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+                <span className="hidden sm:inline">Category: </span>
+                <span className="sm:hidden">C: </span>
+                {(categories.find(c => c._id === activeFilters.category)?.name.en || 'Unknown').substring(0, 12)}
+                {(categories.find(c => c._id === activeFilters.category)?.name.en || 'Unknown').length > 12 && '...'}
                 <X 
-                  className="h-3 w-3 cursor-pointer" 
+                  className="h-3 w-3 cursor-pointer hover:bg-muted-foreground/20 rounded" 
                   onClick={() => handleFilterChange('category', '')}
                 />
               </Badge>
             )}
             {activeFilters.author && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                Author: {authors.find(a => a._id === activeFilters.author)?.username || 'Unknown'}
+              <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+                <span className="hidden sm:inline">Author: </span>
+                <span className="sm:hidden">A: </span>
+                {(authors.find(a => a._id === activeFilters.author)?.username || 'Unknown').substring(0, 10)}
+                {(authors.find(a => a._id === activeFilters.author)?.username || 'Unknown').length > 10 && '...'}
                 <X 
-                  className="h-3 w-3 cursor-pointer" 
+                  className="h-3 w-3 cursor-pointer hover:bg-muted-foreground/20 rounded" 
                   onClick={() => handleFilterChange('author', '')}
                 />
               </Badge>
             )}
             {activeFilters.dateFrom && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                From: {format(new Date(activeFilters.dateFrom), "MMM dd, yyyy")}
+              <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+                <span className="hidden sm:inline">From: </span>
+                <span className="sm:hidden">F: </span>
+                {format(new Date(activeFilters.dateFrom), "MMM dd")}
                 <X 
-                  className="h-3 w-3 cursor-pointer" 
+                  className="h-3 w-3 cursor-pointer hover:bg-muted-foreground/20 rounded" 
                   onClick={() => handleDateChange('dateFrom', undefined)}
                 />
               </Badge>
             )}
             {activeFilters.dateTo && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                To: {format(new Date(activeFilters.dateTo), "MMM dd, yyyy")}
+              <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+                <span className="hidden sm:inline">To: </span>
+                <span className="sm:hidden">T: </span>
+                {format(new Date(activeFilters.dateTo), "MMM dd")}
                 <X 
-                  className="h-3 w-3 cursor-pointer" 
+                  className="h-3 w-3 cursor-pointer hover:bg-muted-foreground/20 rounded" 
                   onClick={() => handleDateChange('dateTo', undefined)}
                 />
               </Badge>

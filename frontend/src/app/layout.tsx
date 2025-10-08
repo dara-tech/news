@@ -1,16 +1,55 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import { Hanuman } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans, Poppins } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css'
 import '../styles/enterprise.css';
 import AppProviders from "@/components/layout/AppProviders";
 import AdSenseScript from "@/components/adsense/AdSenseScript";
 
-const hanuman = Hanuman({
-  variable: '--font-hanuman',
-  subsets: ['khmer', 'latin'],
+// Modern font stack for English
+const inter = Inter({
+  variable: '--font-inter',
+  subsets: ['latin'],
   display: 'swap',
-  weight: ['100', '300', '400', '700', '900'],
+  weight: ['300', '400', '500', '600', '700'],
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: '--font-plus-jakarta-sans',
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['300', '400', '500', '600', '700', '800'],
+});
+
+const poppins = Poppins({
+  variable: '--font-poppins',
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
+});
+
+// Kontumruy Pro for Khmer text
+const kontumruyPro = localFont({
+  src: [
+    {
+      path: '../../public/fonts/KantumruyPro-Light.ttf',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/KantumruyPro-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/KantumruyPro-Bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-kontumruy-pro',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -84,10 +123,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const fontVariables = hanuman.variable;
+  const fontVariables = `${inter.variable} ${plusJakartaSans.variable} ${poppins.variable} ${kontumruyPro.variable}`;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={fontVariables}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -95,7 +134,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#000000" />
       </head>
-      <body className={`${fontVariables} antialiased`}>
+      <body className={`${fontVariables} ${inter.className} antialiased`}>
         <AdSenseScript />
         <AppProviders>{children}</AppProviders>
       </body>

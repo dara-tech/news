@@ -305,10 +305,10 @@ export default function SentinelDrafts() {
     return (
       <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Sentinel Drafts</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-lg sm:text-2xl font-bold">Sentinel Drafts</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Review and manage AI-generated draft articles
           </p>
         </div>
@@ -317,6 +317,8 @@ export default function SentinelDrafts() {
             variant="outline"
             onClick={fetchDrafts}
             disabled={loading}
+            size="sm"
+            className="w-full sm:w-auto"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -333,63 +335,72 @@ export default function SentinelDrafts() {
       )}
 
       {/* Filters and Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <span className="text-sm font-medium">Filter:</span>
-            <Button
-              variant={filter === 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter('all')}
-            >
-              All ({drafts.length})
-            </Button>
-            <Button
-              variant={filter === 'complete' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter('complete')}
-            >
-              Complete ({drafts.filter(d => d.isComplete).length})
-            </Button>
-            <Button
-              variant={filter === 'incomplete' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter('incomplete')}
-            >
-              Incomplete ({drafts.filter(d => !d.isComplete).length})
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={filter === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilter('all')}
+                className="text-xs sm:text-sm"
+              >
+                All ({drafts.length})
+              </Button>
+              <Button
+                variant={filter === 'complete' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilter('complete')}
+                className="text-xs sm:text-sm"
+              >
+                Complete ({drafts.filter(d => d.isComplete).length})
+              </Button>
+              <Button
+                variant={filter === 'incomplete' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilter('incomplete')}
+                className="text-xs sm:text-sm"
+              >
+                Incomplete ({drafts.filter(d => !d.isComplete).length})
+              </Button>
+            </div>
           </div>
         </div>
 
         {selectedDrafts.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 bg-muted/50 rounded-lg">
             <span className="text-sm text-muted-foreground">
               {selectedDrafts.length} selected
             </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearSelection}
-            >
-              Clear
-            </Button>
-            <Button
-              onClick={publishSelected}
-              disabled={publishing.length > 0}
-              size="sm"
-            >
-              {publishing.length > 0 ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Publishing...
-                </>
-              ) : (
-                <>
-                  <Globe className="h-4 w-4 mr-2" />
-                  Publish Selected
-                </>
-              )}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearSelection}
+                className="w-full sm:w-auto"
+              >
+                Clear
+              </Button>
+              <Button
+                onClick={publishSelected}
+                disabled={publishing.length > 0}
+                size="sm"
+                className="w-full sm:w-auto"
+              >
+                {publishing.length > 0 ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  <>
+                    <Globe className="h-4 w-4 mr-2" />
+                    Publish Selected
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -423,6 +434,7 @@ export default function SentinelDrafts() {
                   clearSelection();
                 }
               }}
+              className="h-4 w-4"
             />
             <span className="text-sm font-medium">
               Select all {filteredDrafts.length} drafts
@@ -433,18 +445,19 @@ export default function SentinelDrafts() {
           {filteredDrafts.map((draft) => (
             <Card key={draft._id} className="relative">
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                   <div className="flex items-start gap-3 flex-1">
                     <Checkbox
                       checked={selectedDrafts.includes(draft._id)}
                       onCheckedChange={() => toggleDraftSelection(draft._id)}
+                      className="h-4 w-4"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CardTitle className="text-lg line-clamp-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                        <CardTitle className="text-base sm:text-lg line-clamp-2">
                           {safeRender(draft.title, 'Untitled')}
                         </CardTitle>
-                        <div className="flex items-center gap-1">
+                        <div className="flex flex-wrap items-center gap-1">
                           {draft.isComplete ? (
                             <Badge variant="default" className="bg-green-100 text-green-800">
                               <CheckCircle className="h-3 w-3 mr-1" />
@@ -472,11 +485,11 @@ export default function SentinelDrafts() {
                   </div>
                   
                   {draft.thumbnail && (
-                    <div className="ml-4 flex-shrink-0">
+                    <div className="ml-0 sm:ml-4 flex-shrink-0 self-start">
                       <img
                         src={draft.thumbnail}
                         alt="Thumbnail"
-                        className="w-20 h-20 object-cover rounded-lg"
+                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg"
                       />
                     </div>
                   )}
@@ -484,7 +497,7 @@ export default function SentinelDrafts() {
               </CardHeader>
 
               <CardContent className="pt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <User className="h-4 w-4" />
                     <span>{safeRender(typeof draft.author === 'object' ? draft.author?.username : draft.author, 'Unknown')}</span>
@@ -525,48 +538,56 @@ export default function SentinelDrafts() {
                 )}
 
                 {/* Actions */}
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.open(`/en/admin/news/edit/${draft._id}`, '_blank')}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.open(`/en/news/${draft._id}`, '_blank')}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Preview
-                  </Button>
-                  <Button
-                    onClick={() => publishDraft(draft._id)}
-                    disabled={publishing.includes(draft._id) || !draft.isComplete}
-                    size="sm"
-                  >
-                    {publishing.includes(draft._id) ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                        Publishing...
-                      </>
-                    ) : (
-                      <>
-                        <Globe className="h-4 w-4 mr-2" />
-                        Publish
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => deleteDraft(draft._id)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(`/en/admin/news/edit/${draft._id}`, '_blank')}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(`/en/news/${draft._id}`, '_blank')}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      onClick={() => publishDraft(draft._id)}
+                      disabled={publishing.includes(draft._id) || !draft.isComplete}
+                      size="sm"
+                      className="flex-1 sm:flex-none"
+                    >
+                      {publishing.includes(draft._id) ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Publishing...
+                        </>
+                      ) : (
+                        <>
+                          <Globe className="h-4 w-4 mr-2" />
+                          Publish
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => deleteDraft(draft._id)}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -576,16 +597,17 @@ export default function SentinelDrafts() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setPage(prev => Math.max(1, prev - 1))}
             disabled={page === 1}
+            className="w-full sm:w-auto"
           >
             Previous
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground text-center">
             Page {page} of {totalPages}
           </span>
           <Button
@@ -593,6 +615,7 @@ export default function SentinelDrafts() {
             size="sm"
             onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
             disabled={page === totalPages}
+            className="w-full sm:w-auto"
           >
             Next
           </Button>

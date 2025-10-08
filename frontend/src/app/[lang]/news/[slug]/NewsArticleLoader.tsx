@@ -63,17 +63,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
   const ArticleMainContent = () => (
     <div className="px-1">
       {/* Minimal Header Navigation */}
-      <div className="lg:hidden ">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="text-muted-foreground hover:text-foreground -ml-3"
-          onClick={() => window.history.back()}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          {locale === 'kh' ? 'ត្រលប់' : 'Back'}
-        </Button>
-      </div>
+   
 
       <article className="space-y-8 lg:py-8">
         {/* Article Metadata */}
@@ -100,7 +90,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
           )}
           
           {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
             {localizedTitle}
           </h1>
           
@@ -132,7 +122,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
         )}
 
         {/* Content */}
-        <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
+        <div className="prose prose-base max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
           <div dangerouslySetInnerHTML={{ __html: formattedContent.html }} />
         </div>
 
@@ -143,7 +133,6 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
               size="sm"
               variant="ghost"
               onClick={toggleLike}
-              disabled={likeLoading}
               className={`px-3 py-2 rounded-full transition-colors ${
                 isLiked 
                   ? 'text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-950 dark:hover:bg-red-900' 
@@ -151,7 +140,7 @@ export default function NewsArticleLoader({ article, locale }: NewsArticleProps)
               }`}
             >
               <Heart className={`w-4 h-4 mr-2 ${isLiked ? 'fill-current' : ''}`} />
-              {likeCount}
+              {likeCount > 0 ? likeCount : 'Love'}
             </Button>
             
             <Button 

@@ -123,7 +123,7 @@ export default function NewsPageClient({
       {/* Header */}
       <div className="space-y-6 py-4 lg:py-8">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
             {locale === 'kh' ? 'ព័ត៌មានទាំងអស់' : 'All News'}
           </h1>
           <p className="mt-2 text-lg text-muted-foreground">

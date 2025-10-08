@@ -111,7 +111,7 @@ export default memo(function ThemeDemo() {
               </Select>
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox id="notifications" />
+              <Checkbox id="notifications" className="h-4 w-4" />
               <Label htmlFor="notifications">Enable notifications</Label>
             </div>
           </CardContent>

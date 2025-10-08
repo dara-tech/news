@@ -18,8 +18,6 @@ import {
   MessageSquare,
   Monitor,
   User,
-  Brain,
-  Target,
   Key,
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ui/theme-toggle"
@@ -68,22 +66,6 @@ const data = {
       title: 'Overview',
       url: '/admin/dashboard',
       icon: LayoutDashboard,
-    },
-    {
-      title: 'AI',
-      icon: Brain,
-      items: [
-        {
-          title: 'AI Assistant',
-          url: '/ai-assistant',
-          icon: Brain,
-        },
-        {
-          title: 'AI Recommendations',
-          url: '/admin/recommendations',
-          icon: Target,
-        },
-      ],
     },
     {
       title: 'Content',

@@ -490,6 +490,7 @@ export default function CommentManager() {
                     <Checkbox
                       checked={selectedComments.length === comments.length && comments.length > 0}
                       onCheckedChange={handleSelectAll}
+                      className="h-4 w-4"
                     />
                   </th>
                   <th className="p-4 text-left">Comment</th>
@@ -513,6 +514,7 @@ export default function CommentManager() {
                             setSelectedComments(prev => prev.filter(id => id !== comment._id));
                           }
                         }}
+                        className="h-4 w-4"
                       />
                     </td>
                     <td className="p-4">

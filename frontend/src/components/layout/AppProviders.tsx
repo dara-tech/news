@@ -6,6 +6,7 @@ import { LanguageProvider } from '@/context/LanguageContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { NotificationProvider } from '@/context/NotificationContext'
 import AppBody from '@/components/layout/AppBody'
+import LanguageFontProvider from '@/components/layout/LanguageFontProvider'
 import { Toaster } from 'sonner'
 
 const FallbackUI = () => (
@@ -23,6 +24,7 @@ export default function AppProviders({ children }: { children: React.ReactNode }
     <ErrorBoundary FallbackComponent={FallbackUI}>
       <ThemeProvider>
         <LanguageProvider>
+          <LanguageFontProvider />
           <AuthProvider>
             <NotificationProvider>
               <AppBody>

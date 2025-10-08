@@ -220,91 +220,101 @@ export default function SystemMonitoring() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-lg sm:rounded-xl border border-slate-200/50 p-1 sm:p-2 shadow-sm mb-4 sm:mb-6">
-          <TabsList className="flex w-full justify-around bg-transparent overflow-x-auto">
-            <TabsTrigger value="overview" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+          <TabsList className="flex w-full bg-transparent overflow-x-auto scrollbar-hide">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Server className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Overview</span>
+                <span className="sm:hidden">OV</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="services" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger value="services" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Server className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Services</span>
+                <span className="sm:hidden">SV</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="alerts" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger value="alerts" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Alerts</span>
+                <span className="sm:hidden">AL</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="trends" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger value="trends" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Trends</span>
+                <span className="sm:hidden">TR</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="dependencies" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger value="dependencies" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Network className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Dependencies</span>
+                <span className="sm:hidden">DP</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="performance" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger value="performance" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Performance</span>
+                <span className="sm:hidden">PF</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="endpoints" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger value="endpoints" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Wifi className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Endpoints</span>
+                <span className="sm:hidden">EP</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="events" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger value="events" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Events</span>
+                <span className="sm:hidden">EV</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="sentinel" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger value="sentinel" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Sentinel</span>
+                <span className="sm:hidden">ST</span>
               </div>
             </TabsTrigger>
-            <TabsTrigger value="logs" className="text-2xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 py-1.5">
+            <TabsTrigger value="logs" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0 min-w-fit">
               <div className="flex items-center justify-center gap-1 sm:gap-2">
                 <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Logs</span>
+                <span className="sm:hidden">LG</span>
               </div>
             </TabsTrigger>
           </TabsList>
         </div>
 
-        <TabsContent value="overview" className="mt-4 sm:mt-6">
+        <TabsContent value="overview" className="mt-3 sm:mt-6">
           <Overview metrics={metrics} />
         </TabsContent>
 
-        <TabsContent value="services" className="mt-4 sm:mt-6">
+        <TabsContent value="services" className="mt-3 sm:mt-6">
           <Services />
         </TabsContent>
 
-        <TabsContent value="alerts" className="mt-4 sm:mt-6">
+        <TabsContent value="alerts" className="mt-3 sm:mt-6">
           <Alerts />
         </TabsContent>
 
-        <TabsContent value="trends" className="mt-4 sm:mt-6">
+        <TabsContent value="trends" className="mt-3 sm:mt-6">
           <Trends />
         </TabsContent>
 
-        <TabsContent value="dependencies" className="mt-4 sm:mt-6">
+        <TabsContent value="dependencies" className="mt-3 sm:mt-6">
           <Dependencies />
         </TabsContent>
 
-        <TabsContent value="performance" className="mt-4 sm:mt-6">
+        <TabsContent value="performance" className="mt-3 sm:mt-6">
           <Performance metrics={metrics} />
         </TabsContent>
 

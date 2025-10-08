@@ -355,6 +355,7 @@ export default function LikeManager() {
                     <Checkbox
                       checked={selectedLikes.length === likes.length && likes.length > 0}
                       onCheckedChange={handleSelectAll}
+                      className="h-4 w-4"
                     />
                   </th>
                   <th className="p-4 text-left">User</th>
@@ -376,6 +377,7 @@ export default function LikeManager() {
                             setSelectedLikes(prev => prev.filter(id => id !== like._id));
                           }
                         }}
+                        className="h-4 w-4"
                       />
                     </td>
                     <td className="p-4">

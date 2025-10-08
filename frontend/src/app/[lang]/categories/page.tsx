@@ -160,7 +160,7 @@ export default async function CategoriesPage({ params }: CategoriesPageProps) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <section className="container mx-auto px-4 py-12 md:py-16">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
             Explore Our Categories
           </h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">

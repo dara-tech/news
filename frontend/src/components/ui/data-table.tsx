@@ -226,7 +226,7 @@ export function DataTable<TData, TValue>({
 
       {/* Mobile-optimized Table */}
       <div className="rounded-md border overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           <Table className="min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -234,7 +234,7 @@ export function DataTable<TData, TValue>({
                 {headerGroup.headers.map((header) => {
                   const className = header.column.columnDef.meta?.className || "";
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan} className={`whitespace-nowrap ${className}`}>
+                    <TableHead key={header.id} colSpan={header.colSpan} className={`whitespace-nowrap text-xs sm:text-sm font-medium ${className}`}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -253,7 +253,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-muted/50"
+                  className="hover:bg-muted/50 border-b border-border/50"
                 >
                   {row.getVisibleCells().map((cell) => {
                     const className = cell.column.columnDef.meta?.className || "";
@@ -289,19 +289,19 @@ export function DataTable<TData, TValue>({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {/* Rows per page - Full width on mobile */}
           <div className="flex items-center justify-between sm:justify-start space-x-2">
-            <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
+            <p className="text-xs sm:text-sm font-medium whitespace-nowrap">Rows per page</p>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
                 table.setPageSize(Number(value))
               }}
             >
-              <SelectTrigger className="h-9 w-[80px]">
+              <SelectTrigger className="h-8 sm:h-9 w-[70px] sm:w-[80px] text-xs">
                 <SelectValue placeholder={table.getState().pagination.pageSize} />
               </SelectTrigger>
               <SelectContent side="top">
                 {[10, 20, 30, 40, 50, 100].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                  <SelectItem key={pageSize} value={`${pageSize}`} className="text-xs">
                     {pageSize}
                   </SelectItem>
                 ))}
@@ -310,7 +310,7 @@ export function DataTable<TData, TValue>({
           </div>
 
           {/* Page info - Center on mobile */}
-          <div className="flex items-center justify-center text-sm font-medium">
+          <div className="flex items-center justify-center text-xs sm:text-sm font-medium">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </div>
@@ -322,16 +322,17 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="flex-1 sm:flex-none h-9"
+              className="flex-1 sm:flex-none h-8 sm:h-9 text-xs"
             >
-              Previous
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">Prev</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className="flex-1 sm:flex-none h-9"
+              className="flex-1 sm:flex-none h-8 sm:h-9 text-xs"
             >
               Next
             </Button>

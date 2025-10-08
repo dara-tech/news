@@ -151,15 +151,6 @@ export default function EnterpriseQuickActions({ lang, user }: EnterpriseQuickAc
     
     // Productivity Tools
     {
-      id: 'ai-assistant',
-      label: 'AI Assistant',
-      icon: Zap,
-      href: `/${lang}/ai-assistant`,
-      description: 'Get AI-powered help',
-      category: 'tools',
-      isNew: true
-    },
-    {
       id: 'bulk-actions',
       label: 'Bulk Actions',
       icon: Upload,

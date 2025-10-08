@@ -103,7 +103,7 @@ function convertPlainTextToHTML(text: string): string {
   const formattedParagraphs = paragraphs.map((paragraph, index) => {
     // Check if this looks like a heading (short, ends with colon, or is the first paragraph)
     if (isHeading(paragraph, index)) {
-      return `<h2 class="text-3xl font-bold mb-6 mt-12 first:mt-0 leading-tight tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">${paragraph}</h2>`;
+      return `<h2 class="text-xl font-bold mb-4 mt-8 first:mt-0 leading-tight tracking-tight text-gray-900 dark:text-white">${paragraph}</h2>`;
     }
 
     // Check if this looks like a quote
@@ -118,11 +118,11 @@ function convertPlainTextToHTML(text: string): string {
 
     // Check if this is the lead paragraph (first substantial paragraph)
     if (index === 0 && paragraph.length > 100) {
-      return `<p class="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 font-medium tracking-wide">${enhanceParagraphText(paragraph)}</p>`;
+      return `<p class="text-lg text-gray-800 dark:text-gray-200 leading-relaxed mb-6 font-medium">${enhanceParagraphText(paragraph)}</p>`;
     }
 
     // Regular paragraph with enhanced formatting
-    return `<p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 text-lg">${enhanceParagraphText(paragraph)}</p>`;
+    return `<p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4 text-base">${enhanceParagraphText(paragraph)}</p>`;
   });
 
   // Add section breaks and visual elements
@@ -136,15 +136,15 @@ function enhanceExistingHTML(html: string): string {
   // Clean up existing HTML and apply expert styling
   let enhanced = html
     .replace(/<p>\s*<\/p>/g, '') // Remove empty paragraphs
-    .replace(/<p>/g, '<p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 text-lg">')
-    .replace(/<h1>/g, '<h1 class="text-4xl font-bold mb-8 mt-12 first:mt-0 leading-tight tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">')
-    .replace(/<h2>/g, '<h2 class="text-3xl font-bold mb-6 mt-12 first:mt-0 leading-tight tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">')
-    .replace(/<h3>/g, '<h3 class="text-2xl font-bold mb-4 mt-8 first:mt-0 leading-tight text-gray-800 dark:text-gray-200">')
+    .replace(/<p>/g, '<p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4 text-base">')
+    .replace(/<h1>/g, '<h1 class="text-2xl font-bold mb-6 mt-8 first:mt-0 leading-tight text-gray-900 dark:text-white">')
+    .replace(/<h2>/g, '<h2 class="text-xl font-bold mb-4 mt-6 first:mt-0 leading-tight text-gray-900 dark:text-white">')
+    .replace(/<h3>/g, '<h3 class="text-lg font-bold mb-3 mt-4 first:mt-0 leading-tight text-gray-800 dark:text-gray-200">')
     .replace(/<strong>/g, '<strong class="font-bold text-gray-900 dark:text-white bg-yellow-100 dark:bg-yellow-900/30 px-1 rounded">')
     .replace(/<em>/g, '<em class="italic text-gray-600 dark:text-gray-400 font-medium">')
-    .replace(/<blockquote>/g, '<blockquote class="border-l-4 border-blue-600 pl-8 py-6 my-8 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 italic text-gray-800 dark:text-gray-200 text-lg leading-relaxed rounded-r-lg shadow-sm">')
-    .replace(/<ul>/g, '<ul class="list-disc list-inside space-y-2 mb-6 text-lg text-gray-700 dark:text-gray-300">')
-    .replace(/<ol>/g, '<ol class="list-decimal list-inside space-y-2 mb-6 text-lg text-gray-700 dark:text-gray-300">')
+    .replace(/<blockquote>/g, '<blockquote class="border-l-4 border-blue-600 pl-6 py-4 my-6 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 italic text-gray-800 dark:text-gray-200 text-base leading-relaxed rounded-r-lg shadow-sm">')
+    .replace(/<ul>/g, '<ul class="list-disc list-inside space-y-1 mb-4 text-base text-gray-700 dark:text-gray-300">')
+    .replace(/<ol>/g, '<ol class="list-decimal list-inside space-y-1 mb-4 text-base text-gray-700 dark:text-gray-300">')
     .replace(/<li>/g, '<li class="text-gray-700 dark:text-gray-300 mb-2">');
 
   // Add visual elements
@@ -215,7 +215,7 @@ function formatList(text: string): string {
     return `<li class="text-gray-700 dark:text-gray-300 mb-2">${cleaned}</li>`;
   });
 
-  return `<ul class="list-disc list-inside space-y-2 mb-6 text-lg">${listItems.join('')}</ul>`;
+  return `<ul class="list-disc list-inside space-y-1 mb-4 text-base">${listItems.join('')}</ul>`;
 }
 
 /**
@@ -341,14 +341,14 @@ function addVisualElements(html: string): string {
 
   // Add drop cap to first paragraph
   result = result.replace(
-    /<p class="text-xl[^"]*">([A-Z])/,
-    '<p class="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 font-medium tracking-wide"><span class="float-left text-6xl font-bold text-gray-400 dark:text-gray-500 leading-none mr-2 mt-1">$1</span>'
+    /<p class="text-lg[^"]*">([A-Z])/,
+    '<p class="text-lg text-gray-800 dark:text-gray-200 leading-relaxed mb-6 font-medium"><span class="float-left text-4xl font-bold text-gray-400 dark:text-gray-500 leading-none mr-2 mt-1">$1</span>'
   );
 
   // Remove any remaining hover effects
   result = result.replace(
     /<h2 class="[^"]*">/g,
-    '<h2 class="text-3xl font-bold mb-6 mt-12 first:mt-0 leading-tight tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">'
+    '<h2 class="text-xl font-bold mb-4 mt-6 first:mt-0 leading-tight text-gray-900 dark:text-white">'
   );
 
   return result;

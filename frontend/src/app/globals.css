@@ -3,10 +3,123 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Modern Typography Enhancements */
+@layer base {
+  html {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-variant-ligatures: common-ligatures;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    font-family: var(--font-inter), Inter, system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-poppins), Poppins, system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+  
+  /* Global font application based on language */
+  html[lang="kh"] body {
+    font-family: var(--font-kontumruy-pro), 'Kontumruy Pro', system-ui, sans-serif !important;
+  }
+  
+  html[lang="kh"] h1, 
+  html[lang="kh"] h2, 
+  html[lang="kh"] h3, 
+  html[lang="kh"] h4, 
+  html[lang="kh"] h5, 
+  html[lang="kh"] h6 {
+    font-family: var(--font-kontumruy-pro), 'Kontumruy Pro', system-ui, sans-serif !important;
+  }
+  
+  html[lang="kh"] p,
+  html[lang="kh"] span,
+  html[lang="kh"] div,
+  html[lang="kh"] a,
+  html[lang="kh"] button,
+  html[lang="kh"] input,
+  html[lang="kh"] textarea,
+  html[lang="kh"] label,
+  html[lang="kh"] li,
+  html[lang="kh"] td,
+  html[lang="kh"] th,
+  html[lang="kh"] small,
+  html[lang="kh"] strong,
+  html[lang="kh"] em,
+  html[lang="kh"] b,
+  html[lang="kh"] i {
+    font-family: var(--font-kontumruy-pro), 'Kontumruy Pro', system-ui, sans-serif !important;
+  }
+  
+  /* Apply to all elements within Khmer language context */
+  html[lang="kh"] * {
+    font-family: var(--font-kontumruy-pro), 'Kontumruy Pro', system-ui, sans-serif !important;
+  }
+  
+  /* Override specific components that might have their own font classes */
+  html[lang="kh"] .font-sans,
+  html[lang="kh"] .font-display,
+  html[lang="kh"] .font-heading {
+    font-family: var(--font-kontumruy-pro), 'Kontumruy Pro', system-ui, sans-serif !important;
+  }
+  
+  /* Target specific UI components */
+  html[lang="kh"] [class*="text-"],
+  html[lang="kh"] [class*="font-"],
+  html[lang="kh"] .card,
+  html[lang="kh"] .card-content,
+  html[lang="kh"] .card-header,
+  html[lang="kh"] .btn,
+  html[lang="kh"] .button,
+  html[lang="kh"] .input,
+  html[lang="kh"] .textarea,
+  html[lang="kh"] .select,
+  html[lang="kh"] .option {
+    font-family: var(--font-kontumruy-pro), 'Kontumruy Pro', system-ui, sans-serif !important;
+  }
+  
+  .font-display {
+    font-family: var(--font-plus-jakarta-sans), Plus Jakarta Sans, system-ui, sans-serif;
+  }
+  
+  .font-heading {
+    font-family: var(--font-poppins), Poppins, system-ui, sans-serif;
+  }
+  
+  .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    font-feature-settings: "liga" 1, "calt" 1;
+  }
+  
+  .font-khmer {
+    font-family: var(--font-kontumruy-pro), 'Kontumruy Pro', system-ui, sans-serif;
+  }
+  
+  /* Language-specific text styling */
+  [lang="kh"] {
+    font-family: var(--font-kontumruy-pro), 'Kontumruy Pro', system-ui, sans-serif;
+  }
+  
+  [lang="en"] {
+    font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-kantumruy-pro);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-plus-jakarta-sans);
+  --font-heading: var(--font-poppins);
+  --font-khmer: var(--font-kontumruy-pro);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

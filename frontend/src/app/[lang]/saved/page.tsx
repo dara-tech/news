@@ -14,7 +14,7 @@ import {
   Bookmark, 
   Calendar, 
   Eye, 
-  ThumbsUp, 
+  Heart, 
   MessageCircle,
   RefreshCw,
   ArrowLeft,
@@ -137,11 +137,13 @@ export default function SavedArticlesPage({ params }: SavedArticlesPageProps) {
   const formatTime = (date: string) => {
     const now = new Date();
     const postDate = new Date(date);
-    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h`;
+    const diffInMinutes = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m`;
+    if (diffInHours < 24) return `${diffInHours}h`;
     if (diffInDays < 7) return `${diffInDays}d`;
     return postDate.toLocaleDateString();
   };
@@ -353,7 +355,7 @@ export default function SavedArticlesPage({ params }: SavedArticlesPageProps) {
                                 {article.views || 0}
                               </div>
                               <div className="flex items-center gap-1">
-                                <ThumbsUp className="w-3 h-3" />
+                                <Heart className="w-3 h-3" />
                                 {article.likes || 0}
                               </div>
                               <div className="flex items-center gap-1">

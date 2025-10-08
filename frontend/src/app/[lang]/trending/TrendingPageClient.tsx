@@ -319,7 +319,7 @@ export default function TrendingPageClient({ lang }: TrendingPageClientProps) {
             <div className="p-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-500">
               <TrendingUp className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               {lang === 'kh' ? 'ប្រធានបទពេញនិយម' : 'Trending Topics'}
             </h1>
           </div>

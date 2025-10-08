@@ -16,7 +16,7 @@ import {
   Share2, 
   Bookmark, 
   MoreHorizontal,
-  ThumbsUp,
+  Heart,
   Camera,
   Globe,
   CheckCircle
@@ -28,6 +28,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LocalizedText } from '@/components/ui/LocalizedText';
 import LoadingSkeleton from './LoadingSkeleton';
 import ErrorState from './ErrorState';
 import EmptyState from './EmptyState';
@@ -310,20 +311,19 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
   const formatTime = (date: string) => {
     const now = new Date();
     const postDate = new Date(date);
-    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h`;
+    const diffInMinutes = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m`;
+    if (diffInHours < 24) return `${diffInHours}h`;
     if (diffInDays < 7) return `${diffInDays}d`;
     return postDate.toLocaleDateString();
   };
 
-  // Handle like functionality
+  // Handle love functionality
   const handleLike = async () => {
-    if (isLiking) return;
-    
-    setIsLiking(true);
     try {
       // Check if user is authenticated
       const userInfo = localStorage.getItem('userInfo');
@@ -348,12 +348,10 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
       }
       
     } catch (error) {
-      console.error('Error toggling like', error);
+      console.error('Error toggling love', error);
       // Revert state on error
       setIsLiked(!isLiked);
       setLikeCount(prev => isLiked ? prev + 1 : Math.max(0, prev - 1));
-    } finally {
-      setIsLiking(false);
     }
   };
 
@@ -510,12 +508,12 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
   const imageSrc = getImageSrc();
 
   return (
-    <Card className={` ${isLast ? '' : 'shadow-none p-0 border-gray-100 dark:border-gray-900  dark:bg-black rounded-none mb-none pb-none'} `}>
-      <CardHeader className=" px-6 pt-2">
-        <div className="flex items-start justify-between">
+    <Card className={` ${isLast ? '' : 'shadow-none py-6 border-gray-100 dark:border-gray-900  dark:bg-black rounded-none mb-none pb-none'} `}>
+      <CardHeader>
+        <div className="flex items-start justify-between ">
           <div className="flex items-start space-x-3 flex-1">
             {/* Author Avatar */}
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 ">
               <NextLink href={`/${locale}/author/${authorInfo.hasValidAuthor ? article.author?._id : article._id}`} className="block">
                 <Avatar className="w-14 h-14 ring-2 ring-gray-100 dark:ring-gray-700 hover:ring-blue-300 dark:hover:ring-blue-600 transition-all duration-200 cursor-pointer">
                   <AvatarImage 
@@ -531,13 +529,13 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
             </div>
             
             {/* Author Info */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 ">
               <div className="flex items-center space-x-2 flex-wrap mb-1">
-                <NextLink href={`/${locale}/author/${authorInfo.hasValidAuthor ? article.author?._id : article._id}`} className="hover:underline">
-                  <h3 className="font-semibold text-gray-900 dark:text-white text-base hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                    {authorInfo.name}
-                  </h3>
-                </NextLink>
+                 <NextLink href={`/${locale}/author/${authorInfo.hasValidAuthor ? article.author?._id : article._id}`} className="hover:underline">
+                   <LocalizedText as="h3" className="font-semibold text-gray-900 dark:text-white text-base hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
+                     {authorInfo.name}
+                   </LocalizedText>
+                 </NextLink>
                 {authorInfo.isVerified && (
                   <CheckCircle className="w-4 h-4 text-blue-500 flex-shrink-0" />
                 )}
@@ -545,11 +543,11 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
                 <span className="text-gray-500 dark:text-gray-400 text-sm">
                   {formatTime(article.publishedAt || article.createdAt)}
                 </span>
-                {article.isBreaking && (
-                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                    {locale === 'kh' ? 'ព័ត៌មានបន្ទាន់' : 'BREAKING'}
-                  </span>
-                )}
+                 {article.isBreaking && (
+                   <LocalizedText as="span" className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                     {locale === 'kh' ? 'ព័ត៌មានបន្ទាន់' : 'BREAKING'}
+                   </LocalizedText>
+                 )}
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                 <span className="font-medium">{category}</span>
@@ -558,9 +556,9 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
                 {authorInfo.hasValidAuthor && (
                   <>
                     <span>•</span>
-                    <span className="text-blue-600 dark:text-blue-400 font-medium">
-                      {locale === 'kh' ? 'អ្នកសរសេរ' : 'Author'}
-                    </span>
+                     <LocalizedText as="span" className="text-blue-600 dark:text-blue-400 font-medium">
+                       {locale === 'kh' ? 'អ្នកសរសេរ' : 'Author'}
+                     </LocalizedText>
                   </>
                 )}
               </div>
@@ -575,28 +573,28 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
       </CardHeader>
 
       {/* Post Content */}
-      <CardContent className="pt-0 px-6 ">
+      <CardContent className="px-6 -pt-2">
         <NextLink href={`/${locale}/news/${article.slug}`} className="block group">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
+          <LocalizedText as="h2" className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
             {title}
-          </h2>
+          </LocalizedText>
         </NextLink>
         
         {getDisplayContent() && (
           <div className="mb-5">
-            <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
+            <LocalizedText as="p" className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
               {getDisplayContent()}
-            </p>
+            </LocalizedText>
             {shouldShowSeeMore() && (
-              <button
+              <LocalizedText as="button"
                 onClick={() => setShowFullContent(!showFullContent)}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-semibold mt-3 transition-colors hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-semibold transition-colors hover:underline cursor-pointer"
               >
                 {showFullContent 
                   ? (locale === 'kh' ? 'បង្ហាញតិច' : 'See less') 
                   : (locale === 'kh' ? 'បង្ហាញបន្ថែម' : 'See more')
                 }
-              </button>
+              </LocalizedText>
             )}
           </div>
         )}
@@ -644,34 +642,25 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
           </div>
         )}
 
-        {/* Category Tag */}
-        {category && (
-          <div className="mb-5">
-            <Badge variant="secondary" className="inline-flex items-center gap-2 px-3 py-1 text-sm font-medium">
-              <Globe className="w-3 h-3" />
-              {category}
-            </Badge>
-          </div>
-        )}
+       
       </CardContent>
 
 
       {/* Action Buttons */}
-      <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
+      <div className="px-6  border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            {/* Like Button */}
+            {/* Love Button */}
             <Button
               onClick={handleLike}
-              disabled={isLiking}
               variant="ghost"
               size="sm"
-              className={`gap-2 px-3 py-2 h-8 ${isLiked ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-              title={isLiked ? 'Unlike this post' : 'Like this post'}
+              className={`gap-2 px-3 py-2 h-8 ${isLiked ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+              title={isLiked ? 'Unlove this post' : 'Love this post'}
             >
-              <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+              <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
               <span className="text-sm font-medium">
-                {isLiking ? '...' : likeCount > 0 ? likeCount : 'Like'}
+                {likeCount > 0 ? likeCount : 'Love'}
               </span>
             </Button>
 
@@ -768,7 +757,7 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
                       {user ? 'Write a comment...' : 'Sign in to comment'}
                     </span>
                   </button>
-                ) : (
+                ) : user ? (
                   <form onSubmit={handleCommentSubmit} className="space-y-3">
                     <div className="flex space-x-3">
                       <Avatar className="w-8 h-8">
@@ -821,6 +810,21 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
                       </Button>
                     </div>
                   </form>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                      Please sign in to comment
+                    </p>
+                    <Button
+                      onClick={() => {
+                        setShowCommentForm(false);
+                        // Add your sign in logic here
+                      }}
+                      size="sm"
+                    >
+                      Sign In
+                    </Button>
+                  </div>
                 )}
               </div>
               <div className="space-y-3 max-h-64 overflow-y-auto">
@@ -875,7 +879,7 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
                       {user ? 'Write a comment...' : 'Sign in to comment'}
                     </span>
                   </button>
-                ) : (
+                ) : user ? (
                   <form onSubmit={handleCommentSubmit} className="space-y-3">
                     <div className="flex space-x-3">
                       <Avatar className="w-8 h-8">
@@ -928,6 +932,21 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
                       </Button>
                     </div>
                   </form>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                      Please sign in to comment
+                    </p>
+                    <Button
+                      onClick={() => {
+                        setShowCommentForm(false);
+                        // Add your sign in logic here
+                      }}
+                      size="sm"
+                    >
+                      Sign In
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -935,7 +954,7 @@ const HybridPost = ({ article, locale, index, isLast }: HybridPostProps) => {
           
           {/* WebSocket Error Display */}
           {wsError && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-3">
+            <div className="py-2">
               <p className="text-xs text-yellow-800 dark:text-yellow-200">
                 {wsError}
               </p>

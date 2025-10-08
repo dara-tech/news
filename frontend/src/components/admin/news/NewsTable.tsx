@@ -113,7 +113,7 @@ const NewsTable = ({
       cell: ({ row }) => {
         const article = row.original;
         return (
-          <div className="flex flex-col space-y-1 min-w-[180px] sm:min-w-[200px] max-w-[280px] sm:max-w-[300px]">
+          <div className="flex flex-col space-y-1 min-w-[160px] sm:min-w-[200px] max-w-[240px] sm:max-w-[300px]">
             <div className="font-medium line-clamp-2 text-xs sm:text-sm md:text-base leading-tight">
               {article.title.en || article.title.kh || 'Untitled'}
             </div>
@@ -122,16 +122,16 @@ const NewsTable = ({
             </div>
             {/* Mobile: Show compact category and status */}
             <div className="flex items-center gap-1 sm:hidden flex-wrap">
-              <Badge variant="outline" className="text-[9px] px-1 py-0.5 h-auto">
+              <Badge variant="outline" className="text-[8px] px-1 py-0.5 h-auto">
                 {typeof article.category === 'object' && article.category?.name?.en
-                  ? article.category.name.en.substring(0, 8) + (article.category.name.en.length > 8 ? '...' : '')
+                  ? article.category.name.en.substring(0, 6) + (article.category.name.en.length > 6 ? '...' : '')
                   : 'Uncat.'}
               </Badge>
               {article.isFeatured && (
-                <Badge variant="secondary" className="text-[9px] px-1 py-0.5 h-auto">F</Badge>
+                <Badge variant="secondary" className="text-[8px] px-1 py-0.5 h-auto">F</Badge>
               )}
               {article.isBreaking && (
-                <Badge variant="destructive" className="text-[9px] px-1 py-0.5 h-auto">B</Badge>
+                <Badge variant="destructive" className="text-[8px] px-1 py-0.5 h-auto">B</Badge>
               )}
             </div>
           </div>
@@ -175,7 +175,7 @@ const NewsTable = ({
       cell: ({ row }) => {
         const article = row.original;
         return (
-          <div className="min-w-[80px] sm:min-w-[100px]">
+          <div className="min-w-[70px] sm:min-w-[100px]">
             <NewsStatusChanger 
               articleId={article._id} 
               currentStatus={article.status} 
@@ -291,12 +291,12 @@ const NewsTable = ({
       cell: ({ row }) => {
         const article = row.original;
         return (
-          <div className="flex items-center gap-0.5 sm:gap-1 min-w-[60px]">
+          <div className="flex items-center gap-0.5 sm:gap-1 min-w-[50px] sm:min-w-[60px]">
             <Button
               variant="ghost"
               size="sm"
               asChild
-              className="h-6 w-6 sm:h-8 sm:w-8 p-0"
+              className="h-5 w-5 sm:h-8 sm:w-8 p-0"
             >
               <Link href={`/en/news/${article.slug || article._id}`} target="_blank">
                 <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
